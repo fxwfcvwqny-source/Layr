@@ -1,0 +1,88 @@
+{
+  "name": "layr",
+  "version": "2.5.0",
+  "description": "Layr – PDFs beschriften, zeichnen, Notizen und Diagramme",
+  "main": "app/main.js",
+  "author": {
+    "name": "Layr"
+  },
+  "license": "UNLICENSED",
+  "productName": "Layr",
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "io.github.fxwfcvwqny-source.layr",
+    "productName": "Layr",
+    "copyright": "© 2026 Layr",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "app/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "PDF-Dokument",
+        "description": "PDF-Dokument",
+        "role": "Editor"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "executableName": "Layr",
+      "artifactName": "Layr-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Layr",
+      "uninstallDisplayName": "Layr",
+      "installerLanguages": [
+        "de_DE"
+      ],
+      "language": "1031",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "build/icon.png",
+      "category": "Office",
+      "executableName": "layr",
+      "artifactName": "Layr-${version}-x86_64.${ext}",
+      "synopsis": "PDFs beschriften, zeichnen, Notizen und Diagramme"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "fxwfcvwqny-source",
+      "repo": "Layr",
+      "releaseType": "release"
+    }
+  },
+  "homepage": "https://github.com/fxwfcvwqny-source/Layr",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fxwfcvwqny-source/Layr.git"
+  }
+}
