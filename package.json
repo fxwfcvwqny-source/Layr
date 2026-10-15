@@ -1,7 +1,7 @@
 {
   "name": "layr",
-  "version": "2.5.0",
-  "description": "Layr – PDFs beschriften, zeichnen, Notizen und Diagramme",
+  "version": "2.6.0",
+  "description": "Layr – annotate, draw and take notes on PDFs",
   "main": "app/main.js",
   "author": {
     "name": "Layr"
@@ -55,13 +55,16 @@
       "shortcutName": "Layr",
       "uninstallDisplayName": "Layr",
       "installerLanguages": [
-        "de_DE"
+        "de_DE",
+        "en_US"
       ],
-      "language": "1031",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "runAfterFinish": true,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "multiLanguageInstaller": true,
+      "displayLanguageSelector": true,
+      "include": "build/installer.nsh"
     },
     "linux": {
       "target": [

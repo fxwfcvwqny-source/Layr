@@ -595,6 +595,40 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .upd-h b{display:block;font-size:14px}.upd-h p{margin:2px 0 0;font-size:12.5px;color:var(--muted);line-height:1.4;max-height:5.6em;overflow:hidden;white-space:pre-line}
 .upd-b{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 .upd-b .skip{margin-right:auto;border:0;background:none;color:var(--muted);font-size:12px;padding:0 4px;cursor:pointer}.upd-b .skip:hover{color:var(--ink);text-decoration:underline}
+/* Schriftarten */
+.fontbtn{flex:1;display:flex;align-items:center;justify-content:space-between;gap:6px;height:30px;padding:0 8px 0 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink);font-size:13px;min-width:0;cursor:pointer;transition:border-color .15s,background .15s}
+.fontbtn:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.fontbtn[aria-expanded="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.fontbtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fontbtn svg{width:14px;height:14px;flex:none;color:var(--muted);transition:transform .2s}
+.fontbtn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.edbar .edfont{display:inline-flex;align-items:center;gap:3px;padding:0 5px 0 8px;font-size:12.5px;max-width:132px}
+.edbar .edfont span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:104px}.edbar .edfont svg{width:12px;height:12px;margin:0;flex:none;color:var(--muted)}
+.fontPop{position:fixed;z-index:96;width:260px;max-height:min(440px,72vh);overflow-y:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px;overscroll-behavior:contain}
+.fontPop:not([hidden]){animation:lyr-unfold .22s cubic-bezier(.2,.85,.25,1);transform-origin:top left}
+.fontPop.closing{animation:lyr-fold .16s ease-in forwards}
+.fp-g{font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:9px 10px 4px}
+.fp-o{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border:0;background:transparent;color:var(--ink);padding:7px 10px;border-radius:8px;font-size:15.5px;line-height:1.25;text-align:left;cursor:pointer;transition:background .12s}
+.fp-o:hover{background:var(--hover)}
+.fp-o[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.fp-o svg{width:15px;height:15px;flex:none;opacity:0;transform:scale(.6);transition:opacity .15s,transform .2s}
+.fp-o[aria-selected="true"] svg{opacity:1;transform:none}
+/* Sprache */
+.langdlg{z-index:120}
+.lang-card{width:min(440px,100%);align-items:center;text-align:center;gap:12px;padding:28px 24px 20px}
+.lang-logo{width:64px;height:64px;border-radius:16px;background:#14151c;display:grid;place-items:center;box-shadow:0 8px 24px rgba(20,21,28,.28)}
+.lang-logo svg{width:38px;height:44px}
+.lang-card h2{margin:4px 0 0;font-size:22px;font-weight:650;display:flex;flex-direction:column;gap:2px}.lang-card h2 span{font-size:15px;font-weight:500;color:var(--muted)}
+.lang-card p{margin:0;font-size:13px;color:var(--muted)}
+.lang-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:6px}
+.lang-opts button{display:flex;flex-direction:column;gap:3px;align-items:center;padding:16px 10px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s,transform .15s,box-shadow .2s}
+.lang-opts button b{font-size:17px}.lang-opts button span{font-size:12px;color:var(--muted)}
+.lang-opts button:hover{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-2px);box-shadow:0 6px 18px rgba(10,16,22,.12)}
+.lang-opts button.sug{border-color:color-mix(in srgb,var(--accent) 60%,var(--line))}
+.lang-opts button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.langdlg:not([hidden]) .lang-card>*{animation:lyr-tool-b .5s cubic-bezier(.2,.9,.3,1.2) backwards}
+.langdlg .lang-card>:nth-child(2){animation-delay:.05s!important}.langdlg .lang-card>:nth-child(3){animation-delay:.1s!important}.langdlg .lang-card>:nth-child(4){animation-delay:.15s!important}.langdlg .lang-card>:nth-child(5){animation-delay:.2s!important}
+.symgrid .tpl-h{grid-column:1/-1;font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 2px 0}
+.sym.tpl canvas{border-radius:4px}
 :root[data-motion="off"] *,:root[data-motion="off"] *::before,:root[data-motion="off"] *::after{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
@@ -711,6 +745,7 @@ header,.file{min-width:0}
         <button data-v="v" title="Um 90° gedreht, von unten nach oben">Vertikal</button>
         <button data-v="stack" title="Buchstaben untereinander">Gestapelt</button>
       </div>
+      <div class="row"><label for="fontBtn">Schrift</label><button type="button" class="fontbtn" id="fontBtn" aria-haspopup="listbox" aria-expanded="false"><span id="fontBtnN">Standard</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
       <div class="row"><label for="fs">Größe</label><input type="range" id="fs" min="6" max="60" step="1" value="14"><span class="val" id="fsV">14 pt</span></div>
       <div class="row"><label class="chk"><input type="checkbox" id="bold"> Fett</label><label class="chk"><input type="checkbox" id="underl"> Unterstrichen</label></div>
     </div>
@@ -754,7 +789,7 @@ header,.file{min-width:0}
     <div class="nt-hb"><button class="ib" id="ntCopy" title="Alles kopieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></button><button class="ib" id="ntClose" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
   <div class="nt-tools">
     <button class="btn" id="ntStamp" title="Datum und Uhrzeit einfügen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Zeitstempel</button>
-    <button class="btn" id="ntList" title="Aufzählungspunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Punkt</button>
+    <button class="btn" id="ntList" title="Aufzählungspunkt" data-en="Bullet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Punkt</button>
     <button class="btn" id="ntTodo" title="Neue Aufgabe – steht der Cursor in einer Textzeile, wird diese Zeile zur Aufgabe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>Aufgabe</button>
   </div>
   <section class="nt-tasks" id="ntTasks" aria-label="Aufgaben">
@@ -767,10 +802,20 @@ header,.file{min-width:0}
   <textarea id="ntText" spellcheck="true" placeholder="Gedanken, Aufgaben und Fragen zu diesem Dokument …"></textarea>
   <div class="nt-foot"><span id="ntCount">0 Wörter</span><span id="ntState">Im PDF gespeichert</span></div>
 </aside>
+<div class="modal langdlg" id="langDlg" hidden data-noi18n role="dialog" aria-modal="true" aria-labelledby="langT">
+  <div class="card lang-card">
+    <div class="lang-logo" aria-hidden="true"></div>
+    <h2 id="langT">Willkommen bei Layr<span>Welcome to Layr</span></h2>
+    <p>Wähle deine Sprache · Choose your language</p>
+    <div class="lang-opts"><button type="button" data-v="de"><b>Deutsch</b><span>Weiter auf Deutsch</span></button><button type="button" data-v="en"><b>English</b><span>Continue in English</span></button></div>
+    <p class="hint">Später änderbar unter Personalisieren · You can change it later under Personalize</p>
+  </div>
+</div>
 <div class="drawer-bg" id="studioBg" hidden></div>
 <aside class="studio" id="studio" role="dialog" aria-modal="true" aria-labelledby="stT" hidden>
   <div class="st-head"><div><h2 id="stT">Personalisieren</h2><p>Gilt nur auf diesem Rechner und ändert keine PDF.</p></div><button class="ib" id="stClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="st-body">
+    <section data-noi18n><h3>Sprache · Language</h3><div class="seg" id="dLang"><button data-v="de">Deutsch</button><button data-v="en">English</button></div></section>
     <section><h3>Erscheinungsbild</h3><div class="themes" id="dTheme"><button type="button" class="thc" data-v="system"><span class="mini system"><i></i><b></b></span>Wie System</button><button type="button" class="thc" data-v="light"><span class="mini light"><i></i><b></b></span>Hell</button><button type="button" class="thc" data-v="dark"><span class="mini dark"><i></i><b></b></span>Dunkel</button></div></section>
     <section><h3>Helles Design</h3><div class="pals" id="dLight"><button type="button" class="pal" data-v="standard" style="--pd:#e6eaee;--pp:#fbfcfd;--pl:#d3d9e0;--pi:#17202b"><span class="pv"><i></i></span>Standard</button><button type="button" class="pal" data-v="warm" style="--pd:#ece7df;--pp:#fbf8f3;--pl:#ddd5c9;--pi:#231d16"><span class="pv"><i></i></span>Warm</button><button type="button" class="pal" data-v="cool" style="--pd:#e1e8f2;--pp:#f8fafd;--pl:#cdd7e4;--pi:#141c28"><span class="pv"><i></i></span>Kühl</button><button type="button" class="pal" data-v="crisp" style="--pd:#d9dde2;--pp:#ffffff;--pl:#a7b0ba;--pi:#000000"><span class="pv"><i></i></span>Klar</button></div></section>
     <section><h3>Dunkles Design</h3><div class="pals" id="dDark"><button type="button" class="pal" data-v="standard" style="--pd:#101418;--pp:#181e24;--pl:#2a333c;--pi:#e2e8ee"><span class="pv"><i></i></span>Standard</button><button type="button" class="pal" data-v="midnight" style="--pd:#070b14;--pp:#0d1320;--pl:#1b2436;--pi:#e3e9f3"><span class="pv"><i></i></span>Mitternacht</button><button type="button" class="pal" data-v="oled" style="--pd:#000000;--pp:#0a0a0a;--pl:#1f1f1f;--pi:#ececec"><span class="pv"><i></i></span>Schwarz</button><button type="button" class="pal" data-v="graphite" style="--pd:#161718;--pp:#1f2022;--pl:#303235;--pi:#e6e6e6"><span class="pv"><i></i></span>Graphit</button><button type="button" class="pal" data-v="forest" style="--pd:#0a130f;--pp:#101c16;--pl:#1f3128;--pi:#e2efe7"><span class="pv"><i></i></span>Wald</button><button type="button" class="pal" data-v="plum" style="--pd:#110b16;--pp:#1a1221;--pl:#2c2036;--pi:#efe6f5"><span class="pv"><i></i></span>Pflaume</button></div><p class="hint">Gilt, sobald Layr dunkel ist (Dunkel gewählt oder dein System ist dunkel).</p></section>
@@ -848,6 +893,222 @@ function showEl(el){if(!el)return;el._ah=null;el.classList.remove('closing');el.
   if(el.classList.contains('modal')&&typeof lastPt!=='undefined'){const c=el.querySelector('.card');if(c){const r=c.getBoundingClientRect(),near=Date.now()-lastPt.t<1500;
     c.style.transformOrigin=near?`${lastPt.x-r.left}px ${lastPt.y-r.top}px`:'50% 40%'}}
   if(typeof segAll==='function')requestAnimationFrame(segAll)}
+/* ---------- Sprache: Deutsch ist die Grundlage, Englisch wird live darübergelegt ---------- */
+const I18N_EN={
+// Kopfleiste & allgemeine Knöpfe
+'Öffnen':'Open','Speichern':'Save','Neu':'New','Neues Blatt':'New sheet','Zusammenführen':'Merge','Auto':'Auto','Abbrechen':'Cancel','Schließen':'Close','Schließen (Esc)':'Close (Esc)',
+'Erstellen':'Create','Hinzufügen':'Add','Entfernen':'Remove','Einfügen':'Insert','Löschen':'Delete','Duplizieren':'Duplicate','Herunterladen':'Download','Später':'Later','Überspringen':'Skip',
+'PDF öffnen (Strg+O)':'Open PDF (Ctrl+O)','Speichern (Strg+S) · Speichern unter: Strg+Umschalt+S':'Save (Ctrl+S) · Save as: Ctrl+Shift+S',
+'Neues Blatt oder leere Seiten hinzufügen (Strg+Alt+N)':'New sheet or add blank pages (Ctrl+Alt+N)','Mehrere PDFs zusammenführen':'Merge several PDFs',
+'Rückgängig (Strg+Z)':'Undo (Ctrl+Z)','Wiederholen (Strg+Y)':'Redo (Ctrl+Y)','Verkleinern (Strg+-)':'Zoom out (Ctrl+-)','Vergrößern (Strg++)':'Zoom in (Ctrl++)','An Breite anpassen':'Fit to width',
+'Automatisch speichern ein/aus':'Auto-save on/off','Seitenvorschau ein/aus':'Page thumbnails on/off','Werkzeugleiste ein/aus (Tab blendet alle Leisten aus)':'Toolbar on/off (Tab hides all bars)',
+'Seitenleiste ein/aus':'Side panel on/off','Personalisieren':'Personalize','Optionen':'Options','Notizen (N)':'Notes (N)','PDF hier ablegen':'Drop PDF here',
+'✓ Gespeichert':'✓ Saved','● Nicht gespeichert':'● Not saved','Speichert …':'Saving …','Seite – / –':'Page – / –','Seitenvorschau':'Page thumbnails','Eigenschaften':'Properties','Werkzeuge':'Tools',
+// Werkzeuge
+'Auswählen & verschieben':'Select & move','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Entf löscht. Zurück hierher: Esc, V oder Rechtsklick.':'Click to select, drag to move, corners resize. Delete removes. Back to this tool: Esc, V or right-click.',
+'Lasso':'Lasso','Um Beschriftungen herumziehen: alle darin werden ausgewählt. Danach zusammen verschieben, an den Ecken skalieren, umfärben oder löschen. Umschalt fügt hinzu, Strg+A wählt alles.':'Draw around annotations to select all of them. Then move, scale at the corners, recolour or delete them together. Shift adds to the selection, Ctrl+A selects everything.',
+'Hand (blättern)':'Hand (scroll)','Zum Blättern auf Touch-Geräten.':'For scrolling on touch devices.',
+'Stift':'Pen','Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.':'Draw freehand. Hold briefly at the end and the stroke becomes a straight line, circle, rectangle or triangle. Keep dragging to change direction or size.',
+'Textmarker':'Highlighter','Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.':'Translucent highlighting. Hold briefly at the end to make the stroke perfectly straight.',
+'Radierer':'Eraser','Über Beschriftungen wischen, um sie zu entfernen. Das PDF selbst bleibt.':'Wipe over annotations to remove them. The PDF itself stays untouched.',
+'Text':'Text','Klicken und tippen. Ausrichtung rechts: horizontal, vertikal oder gestapelt.':'Click and type. Orientation on the right: horizontal, vertical or stacked.',
+'Linie':'Line','Linie ziehen. Umschalt rastet ein, „Gewinkelt“ für Diagramme.':'Drag a line. Shift snaps the angle, “Elbow” for diagrams.',
+'Pfeil':'Arrow','Pfeil ziehen. Pfeilspitzen für UML (Vererbung, Komposition …) rechts wählen.':'Drag an arrow. Choose UML arrowheads (inheritance, composition …) on the right.',
+'Rechteck':'Rectangle','Rechteck ziehen. Umschalt für ein Quadrat.':'Drag a rectangle. Shift for a square.','Ellipse':'Ellipse','Ellipse ziehen. Umschalt für einen Kreis.':'Drag an ellipse. Shift for a circle.',
+'Symbol setzen':'Place symbol','Klick öffnet die Symbol-Auswahl. Symbol wählen, dann aufs Blatt klicken oder ziehen.':'Click to open the symbol picker. Choose a symbol, then click or drag on the sheet.',
+'Messen':'Measure','Strecke ziehen, die Länge steht in cm (Originalmaßstab des PDFs).':'Drag a distance; the length is shown in cm (original scale of the PDF).',
+'Lineal ein/aus':'Ruler on/off','Lineal drehen':'Rotate ruler','Länge ändern':'Change length',
+'Lineal: am Körper verschieben, am runden Griff drehen, mit ↔ die Länge ändern. Stift oder Linie an der Kante wird gerade.':'Ruler: drag the body to move it, the round handle to rotate it, ↔ to change its length. Pen strokes and lines along the edge come out straight.',
+'Taste':'Key',
+// Seitenbereich
+'Farbe':'Colour','Stärke':'Width','Formen erkennen (halten)':'Recognize shapes (hold)','Stift und Textmarker: am Ende des Strichs kurz halten':'Pen and highlighter: hold briefly at the end of a stroke',
+'Formerkennung an: am Ende des Strichs kurz halten.':'Shape recognition on: hold briefly at the end of a stroke.','Formerkennung aus.':'Shape recognition off.',
+'Horizontal':'Horizontal','Vertikal':'Vertical','Gestapelt':'Stacked','Waagerecht':'Horizontal','Um 90° gedreht, von unten nach oben':'Rotated 90°, bottom to top','Buchstaben untereinander':'Letters stacked vertically',
+'Schrift':'Font','Größe':'Size','Fett':'Bold','Unterstrichen':'Underlined','Schriftart':'Font','Standard':'Default','Serifenlos':'Sans serif','Mit Serifen':'Serif','Schreibmaschine':'Monospace','Handschrift':'Handwriting',
+'Linien & Pfeile':'Lines & arrows','Anfang':'Start','Ende':'End','Gestrichelt':'Dashed','Gewinkelt':'Elbow','Mit gedrückter Umschalttaste rastet die Linie in 15°-Schritten ein.':'Hold Shift to snap the line in 15° steps.',
+'ohne':'none','Pfeil offen':'Open arrow','Pfeil gefüllt':'Filled arrow','Dreieck hohl (Vererbung)':'Hollow triangle (inheritance)','Raute hohl (Aggregation)':'Hollow diamond (aggregation)','Raute gefüllt (Komposition)':'Filled diamond (composition)','Punkt':'Dot',
+'Füllung':'Fill','Keine':'None','Weiß':'White','Symbole':'Symbols','Gruppe':'Group',
+'Klicken setzt das Symbol, Ziehen bestimmt die Größe. Doppelklick auf ein Symbol ändert die Beschriftung. In Klassen trennt eine Zeile mit':'Click places the symbol, dragging sets its size. Double-click a symbol to edit its label. In classes a line containing',
+'die Bereiche.':'separates the sections.',
+'Dokument':'Document','Leere Seite hinzufügen …':'Add blank page …','Leere Seite hinzufügen':'Add blank page','Automatisch speichern':'Auto-save',
+'Beschriftungen werden im Browser zwischengespeichert.':'Annotations are cached in the browser.','Automatisch speichern ist aus.':'Auto-save is off.','Ungespeicherte Änderungen …':'Unsaved changes …',
+'Speichert automatisch in die geöffnete Datei.':'Saves automatically into the open file.','Automatisches Speichern fehlgeschlagen.':'Auto-save failed.',
+'Auswahl':'Selection','Nach vorne':'Bring to front','Nach hinten':'Send to back','Seite leeren':'Clear page','Beschriftungen entfernt. Rückgängig mit Strg+Z.':'Annotations removed. Undo with Ctrl+Z.',
+'Abschnitt auf- oder zuklappen':'Expand or collapse section',
+// Farben
+'Schwarz':'Black','Rot':'Red','Blau':'Blue','Grün':'Green','Orange':'Orange','Lila':'Purple','Gelb':'Yellow','Hellblau':'Light blue','Petrol':'Teal','Grau':'Grey','Hellgrau':'Light grey',
+'Eigene Farbe':'Custom colour','Eigene Farbe wählen':'Choose custom colour','Schriftfarbe':'Text colour',
+// Textfeld-Schnellleiste
+'Schrift kleiner':'Smaller text','Schrift größer':'Larger text','Schriftgröße':'Font size','Schriftgröße ziehen':'Drag to change font size','Fett (Strg+B)':'Bold (Ctrl+B)','Unterstreichen (Strg+U)':'Underline (Ctrl+U)',
+'Aufzählung (Strg+Umschalt+8) · Tab: Unterpunkt':'Bullets (Ctrl+Shift+8) · Tab: sub-item','Nummerierung (Strg+Umschalt+7) · Tab: Unterpunkt':'Numbering (Ctrl+Shift+7) · Tab: sub-item',
+'Ebene höher (Umschalt+Tab)':'Outdent (Shift+Tab)','Unterpunkt (Tab)':'Indent (Tab)','Textfeld löschen':'Delete text box',
+// Neues Blatt
+'Neues Dokument':'New document','Eine eigene, neue PDF-Datei':'A separate, new PDF file','Leere Seiten einfügen':'Insert blank pages','Leere Seiten hinzufügen':'Add blank pages','Zur aktuellen PDF':'To the current PDF','Erst eine PDF öffnen':'Open a PDF first',
+'Name':'Name','Format':'Format','Seiten':'Pages','Papierfarbe':'Paper colour','Hintergrund':'Background','Position':'Position','Am Anfang':'At the beginning','Am Ende':'At the end',
+'A4 hoch':'A4 portrait','A4 quer':'A4 landscape','A3 quer':'A3 landscape','Leer':'Blank','Liniert':'Lined','Kariert':'Squared','Punkte':'Dotted','Creme':'Cream','Rosé':'Rosé','Papier':'Paper',
+'Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
+// Seitenmenü
+'Seite duplizieren':'Duplicate page','Nach oben':'Move up','Nach unten':'Move down','Seite löschen':'Delete page','Nach oben verschieben':'Move up','Nach unten verschieben':'Move down','Beschriftungen dieser Seite entfernen':'Remove annotations on this page',
+// Zusammenführen
+'PDFs zusammenführen':'Merge PDFs','+ PDFs hinzufügen':'+ Add PDFs','Noch keine Dateien. Füge mindestens zwei PDFs hinzu oder ziehe sie hierher.':'No files yet. Add at least two PDFs or drag them here.',
+'Reihenfolge mit den Pfeilen ändern. Die Originaldateien bleiben unverändert, es entsteht eine neue PDF.':'Change the order with the arrows. The original files stay unchanged; a new PDF is created.',
+'Bitte mindestens zwei PDFs hinzufügen.':'Please add at least two PDFs.','Zusammengeführt':'Merged','(geöffnet, mit Beschriftungen)':'(open, with annotations)',
+// Meldungen allgemein
+'Bitte eine PDF-Datei wählen.':'Please choose a PDF file.','Die Datei lässt sich nicht als PDF lesen. Ist sie beschädigt oder passwortgeschützt?':'This file can’t be read as a PDF. Is it damaged or password-protected?',
+'Deine Beschriftungen sind wieder bearbeitbar.':'Your annotations are editable again.','Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.':'Your last annotations for this file have been restored.',
+'Die PDF-Bibliotheken konnten nicht geladen werden.':'The PDF libraries could not be loaded.','Bitte Internetverbindung prüfen und neu laden.':'Please check your internet connection and reload.',
+'Speichern ging hier nicht. Öffne die HTML-Datei direkt im Browser, dort klappt es immer.':'Saving didn’t work here. Open the HTML file directly in your browser, it always works there.',
+'Seite 2 hinzugefügt.':'Page 2 added.','Formerkennung: Kreis erkannt.':'Shape recognition: circle detected.','So sehen deine Meldungen jetzt aus.':'This is what your notifications look like now.',
+'Beispieldatei zum Ausprobieren. Oben auf "Öffnen" klicken oder ein eigenes PDF hierher ziehen.':'Sample file to try things out. Click “Open” at the top or drag your own PDF here.','Beispiel':'Sample',
+// Formerkennung
+'Kreis':'Circle','Quadrat':'Square','Dreieck':'Triangle',
+// Personalisieren
+'Gilt nur auf diesem Rechner und ändert keine PDF.':'Applies to this computer only and doesn’t change any PDF.','Erscheinungsbild':'Appearance','Wie System':'Like system','Hell':'Light','Dunkel':'Dark',
+'Helles Design':'Light theme','Dunkles Design':'Dark theme','Warm':'Warm','Kühl':'Cool','Klar':'Crisp','Mitternacht':'Midnight','Graphit':'Graphite','Wald':'Forest','Pflaume':'Plum',
+'Gilt, sobald Layr dunkel ist (Dunkel gewählt oder dein System ist dunkel).':'Applies whenever Layr is dark (Dark selected or your system is dark).',
+'Leisten':'Bars','Getönt':'Tinted','Kontrast':'Contrast','Akzentfarbe':'Accent colour','Eigene':'Custom','Eigene Leistenfarbe wählen':'Choose custom bar colour','Werkzeugleiste':'Toolbar','Durchgehend':'Full width','Schwebend':'Floating',
+'Indigo':'Indigo','Violett':'Violet','Beere':'Berry','Koralle':'Coral','Gold':'Gold','Schiefer':'Slate',
+'Schreibtisch':'Desk','Sand':'Sand','Himmel':'Sky','Salbei':'Sage','Flieder':'Lilac','Tinte':'Ink','Nachtblau':'Navy','Moos':'Moss','Wein':'Wine','Kakao':'Cocoa','Raster':'Grid','Schlicht':'Plain',
+'Blatt auf dem Bildschirm':'Sheet on screen','Mint':'Mint','Nacht':'Night','Weicher Schatten':'Soft shadow','Kräftig':'Strong','Flach':'Flat',
+'Färbt nur die Ansicht ein, zum Beispiel augenschonend oder als Nachtmodus. Die gespeicherte PDF bleibt, wie sie ist.':'Only tints the view, for example to be easier on the eyes or as a night mode. The saved PDF stays as it is.',
+'Oberfläche':'Interface','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
+'Meldungen':'Notifications','Akzent':'Accent','Glas':'Glass','Eigene Meldungsfarbe wählen':'Choose custom notification colour','Unten mittig':'Bottom centre','Unten rechts':'Bottom right','Oben':'Top',
+'Anzeigedauer':'Display time','Kurz':'Short','Lang':'Long','Test-Meldung zeigen':'Show test notification',
+'Bewegung':'Motion','Animationen an':'Animations on','Aus':'Off','Alles auf Standard':'Reset everything','Alles wieder auf Standard.':'Everything is back to default.',
+'Layr & Updates':'Layr & updates','Automatisch nach Updates suchen':'Check for updates automatically','Jetzt suchen':'Check now','Downloads & Neuigkeiten':'Downloads & news',
+'Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.':'Layr only asks the public GitHub page for the latest version number. No files, notes or data are sent.',
+'Layr sucht ab jetzt selbst nach Updates.':'Layr will now check for updates on its own.','Automatische Update-Suche aus.':'Automatic update check off.','Noch keine Version veröffentlicht.':'No version published yet.',
+'Update-Suche hat nicht geklappt. Bist du online?':'The update check failed. Are you online?','Update verfügbar':'Update available','Für diese Version nicht mehr erinnern':'Don’t remind me about this version',
+'Eine neue Version steht zum Download bereit.':'A new version is ready to download.','Der Download startet im Browser. Danach den Installer öffnen.':'The download starts in your browser. Open the installer afterwards.',
+'Sprache':'Language',
+// Notizen
+'Notizen':'Notes','Gehören zu diesem Dokument und werden im PDF mitgespeichert.':'Belong to this document and are saved inside the PDF.','Alles kopieren':'Copy all',
+'Zeitstempel':'Timestamp','Datum und Uhrzeit einfügen':'Insert date and time','Aufzählungspunkt':'Bullet point','Aufgabe':'To-do','Aufgaben':'To-dos',
+'Neue Aufgabe – steht der Cursor in einer Textzeile, wird diese Zeile zur Aufgabe':'New to-do – if the cursor is in a line of text, that line becomes the to-do',
+'Neue Aufgabe … (Enter)':'New to-do … (Enter)','Gedanken, Aufgaben und Fragen zu diesem Dokument …':'Thoughts, to-dos and questions about this document …',
+'Im PDF gespeichert':'Saved in the PDF','Wird mit dem PDF gespeichert …':'Will be saved with the PDF …','Notizen kopiert.':'Notes copied.','Zeile als Aufgabe übernommen.':'Line turned into a to-do.',
+'Aufgabe löschen':'Delete to-do','Erledigt':'Done','Wieder offen':'Reopen','Alle Aufgaben erledigt. Stark!':'All to-dos done. Nice work!','0 Wörter':'0 words','1 Wort':'1 word',
+// Symbolgruppen
+'Formen':'Shapes','Aktivität':'Activity','UML':'UML','PAP':'Flowchart (PAP)','Struktogramm':'Nassi-Shneiderman','ER-Modell':'ER model','Netzwerk':'Network','Topologien':'Topologies','IT-Sicherheit':'IT security','Markierung':'Marks',
+'Symbol wählen':'Choose symbol',
+// Symbole: Formen
+'Rechtwinkliges Dreieck':'Right triangle','Raute':'Diamond','Fünfeck':'Pentagon','Sechseck':'Hexagon','Achteck':'Octagon','Parallelogramm':'Parallelogram','Trapez':'Trapezoid','Stern':'Star',
+'Prozesspfeil':'Process arrow','Schritt':'Step','Hinweisschild':'Signpost','Hinweis':'Note','Blockpfeil rechts':'Block arrow right','Blockpfeil links':'Block arrow left','Blockpfeil hoch':'Block arrow up','Blockpfeil runter':'Block arrow down',
+'Doppelpfeil':'Double arrow','Plus':'Plus','Blitz':'Lightning','Abgerundetes Rechteck':'Rounded rectangle','Kreis mit Text':'Circle with text','Ellipse mit Text':'Ellipse with text','Sprechblase':'Speech bubble',
+'Gedankenblase':'Thought bubble','Idee':'Idea','Herz':'Heart','Zylinder':'Cylinder','Würfel':'Cube','Geschweifte Klammer':'Curly brace','Rahmen / Gruppe':'Frame / group',
+// Symbole: Aktivität / UML / PAP / Struktogramm / ER
+'Startknoten':'Initial node','Endknoten':'Final node','Ablaufende':'Flow final','Aktion':'Action','Verzweigung':'Decision','Gabelung / Vereinigung':'Fork / join','Signal senden':'Send signal','Signal empfangen':'Receive signal',
+'Zeitereignis':'Time event','Objektknoten':'Object node','Objekt':'Object','Schwimmbahn':'Swimlane','Bereich':'Area','Notiz':'Note',
+'Klasse':'Class','Schnittstelle':'Interface','Akteur':'Actor','Anwendungsfall':'Use case','Systemgrenze':'System boundary','System':'System','Paket':'Package','Komponente':'Component','Lebenslinie':'Lifeline','Aktivierung':'Activation','Zustand':'State',
+'Start / Ende':'Start / end','Start':'Start','Operation':'Process','Anweisung':'Statement','Ein- / Ausgabe':'Input / output','Eingabe: x':'Input: x','Unterprogramm':'Subroutine','Übergangsstelle':'Connector','Datenbank':'Database',
+'Schleife (kopfgesteuert)':'Loop (pre-test)','Schleife (fußgesteuert)':'Loop (post-test)','solange i < 10':'while i < 10','bis i = 10':'until i = 10','Bedingung?':'Condition?',
+'Entität':'Entity','Schwache Entität':'Weak entity','Beziehung':'Relationship','Attribut':'Attribute','Schlüsselattribut':'Key attribute','Mehrwertiges Attribut':'Multivalued attribute',
+'Kunde':'Customer','Position':'Position','bestellt':'orders','KundenNr':'CustomerNo','Telefon':'Phone','Druckbar':'Printable','+ drucken(): void':'+ print(): void','- kundenNr: int':'- customerNo: int','+ bestellen(): void':'+ order(): void',
+'k1: Kunde':'c1: Customer','obj: Klasse':'obj: Class','Akteur':'Actor',
+// Symbole: Netzwerk
+'PC':'PC','Laptop':'Laptop','Server':'Server','Router':'Router','Switch':'Switch','Firewall':'Firewall','Internet / Wolke':'Internet / cloud','Internet':'Internet','WLAN-Access-Point':'Wi-Fi access point','WLAN-AP':'Wi-Fi AP',
+'Drucker':'Printer','NAS / Speicher':'NAS / storage','Smartphone':'Smartphone','Handy':'Phone','Serverschrank':'Server rack','Hub':'Hub','Layer-3-Switch':'Layer 3 switch','Modem':'Modem','Patchfeld':'Patch panel','USV':'UPS',
+'VoIP-Telefon':'VoIP phone','IP-Kamera':'IP camera','Kamera':'Camera','Tablet':'Tablet','Netzbereich / VLAN':'Network zone / VLAN','Load-Balancer':'Load balancer','VPN-Gateway':'VPN gateway','Proxy':'Proxy','Webserver':'Web server','Mailserver':'Mail server',
+'Virtuelle Maschine':'Virtual machine','Container':'Container','Benutzer':'User','Benutzergruppe':'User group','Workstation':'Workstation','IoT-Gerät':'IoT device','Bridge':'Bridge','Repeater':'Repeater','Medienkonverter':'Media converter',
+'Funkmast / Antenne':'Radio mast / antenna','Funkmast':'Radio mast','SAN-Speicher':'SAN storage','Backup':'Backup','Rechenzentrum':'Data centre','WLAN-Controller':'Wi-Fi controller','Telefonanlage':'Phone system','TK-Anlage':'PBX',
+// Topologien
+'Stern-Topologie':'Star topology','Ring':'Ring','Ring-Topologie':'Ring topology','Bus':'Bus','Bus-Topologie':'Bus topology','Linien-Topologie':'Line topology','Vermascht (voll)':'Full mesh','Vermaschte Topologie':'Mesh topology',
+'Teilvermascht':'Partial mesh','Baum':'Tree','Baum-Topologie':'Tree topology','Erweiterter Stern':'Extended star',
+// IT-Sicherheit
+'Schloss':'Lock','Schlüssel':'Key','Schutz / Schild':'Protection / shield','Schutz':'Protection','Zertifikat':'Certificate','Schadsoftware':'Malware','Malware':'Malware','IDS / IPS':'IDS / IPS','Passwort':'Password',
+'Zwei-Faktor (2FA)':'Two-factor (2FA)','DMZ (Zone)':'DMZ (zone)','Vertrauenszone (LAN)':'Trusted zone (LAN)','Internes Netz':'Internal network',
+// Markierung
+'Richtig':'Correct','Falsch':'Wrong','Frage':'Question','Wichtig':'Important','Nummer (zählt hoch)':'Number (counts up)',
+// Organigramm
+'Organigramm':'Org chart','Vorlagen':'Templates','Bausteine':'Building blocks',
+'Einlinienorganisation':'Line organization','Stablinienorganisation':'Line-and-staff organization','Spartenorganisation':'Divisional organization','Mehrlinienorganisation':'Multi-line organization',
+'Matrixorganisation':'Matrix organization','IT-Abteilung':'IT department','Projektorganisation':'Project organization',
+'Leitung':'Head','Abteilung':'Department','Stelle':'Position','Stabsstelle':'Staff position','Person mit Bild':'Person with photo','Unbesetzte Stelle':'Vacant position','Extern / Dienstleister':'External / contractor',
+'Kreuzungspunkt (Matrix)':'Intersection (matrix)','Bereich / Team':'Area / team','Geschäftsführung':'Management','Leitung: Name':'Head: Name','Funktion':'Role','unbesetzt':'vacant','Extern':'External','Firma':'Company','Team':'Team',
+'Einkauf':'Purchasing','Produktion':'Production','Vertrieb':'Sales','Sachbearbeitung':'Administration','Lager':'Warehouse','Fertigung':'Manufacturing','Qualität':'Quality','Verkauf':'Sales office','Marketing':'Marketing',
+'Recht':'Legal','Controlling':'Controlling','Sparte A':'Division A','Sparte B':'Division B','Beschaffung':'Procurement','Absatz':'Distribution','Meister Technik':'Technical supervisor','Meister Qualität':'Quality supervisor',
+'Mitarbeiter 1':'Employee 1','Mitarbeiter 2':'Employee 2','Mitarbeiter 3':'Employee 3','Produkt A':'Product A','Produkt B':'Product B','IT-Leitung':'Head of IT','IT-Sicherheit':'IT security','Systemadministration':'System administration',
+'Server & Backup':'Servers & backup','Clients':'Clients','Netzwerk & Firewall':'Network & firewall','Support':'Support','1st Level':'1st level','2nd Level':'2nd level','Entwicklung':'Development','Webentwicklung':'Web development',
+'Lenkungsausschuss':'Steering committee','Projektleitung':'Project management','Projektbüro':'Project office','Teilprojekt 1':'Subproject 1','Teilprojekt 2':'Subproject 2','Teilprojekt 3':'Subproject 3',
+'Vorlage eingefügt. Nicht benötigte Kästen anklicken und mit Entf löschen, die Linien verschwinden mit.':'Template inserted. Click boxes you don’t need and press Delete – their lines disappear too.',
+// Sprachauswahl
+'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
+};
+/* Zusammengesetzte Meldungen: Muster → Übersetzung */
+const I18N_RX=[
+  [/^„(.+)“ gespeichert\. Das Original ist unverändert\.$/,'“$1” saved. The original is unchanged.'],
+  [/^Gespeichert in „(.+)“\.$/,'Saved to “$1”.'],
+  [/^Gespeichert als „(.+)“\. Das Original ist unverändert\.$/,'Saved as “$1”. The original is unchanged.'],
+  [/^„(.+)“ wird heruntergeladen\. Falls in dieser Vorschau nichts passiert: Die HTML-Datei direkt im Browser öffnen, dort klappt das Speichern immer\.$/,'“$1” is downloading. If nothing happens in this preview, open the HTML file directly in your browser – saving always works there.'],
+  [/^„(.+)“ liegt jetzt in deinem Download-Ordner\. Das Original ist unverändert\.$/,'“$1” is now in your Downloads folder. The original is unchanged.'],
+  [/^Speichern hat nicht geklappt: (.*)$/,'Saving failed: $1'],
+  [/^Du hast die neueste Version \((.+)\)\.$/,'You have the latest version ($1).'],
+  [/^Beschriftungen auf Seite (\d+) entfernt\. Rückgängig mit Strg\+Z\.$/,'Annotations on page $1 removed. Undo with Ctrl+Z.'],
+  [/^„(.+)“ ist angelegt\. Gespeichert wird unter diesem Namen\.$/,'“$1” has been created and will be saved under this name.'],
+  [/^„(.+)“ lässt sich nicht lesen und wurde übersprungen\.$/,'“$1” can’t be read and was skipped.'],
+  [/^(\d+) Dateien mit zusammen (\d+) Seiten zusammengeführt\. Mit „Speichern“ sicherst du „(.+)“\.$/,'$1 files with $2 pages in total merged. Click “Save” to keep “$3”.'],
+  [/^Notizen \(N\) · (\d+) offene Aufgaben?$/,(m,n)=>'Notes (N) · '+n+' open to-do'+(n==='1'?'':'s')],
+  [/^Layr (\S+) ist da$/,'Layr $1 is available'],
+  [/^Version (\S+) · (Windows|macOS|Linux)$/,'Version $1 · $2'],
+  [/^Version …$/,'Version …'],
+  [/^Seite (\d+) wirklich leeren\?$/,'Really clear page $1?'],
+  [/^Wie Seite (\d+)$/,'Same as page $1'],
+  [/^Nach Seite (\d+)$/,'After page $1'],
+  [/^Seite (\d+) \(Rechtsklick für Optionen\)$/,'Page $1 (right-click for options)'],
+  [/^Seite (\d+) gelöscht\. Rückgängig mit Strg\+Z\.$/,'Page $1 deleted. Undo with Ctrl+Z.'],
+  [/^Seite (\d+) dupliziert\. Rückgängig mit Strg\+Z\.$/,'Page $1 duplicated. Undo with Ctrl+Z.'],
+  [/^Leere Seite eingefügt \(Seite (\d+)\)\. Rückgängig mit Strg\+Z\.$/,'Blank page inserted (page $1). Undo with Ctrl+Z.'],
+  [/^(\d+) leere Seiten eingefügt \(Seite ([\d–]+)\)\. Rückgängig mit Strg\+Z\.$/,'$1 blank pages inserted (pages $2). Undo with Ctrl+Z.'],
+  [/^Seite ist jetzt Seite (\d+)\.$/,'The page is now page $1.'],
+  [/^Automatisch gespeichert in „(.+)“\.$/,'Auto-saved to “$1”.'],
+  [/^Gespeichert: (.+)$/,'Saved: $1'],
+  [/^Zu Seite (\d+) springen$/,'Go to page $1'],
+  [/^Seite (\d+) \/ (\d+)$/,'Page $1 / $2'],
+  [/^Seite (\d+)$/,'Page $1'],
+  [/^In „(.+)“ einfügen$/,'Insert into “$1”'],
+  [/^von (\d+) erledigt$/,'of $1 done'],
+  [/^(\d+) ausgewählt$/,'$1 selected'],
+  [/^(\d+) S\.$/,(m,n)=>n+(n==='1'?' page':' pages')],
+  [/^(\d+) Wörter$/,'$1 words'],
+  [/^(1 Wort|\d+ Wörter) · (.+)$/,(m,a,b)=>tr(a)+' · '+tr(b)],
+  [/^(\d+) Aufgaben? offen$/,(m,n)=>n+' to-do'+(n==='1'?'':'s')+' open'],
+  [/^alle Aufgaben erledigt$/,'all to-dos done'],
+  [/^Gruppe$/,'Group'],
+  [/^(.+) \(geöffnet, mit Beschriftungen\)$/,'$1 (open, with annotations)'],
+  [/^(.+) \(([A-Z0-9+]{1,3})\)$/,(m,a,k)=>{const t=I18N_EN[a];return t?t+' ('+k+')':m}],
+  [/^(.+) \((\d+)\)$/,(m,a,n)=>{const t=I18N_EN[a];return t?t+' ('+n+')':m}],
+];
+
+let LANG='';try{LANG=localStorage.getItem('pdfwerkbank:lang')||''}catch(e){}
+if(LANG!=='en'&&LANG!=='de')LANG='';
+function tr(s){if(LANG!=='en'||s==null)return s;s=String(s);const k=s.replace(/\s+/g,' ').trim();if(!k)return s;let r=I18N_EN[k];
+  if(r==null)for(const[rx,to]of I18N_RX){if(rx.test(k)){r=k.replace(rx,to);break}}
+  if(r==null||r===k)return s;return s.match(/^\s*/)[0]+r+s.match(/\s*$/)[0]}
+const docBase=()=>LANG==='en'?'New sheet':'Neues Blatt';
+const I18N_SKIP='script,style,textarea,#fname,.nt-list,.tbx-in,[data-noi18n]';
+const I18N_ATTRS=['title','placeholder','aria-label'];
+function i18nText(n){const p=n.parentElement;if(!p||p.closest(I18N_SKIP))return;
+  const cur=n.nodeValue;if(n.__sh===undefined||cur!==n.__sh)n.__de=cur;
+  let t=n.__de;if(LANG==='en'){t=(p.dataset&&p.dataset.en&&p.childNodes.length<=2&&/\S/.test(n.__de))?n.__de.replace(/\S.*\S|\S/,p.dataset.en):tr(n.__de)}
+  n.__sh=t;if(cur!==t)n.nodeValue=t}
+function i18nAttr(el,a){if(el.closest&&el.closest('[data-noi18n]'))return;const cur=el.getAttribute(a);if(cur==null)return;el.__dA=el.__dA||{};el.__sA=el.__sA||{};
+  if(el.__sA[a]===undefined||cur!==el.__sA[a])el.__dA[a]=cur;const t=LANG==='en'?tr(el.__dA[a]):el.__dA[a];el.__sA[a]=t;if(cur!==t)el.setAttribute(a,t)}
+function i18nTree(root){if(!root)return;if(root.nodeType===3){i18nText(root);return}if(root.nodeType!==1)return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))i18nText(n);
+  for(const a of I18N_ATTRS){if(root.hasAttribute&&root.hasAttribute(a))i18nAttr(root,a);root.querySelectorAll('['+a+']').forEach(el=>i18nAttr(el,a))}}
+let i18nObs=null;
+function i18nStart(){if(i18nObs)return;i18nObs=new MutationObserver(ms=>{for(const m of ms){
+    if(m.type==='childList')m.addedNodes.forEach(i18nTree);else if(m.type==='characterData')i18nText(m.target);else if(m.type==='attributes')i18nAttr(m.target,m.attributeName)}});
+  i18nObs.observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:I18N_ATTRS})}
+function langSyms(){if(typeof SYM==='undefined')return;for(const s of Object.values(SYM)){if(s.__label===undefined){s.__label=s.label;s.__name=s.name}
+  s.label=LANG==='en'?String(s.__label).split('\n').map(l=>tr(l)).join('\n'):s.__label}}
+function setLang(l){LANG=l==='en'?'en':'de';try{localStorage.setItem('pdfwerkbank:lang',LANG)}catch(e){}
+  document.documentElement.lang=LANG;i18nStart();i18nTree(document.body);langSyms();try{buildCats()}catch(e){}
+  try{const n=document.getElementById('nName');if(n&&(n.value==='Neues Blatt'||n.value==='New sheet'))n.value=docBase()}catch(e){}
+  try{if(S.isNew&&!S.dirty&&(S.name==='Neues Blatt.pdf'||S.name==='New sheet.pdf')){S.name=docBase()+'.pdf';const f=document.getElementById('fname');if(f){f.textContent=S.name;f.title=S.name}}}catch(e){}
+  try{document.querySelectorAll('#dLang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===LANG))}catch(e){}
+  try{if(window.werkbank&&werkbank.setLang)werkbank.setLang(LANG)}catch(e){}
+  try{if(S.pages&&S.pages.length)redrawAll()}catch(e){}}
 let FONT='"IBM Plex Sans", Arial, sans-serif'; // kann nach dem Schrifttest auf eine Ersatzschrift wechseln
 const PT_CM=2.54/72, CM_PT=72/2.54;
 const DPR=()=>Math.min(window.devicePixelRatio||1,2.5);
@@ -944,6 +1205,9 @@ segBind('fill',v=>{
 function syncFill(){const o=S.sel&&S.sel.o;segSet('fill',o&&o.fill?o.fill:(S.tool==='symbol'?S.fillSym:S.fillShape))}
 $('#bold').onchange=e=>{S.bold=e.target.checked;applySel({bold:S.bold})};
 $('#underl').onchange=e=>{S.underline=e.target.checked;applySel({underline:S.underline})};
+S.font='';setTimeout(()=>{try{S.font=localStorage.getItem('pdfwerkbank:font')||''}catch(e){}if(!FONT_MAP[S.font])S.font='';setFontUI(S.font);ensureFont(S.font)},0);
+$('#fontBtn').onclick=()=>{const t=S.sel&&S.sel.o.type==='text'?S.sel.o:S.sel&&S.sel.o.type==='group'?S.sel.o.items.find(x=>x.type==='text'):null;
+  openFontPop($('#fontBtn'),t?t.font:S.font,k=>{S.font=k;saveFontPref();setFontUI(k);applySel({font:k});if(S.sel)for(const x of selItems())if(x.type==='text'&&!x.font)delete x.font})};
 $('#dash').onchange=e=>{S.dash=e.target.checked;applySel({dash:S.dash})};
 $('#elbow').onchange=e=>{S.elbow=e.target.checked;applySel({elbow:S.elbow})};
 const HEADS=[['none','ohne'],['arrow','Pfeil offen'],['filled','Pfeil gefüllt'],['triangle','Dreieck hohl (Vererbung)'],['diamond','Raute hohl (Aggregation)'],['diamondf','Raute gefüllt (Komposition)'],['dot','Punkt']];
@@ -953,7 +1217,7 @@ for(const id of ['startH','endH']){const s=$('#'+id);for(const [v,n] of HEADS){c
 function applySel(props,isRange){
   if(ED&&ED.set){ED.set(props);return}
   if(!S.sel)return;const T=S.sel.o.type==='group'?S.sel.o.items:[S.sel.o];
-  const allow=o=>({color:1,lw:o.type!=='text',fs:o.type==='text'||o.type==='sym',orient:o.type==='text',bold:o.type==='text',underline:o.type==='text',
+  const allow=o=>({color:1,lw:o.type!=='text',fs:o.type==='text'||o.type==='sym',orient:o.type==='text',bold:o.type==='text',underline:o.type==='text',font:o.type==='text',
     dash:['line','rect','ellipse','sym'].includes(o.type),elbow:o.type==='line',start:o.type==='line',end:o.type==='line',fill:['rect','ellipse','sym'].includes(o.type)});
   const jobs=T.map(o=>{const a=allow(o);return[o,Object.keys(props).filter(k=>a[k])]}).filter(j=>j[1].length);if(!jobs.length)return;
   if(!isRange||!ctrlHist){pushHist();if(isRange)ctrlHist=true}
@@ -965,7 +1229,7 @@ function syncControls(o){
   if(!o)return;setColor(o.color,true);
   if(o.lw!=null&&o.type!=='text')setRange('lw',o.lw,x=>x+' pt');
   if(o.fs!=null)setRange('fs',o.fs,x=>x+' pt');
-  if(o.type==='text'){segSet('orient',o.orient);$('#bold').checked=!!o.bold;$('#underl').checked=!!o.underline}
+  if(o.type==='text'){setFontUI(o.font||'');segSet('orient',o.orient);$('#bold').checked=!!o.bold;$('#underl').checked=!!o.underline}
   if(o.type==='line'){$('#startH').value=o.start;$('#endH').value=o.end;$('#elbow').checked=!!o.elbow}
   if('dash' in o)$('#dash').checked=!!o.dash;
   syncFill();
@@ -1027,6 +1291,82 @@ def('f_cyl','Formen','Zylinder',60,72,'',(c,o,x,y,w,h)=>{cyl(c,o,x,y,w,h,.13);la
 def('f_cube','Formen','Würfel',62,62,'',(c,o,x,y,w,h)=>{const d=Math.min(w,h)*.26;poly(c,[[x,y+d],[x+w-d,y+d],[x+w-d,y+h],[x,y+h]]);fillStroke(c,o);poly(c,[[x,y+d],[x+d,y],[x+w,y],[x+w-d,y+d]]);fillStroke(c,o);poly(c,[[x+w-d,y+d],[x+w,y],[x+w,y+h-d],[x+w-d,y+h]]);fillStroke(c,o);label(c,o,x+(w-d)/2,y+d+(h-d)/2,w-d-8)});
 def('f_brace','Formen','Geschweifte Klammer',18,90,'',(c,o,x,y,w,h)=>{const m=y+h/2;c.beginPath();c.moveTo(x+w,y);c.quadraticCurveTo(x+w*.4,y,x+w*.45,y+h*.12);c.lineTo(x+w*.45,m-h*.08);c.quadraticCurveTo(x+w*.45,m,x,m);c.quadraticCurveTo(x+w*.45,m,x+w*.45,m+h*.08);c.lineTo(x+w*.45,y+h*.88);c.quadraticCurveTo(x+w*.4,y+h,x+w,y+h);c.stroke()});
 def('f_frame','Formen','Rahmen / Gruppe',200,120,'Gruppe',(c,o,x,y,w,h)=>{rr(c,x,y,w,h,8);fillStroke(c,o);const fs=o.fs||11;if(o.label){c.save();c.font=`600 ${fs}px ${FONT}`;const tw=c.measureText(o.label).width;c.restore();rr(c,x+8,y-fs*.8,tw+12,fs*1.6,fs*.4);c.save();c.fillStyle='#fff';c.fill();c.restore();c.stroke();label(c,o,x+14,y,tw+4,{bold:1,left:1})}},{frame:1});
+
+// Organigramm: Bausteine
+function orgCard(c,o,x,y,w,h,opt={}){const r=opt.pill?h/2:Math.min(8,h*.22);
+  if(opt.dash){c.save();c.setLineDash(opt.dash);rr(c,x,y,w,h,r);fillStroke(c,o);c.restore()}else{rr(c,x,y,w,h,r);fillStroke(c,o)}
+  if(opt.bar){c.save();rr(c,x,y,w,h,r);c.clip();c.fillStyle=o.color;c.fillRect(x,y,w,Math.max(3,h*.1));c.restore()}
+  let tx=x+w/2,tw=w-12,al='center';
+  if(opt.avatar){const ar=Math.min(h*.32,w*.16),ax=x+ar+h*.18,ay=y+h/2;c.save();c.setLineDash([]);c.beginPath();c.arc(ax,ay,ar,0,7);c.globalAlpha=.14;c.fill();c.globalAlpha=1;c.stroke();
+    c.beginPath();c.arc(ax,ay-ar*.22,ar*.34,0,7);c.stroke();c.beginPath();c.arc(ax,ay+ar*.95,ar*.62,Math.PI*1.15,Math.PI*1.85);c.stroke();c.restore();tx=ax+ar+h*.2;tw=x+w-tx-6;al='left'}
+  const L=String(o.label||'').split('\n'),fs=o.fs||11,lh=fs*1.28,y0=y+h/2-(L.length-1)*lh/2+(opt.bar?h*.04:0);
+  c.save();c.setLineDash([]);c.fillStyle=o.color;c.textAlign=al;c.textBaseline='middle';
+  L.forEach((l,i)=>{c.font=(i===0?'600 ':'')+(i===0?fs:fs*.88)+'px '+FONT;c.globalAlpha=i===0?1:.72;c.fillText(l,tx,y0+i*lh,Math.max(10,tw))});c.restore()}
+def('org_lead','Organigramm','Leitung',140,50,'Geschäftsführung\nName',(c,o,x,y,w,h)=>orgCard(c,o,x,y,w,h,{bar:1}));
+def('org_unit','Organigramm','Abteilung',124,44,'Abteilung\nLeitung: Name',(c,o,x,y,w,h)=>orgCard(c,o,x,y,w,h));
+def('org_pos','Organigramm','Stelle',112,38,'Stelle',(c,o,x,y,w,h)=>orgCard(c,o,x,y,w,h));
+def('org_staff','Organigramm','Stabsstelle',112,38,'Stabsstelle',(c,o,x,y,w,h)=>orgCard(c,o,x,y,w,h,{pill:1}));
+def('org_person','Organigramm','Person mit Bild',150,50,'Name\nFunktion',(c,o,x,y,w,h)=>orgCard(c,o,x,y,w,h,{avatar:1}));
+def('org_vacant','Organigramm','Unbesetzte Stelle',112,38,'unbesetzt',(c,o,x,y,w,h)=>orgCard(c,o,x,y,w,h,{dash:[5,4]}));
+def('org_ext','Organigramm','Extern / Dienstleister',118,42,'Extern\nFirma',(c,o,x,y,w,h)=>orgCard(c,o,x,y,w,h,{dash:[1.5,3]}));
+def('org_dot','Organigramm','Kreuzungspunkt (Matrix)',14,14,'',(c,o,x,y,w,h)=>{c.beginPath();c.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7);c.fill()},{fixed:1});
+def('org_team','Organigramm','Bereich / Team',240,150,'Team',(c,o,x,y,w,h)=>{c.save();c.setLineDash([6,4]);rr(c,x,y,w,h,10);fillStroke(c,o);c.restore();label(c,o,x+10,y+(o.fs||11)*1.2,w-20,{bold:1,left:1})},{frame:1});
+
+/* ---------- Organigramm-Vorlagen: einzelne Kästen + mitwandernde Verbindungen ---------- */
+const newOid=()=>'o'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
+function orgAnchor(o,t){const x=o.x,y=o.y,w=o.w,h=o.h;return t==='t'?[x+w/2,y]:t==='b'?[x+w/2,y+h]:t==='l'?[x,y+h/2]:t==='r'?[x+w,y+h/2]:[x+w/2,y+h/2]}
+/* Verbindungen an ihre Kästen anpassen; ist ein Kasten weg, verschwindet auch seine Linie */
+function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
+  for(const o of P.objs){if(!o.link)continue;const A=by[o.link.a],B=by[o.link.b];if(!A||!B){gone.push(o);continue}
+    const a=orgAnchor(A,o.link.ta),b=orgAnchor(B,o.link.tb);o.x1=a[0];o.y1=a[1];o.x2=b[0];o.y2=b[1]}
+  if(gone.length){P.objs=P.objs.filter(o=>!gone.includes(o));if(S.sel&&S.pages[S.sel.p]===P){const keep=selItems().filter(o=>!gone.includes(o));
+    if(!keep.length)S.sel=null;else if(S.sel.o.type==='group'){S.sel.o.items=keep;if(keep.length===1)S.sel={p:S.sel.p,o:keep[0]}}}}}
+/* Beim Duplizieren bekommen die Kopien eigene Kennungen, damit ihre Linien an den Kopien hängen */
+function orgRemap(C){const m={};for(const o of C)if(o.oid){const n=newOid();m[o.oid]=n;o.oid=n}
+  for(const o of C)if(o.link){if(m[o.link.a]&&m[o.link.b])o.link={...o.link,a:m[o.link.a],b:m[o.link.b]};else delete o.link}}
+/* Baum-Layout: Kinder nebeneinander, Eltern mittig darüber */
+function orgBuild(spec){const objs=[],GX=18,GY=46,col='#1b2a3a';
+  const box=(s,l,x,y)=>{const d=SYM[s];const o={type:'sym',sym:s,x:x-d.w/2,y,w:d.w,h:d.h,color:col,lw:1.2,fill:'white',fs:11,label:String(l).split('\n').map(t=>tr(t)).join('\n'),dash:false,oid:newOid()};objs.push(o);return o};
+  const link=(A,B,ta,tb,el)=>objs.push({type:'line',x1:0,y1:0,x2:0,y2:0,color:col,lw:1.2,dash:false,elbow:el===undefined?'v':el,start:'none',end:'none',link:{a:A.oid,b:B.oid,ta,tb}});
+  const wOf=n=>{const own=SYM[n.s].w;if(!n.c||!n.c.length)return own;return Math.max(own,n.c.reduce((a,k)=>a+wOf(k),0)+GX*(n.c.length-1))};
+  const place=(n,x0,y)=>{const W=wOf(n),me=box(n.s,n.l,x0+W/2,y);let yc=y+SYM[n.s].h+GY;
+    if(n.st&&n.st.length){const sy=y+SYM[n.s].h+18;n.st.forEach((st,k)=>{const left=k%2===0,sx=x0+W/2+(left?-1:1)*(SYM[n.s].w/2+SYM[st.s].w/2+24);const sb=box(st.s,st.l,sx,sy);link(me,sb,'b',left?'r':'l','vh')});yc+=SYM[n.st[0].s].h+12}
+    if(n.c){let cx=x0+(W-(n.c.reduce((a,k)=>a+wOf(k),0)+GX*(n.c.length-1)))/2;for(const k of n.c){const kw=wOf(k);const kid=place(k,cx,yc);link(me,kid,'b','t','vb');cx+=kw+GX}}
+    return me};
+  place(spec,0,0);return objs}
+const U=(l,c,s)=>({s:'org_unit',l,c}),Pz=(l,c)=>({s:'org_pos',l,c});
+const ORG_TPL=[
+  {k:'einlinie',n:'Einlinienorganisation',b:()=>orgBuild({s:'org_lead',l:'Geschäftsführung\nName',c:[U('Einkauf',[Pz('Sachbearbeitung'),Pz('Lager')]),U('Produktion',[Pz('Fertigung'),Pz('Qualität')]),U('Vertrieb',[Pz('Verkauf'),Pz('Marketing')])]})},
+  {k:'stablinie',n:'Stablinienorganisation',b:()=>orgBuild({s:'org_lead',l:'Geschäftsführung\nName',st:[{s:'org_staff',l:'Recht'},{s:'org_staff',l:'Controlling'}],c:[U('Einkauf',[Pz('Sachbearbeitung')]),U('Produktion',[Pz('Fertigung')]),U('Vertrieb',[Pz('Verkauf')])]})},
+  {k:'sparten',n:'Spartenorganisation',b:()=>orgBuild({s:'org_lead',l:'Geschäftsführung\nName',c:['Sparte A','Sparte B'].map(t=>U(t,[Pz('Beschaffung'),Pz('Produktion'),Pz('Absatz')]))})},
+  {k:'mehrlinie',n:'Mehrlinienorganisation',b:()=>{const o=orgBuild({s:'org_lead',l:'Leitung\nName',c:[U('Meister Technik'),U('Meister Qualität')]});
+    const m=o.filter(x=>x.sym==='org_unit'),col='#1b2a3a',y=m[0].y+m[0].h+60,ws=['Mitarbeiter 1','Mitarbeiter 2','Mitarbeiter 3'],W=SYM.org_pos.w,gx=26,tot=ws.length*W+(ws.length-1)*gx,mx=(m[0].x+m[1].x+m[1].w)/2;
+    ws.forEach((t,k)=>{const b={type:'sym',sym:'org_pos',x:mx-tot/2+k*(W+gx),y,w:W,h:SYM.org_pos.h,color:col,lw:1.2,fill:'white',fs:11,label:tr(t),dash:false,oid:newOid()};o.push(b);
+      for(const a of m)o.push({type:'line',x1:0,y1:0,x2:0,y2:0,color:col,lw:1.2,dash:false,elbow:false,start:'none',end:'none',link:{a:a.oid,b:b.oid,ta:'b',tb:'t'}})});return o}},
+  {k:'matrix',n:'Matrixorganisation',b:()=>{const col='#1b2a3a',o=[],mk=(s,l,x,y)=>{const d=SYM[s];const b={type:'sym',sym:s,x,y,w:d.w,h:d.h,color:col,lw:1.2,fill:'white',fs:11,label:String(l).split('\n').map(t=>tr(t)).join('\n'),dash:false,oid:newOid()};o.push(b);return b};
+    const ln=(a,b,ta,tb,el)=>o.push({type:'line',x1:0,y1:0,x2:0,y2:0,color:col,lw:1.2,dash:false,elbow:el,start:'none',end:'none',link:{a:a.oid,b:b.oid,ta,tb}});
+    const fW=SYM.org_unit.w,gx=20,fx0=SYM.org_unit.w+50,fs=['Einkauf','Produktion','Vertrieb'],tot=fs.length*fW+(fs.length-1)*gx;
+    const gf=mk('org_lead','Geschäftsführung\nName',fx0+tot/2-SYM.org_lead.w/2,0),fy=SYM.org_lead.h+46;
+    const F=fs.map((t,k)=>{const b=mk('org_unit',t,fx0+k*(fW+gx),fy);ln(gf,b,'b','t','v');return b});
+    const P=['Produkt A','Produkt B'].map((t,k)=>{const b=mk('org_unit',t,0,fy+SYM.org_unit.h+40+k*(SYM.org_unit.h+34));ln(gf,b,'l','l','side');return b});
+    for(const p of P)for(const f of F){const d=mk('org_dot','',f.x+f.w/2-7,p.y+p.h/2-7);ln(f,d,'b','t',false);ln(p,d,'r','l',false)}
+    return o}},
+  {k:'it',n:'IT-Abteilung',b:()=>orgBuild({s:'org_lead',l:'IT-Leitung\nName',st:[{s:'org_staff',l:'IT-Sicherheit'}],c:[U('Systemadministration',[Pz('Server & Backup'),Pz('Clients')]),U('Netzwerk',[Pz('Netzwerk & Firewall')]),U('Support',[Pz('1st Level'),Pz('2nd Level')]),U('Entwicklung',[Pz('Webentwicklung')])]})},
+  {k:'projekt',n:'Projektorganisation',b:()=>orgBuild({s:'org_lead',l:'Lenkungsausschuss',c:[{s:'org_unit',l:'Projektleitung\nName',st:[{s:'org_staff',l:'Projektbüro'}],c:[Pz('Teilprojekt 1'),Pz('Teilprojekt 2'),Pz('Teilprojekt 3')]}]})},
+];
+function orgBBox(objs){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of objs){if(o.type!=='sym')continue;a=Math.min(a,o.x);b=Math.min(b,o.y);c=Math.max(c,o.x+o.w);d=Math.max(d,o.y+o.h)}return{x:a,y:b,w:c-a,h:d-b}}
+function orgFit(objs,P,top){const bb=orgBBox(objs),sc=Math.min(1,(P.w-60)/bb.w,(P.h-80)/bb.h),ox=(P.w-bb.w*sc)/2-bb.x*sc,oy=top-bb.y*sc;
+  for(const o of objs)if(o.type==='sym'){o.x=o.x*sc+ox;o.y=o.y*sc+oy;o.w*=sc;o.h*=sc;o.fs=Math.max(6,Math.round(o.fs*sc*2)/2);o.lw=Math.max(.6,o.lw*Math.max(.7,sc))}else o.lw=Math.max(.6,o.lw*Math.max(.7,sc));
+  const PP={objs};orgRelink(PP);return objs}
+function insertOrgTemplate(k){const t=ORG_TPL.find(x=>x.k===k);if(!t||!S.pages.length)return;const i=curPage(),P=S.pages[i];
+  const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();let top=Math.max(36,(vr.top-pr.top)/S.zoom+36);
+  const objs=orgFit(t.b(),P,0),bb=orgBBox(objs);top=Math.min(top,Math.max(36,P.h-bb.h-30));objs.forEach(o=>moveObj(o,0,top));orgRelink({objs});
+  pushHist();P.objs.push(...objs);setTool('select');selectItems(i,objs);redraw(i);markDirty();
+  toast(tr('Vorlage eingefügt. Nicht benötigte Kästen anklicken und mit Entf löschen, die Linien verschwinden mit.'))}
+function orgThumb(t){const cv=document.createElement('canvas'),k=2,W=60,H=40;cv.width=W*k;cv.height=H*k;const c=cv.getContext('2d');
+  const objs=t.b();orgRelink({objs});const bb=orgBBox(objs),sc=Math.min((W-6)/bb.w,(H-6)/bb.h);
+  c.setTransform(k*sc,0,0,k*sc,k*((W-bb.w*sc)/2-bb.x*sc),k*((H-bb.h*sc)/2-bb.y*sc));c.lineCap='round';c.lineJoin='round';
+  for(const o of objs){o.lw=1.4/sc;if(o.type==='sym')o.label='';drawObj(c,o)}return cv}
 
 def('start','Aktivität','Startknoten',16,16,'',(c,o,x,y,w,h)=>{c.beginPath();c.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7);c.fill()},{fixed:1});
 def('end','Aktivität','Endknoten',18,18,'',(c,o,x,y,w,h)=>{c.beginPath();c.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7);c.save();c.fillStyle='#fff';c.fill();c.restore();c.stroke();c.beginPath();c.ellipse(x+w/2,y+h/2,w*.3,h*.3,0,0,7);c.fill()});
@@ -1174,7 +1514,58 @@ def('num','Markierung','Nummer (zählt hoch)',20,20,'1',(c,o,x,y,w,h)=>{c.beginP
 
 /* ---------- Objekte zeichnen ---------- */
 const mctx=document.createElement('canvas').getContext('2d');
-const tfont=o=>`${o.bold?'600 ':''}${o.fs}px ${FONT}`;
+/* Schriftarten für Textfelder. Ist die Originalschrift auf dem Rechner installiert (z. B. Arial unter Windows), wird sie benutzt,
+   sonst ein mitgelieferter, maßgleicher freier Nachbau (Arimo, Tinos, Carlito …). */
+const FONTS=[
+  {k:'',n:'Standard',g:'Serifenlos',css:null},
+  {k:'arial',n:'Arial',g:'Serifenlos',css:'Arial, "Liberation Sans", "Layr Arimo", Arimo, sans-serif'},
+  {k:'calibri',n:'Calibri',g:'Serifenlos',css:'Calibri, Carlito, "Layr Carlito", sans-serif'},
+  {k:'verdana',n:'Verdana',g:'Serifenlos',css:'Verdana, "DejaVu Sans", "Layr Open Sans", "Open Sans", sans-serif'},
+  {k:'roboto',n:'Roboto',g:'Serifenlos',css:'"Layr Roboto", Roboto, sans-serif'},
+  {k:'opensans',n:'Open Sans',g:'Serifenlos',css:'"Layr Open Sans", "Open Sans", sans-serif'},
+  {k:'lato',n:'Lato',g:'Serifenlos',css:'"Layr Lato", Lato, sans-serif'},
+  {k:'montserrat',n:'Montserrat',g:'Serifenlos',css:'"Layr Montserrat", Montserrat, sans-serif'},
+  {k:'times',n:'Times New Roman',g:'Mit Serifen',css:'"Times New Roman", "Liberation Serif", "Layr Tinos", Tinos, serif'},
+  {k:'georgia',n:'Georgia',g:'Mit Serifen',css:'Georgia, Gelasio, "Layr Gelasio", serif'},
+  {k:'cambria',n:'Cambria',g:'Mit Serifen',css:'Cambria, Caladea, "Layr Caladea", serif'},
+  {k:'merriweather',n:'Merriweather',g:'Mit Serifen',css:'"Layr Merriweather", Merriweather, serif'},
+  {k:'courier',n:'Courier New',g:'Schreibmaschine',css:'"Courier New", "Liberation Mono", "Layr Cousine", Cousine, monospace'},
+  {k:'plexmono',n:'IBM Plex Mono',g:'Schreibmaschine',css:'"IBM Plex Mono", monospace'},
+  {k:'caveat',n:'Caveat',g:'Handschrift',css:'"Layr Caveat", Caveat, cursive'},
+  {k:'comic',n:'Comic Sans MS',g:'Handschrift',css:'"Comic Sans MS", "Comic Neue", "Layr Comic Neue", cursive'},
+];
+const FONT_MAP={};FONTS.forEach(f=>FONT_MAP[f.k]=f);
+const fontBad={},fontReady={};
+function famOf(o){const f=o&&o.font&&FONT_MAP[o.font];return f&&f.css&&!fontBad[f.k]?f.css:FONT}
+function fontName(k){const f=FONT_MAP[k||''];return f?f.n:'Standard'}
+function ensureFont(k){const f=k&&FONT_MAP[k];if(!f||!f.css||fontReady[k])return Promise.resolve();fontReady[k]=1;
+  if(!document.fonts||!document.fonts.load)return Promise.resolve();
+  return Promise.all([document.fonts.load('16px '+f.css),document.fonts.load('700 16px '+f.css)]).catch(()=>{}).then(()=>{
+    const t=inkTest(f.css,false);if(!(t.w>30&&t.px>60)){fontBad[k]=1;dbg('Schrift '+k+' zeichnet nicht sichtbar, nehme Ersatz')}
+    try{if(S.pages&&S.pages.length)redrawAll()}catch(e){}})}
+const tfont=o=>`${o.bold?(o.font&&!fontBad[o.font]?'700 ':'600 '):''}${o.fs}px ${famOf(o)}`;
+let fontPop=null,fontPopCb=null,fontPopAnchor=null;
+function openFontPop(anchor,cur,cb){
+  if(!fontPop){fontPop=document.createElement('div');fontPop.className='fontPop';fontPop.hidden=true;fontPop.setAttribute('role','listbox');fontPop.setAttribute('aria-label','Schriftart');document.body.appendChild(fontPop);
+    fontPop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});
+    document.addEventListener('pointerdown',e=>{if(!fontPop||fontPop.hidden||fontPop._ah)return;if(fontPop.contains(e.target)||(fontPopAnchor&&fontPopAnchor.contains(e.target)))return;closeFontPop()},true);
+    addEventListener('keydown',e=>{if(e.key==='Escape'&&fontPop&&!fontPop.hidden&&!fontPop._ah){e.preventDefault();e.stopImmediatePropagation();closeFontPop()}},true);
+    addEventListener('resize',()=>closeFontPop())}
+  if(!fontPop.hidden&&!fontPop._ah&&fontPopAnchor===anchor){closeFontPop();return}
+  fontPopCb=cb;fontPopAnchor=anchor;let h='',g='';
+  const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  for(const f of FONTS){if(f.g!==g){g=f.g;h+='<div class="fp-g">'+g+'</div>'}
+    h+='<button type="button" class="fp-o" role="option" data-k="'+f.k+'" aria-selected="'+(f.k===(cur||''))+'" style="font-family:'+(f.css||'var(--f-ui)').replace(/"/g,'&quot;')+'"><span>'+f.n+'</span>'+CHK+'</button>'}
+  fontPop.innerHTML=h;
+  fontPop.querySelectorAll('.fp-o').forEach(b=>{b.onclick=()=>{const k=b.dataset.k;closeFontPop();ensureFont(k);if(fontPopCb)fontPopCb(k)}});
+  if(document.fonts&&document.fonts.load)FONTS.forEach(f=>{if(f.css)document.fonts.load('16px '+f.css).catch(()=>{})});
+  showEl(fontPop);const r=anchor.getBoundingClientRect(),w=fontPop.offsetWidth,hh=fontPop.offsetHeight;
+  let x=Math.max(8,Math.min(r.left,innerWidth-w-8)),y=r.bottom+6;if(y+hh>innerHeight-8)y=Math.max(8,r.top-hh-6);
+  fontPop.style.left=x+'px';fontPop.style.top=y+'px';anchor.setAttribute('aria-expanded','true');
+  const sel=fontPop.querySelector('[aria-selected="true"]');if(sel)sel.scrollIntoView({block:'nearest'})}
+function closeFontPop(){if(fontPop&&!fontPop.hidden&&!fontPop._ah){animHide(fontPop);if(fontPopAnchor)fontPopAnchor.setAttribute('aria-expanded','false')}}
+function saveFontPref(){try{localStorage.setItem('pdfwerkbank:font',S.font||'')}catch(e){}}
+function setFontUI(k){const n=document.getElementById('fontBtnN');if(!n)return;n.textContent=fontName(k);const f=FONT_MAP[k||''];n.style.fontFamily=f&&f.css?f.css:''}
 /* Schrifttest: Zeichnet ein Probewort auf eine Zeichenfläche und zählt, ob wirklich Pixel entstehen.
    Auf manchen Rechnern misst und zeichnet die Zeichenfläche eine Schrift mit 0 Pixeln (Text unsichtbar).
    Dann wird automatisch eine Ersatzschrift genommen, die sichtbar zeichnet. */
@@ -1208,8 +1599,11 @@ function drawText(c,o){
 function linePts(o){
   const{x1,y1,x2,y2}=o;let p;
   if(!o.elbow)p=[[x1,y1],[x2,y2]];
+  else if(o.elbow==='vh')p=[[x1,y1],[x1,y2],[x2,y2]];
+  else if(o.elbow==='side'){const sx=Math.min(x1,x2)-14;p=[[x1,y1],[sx,y1],[sx,y2],[x2,y2]]}
+  else if(o.elbow==='vb'){const my=y2-Math.min(20,Math.abs(y2-y1)/2);p=[[x1,y1],[x1,my],[x2,my],[x2,y2]]}
   else{const dx=x2-x1,dy=y2-y1;
-    if(Math.abs(dx)>=Math.abs(dy)){const mx=x1+dx/2;p=[[x1,y1],[mx,y1],[mx,y2],[x2,y2]]}
+    if(o.elbow!=='v'&&Math.abs(dx)>=Math.abs(dy)){const mx=x1+dx/2;p=[[x1,y1],[mx,y1],[mx,y2],[x2,y2]]}
     else{const my=y1+dy/2;p=[[x1,y1],[x1,my],[x2,my],[x2,y2]]}}
   return p.filter((q,i)=>i===0||Math.hypot(q[0]-p[i-1][0],q[1]-p[i-1][1])>.01);
 }
@@ -1239,7 +1633,7 @@ function drawPen(c,o){
   else{for(let i=1;i<p.length-1;i++){const mx=(p[i][0]+p[i+1][0])/2,my=(p[i][1]+p[i+1][1])/2;c.quadraticCurveTo(p[i][0],p[i][1],mx,my)}const l=p[p.length-1];c.lineTo(l[0],l[1])}
   c.stroke();
 }
-function cmText(len){return(len*PT_CM).toFixed(1).replace('.',',')+' cm'}
+function cmText(len){return(len*PT_CM).toFixed(1).replace('.',LANG==='en'?'.':',')+' cm'}
 function drawMeasure(c,o){
   const dx=o.x2-o.x1,dy=o.y2-o.y1,len=Math.hypot(dx,dy);if(len<.5)return;const ux=dx/len,uy=dy/len,nx=-uy*6,ny=ux*6;
   c.setLineDash([]);seg(c,o.x1,o.y1,o.x2,o.y2);seg(c,o.x1-nx,o.y1-ny,o.x1+nx,o.y1+ny);seg(c,o.x2-nx,o.y2-ny,o.x2+nx,o.y2+ny);
@@ -1329,7 +1723,7 @@ function drawSel(c,o){
   const b=bbox(o),z=S.zoom,p=(4+(1-eo)*12)/z;c.save();c.globalAlpha=Math.min(1,.15+eo);c.strokeStyle=accentCol();c.lineWidth=1.2/z;c.setLineDash([4/z,3/z]);c.lineDashOffset=-(1-eo)*14/z;
   if(o.type!=='line'&&o.type!=='measure')c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p);c.setLineDash([]);c.globalAlpha=1;
   if(o.type==='group'){c.save();c.globalAlpha=.42*Math.min(1,eo+.2);c.lineWidth=1/z;for(const it of o.items){const q=bbox(it);c.strokeRect(q.x-2/z,q.y-2/z,q.w+4/z,q.h+4/z)}
-    c.globalAlpha=Math.min(1,eo+.1);const lbl=o.items.length+' ausgewählt';c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(lbl).width;let px=b.x-p,py=b.y-p-21/z;if(py<0)py=b.y+b.h+p+5/z;
+    c.globalAlpha=Math.min(1,eo+.1);const lbl=tr(o.items.length+' ausgewählt');c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(lbl).width;let px=b.x-p,py=b.y-p-21/z;if(py<0)py=b.y+b.h+p+5/z;
     c.fillStyle=accentCol();rr(c,px,py,tw+16/z,17/z,8.5/z);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(lbl,px+8/z,py+9/z);c.restore()}
   const hs=9*Math.max(.2,bk);for(const h of handles(o)){c.fillStyle='#fff';c.beginPath();c.rect(h.x-hs/2/z,h.y-hs/2/z,hs/z,hs/z);c.fill();c.stroke()}
   c.restore();
@@ -1359,7 +1753,7 @@ function layout(){
   renderAll();
 }
 function redraw(i){
-  const P=S.pages[i];if(!P||!P.ictx)return;const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);
+  const P=S.pages[i];if(!P||!P.ictx)return;orgRelink(P);const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);
   const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);
   for(const o of P.objs)drawObj(c,o);
   if(S.draft&&S.draft.p===i){const D=S.draft;
@@ -1410,7 +1804,7 @@ function setSel(sel){const prev=S.sel;S.sel=sel;if(prev)redraw(prev.p);
     const step=()=>{if(selAnim!==a)return;redraw(a.p);if(performance.now()-a.t0<300)requestAnimationFrame(step);else{selAnim=null;redraw(a.p)}};requestAnimationFrame(step)}
   if(sel){redraw(sel.p);syncControls(sel.o)}}
 function delSel(){if(!S.sel)return;pushHist();const P=S.pages[S.sel.p],T=selItems();P.objs=P.objs.filter(o=>!T.includes(o));const p=S.sel.p;S.sel=null;redraw(p);markDirty()}
-function dupSel(){if(!S.sel)return;pushHist();const p=S.sel.p,C=selItems().map(o=>{const c=JSON.parse(JSON.stringify(o));moveObj(c,12,12);if(c.sym==='num')c.label=String(S.num++);return c});S.pages[p].objs.push(...C);selectItems(p,C);markDirty()}
+function dupSel(){if(!S.sel)return;pushHist();const p=S.sel.p,C=selItems().map(o=>{const c=JSON.parse(JSON.stringify(o));moveObj(c,12,12);if(c.sym==='num')c.label=String(S.num++);return c});orgRemap(C);S.pages[p].objs.push(...C);selectItems(p,C);markDirty()}
 function orderSel(front){if(!S.sel)return;pushHist();const P=S.pages[S.sel.p],T=P.objs.filter(o=>selItems().includes(o));P.objs=P.objs.filter(o=>!T.includes(o));if(front)P.objs.push(...T);else P.objs.unshift(...T);redraw(S.sel.p);markDirty()}
 
 /* ---------- Lineal ---------- */
@@ -1511,7 +1905,7 @@ function qsBuild(r,d){const base={color:d.color,lw:d.lw};if(d.alpha&&d.alpha!==1
   return null}
 function qsScaleInto(o,g,f,c){const m=(x,y)=>[c[0]+(x-c[0])*f,c[1]+(y-c[1])*f];
   if(g.type==='pen')o.pts=g.pts.map(p=>m(p[0],p[1]));else{const a=m(g.x,g.y);o.x=a[0];o.y=a[1];o.w=g.w*f;o.h=g.h*f}}
-const cmN=l=>(l*PT_CM).toFixed(1).replace('.',',');
+const cmN=l=>(l*PT_CM).toFixed(1).replace('.',LANG==='en'?'.':',');
 function qsLabel(k,o){const N={line:'Linie',circle:'Kreis',ellipse:'Ellipse',rect:'Rechteck',square:'Quadrat',tri:'Dreieck'}[k];
   if(k==='line'){const dx=o.x2-o.x1,dy=o.y2-o.y1;let a=Math.round(-Math.atan2(dy,dx)*180/Math.PI);a=((a%180)+180)%180;return[N,a+'° · '+cmText(Math.hypot(dx,dy))]}
   const b=bbox(o),e=o.type==='pen'?o.lw:0,w=b.w-e,h=b.h-e;
@@ -1806,7 +2200,7 @@ function makeEditor(i,x,y,fs,color,value,opt={}){
   editorEl=box;editorTa={get value(){return eng.value}};ED={eng,esc:()=>closeEditor(),focus:eng.focus};
   eng.focus();setTimeout(()=>{if(editorEl===box)eng.focus()},0);return box;
 }
-function closeEditor(){if(!editorEl)return;dbg('editor close');const root=editorEl,cb=editorDone,v=editorTa.value;editorEl=editorTa=editorDone=ED=editingObj=null;root.remove();try{cb&&cb(v)}finally{for(const P of S.pages)for(const o of P.objs)delete o._editing;redrawAll();requestAnimationFrame(redrawAll)}}
+function closeEditor(){closeFontPop();if(!editorEl)return;dbg('editor close');const root=editorEl,cb=editorDone,v=editorTa.value;editorEl=editorTa=editorDone=ED=editingObj=null;root.remove();try{cb&&cb(v)}finally{for(const P of S.pages)for(const o of P.objs)delete o._editing;redrawAll();requestAnimationFrame(redrawAll)}}
 const GRIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg>';
 /* Textfeld nach Acrobat-Vorbild: Text steht direkt im Blatt (gleiche Schrift, gleiche Größe), dünner Rahmen,
    Rand ziehen = verschieben, Seitengriffe = Breite (Umbruch), Eckgriff = Schriftgröße. Klick daneben übernimmt den Text. */
@@ -1835,15 +2229,15 @@ function idxPos(o,g,idx){const{b,starts}=g;let li=b.lines.length-1;for(let k=0;k
   const col=clamp(idx-starts[li],0,b.lines[li].length);mctx.font=tfont(o);return{li,col,x:mctx.measureText(b.lines[li].slice(0,col)).width,y:li*b.lh}}
 function posIdx(o,g,x,y){const{b,starts}=g;const li=clamp(Math.floor(y/b.lh),0,b.lines.length-1),L=b.lines[li]||'';mctx.font=tfont(o);let best=0,bd=1e9;
   for(let j=0;j<=L.length;j++){const d=Math.abs(mctx.measureText(L.slice(0,j)).width-x);if(d<bd){bd=d;best=j}}return Math.min(starts[li]+best,String(o.text).length)}
-document.addEventListener('pointerdown',e=>{if(!editorEl)return;const t=e.target;if(editorEl.contains(t))return;
+document.addEventListener('pointerdown',e=>{if(!editorEl)return;const t=e.target;if(editorEl.contains(t)||(fontPop&&fontPop.contains(t)))return;
   if(t.closest&&t.closest('#panel,.ctx,#ruler,.modal'))return;if(t.classList&&t.classList.contains('ink'))return;closeEditor()},true);
 function openTextEditor(i,o,isNew,at){
   closeEditor();const P=S.pages[i];const before=isNew?null:snapshot(),origJson=JSON.stringify(o),startText=o.text;
   editingObj=o;
   const root=document.createElement('div');root.className='tbx';
-  root.innerHTML=`<div class="edbar"><button type="button" data-a="dn" title="Schrift kleiner">A−</button><input type="number" class="edfs" id="edFs" min="4" max="200" step="1" aria-label="Schriftgröße"><button type="button" data-a="up" title="Schrift größer">A+</button><span class="edsep"></span><button type="button" data-a="bold" title="Fett (Strg+B)"><b>B</b></button><button type="button" data-a="ul" title="Unterstreichen (Strg+U)"><u>U</u></button><span class="edsep"></span><button type="button" data-a="lb" title="Aufzählung (Strg+Umschalt+8) · Tab: Unterpunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="7" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="12.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1.3" fill="currentColor" stroke="none"/><path d="M9 7h11M13 12.5h7M9 18h11"/></svg></button><button type="button" data-a="ln" title="Nummerierung (Strg+Umschalt+7) · Tab: Unterpunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 7h11M13 12.5h7M9 18h11"/><text x="2.2" y="9.4" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">1</text><text x="6" y="15" font-size="6.2" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">a</text><text x="2.2" y="20.4" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">2</text></svg></button><button type="button" data-a="out" title="Ebene höher (Umschalt+Tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 6h9M11 12h9M11 18h9M7 9l-3 3 3 3"/></svg></button><button type="button" data-a="in" title="Unterpunkt (Tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 6h9M11 12h9M11 18h9M4 9l3 3-3 3"/></svg></button><span class="edcolw"><button type="button" data-a="col" class="edcol" title="Schriftfarbe" aria-haspopup="true" aria-expanded="false"><span class="ca">A</span><span class="cbar"></span></button><span class="edpal" hidden><span class="edsws"><button type="button" class="edsw" data-c="#1b1f24" title="Schwarz" style="background:#1b1f24"></button><button type="button" class="edsw" data-c="#d62828" title="Rot" style="background:#d62828"></button><button type="button" class="edsw" data-c="#1d4ed8" title="Blau" style="background:#1d4ed8"></button><button type="button" class="edsw" data-c="#15803d" title="Grün" style="background:#15803d"></button><button type="button" class="edsw" data-c="#ea7a0b" title="Orange" style="background:#ea7a0b"></button><button type="button" class="edsw" data-c="#7c3aed" title="Lila" style="background:#7c3aed"></button><button type="button" class="edsw" data-c="#0e7490" title="Petrol" style="background:#0e7490"></button><button type="button" class="edsw" data-c="#6b7280" title="Grau" style="background:#6b7280"></button></span><label class="edcust"><input type="color" class="edcin" aria-label="Eigene Farbe"> Eigene Farbe</label></span></span><button type="button" data-a="del" title="Textfeld löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div><div class="tbx-in"><div class="tsel"></div><i class="crt"></i></div><span class="edh ml" data-h="ml"></span><span class="edh mr" data-h="mr"></span><span class="edh br" data-h="br" title="Schriftgröße ziehen"></span>`;
+  root.innerHTML=`<div class="edbar"><button type="button" data-a="font" class="edfont" title="Schriftart" aria-haspopup="listbox" aria-expanded="false"><span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><span class="edsep"></span><button type="button" data-a="dn" title="Schrift kleiner">A−</button><input type="number" class="edfs" id="edFs" min="4" max="200" step="1" aria-label="Schriftgröße"><button type="button" data-a="up" title="Schrift größer">A+</button><span class="edsep"></span><button type="button" data-a="bold" title="Fett (Strg+B)"><b>B</b></button><button type="button" data-a="ul" title="Unterstreichen (Strg+U)"><u>U</u></button><span class="edsep"></span><button type="button" data-a="lb" title="Aufzählung (Strg+Umschalt+8) · Tab: Unterpunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="7" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="12.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1.3" fill="currentColor" stroke="none"/><path d="M9 7h11M13 12.5h7M9 18h11"/></svg></button><button type="button" data-a="ln" title="Nummerierung (Strg+Umschalt+7) · Tab: Unterpunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 7h11M13 12.5h7M9 18h11"/><text x="2.2" y="9.4" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">1</text><text x="6" y="15" font-size="6.2" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">a</text><text x="2.2" y="20.4" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">2</text></svg></button><button type="button" data-a="out" title="Ebene höher (Umschalt+Tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 6h9M11 12h9M11 18h9M7 9l-3 3 3 3"/></svg></button><button type="button" data-a="in" title="Unterpunkt (Tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 6h9M11 12h9M11 18h9M4 9l3 3-3 3"/></svg></button><span class="edcolw"><button type="button" data-a="col" class="edcol" title="Schriftfarbe" aria-haspopup="true" aria-expanded="false"><span class="ca">A</span><span class="cbar"></span></button><span class="edpal" hidden><span class="edsws"><button type="button" class="edsw" data-c="#1b1f24" title="Schwarz" style="background:#1b1f24"></button><button type="button" class="edsw" data-c="#d62828" title="Rot" style="background:#d62828"></button><button type="button" class="edsw" data-c="#1d4ed8" title="Blau" style="background:#1d4ed8"></button><button type="button" class="edsw" data-c="#15803d" title="Grün" style="background:#15803d"></button><button type="button" class="edsw" data-c="#ea7a0b" title="Orange" style="background:#ea7a0b"></button><button type="button" class="edsw" data-c="#7c3aed" title="Lila" style="background:#7c3aed"></button><button type="button" class="edsw" data-c="#0e7490" title="Petrol" style="background:#0e7490"></button><button type="button" class="edsw" data-c="#6b7280" title="Grau" style="background:#6b7280"></button></span><label class="edcust"><input type="color" class="edcin" aria-label="Eigene Farbe"> Eigene Farbe</label></span></span><button type="button" data-a="del" title="Textfeld löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div><div class="tbx-in"><div class="tsel"></div><i class="crt"></i></div><span class="edh ml" data-h="ml"></span><span class="edh mr" data-h="mr"></span><span class="edh br" data-h="br" title="Schriftgröße ziehen"></span>`;
   P.el.appendChild(root);
-  const area=root.querySelector('.tbx-in'),caret=root.querySelector('.crt'),selL=root.querySelector('.tsel'),fsIn=root.querySelector('.edfs'),bB=root.querySelector('[data-a=bold]'),bU=root.querySelector('[data-a=ul]'),bLb=root.querySelector('[data-a=lb]'),bLn=root.querySelector('[data-a=ln]'),bC=root.querySelector('[data-a=col]'),pal=root.querySelector('.edpal'),cbar=root.querySelector('.cbar'),edcin=root.querySelector('.edcin');
+  const area=root.querySelector('.tbx-in'),caret=root.querySelector('.crt'),selL=root.querySelector('.tsel'),fsIn=root.querySelector('.edfs'),bB=root.querySelector('[data-a=bold]'),bU=root.querySelector('[data-a=ul]'),bLb=root.querySelector('[data-a=lb]'),bLn=root.querySelector('[data-a=ln]'),bF=root.querySelector('[data-a=font]'),bC=root.querySelector('[data-a=col]'),pal=root.querySelector('.edpal'),cbar=root.querySelector('.cbar'),edcin=root.querySelector('.edcin');
   let g=hGeo(o),eng=null;
   const refresh=()=>{const z=S.zoom;g=hGeo(o);const lh=g.b.lh*z;
     root.style.left=(o.x*z-TBX_PAD-1)+'px';root.style.top=(o.y*z-TBX_PAD-1)+'px';root.style.padding=TBX_PAD+'px';
@@ -1855,9 +2249,11 @@ function openTextEditor(i,o,isNew,at){
       selL.innerHTML='';if(l!==h){const pa=idxPos(o,g,l),pb=idxPos(o,g,h);mctx.font=tfont(o);
         for(let li=pa.li;li<=pb.li;li++){const x0=li===pa.li?pa.x:0,x1=li===pb.li?pb.x:mctx.measureText(g.b.lines[li]).width+o.fs*.3;
           const d=document.createElement('b');d.style.left=x0*z+'px';d.style.top=li*lh+'px';d.style.width=Math.max(2,(x1-x0)*z)+'px';d.style.height=lh+'px';selL.appendChild(d)}}}
+    {const fn=bF.firstChild;fn.textContent=fontName(o.font);const fc=FONT_MAP[o.font||''];fn.style.fontFamily=fc&&fc.css?fc.css:''}
     if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}cbar.style.background=o.color;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(o.color).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(o.color))edcin.value=o.color;
     root.classList.toggle('flip',o.y*z<46)};
-  const set=props=>{for(const k of['fs','color','bold','orient','underline'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];
+  const set=props=>{for(const k of['fs','color','bold','orient','underline','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];
+    if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}if('bold' in props){S.bold=o.bold;$('#bold').checked=o.bold}if('underline' in props){S.underline=!!o.underline;$('#underl').checked=!!o.underline}if('color' in props)setColor(o.color,true);refresh();redraw(i)};
   eng=textEngine(area,o.text,{lists:true,onChange:st=>{o.text=st.v;refresh();redraw(i)},
     vert:(idx,d)=>{const p=idxPos(o,g,idx),li=p.li+d;if(li<0)return 0;if(li>=g.b.lines.length)return o.text.length;return posIdx(o,g,p.x,(li+.5)*g.b.lh)},
@@ -1879,6 +2275,7 @@ function openTextEditor(i,o,isNew,at){
   root.querySelector('[data-a=up]').onclick=e=>{set({fs:o.fs+(e.shiftKey?4:1)});eng.focus()};
   root.querySelector('[data-a=del]').onclick=()=>{eng.st.v='';o.text='';closeEditor()};
   bB.onclick=()=>{set({bold:!o.bold});eng.focus()};
+  bF.onclick=()=>openFontPop(bF,o.font,k=>{set({font:k});eng.focus()});
   bU.onclick=()=>{set({underline:!o.underline});eng.focus()};
   bLb.onclick=()=>{eng.list('b');eng.focus()};bLn.onclick=()=>{eng.list('n');eng.focus()};
   root.querySelector('[data-a=in]').onclick=()=>{eng.indent(1);eng.focus()};root.querySelector('[data-a=out]').onclick=()=>{eng.indent(-1);eng.focus()};
@@ -1922,10 +2319,10 @@ function openTextEditor(i,o,isNew,at){
     redraw(i)};
 }
 function newText(i,x,y){
-  const fs=S.fs;openTextEditor(i,{type:'text',x,y:y-fs*.625,text:'',fs,color:S.color,orient:S.orient,bold:S.bold,underline:!!S.underline,lw:0},true);
+  const fs=S.fs;openTextEditor(i,{type:'text',x,y:y-fs*.625,text:'',fs,color:S.color,orient:S.orient,bold:S.bold,underline:!!S.underline,lw:0,...(S.font?{font:S.font}:{})},true);
 }
 function editText(i,o,at){S.sel=null;openTextEditor(i,o,false,at)}
-function editLabel(i,o){
+function editLabel(i,o){if(!SYM[o.sym])return;
   editingObj=o;redraw(i);const s=SYM[o.sym];const fs=o.fs||11;
   const y=s.below?o.y+o.h+2:o.y+Math.max(0,o.h/2-fs*.7);makeEditor(i,o.x,y,fs,o.color,o.label,{center:!['class','interface'].includes(o.sym),w:o.w});
   editorDone=v=>{if(v!==o.label){pushHist();o.label=v;markDirty()}redraw(i)};
@@ -1945,6 +2342,10 @@ function fillSym(sel,grid,after){
   sel.innerHTML='';for(const c of CATS){const op=document.createElement('option');op.value=c;op.textContent=c+' ('+Object.values(SYM).filter(s=>s.cat===c).length+')';sel.appendChild(op)}
   sel.value=S.cat;sel.onchange=()=>{S.cat=sel.value;buildCats()};
   grid.innerHTML='';
+  if(S.cat==='Organigramm'){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
+    for(const t of ORG_TPL){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
+      b.onclick=()=>{insertOrgTemplate(t.k);after&&after()};grid.appendChild(b)}
+    const h2=document.createElement('div');h2.className='tpl-h';h2.textContent='Bausteine';grid.appendChild(h2)}
   for(const s of Object.values(SYM).filter(s=>s.cat===S.cat)){
     const b=document.createElement('button');b.type='button';b.className='sym';b.title=s.name;b.dataset.s=s.id;b.setAttribute('aria-pressed',s.id===S.sym&&S.tool==='symbol');
     b.append(thumb(s.id));const sp=document.createElement('span');sp.textContent=s.name;b.append(sp);
@@ -1978,13 +2379,14 @@ async function openPdf(bytes,name,opt={}){
     if(a&&j){const data=JSON.parse(new TextDecoder().decode(j.content)),ob=new Uint8Array(a.content);const d2=await pdfjsLib.getDocument({data:ob.slice()}).promise;
       doc.destroy();doc=d2;bytes=ob;opt={...opt,objs:data.objs,notes:data.notes||'',tasks:Array.isArray(data.tasks)?data.tasks:[]};fromLayr=true;dbg('Layr-Anhang geladen: '+data.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
   catch(e){dbg('Anhang nicht lesbar: '+e)}}
-  if(S.doc)S.doc.destroy();S.doc=doc;S.bytes=bytes;S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
+  if(S.doc)S.doc.destroy();S.doc=doc;S.bytes=bytes;if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
   S.pages=[];for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});S.pages.push({w:vp.width,h:vp.height,objs:[]})}
   $('#fname').textContent=name;$('#fname').title=name;editingObj=null;
   {let nv='';if(opt.notes!=null)nv=opt.notes;else if(opt.keepHist)nv=S.notes||'';else if(!opt.isNew&&!opt.sample){try{nv=localStorage.getItem(storeKey()+':notes')||''}catch(e){}}notesSet(nv);let tv=[];if(opt.tasks!=null)tv=opt.tasks;else if(opt.keepHist)tv=S.tasks||[];else if(!opt.isNew&&!opt.sample){try{tv=JSON.parse(localStorage.getItem(storeKey()+':tasks')||'[]')}catch(e){}}tasksSet(tv);tasksMigrate()}
   if(opt.objs)opt.objs.forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));
   else{try{const js=localStorage.getItem(storeKey());if(js){JSON.parse(js).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));toast('Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.')}}catch(e){}}
   for(const P of S.pages)for(const o of P.objs)delete o._editing;
+  {const used=new Set();for(const P of S.pages)for(const o of P.objs)if(o.type==='text'&&o.font)used.add(o.font);used.forEach(k=>ensureFont(k))}
   S.dirty=false;setSaveState();if(!opt.keepHist)fitZoom(false);buildPages();if(!opt.keepHist)viewer.scrollTop=0;updPg();buildThumbs();
   if(fromLayr)toast('Deine Beschriftungen sind wieder bearbeitbar.');
 }
@@ -2021,7 +2423,7 @@ async function buildOutput(){
     pg.drawImage(png,o);
   }
   if(S.pages.some(P=>P.objs.length)||notesExport().trim()){
-    if(notesExport().trim())await pdf.attach(new TextEncoder().encode(notesExport()),'Notizen.txt',{mimeType:'text/plain',description:'Layr: Notizen zu diesem Dokument'});
+    if(notesExport().trim())await pdf.attach(new TextEncoder().encode(notesExport()),notesFile(),{mimeType:'text/plain',description:'Layr: Notizen zu diesem Dokument'});
     await pdf.attach(S.bytes.slice(),LAYR_ORIG,{mimeType:'application/pdf',description:'Layr: unbeschriftete Fassung'});
     await pdf.attach(new TextEncoder().encode(JSON.stringify({v:1,objs:JSON.parse(snapshot()),notes:S.notes||'',tasks:S.tasks||[]})),LAYR_DATA,{mimeType:'application/json',description:'Layr: Beschriftungen'});
   }
@@ -2127,7 +2529,8 @@ function notesUpd(){const v=S.notes||'',n=(v.trim().match(/\S+/g)||[]).length,T=
   if(b){const has=!!v.trim()||T.length>0;b.classList.toggle('has',has);b.title='Notizen (N)'+(T.length?' · '+open+' offene Aufgabe'+(open===1?'':'n'):'')}}
 /* Aufgaben: eigene Liste mit großen Kästchen zum Abhaken */
 function tasksText(){return(S.tasks||[]).map(t=>(t.d?'☑ ':'☐ ')+t.t).join('\n')}
-function notesExport(){const a=tasksText(),b=(S.notes||'').trim();return(a?'Aufgaben\n'+a+(b?'\n\n':''):'')+(b?S.notes:'')}
+const notesFile=()=>LANG==='en'?'Notes.txt':'Notizen.txt';
+function notesExport(){const a=tasksText(),b=(S.notes||'').trim();return(a?tr('Aufgaben')+'\n'+a+(b?'\n\n':''):'')+(b?S.notes:'')}
 function tasksSet(arr){S.tasks=Array.isArray(arr)?arr.filter(t=>t&&typeof t.t==='string').map(t=>({t:t.t,d:!!t.d})):[];renderTasks()}
 function tasksMigrate(){if((S.tasks||[]).length)return;const keep=[],T=[];for(const l of String(S.notes||'').split('\n')){const m=l.match(/^\s*([☐☑])\s?(.*)$/);if(m&&m[2].trim())T.push({t:m[2].trim(),d:m[1]==='☑'});else keep.push(l)}
   if(T.length){S.tasks=T;notesSet(keep.join('\n').replace(/^\n+/,''));renderTasks();try{if(!S.sample){localStorage.setItem(storeKey()+':tasks',JSON.stringify(S.tasks));localStorage.setItem(storeKey()+':notes',S.notes)}}catch(e){}}}
@@ -2205,6 +2608,16 @@ function showUpd(r,manual){const W=window.werkbank;let skip='';try{skip=localSto
   $('#upNow').onclick=()=>run(true);
   let last=0;try{last=+localStorage.getItem('pdfwerkbank:updT')||0}catch(e){}
   if(on&&Date.now()-last>6*3600e3)setTimeout(()=>run(false),8000)})();
+// Sprache: Einstellung und Erststart
+document.querySelectorAll('#dLang button').forEach(b=>b.onclick=()=>{setLang(b.dataset.v);toast(LANG==='en'?'Layr is now in English.':'Layr ist jetzt auf Deutsch.')});
+document.querySelectorAll('#dLang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===(LANG||'de')));
+function showLangDlg(){const d=$('#langDlg');const lg=document.querySelector('header svg.logo');if(lg&&!d.querySelector('.lang-logo svg'))d.querySelector('.lang-logo').appendChild(lg.cloneNode(true));
+  const sug=/^de\b/i.test(navigator.language||'')?'de':'en';d.querySelectorAll('.lang-opts button').forEach(b=>{b.classList.toggle('sug',b.dataset.v===sug);b.onclick=()=>{setLang(b.dataset.v);animHide(d)}});
+  showEl(d);setTimeout(()=>{const b=d.querySelector('.lang-opts .sug');b&&b.focus()},60)}
+setTimeout(async()=>{let l=LANG;
+  if(!l&&window.werkbank&&werkbank.appInfo){try{const i=await werkbank.appInfo();if(i&&(i.installLang==='de'||i.installLang==='en'))l=i.installLang}catch(e){}}
+  if(l){if(l==='en'||LANG!==l)setLang(l);else{i18nStart();if(window.werkbank&&werkbank.setLang)werkbank.setLang(l)}}
+  else{i18nStart();showLangDlg()}},0);
 // Personalisieren-Fenster öffnen/schließen
 const studio=$('#studio'),studioBg=$('#studioBg');
 const studioIsOpen=()=>!studio.hidden&&!studio._ah;
@@ -2343,7 +2756,7 @@ $('#nOk').onclick=async()=>{
     const entries=NS.pos==='start'?[...bl,...all]:NS.pos==='end'?[...all,...bl]:idx(n).flatMap(j=>j===cp?[{i:j},...bl]:[{i:j}]);
     const at=NS.pos==='start'?0:NS.pos==='end'?n:cp+1,w=cnt>1?cnt+' leere Seiten':'Leere Seite';
     rebuildPages(entries,`${w} eingefügt (Seite ${at+1}${cnt>1?'–'+(at+cnt):''}). Rückgängig mit Strg+Z.`,at);return}
-  const name=($('#nName').value.trim()||'Neues Blatt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
+  const name=($('#nName').value.trim()||docBase()).replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
   const d=await PDFLib.PDFDocument.create();d.setTitle(name.replace(/\.pdf$/,''));for(let i=0;i<cnt;i++)paintBg(d.addPage(FMT[NS.fmt]),NS.bg,NS.paper);
   window.werkbank&&werkbank.newDoc&&werkbank.newDoc();await openPdf(await d.save(),name,{isNew:true,bg:NS.bg,paper:NS.paper,objs:[]});
   if(S.pages[0]&&S.pages[0].el)popEl(S.pages[0].el);
@@ -2494,8 +2907,8 @@ function sampleObjs(){
 if(window.werkbank)werkbank.onOpen((name,bytes)=>openPdf(new Uint8Array(bytes),name));
 setColor(S.color,true);setTool('select');buildCats();updUndo();
 async function openBlank(){
-  const d=await PDFLib.PDFDocument.create();d.setTitle('Neues Blatt');d.addPage(FMT.a4p);
-  window.werkbank&&werkbank.newDoc&&werkbank.newDoc();await openPdf(await d.save(),'Neues Blatt.pdf',{isNew:true,bg:'blank',objs:[]});
+  const d=await PDFLib.PDFDocument.create();d.setTitle(docBase());d.addPage(FMT.a4p);
+  window.werkbank&&werkbank.newDoc&&werkbank.newDoc();await openPdf(await d.save(),docBase()+'.pdf',{isNew:true,bg:'blank',objs:[]});
 }
 (async()=>{
   try{let f=null;if(window.werkbank){try{f=await werkbank.initial()}catch(e){}}

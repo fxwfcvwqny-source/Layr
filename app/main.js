@@ -13,6 +13,16 @@ let initialFile = null;
 let savedPath = null;               // Zieldatei für Speichern/Autospeichern
 let allowClose = false, closing = false;
 
+// Sprache der Programm-Dialoge (Deutsch/English). Kommt aus der Oberfläche; beim allerersten Start aus dem Windows-Installer.
+const DLG_EN = { 'Ohne Speichern schließen': 'Close without saving', 'Abbrechen': 'Cancel', 'Es gibt ungespeicherte Beschriftungen.': 'There are unsaved annotations.',
+  'Sie bleiben im Zwischenspeicher und kommen beim nächsten Öffnen derselben Datei wieder.': 'They stay in the cache and come back the next time you open the same file.',
+  'Speichern unter': 'Save as', 'Speichern': 'Save', 'Nicht speichern': "Don't save", 'Änderungen speichern?': 'Save changes?',
+  'Deine Beschriftungen sind noch nicht in der PDF gespeichert.': 'Your annotations are not saved in the PDF yet.' };
+const installLang = () => { try { const v = fs.readFileSync(path.join(process.resourcesPath, 'install-language.txt'), 'utf8').replace(/\0/g, '').trim(); return v === '1031' ? 'de' : v === '1033' ? 'en' : null; } catch (e) { return null; } };
+let uiLang = null;
+const langFile = () => path.join(app.getPath('userData'), 'lang.txt');
+const getLang = () => { if (uiLang) return uiLang; try { const v = fs.readFileSync(langFile(), 'utf8').trim(); if (v === 'en' || v === 'de') return (uiLang = v); } catch (e) {} return (uiLang = installLang() || 'de'); };
+const T = s => (getLang() === 'en' && DLG_EN[s]) || s;
 const pdfArg = argv => argv.slice(1).find(a => /\.pdf$/i.test(a) && fs.existsSync(a));
 const readPdf = f => { savedPath = null; currentFile = path.resolve(f); lastDir = path.dirname(currentFile); return { name: path.basename(f), data: fs.readFileSync(f) }; };
 
@@ -79,8 +89,8 @@ else {
     win.on('close', e => { if (allowClose) return; e.preventDefault(); handleClose(); });
     // Ungespeicherte Änderungen: nachfragen statt das Schließen still zu blockieren
     win.webContents.on('will-prevent-unload', e => {
-      const c = dialog.showMessageBoxSync(win, { type: 'question', buttons: ['Ohne Speichern schließen', 'Abbrechen'], defaultId: 1, cancelId: 1,
-        message: 'Es gibt ungespeicherte Beschriftungen.', detail: 'Sie bleiben im Zwischenspeicher und kommen beim nächsten Öffnen derselben Datei wieder.' });
+      const c = dialog.showMessageBoxSync(win, { type: 'question', buttons: [T('Ohne Speichern schließen'), T('Abbrechen')], defaultId: 1, cancelId: 1,
+        message: T('Es gibt ungespeicherte Beschriftungen.'), detail: T('Sie bleiben im Zwischenspeicher und kommen beim nächsten Öffnen derselben Datei wieder.') });
       if (c === 0) e.preventDefault();
     });
     // Seite abgestürzt (weißes Fenster): Grund festhalten und dieselbe Datei neu laden.
@@ -116,7 +126,7 @@ ipcMain.handle('save', async (_e, name, data, saveAs) => {
   }
   for (;;) {
     const r = await dialog.showSaveDialog(win, {
-      title: 'Speichern unter', defaultPath: savedPath || currentFile || path.join(lastDir, name),
+      title: T('Speichern unter'), defaultPath: savedPath || currentFile || path.join(lastDir, name),
       filters: [{ name: 'PDF', extensions: ['pdf'] }],
     });
     if (r.canceled || !r.filePath) return null;
@@ -153,8 +163,8 @@ async function handleClose() {
     const st = await askRenderer('window.__wbState && window.__wbState()', 1500);
     if (st && st.dirty) {
       {
-        const c = await dialog.showMessageBox(win, { type: 'question', buttons: ['Speichern', 'Nicht speichern', 'Abbrechen'], defaultId: 0, cancelId: 2,
-          message: 'Änderungen speichern?', detail: 'Deine Beschriftungen sind noch nicht in der PDF gespeichert.' });
+        const c = await dialog.showMessageBox(win, { type: 'question', buttons: [T('Speichern'), T('Nicht speichern'), T('Abbrechen')], defaultId: 0, cancelId: 2,
+          message: T('Änderungen speichern?'), detail: T('Deine Beschriftungen sind noch nicht in der PDF gespeichert.') });
         if (c.response === 2) return;
         if (c.response === 0 && !(await askRenderer('window.__wbSaveForClose()', 120000))) return;
       }
@@ -169,7 +179,8 @@ const cmpVer = (a, b) => { const x = String(a).split('.').map(n => parseInt(n, 1
 const pickAsset = assets => { const L = (assets || []).map(a => ({ n: String(a.name || ''), u: String(a.browser_download_url || '') }));
   const f = process.platform === 'win32' ? L.find(a => /setup.*\.exe$/i.test(a.n)) : (L.find(a => /\.deb$/i.test(a.n)) || L.find(a => /\.appimage$/i.test(a.n)));
   return f && f.u.startsWith(`https://github.com/${REPO}/releases/download/`) ? f.u : null; };
-ipcMain.handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO }));
+ipcMain.handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO, installLang: installLang() }));
+ipcMain.on('set-lang', (_e, l) => { uiLang = l === 'en' ? 'en' : 'de'; try { fs.writeFileSync(langFile(), uiLang); } catch (e) {} });
 ipcMain.handle('check-update', async () => {
   try {
     const r = await net.fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' } });

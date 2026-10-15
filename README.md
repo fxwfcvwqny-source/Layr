@@ -10,16 +10,17 @@
 
 ## Features
 
-- **Write on any PDF** – text boxes with bold, underline, colours, bullet and numbered lists
+- **Write on any PDF** – text boxes with 16 fonts (Arial, Times New Roman, Calibri, Roboto, handwriting …), bold, underline, colours, bullet and numbered lists
 - **Pen and highlighter with shape recognition** – draw freehand, hold at the end and the stroke snaps into a straight line, circle, rectangle or triangle
 - **Lasso and multi-select** – move, scale, recolour, duplicate or delete several items at once
+- **Org charts** – ready-made templates (line, line-and-staff, divisional, matrix, IT department, project …) plus single building blocks; remove boxes you don't need and their lines go with them
 - **Big symbol library** – general shapes, UML, flowcharts (PAP), Nassi-Shneiderman, ER models, 40+ network symbols, topologies and IT-security symbols
 - **Notes and to-dos per document** – a notes panel with checkable tasks, stored *inside* the PDF
 - **Stays editable** – save over the original file; reopen it in Layr and every annotation can still be moved or removed
 - **Pages and documents** – add blank, lined, grid or dotted pages, merge several PDFs
 - **Make it yours** – light and dark themes, accent colours, desk and sheet colours, toolbar styles, notification styles, animations on or off
 
-The interface is in German.
+**Deutsch & English** – choose the language in the Windows installer or on first start, and switch any time under *Personalize*.
 
 ## Installation
 
@@ -27,13 +28,13 @@ Download the file for your system from the [latest release](https://github.com/f
 
 | System | File | How to install |
 |---|---|---|
-| Windows 10/11 | `Layr-Setup-<version>.exe` | Run it and follow the setup. No admin rights needed. |
+| Windows 10/11 | `Layr-Setup-<version>.exe` | Run it, pick Deutsch or English and follow the setup. No admin rights needed. |
 | Ubuntu / Debian | `Layr-<version>-amd64.deb` | Double-click, or `sudo apt install ./Layr-<version>-amd64.deb` |
 | Any Linux | `Layr-<version>-x86_64.AppImage` | Make it executable (`chmod +x`) and double-click. Nothing gets installed. |
 
 **Windows SmartScreen:** the installer is not code-signed, so Windows may show *"Windows protected your PC"* the first time. Click **More info → Run anyway**.
 
-**Updates:** Layr checks this page for a newer version (can be turned off under *Personalisieren → Layr & Updates*) and shows a download button when one is available.
+**Updates:** Layr checks this page for a newer version (can be turned off under *Personalize → Layr & updates*) and shows a download button when one is available.
 
 ## Privacy
 

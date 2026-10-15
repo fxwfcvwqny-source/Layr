@@ -10,4 +10,5 @@ contextBridge.exposeInMainWorld('werkbank', {
   appInfo: () => ipcRenderer.invoke('app-info'),
   checkUpdate: () => ipcRenderer.invoke('check-update'),
   openRelease: u => ipcRenderer.send('open-release', String(u || '')),
+  setLang: l => ipcRenderer.send('set-lang', l === 'en' ? 'en' : 'de'),
 });
