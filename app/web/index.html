@@ -113,7 +113,7 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .page .ink{touch-action:none}
 .page .pno{position:absolute;left:-2px;top:-18px;font:500 11px var(--f-mono);color:var(--muted)}
 .mode-hand .page .ink{pointer-events:none}
-.mode-select .ink{cursor:default}.mode-lasso .ink{cursor:crosshair}.mode-pen .ink,.mode-marker .ink,.mode-line .ink,.mode-arrow .ink,.mode-rect .ink,.mode-ellipse .ink,.mode-measure .ink,.mode-symbol .ink{cursor:crosshair}
+.mode-select .ink{cursor:default}.mode-lasso .ink{cursor:crosshair}.mode-table .ink{cursor:crosshair}.mode-pen .ink,.mode-marker .ink,.mode-line .ink,.mode-arrow .ink,.mode-rect .ink,.mode-ellipse .ink,.mode-measure .ink,.mode-symbol .ink{cursor:crosshair}
 .mode-text .ink{cursor:text}.mode-eraser .ink{cursor:cell}
 .editor{position:absolute;z-index:5;min-width:40px;min-height:1.4em;padding:0 2px;margin:0;border:1.5px dashed var(--accent);background:rgba(255,255,255,.92);font-family:var(--f-ui);line-height:1.25;resize:none;overflow:hidden;white-space:pre;outline:none;color:#000}
 .tbx{position:absolute;z-index:6;border:1px solid var(--accent);border-radius:2px;cursor:move;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent);touch-action:none}
@@ -193,7 +193,7 @@ select{height:30px;border:1px solid var(--line);border-radius:6px;background:var
 .ddrow{display:flex;align-items:center;gap:8px;font-size:13px}.ddrow span{color:var(--muted);flex:none}
 .tool .dd{position:absolute;right:3px;top:3px;width:9px;height:9px;color:var(--muted)}
 .symPop{position:fixed;z-index:94;width:352px;max-width:calc(100vw - 16px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
-.symPop .symgrid{grid-template-columns:repeat(4,1fr);overflow-y:auto;min-height:0;padding:2px}
+.symPop .symgrid{grid-template-columns:repeat(4,1fr);grid-auto-rows:max-content;align-content:start;overflow-y:auto;min-height:0;padding:2px}
 .sym{border:1px solid var(--line);border-radius:8px;background:#fff;padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#2b3440}
 .sym canvas{width:60px;height:40px}
 .sym span{font-size:10.5px;line-height:1.15;text-align:center;color:#3b4652}
@@ -629,6 +629,23 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .langdlg .lang-card>:nth-child(2){animation-delay:.05s!important}.langdlg .lang-card>:nth-child(3){animation-delay:.1s!important}.langdlg .lang-card>:nth-child(4){animation-delay:.15s!important}.langdlg .lang-card>:nth-child(5){animation-delay:.2s!important}
 .symgrid .tpl-h{grid-column:1/-1;font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 2px 0}
 .sym.tpl canvas{border-radius:4px}
+/* Tabelle & Subnetzrechner */
+.panel .sec[hidden]{display:none}
+.tblrow label{width:58px}.tblrow .btn{width:30px;height:28px;padding:0;justify-content:center;font-size:16px}.tblrow .val{min-width:26px;text-align:center}
+.ipcard{width:min(640px,100%);max-height:calc(100vh - 40px);gap:12px}
+.ip-h{display:flex;align-items:center;justify-content:space-between}.ip-h h2{margin:0;font-size:18px}
+.ip-l{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--muted)}
+.ip-l input{height:36px;border:1px solid var(--line);border-radius:var(--r);padding:0 10px;background:var(--panel);color:var(--ink);font:500 15px var(--f-mono)}
+.ip-l input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.ip-out{overflow:auto;max-height:46vh;border:1px solid var(--line);border-radius:var(--r);min-height:60px}
+.ip-out table{border-collapse:collapse;width:100%;font-size:12.5px}
+.ip-out th{position:sticky;top:0;background:color-mix(in srgb,var(--accent) 10%,var(--panel));text-align:left;font-weight:600;padding:7px 10px;border-bottom:1px solid var(--line)}
+.ip-out td{padding:6px 10px;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent);font-family:var(--f-mono);font-size:12px;white-space:nowrap}
+.ip-out td:first-child{font-family:var(--f-ui)}
+.ip-out tr:last-child td{border-bottom:0}
+.ip-out tbody tr{animation:lyr-tool-b .3s cubic-bezier(.2,.9,.3,1.2) backwards}
+.ip-err{margin:0;padding:14px;color:var(--danger);font-size:13px}
+.ip-btns{display:flex;gap:8px}.ip-btns span{flex:1}
 :root[data-motion="off"] *,:root[data-motion="off"] *::before,:root[data-motion="off"] *::after{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
@@ -755,6 +772,15 @@ header,.file{min-width:0}
       <div class="row"><label for="endH" style="width:44px">Ende</label><select id="endH"></select></div>
       <div class="row"><label class="chk"><input type="checkbox" id="dash"> Gestrichelt</label><label class="chk"><input type="checkbox" id="elbow"> Gewinkelt</label></div>
       <p class="hint">Mit gedrückter Umschalttaste rastet die Linie in 15°-Schritten ein.</p>
+      <p class="hint">Startet oder endet eine Linie auf einem Symbol, einer Form oder Tabelle, dockt sie dort an und wandert mit. Alt gedrückt halten: frei zeichnen.</p>
+    </div>
+    <div class="sec" id="tblSec" hidden>
+      <h3>Tabelle</h3>
+      <div class="row tblrow"><label>Zeilen</label><button class="btn" id="tRm" title="Zeile entfernen">−</button><span class="val" id="tRv">3</span><button class="btn" id="tRp" title="Zeile hinzufügen">+</button></div>
+      <div class="row tblrow"><label>Spalten</label><button class="btn" id="tCm" title="Spalte entfernen">−</button><span class="val" id="tCv">3</span><button class="btn" id="tCp" title="Spalte hinzufügen">+</button></div>
+      <div class="row"><label class="chk"><input type="checkbox" id="tHead" checked> Kopfzeile hervorheben</label></div>
+      <button class="btn" id="tEven" style="align-self:flex-start">Spalten gleich breit</button>
+      <p class="hint">Doppelklick in eine Zelle zum Schreiben, Tab springt zur nächsten. Trennlinien der ausgewählten Tabelle ziehen ändert Spaltenbreite und Zeilenhöhe.</p>
     </div>
     <div class="sec">
       <h3>Füllung</h3>
@@ -809,6 +835,17 @@ header,.file{min-width:0}
     <p>Wähle deine Sprache · Choose your language</p>
     <div class="lang-opts"><button type="button" data-v="de"><b>Deutsch</b><span>Weiter auf Deutsch</span></button><button type="button" data-v="en"><b>English</b><span>Continue in English</span></button></div>
     <p class="hint">Später änderbar unter Personalisieren · You can change it later under Personalize</p>
+  </div>
+</div>
+<div class="modal" id="ipDlg" hidden role="dialog" aria-modal="true" aria-labelledby="ipT">
+  <div class="card ipcard">
+    <div class="ip-h"><h2 id="ipT">Subnetzrechner</h2><button class="ib" id="ipX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <label class="ip-l">IP-Adresse mit Präfix oder Maske<input id="ipAddr" value="192.168.10.0/24" spellcheck="false" autocomplete="off"></label>
+    <div class="seg" id="ipMode"><button data-v="info" aria-pressed="true">Netz-Info</button><button data-v="split">In Subnetze teilen</button><button data-v="vlsm">VLSM</button></div>
+    <label class="ip-l" id="ipSplitIn" hidden>Anzahl Subnetze<input id="ipCount" type="number" min="2" max="1024" value="4"></label>
+    <label class="ip-l" id="ipVlsmIn" hidden>Benötigte Hosts je Subnetz (mit Komma getrennt)<input id="ipHosts" value="50, 20, 10, 2" spellcheck="false"></label>
+    <div class="ip-out" id="ipOut"></div>
+    <div class="ip-btns"><button class="btn" id="ipCopy">Kopieren</button><span></span><button class="btn primary" id="ipPlace">Als Tabelle aufs Blatt</button></div>
   </div>
 </div>
 <div class="drawer-bg" id="studioBg" hidden></div>
@@ -1031,6 +1068,27 @@ const I18N_EN={
 'Server & Backup':'Servers & backup','Clients':'Clients','Netzwerk & Firewall':'Network & firewall','Support':'Support','1st Level':'1st level','2nd Level':'2nd level','Entwicklung':'Development','Webentwicklung':'Web development',
 'Lenkungsausschuss':'Steering committee','Projektleitung':'Project management','Projektbüro':'Project office','Teilprojekt 1':'Subproject 1','Teilprojekt 2':'Subproject 2','Teilprojekt 3':'Subproject 3',
 'Vorlage eingefügt. Nicht benötigte Kästen anklicken und mit Entf löschen, die Linien verschwinden mit.':'Template inserted. Click boxes you don’t need and press Delete – their lines disappear too.',
+// 2.7
+'Tabelle':'Table','Tabelle aufziehen. Doppelklick in eine Zelle zum Schreiben, Tab springt zur nächsten. Zeilen und Spalten rechts einstellen.':'Drag out a table. Double-click a cell to type, Tab jumps to the next one. Set rows and columns on the right.',
+'Zeilen':'Rows','Spalten':'Columns','Zeile entfernen':'Remove row','Zeile hinzufügen':'Add row','Spalte entfernen':'Remove column','Spalte hinzufügen':'Add column','Kopfzeile hervorheben':'Highlight header row','Spalten gleich breit':'Equal column widths',
+'Doppelklick in eine Zelle zum Schreiben, Tab springt zur nächsten. Trennlinien der ausgewählten Tabelle ziehen ändert Spaltenbreite und Zeilenhöhe.':'Double-click a cell to type, Tab jumps to the next one. Drag the dividers of the selected table to change column widths and row heights.',
+'Startet oder endet eine Linie auf einem Symbol, einer Form oder Tabelle, dockt sie dort an und wandert mit. Alt gedrückt halten: frei zeichnen.':'Lines that start or end on a symbol, shape or table dock to it and move along. Hold Alt to draw freely.',
+'Linie ziehen. Auf einem Symbol beginnen oder enden lassen, dann dockt sie an und wandert mit (Alt: frei). Umschalt rastet ein, „Gewinkelt“ für Diagramme.':'Drag a line. Start or end it on a symbol and it docks and moves along (Alt: free). Shift snaps the angle, “Elbow” for diagrams.',
+'Pfeil ziehen. Dockt wie die Linie an Symbolen an und wandert mit (Alt: frei). Pfeilspitzen für UML (Vererbung, Komposition …) rechts wählen.':'Drag an arrow. Docks to symbols like a line and moves along (Alt: free). Choose UML arrowheads (inheritance, composition …) on the right.',
+'Geräte':'Devices','Kleines Büro':'Small office','Firma mit DMZ':'Company with DMZ','VLAN-Aufbau':'VLAN setup','Heimnetz':'Home network','Schulnetz (Stern)':'School network (star)',
+'Firewall extern':'External firewall','Firewall intern':'Internal firewall','Core-Switch':'Core switch','Fileserver':'File server','L3-Switch':'L3 switch','Routing zwischen VLANs':'Routing between VLANs',
+'Switch Etage 1':'Switch floor 1','Switch Etage 2':'Switch floor 2','VLAN 10 · Verwaltung · 192.168.10.0/24':'VLAN 10 · Office · 192.168.10.0/24','VLAN 20 · Technik · 192.168.20.0/24':'VLAN 20 · Engineering · 192.168.20.0/24',
+'Router mit WLAN':'Router with Wi-Fi','Switch Raum 101':'Switch room 101','Switch Raum 102':'Switch room 102','Switch Raum 103':'Switch room 103','DHCP':'DHCP',
+'Subnetzrechner':'Subnet calculator','IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.':'Calculate IPv4 networks: network address, broadcast, hosts, subnetting and VLSM. Put the result on the sheet as a table.',
+'IP-Adresse mit Präfix oder Maske':'IP address with prefix or mask','Netz-Info':'Network info','In Subnetze teilen':'Split into subnets','VLSM':'VLSM','Anzahl Subnetze':'Number of subnets',
+'Benötigte Hosts je Subnetz (mit Komma getrennt)':'Required hosts per subnet (comma-separated)','Kopieren':'Copy','Als Tabelle aufs Blatt':'Put on sheet as table',
+'Wert':'Value','Ergebnis':'Result','Netzadresse':'Network address','Subnetzmaske':'Subnet mask','Wildcard-Maske':'Wildcard mask','Broadcast':'Broadcast','Erster Host':'First host','Letzter Host':'Last host',
+'Nutzbare Hosts':'Usable hosts','Adressbereich':'Address range','Maske binär':'Mask in binary','Nr.':'No.','Netz':'Network','Hosts':'Hosts','Bedarf':'Required',
+'Klasse':'Class','privat (RFC 1918)':'private (RFC 1918)','öffentlich':'public','APIPA (link-lokal)':'APIPA (link-local)','Loopback':'Loopback',
+'Bitte eine IPv4-Adresse eingeben, z. B. 192.168.10.0/24 oder 192.168.10.0 255.255.255.0':'Please enter an IPv4 address, e.g. 192.168.10.0/24 or 192.168.10.0 255.255.255.0',
+'So viele Subnetze passen nicht in dieses Netz.':'That many subnets don’t fit into this network.','Bitte die benötigten Hosts je Subnetz eingeben, z. B. 50, 20, 10':'Please enter the required hosts per subnet, e.g. 50, 20, 10',
+'Das Netz ist zu klein für diese Anforderungen.':'The network is too small for these requirements.','Es werden nur die ersten 256 Subnetze angezeigt.':'Only the first 256 subnets are shown.',
+'Ergebnis als Tabelle eingefügt.':'Result inserted as a table.','Ergebnis kopiert.':'Result copied.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -1130,13 +1188,15 @@ const TOOLS=[
   {id:'eraser',k:'E',n:'Radierer',i:I('<path d="M4 16l9-9 6 6-5 5H8z"/><path d="M10 10l6 6M7 20h12"/>'),h:'Über Beschriftungen wischen, um sie zu entfernen. Das PDF selbst bleibt.'},
   {id:'text',k:'T',n:'Text',i:I('<path d="M5 5h14M12 5v14M9 19h6"/>'),h:'Klicken und tippen. Ausrichtung rechts: horizontal, vertikal oder gestapelt.'},
   '-',
-  {id:'line',k:'L',n:'Linie',i:I('<path d="M5 19L19 5"/>'),h:'Linie ziehen. Umschalt rastet ein, „Gewinkelt“ für Diagramme.'},
-  {id:'arrow',k:'A',n:'Pfeil',i:I('<path d="M5 19L19 5"/><path d="M10 5h9v9"/>'),h:'Pfeil ziehen. Pfeilspitzen für UML (Vererbung, Komposition …) rechts wählen.'},
+  {id:'line',k:'L',n:'Linie',i:I('<path d="M5 19L19 5"/>'),h:'Linie ziehen. Auf einem Symbol beginnen oder enden lassen, dann dockt sie an und wandert mit (Alt: frei). Umschalt rastet ein, „Gewinkelt“ für Diagramme.'},
+  {id:'arrow',k:'A',n:'Pfeil',i:I('<path d="M5 19L19 5"/><path d="M10 5h9v9"/>'),h:'Pfeil ziehen. Dockt wie die Linie an Symbolen an und wandert mit (Alt: frei). Pfeilspitzen für UML (Vererbung, Komposition …) rechts wählen.'},
   {id:'rect',k:'R',n:'Rechteck',i:I('<rect x="4" y="6" width="16" height="12" rx="1"/>'),h:'Rechteck ziehen. Umschalt für ein Quadrat.'},
   {id:'ellipse',k:'O',n:'Ellipse',i:I('<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>'),h:'Ellipse ziehen. Umschalt für einen Kreis.'},
+  {id:'table',k:'K',n:'Tabelle',i:I('<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 10h18M3 14.5h18M9 5v14M15 5v14"/>'),h:'Tabelle aufziehen. Doppelklick in eine Zelle zum Schreiben, Tab springt zur nächsten. Zeilen und Spalten rechts einstellen.'},
   {id:'symbol',k:'S',n:'Symbol setzen',i:I('<rect x="3" y="4" width="8" height="6" rx="1.5"/><path d="M17 3l4 4-4 4-4-4z"/><circle cx="7" cy="17" r="3"/><path d="M14 14h7v6h-7z"/>'),h:'Klick öffnet die Symbol-Auswahl. Symbol wählen, dann aufs Blatt klicken oder ziehen.'},
   '-',
   {id:'measure',k:'G',n:'Messen',i:I('<path d="M4 12h16M4 8v8M20 8v8"/><path d="M8 11v2M12 10v4M16 11v2"/>'),h:'Strecke ziehen, die Länge steht in cm (Originalmaßstab des PDFs).'},
+  {id:'subnet',k:'I',n:'Subnetzrechner',i:I('<rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v4h11v4M6.5 12v4"/><path d="M15 5.5h6M18 2.5v6"/>'),h:'IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.',action:()=>openIpDlg()},
   {id:'ruler',k:'U',n:'Lineal ein/aus',i:I('<path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>'),h:'',toggle:true},
 ];
 const tb=$('#tools');let toolN=0;
@@ -1162,7 +1222,7 @@ for(const t of TOOLS){
   const b=document.createElement('button');b.className='tool';b.dataset.t=t.id;b.setAttribute('aria-label',t.n+' ('+t.k+')');tipFor(b,t);
   b.innerHTML=t.i+`<span class="k">${t.k}</span>`+(t.id==='symbol'?'<svg class="dd" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'');b.setAttribute('aria-pressed','false');
   if(t.id==='symbol'){b.setAttribute('aria-haspopup','true');b.setAttribute('aria-expanded','false')}
-  b.style.setProperty('--i',toolN++);b.onclick=()=>{if(t.toggle)return toggleRuler();if(t.id==='symbol'){const open=symPop&&!symPop.hidden&&!symPop._ah;setTool('symbol');if(open)closeSymPop();else openSymPop(b)}else{closeSymPop();setTool(t.id)}};tb.appendChild(b);
+  b.style.setProperty('--i',toolN++);b.onclick=()=>{if(t.action)return t.action();if(t.toggle)return toggleRuler();if(t.id==='symbol'){const open=symPop&&!symPop.hidden&&!symPop._ah;setTool('symbol');if(open)closeSymPop();else openSymPop(b)}else{closeSymPop();setTool(t.id)}};tb.appendChild(b);
 }
 const toolInd=document.createElement('span');toolInd.className='tool-ind';toolInd.setAttribute('aria-hidden','true');tb.prepend(toolInd);tb.classList.add('has-ind');
 function moveToolInd(){const b=tb.querySelector('.tool[aria-pressed="true"]:not([data-t="ruler"])');if(!b||!b.offsetWidth){toolInd.style.opacity=0;return}
@@ -1175,7 +1235,7 @@ function setTool(id){
   if(id!=='select'&&id!=='lasso')setSel(null);
   document.querySelectorAll('.tool').forEach(b=>{if(b.dataset.t!=='ruler')b.setAttribute('aria-pressed',b.dataset.t===id)});moveToolInd();
   {const a=$('#app');a.className=a.className.replace(/\bmode-\S+/g,'').replace(/\s+/g,' ').trim()+' mode-'+id}
-  syncFill();
+  syncFill();try{updTblUI()}catch(e){}
 }
 
 /* ---------- Farben & Steuerelemente ---------- */
@@ -1205,6 +1265,11 @@ segBind('fill',v=>{
 function syncFill(){const o=S.sel&&S.sel.o;segSet('fill',o&&o.fill?o.fill:(S.tool==='symbol'?S.fillSym:S.fillShape))}
 $('#bold').onchange=e=>{S.bold=e.target.checked;applySel({bold:S.bold})};
 $('#underl').onchange=e=>{S.underline=e.target.checked;applySel({underline:S.underline})};
+S.tblR=3;S.tblC=3;S.tblHead=true;
+{const op=(dr,dc)=>{const t=tblTarget();if(t){pushHist();tblResize(t,dr,dc);redraw(S.sel.p);markDirty()}else{S.tblR=clamp((S.tblR||3)+dr,1,30);S.tblC=clamp((S.tblC||3)+dc,1,12)}updTblUI()};
+  $('#tRp').onclick=()=>op(1,0);$('#tRm').onclick=()=>op(-1,0);$('#tCp').onclick=()=>op(0,1);$('#tCm').onclick=()=>op(0,-1);
+  $('#tHead').onchange=e=>{const t=tblTarget();if(t){pushHist();t.head=e.target.checked;redraw(S.sel.p);markDirty()}else S.tblHead=e.target.checked};
+  $('#tEven').onclick=()=>{const t=tblTarget();if(!t)return;pushHist();t.cw=eqFr(t.cols);redraw(S.sel.p);markDirty()}}
 S.font='';setTimeout(()=>{try{S.font=localStorage.getItem('pdfwerkbank:font')||''}catch(e){}if(!FONT_MAP[S.font])S.font='';setFontUI(S.font);ensureFont(S.font)},0);
 $('#fontBtn').onclick=()=>{const t=S.sel&&S.sel.o.type==='text'?S.sel.o:S.sel&&S.sel.o.type==='group'?S.sel.o.items.find(x=>x.type==='text'):null;
   openFontPop($('#fontBtn'),t?t.font:S.font,k=>{S.font=k;saveFontPref();setFontUI(k);applySel({font:k});if(S.sel)for(const x of selItems())if(x.type==='text'&&!x.font)delete x.font})};
@@ -1217,7 +1282,7 @@ for(const id of ['startH','endH']){const s=$('#'+id);for(const [v,n] of HEADS){c
 function applySel(props,isRange){
   if(ED&&ED.set){ED.set(props);return}
   if(!S.sel)return;const T=S.sel.o.type==='group'?S.sel.o.items:[S.sel.o];
-  const allow=o=>({color:1,lw:o.type!=='text',fs:o.type==='text'||o.type==='sym',orient:o.type==='text',bold:o.type==='text',underline:o.type==='text',font:o.type==='text',
+  const allow=o=>({color:1,lw:o.type!=='text',fs:o.type==='text'||o.type==='sym'||o.type==='table',orient:o.type==='text',bold:o.type==='text',underline:o.type==='text',font:o.type==='text'||o.type==='table',
     dash:['line','rect','ellipse','sym'].includes(o.type),elbow:o.type==='line',start:o.type==='line',end:o.type==='line',fill:['rect','ellipse','sym'].includes(o.type)});
   const jobs=T.map(o=>{const a=allow(o);return[o,Object.keys(props).filter(k=>a[k])]}).filter(j=>j[1].length);if(!jobs.length)return;
   if(!isRange||!ctrlHist){pushHist();if(isRange)ctrlHist=true}
@@ -1314,16 +1379,32 @@ def('org_team','Organigramm','Bereich / Team',240,150,'Team',(c,o,x,y,w,h)=>{c.s
 
 /* ---------- Organigramm-Vorlagen: einzelne Kästen + mitwandernde Verbindungen ---------- */
 const newOid=()=>'o'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
-function orgAnchor(o,t){const x=o.x,y=o.y,w=o.w,h=o.h;return t==='t'?[x+w/2,y]:t==='b'?[x+w/2,y+h]:t==='l'?[x,y+h/2]:t==='r'?[x+w,y+h/2]:[x+w/2,y+h/2]}
+const DOCKABLE=['sym','rect','ellipse','text','table'];
+function dockBox(o){if(o.type==='text')return bbox(o);let x=o.x,y=o.y,w=o.w,h=o.h;if(w<0){x+=w;w=-w}if(h<0){y+=h;h=-h}return{x,y,w,h}}
+function orgAnchor(o,t){const{x,y,w,h}=dockBox(o);let yb=y+h;if(t==='b'&&o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].below&&o.label){const b=bbox(o);yb=b.y+b.h}
+  return t==='t'?[x+w/2,y]:t==='b'?[x+w/2,yb]:t==='l'?[x,y+h/2]:t==='r'?[x+w,y+h/2]:[x+w/2,y+h/2]}
+/* Seite wählen, an der eine Linie andockt: die, die zum anderen Ende zeigt */
+function autoSides(A,B,pa,pb){const a=A?dockBox(A):{x:pa[0],y:pa[1],w:0,h:0},b=B?dockBox(B):{x:pb[0],y:pb[1],w:0,h:0};
+  const dx=(b.x+b.w/2)-(a.x+a.w/2),dy=(b.y+b.h/2)-(a.y+a.h/2),gx=Math.abs(dx)-(a.w+b.w)/2,gy=Math.abs(dy)-(a.h+b.h)/2;
+  return gx>gy?[dx>0?'r':'l',dx>0?'l':'r','h']:[dy>0?'b':'t',dy>0?'t':'b','v']}
+function ensureOid(o){if(!o.oid)o.oid=newOid();return o.oid}
+function isFrameSym(o){return o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].frame}
+function dockAt(P,x,y,tol,ex){for(let k=P.objs.length-1;k>=0;k--){const o=P.objs[k];if(o===ex||!DOCKABLE.includes(o.type))continue;const b=dockBox(o);
+    if(!(x>=b.x-tol&&x<=b.x+b.w+tol&&y>=b.y-tol&&y<=b.y+b.h+tol))continue;
+    if(isFrameSym(o)&&x>b.x+tol*2&&x<b.x+b.w-tol*2&&y>b.y+tol*2&&y<b.y+b.h-tol*2)continue;return o}return null}
+function drawDockHint(c,o){const b=dockBox(o),z=S.zoom,p=3/z;c.save();c.strokeStyle=accentCol();c.lineWidth=1.4/z;c.setLineDash([3/z,2.5/z]);c.globalAlpha=.9;c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p);c.setLineDash([]);
+  for(const t of['t','b','l','r']){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle='#fff';c.fill();c.stroke()}c.restore()}
 /* Verbindungen an ihre Kästen anpassen; ist ein Kasten weg, verschwindet auch seine Linie */
 function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
-  for(const o of P.objs){if(!o.link)continue;const A=by[o.link.a],B=by[o.link.b];if(!A||!B){gone.push(o);continue}
-    const a=orgAnchor(A,o.link.ta),b=orgAnchor(B,o.link.tb);o.x1=a[0];o.y1=a[1];o.x2=b[0];o.y2=b[1]}
+  for(const o of P.objs){const L=o.link;if(!L)continue;const A=L.a?by[L.a]:null,B=L.b?by[L.b]:null;
+    if((L.a&&!A)||(L.b&&!B)){gone.push(o);continue}if(!A&&!B){delete o.link;continue}
+    let ta=L.ta||'auto',tb=L.tb||'auto';if(ta==='auto'||tb==='auto'){const sd=autoSides(A,B,[o.x1,o.y1],[o.x2,o.y2]);if(ta==='auto')ta=sd[0];if(tb==='auto')tb=sd[1];o.elbowDir=sd[2]}
+    if(A&&o.__drag!=='a'){const q=orgAnchor(A,ta);o.x1=q[0];o.y1=q[1]}if(B&&o.__drag!=='b'){const q=orgAnchor(B,tb);o.x2=q[0];o.y2=q[1]}}
   if(gone.length){P.objs=P.objs.filter(o=>!gone.includes(o));if(S.sel&&S.pages[S.sel.p]===P){const keep=selItems().filter(o=>!gone.includes(o));
     if(!keep.length)S.sel=null;else if(S.sel.o.type==='group'){S.sel.o.items=keep;if(keep.length===1)S.sel={p:S.sel.p,o:keep[0]}}}}}
 /* Beim Duplizieren bekommen die Kopien eigene Kennungen, damit ihre Linien an den Kopien hängen */
 function orgRemap(C){const m={};for(const o of C)if(o.oid){const n=newOid();m[o.oid]=n;o.oid=n}
-  for(const o of C)if(o.link){if(m[o.link.a]&&m[o.link.b])o.link={...o.link,a:m[o.link.a],b:m[o.link.b]};else delete o.link}}
+  for(const o of C)if(o.link){const a=o.link.a?m[o.link.a]||null:null,b=o.link.b?m[o.link.b]||null:null;if(!a&&!b)delete o.link;else o.link={...o.link,a,b}}}
 /* Baum-Layout: Kinder nebeneinander, Eltern mittig darüber */
 function orgBuild(spec){const objs=[],GX=18,GY=46,col='#1b2a3a';
   const box=(s,l,x,y)=>{const d=SYM[s];const o={type:'sym',sym:s,x:x-d.w/2,y,w:d.w,h:d.h,color:col,lw:1.2,fill:'white',fs:11,label:String(l).split('\n').map(t=>tr(t)).join('\n'),dash:false,oid:newOid()};objs.push(o);return o};
@@ -1354,15 +1435,74 @@ const ORG_TPL=[
   {k:'it',n:'IT-Abteilung',b:()=>orgBuild({s:'org_lead',l:'IT-Leitung\nName',st:[{s:'org_staff',l:'IT-Sicherheit'}],c:[U('Systemadministration',[Pz('Server & Backup'),Pz('Clients')]),U('Netzwerk',[Pz('Netzwerk & Firewall')]),U('Support',[Pz('1st Level'),Pz('2nd Level')]),U('Entwicklung',[Pz('Webentwicklung')])]})},
   {k:'projekt',n:'Projektorganisation',b:()=>orgBuild({s:'org_lead',l:'Lenkungsausschuss',c:[{s:'org_unit',l:'Projektleitung\nName',st:[{s:'org_staff',l:'Projektbüro'}],c:[Pz('Teilprojekt 1'),Pz('Teilprojekt 2'),Pz('Teilprojekt 3')]}]})},
 ];
+/* Netzwerkplan-Vorlagen: Symbole mit angedockten Verbindern (wandern mit, verschwinden mit dem Gerät) */
+function netMk(){const o=[],col='#1b2a3a';
+  const add=(s,l,x,y,w,h)=>{const d=SYM[s];const b={type:'sym',sym:s,x,y,w:w||d.w,h:h||d.h,color:col,lw:1.2,fill:'white',fs:10,label:String(l).split('\n').map(t=>tr(t)).join('\n'),dash:false,oid:newOid()};o.push(b);return b};
+  const ln=(a,b)=>o.push({type:'line',x1:0,y1:0,x2:0,y2:0,color:col,lw:1.2,dash:false,elbow:false,start:'none',end:'none',link:{a:a.oid,b:b.oid,ta:'auto',tb:'auto'}});
+  return{o,add,ln}}
+const NET_TPL=[
+  {k:'net_office',n:'Kleines Büro',max:1.5,b:()=>{const{o,add,ln}=netMk();const net=add('cloud','Internet',182,0),fw=add('firewall','Firewall',208,96),rt=add('router','Router\n192.168.1.1',205,176),sw=add('switch','Switch',198,262);
+    const dv=[['pc','PC 1\n192.168.1.10'],['pc','PC 2\n192.168.1.11'],['laptop','Laptop\nDHCP'],['printer','Drucker\n192.168.1.20'],['ap','WLAN-AP\n192.168.1.2']].map(([s,l],k)=>add(s,l,10+k*96,352));
+    ln(net,fw);ln(fw,rt);ln(rt,sw);dv.forEach(d=>ln(sw,d));return o}},
+  {k:'net_dmz',n:'Firma mit DMZ',max:1.4,b:()=>{const{o,add,ln}=netMk();const net=add('cloud','Internet',96,0),fe=add('firewall','Firewall extern',122,92);
+    add('dmz','DMZ',250,150,290,124);const web=add('websrv','Webserver\n10.0.0.10',290,186),mail=add('mailsrv','Mailserver\n10.0.0.11',440,186);
+    const fi=add('firewall','Firewall intern',122,214),sw=add('l3switch','Core-Switch',112,316);
+    const dv=[['server','Fileserver\n192.168.10.5'],['pc','PC 1\n192.168.10.21'],['pc','PC 2\n192.168.10.22'],['printer','Drucker\n192.168.10.30']].map(([s,l],k)=>add(s,l,20+k*110,404));
+    ln(net,fe);ln(fe,web);ln(fe,mail);ln(fe,fi);ln(fi,sw);dv.forEach(d=>ln(sw,d));return o}},
+  {k:'net_vlan',n:'VLAN-Aufbau',max:1.4,b:()=>{const{o,add,ln}=netMk();const l3=add('l3switch','L3-Switch\nRouting zwischen VLANs',238,0);
+    const s1=add('switch','Switch Etage 1',110,104),s2=add('switch','Switch Etage 2',370,104);
+    add('vlan','VLAN 10 · Verwaltung · 192.168.10.0/24',20,190,250,124);add('vlan','VLAN 20 · Technik · 192.168.20.0/24',290,190,250,124);
+    const p1=add('pc','PC 1\n192.168.10.11',60,232),p2=add('pc','PC 2\n192.168.10.12',170,232),p3=add('pc','PC 3\n192.168.20.11',330,232),vp=add('voip','VoIP\n192.168.20.50',440,234);
+    ln(l3,s1);ln(l3,s2);ln(s1,p1);ln(s1,p2);ln(s2,p3);ln(s2,vp);return o}},
+  {k:'net_home',n:'Heimnetz',max:1.5,b:()=>{const{o,add,ln}=netMk();const net=add('cloud','Internet',190,0),rt=add('router','Router mit WLAN\n192.168.178.1',213,104);
+    const dv=[['pc','PC'],['laptop','Laptop'],['phone','Smartphone'],['tablet','Tablet'],['printer','Drucker'],['nas','NAS']].map(([s,l],k)=>add(s,l,0+k*86,220));
+    ln(net,rt);dv.forEach(d=>ln(rt,d));return o}},
+  {k:'net_school',n:'Schulnetz (Stern)',max:1.4,b:()=>{const{o,add,ln}=netMk();const fw=add('firewall','Firewall',298,0),core=add('l3switch','Core-Switch',288,90),srv=add('server','Server\n10.1.0.5',120,78);
+    const S3=['Switch Raum 101','Switch Raum 102','Switch Raum 103'].map((l,k)=>add('switch',l,60+k*230,190));
+    ln(fw,core);ln(srv,core);S3.forEach((s,k)=>{ln(core,s);[0,1].forEach(j=>{const p=add('pc','PC '+(k+1)+'.'+(j+1),28+k*230+j*80,280);ln(s,p)})});return o}},
+];
+
 function orgBBox(objs){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of objs){if(o.type!=='sym')continue;a=Math.min(a,o.x);b=Math.min(b,o.y);c=Math.max(c,o.x+o.w);d=Math.max(d,o.y+o.h)}return{x:a,y:b,w:c-a,h:d-b}}
-function orgFit(objs,P,top){const bb=orgBBox(objs),sc=Math.min(1,(P.w-60)/bb.w,(P.h-80)/bb.h),ox=(P.w-bb.w*sc)/2-bb.x*sc,oy=top-bb.y*sc;
+function orgFit(objs,P,top,max){const bb=orgBBox(objs),sc=Math.min(max||1,(P.w-60)/bb.w,(P.h-80)/bb.h),ox=(P.w-bb.w*sc)/2-bb.x*sc,oy=top-bb.y*sc;
   for(const o of objs)if(o.type==='sym'){o.x=o.x*sc+ox;o.y=o.y*sc+oy;o.w*=sc;o.h*=sc;o.fs=Math.max(6,Math.round(o.fs*sc*2)/2);o.lw=Math.max(.6,o.lw*Math.max(.7,sc))}else o.lw=Math.max(.6,o.lw*Math.max(.7,sc));
   const PP={objs};orgRelink(PP);return objs}
-function insertOrgTemplate(k){const t=ORG_TPL.find(x=>x.k===k);if(!t||!S.pages.length)return;const i=curPage(),P=S.pages[i];
+function insertOrgTemplate(k){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===k);if(!t||!S.pages.length)return;const i=curPage(),P=S.pages[i];
   const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();let top=Math.max(36,(vr.top-pr.top)/S.zoom+36);
-  const objs=orgFit(t.b(),P,0),bb=orgBBox(objs);top=Math.min(top,Math.max(36,P.h-bb.h-30));objs.forEach(o=>moveObj(o,0,top));orgRelink({objs});
+  const objs=orgFit(t.b(),P,0,t.max),bb=orgBBox(objs);top=Math.min(top,Math.max(36,P.h-bb.h-30));objs.forEach(o=>moveObj(o,0,top));orgRelink({objs});
   pushHist();P.objs.push(...objs);setTool('select');selectItems(i,objs);redraw(i);markDirty();
   toast(tr('Vorlage eingefügt. Nicht benötigte Kästen anklicken und mit Entf löschen, die Linien verschwinden mit.'))}
+/* ---------- Tabellen ---------- */
+const eqFr=n=>Array.from({length:n},()=>1/n);
+function tblCols(o){const X=[o.x];let a=o.x;for(const f of o.cw){a+=f*o.w;X.push(a)}X[X.length-1]=o.x+o.w;return X}
+function tblRows(o){const Y=[o.y];let a=o.y;for(const f of o.rh){a+=f*o.h;Y.push(a)}Y[Y.length-1]=o.y+o.h;return Y}
+function tblCell(o,x,y){const X=tblCols(o),Y=tblRows(o);let c=-1,r=-1;for(let k=0;k<o.cols;k++)if(x>=X[k]&&x<=X[k+1])c=k;for(let k=0;k<o.rows;k++)if(y>=Y[k]&&y<=Y[k+1])r=k;return c<0||r<0?null:[r,c]}
+function tblBorderAt(o,x,y,tol){if(x<o.x-tol||x>o.x+o.w+tol||y<o.y-tol||y>o.y+o.h+tol)return null;const X=tblCols(o),Y=tblRows(o);
+  for(let k=1;k<o.cols;k++)if(Math.abs(x-X[k])<tol)return['c',k];for(let k=1;k<o.rows;k++)if(Math.abs(y-Y[k])<tol)return['r',k];return null}
+function tmpProp(o,k,v){Object.defineProperty(o,k,{value:v,configurable:true,writable:true,enumerable:false})}
+function drawTable(c,o){const X=tblCols(o),Y=tblRows(o);c.setLineDash([]);
+  if(o.fill!=='none'){c.save();c.fillStyle='#fff';c.fillRect(o.x,o.y,o.w,o.h);c.restore()}
+  if(o.head&&o.rows>1){c.save();c.globalAlpha*=.13;c.fillRect(o.x,Y[0],o.w,Y[1]-Y[0]);c.restore()}
+  c.beginPath();c.rect(o.x,o.y,o.w,o.h);for(let k=1;k<o.cols;k++){c.moveTo(X[k],o.y);c.lineTo(X[k],o.y+o.h)}for(let k=1;k<o.rows;k++){c.moveTo(o.x,Y[k]);c.lineTo(o.x+o.w,Y[k])}c.stroke();
+  if(o.head&&o.rows>1){c.save();c.lineWidth=(o.lw||1)*1.6;c.beginPath();c.moveTo(o.x,Y[1]);c.lineTo(o.x+o.w,Y[1]);c.stroke();c.restore()}
+  const fs=o.fs||11,lh=fs*1.22,fam=famOf(o);
+  for(let r=0;r<o.rows;r++)for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;if(o.__ec&&o.__ec[0]===r&&o.__ec[1]===k)continue;
+    const cw=X[k+1]-X[k],ch=Y[r+1]-Y[r];c.save();c.beginPath();c.rect(X[k]+1,Y[r]+1,cw-2,ch-2);c.clip();
+    c.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;c.fillStyle=o.color;c.textBaseline='middle';c.textAlign='left';
+    const L=wrapLines(c,t,Math.max(10,cw-8));const y0=Y[r]+ch/2-(L.length-1)*lh/2;L.forEach((l,j)=>c.fillText(l,X[k]+4,y0+j*lh));c.restore()}}
+function newTable(x,y,rows,cols){return{type:'table',x,y,w:0,h:0,rows,cols,cw:eqFr(cols),rh:eqFr(rows),cells:Array.from({length:rows},()=>Array(cols).fill('')),fs:11,color:S.color==='#ffd60a'?'#1b1f24':S.color,lw:1,head:S.tblHead!==false,fill:'white',...(S.font?{font:S.font}:{})}}
+function editCell(i,o,r,k){const X=tblCols(o),Y=tblRows(o),fs=o.fs||11;tmpProp(o,'__ec',[r,k]);redraw(i);
+  const box=makeEditor(i,X[k]+4,Y[r]+Math.max(0,(Y[r+1]-Y[r])/2-fs*.7),fs,o.color,(o.cells[r]&&o.cells[r][k])||'',{w:X[k+1]-X[k]-8,bold:o.head&&r===0});
+  editorDone=v=>{delete o.__ec;if(v!==((o.cells[r]&&o.cells[r][k])||'')){pushHist();o.cells[r][k]=v;markDirty()}redraw(i)};
+  box.addEventListener('keydown',e=>{if(e.key!=='Tab')return;e.preventDefault();e.stopImmediatePropagation();let n=r*o.cols+k+(e.shiftKey?-1:1);n=(n+o.rows*o.cols)%(o.rows*o.cols);closeEditor();editCell(i,o,Math.floor(n/o.cols),n%o.cols)},true)}
+function tblTarget(){if(!S.sel)return null;const o=S.sel.o;return o.type==='table'?o:null}
+function updTblUI(){const sec=document.getElementById('tblSec');if(!sec)return;const t=tblTarget();sec.hidden=!(S.tool==='table'||t);
+  $('#tRv').textContent=t?t.rows:(S.tblR||3);$('#tCv').textContent=t?t.cols:(S.tblC||3);$('#tHead').checked=t?!!t.head:S.tblHead!==false;$('#tEven').disabled=!t}
+function tblResize(o,dr,dc){
+  if(dr>0){const hOld=o.h,hNew=hOld+hOld/o.rows;o.rh=[...o.rh.map(f=>f*hOld/hNew),(hNew-hOld)/hNew];o.h=hNew;o.rows++;o.cells.push(Array(o.cols).fill(''))}
+  if(dr<0&&o.rows>1){const last=o.rh[o.rh.length-1],hNew=o.h*(1-last);o.rh=o.rh.slice(0,-1).map(f=>f/(1-last));o.h=hNew;o.rows--;o.cells.pop()}
+  if(dc>0){const wOld=o.w,wNew=wOld+wOld/o.cols;o.cw=[...o.cw.map(f=>f*wOld/wNew),(wNew-wOld)/wNew];o.w=wNew;o.cols++;o.cells.forEach(r=>r.push(''))}
+  if(dc<0&&o.cols>1){const last=o.cw[o.cw.length-1],wNew=o.w*(1-last);o.cw=o.cw.slice(0,-1).map(f=>f/(1-last));o.w=wNew;o.cols--;o.cells.forEach(r=>r.pop())}}
+
 function orgThumb(t){const cv=document.createElement('canvas'),k=2,W=60,H=40;cv.width=W*k;cv.height=H*k;const c=cv.getContext('2d');
   const objs=t.b();orgRelink({objs});const bb=orgBBox(objs),sc=Math.min((W-6)/bb.w,(H-6)/bb.h);
   c.setTransform(k*sc,0,0,k*sc,k*((W-bb.w*sc)/2-bb.x*sc),k*((H-bb.h*sc)/2-bb.y*sc));c.lineCap='round';c.lineJoin='round';
@@ -1603,7 +1743,7 @@ function linePts(o){
   else if(o.elbow==='side'){const sx=Math.min(x1,x2)-14;p=[[x1,y1],[sx,y1],[sx,y2],[x2,y2]]}
   else if(o.elbow==='vb'){const my=y2-Math.min(20,Math.abs(y2-y1)/2);p=[[x1,y1],[x1,my],[x2,my],[x2,y2]]}
   else{const dx=x2-x1,dy=y2-y1;
-    if(o.elbow!=='v'&&Math.abs(dx)>=Math.abs(dy)){const mx=x1+dx/2;p=[[x1,y1],[mx,y1],[mx,y2],[x2,y2]]}
+    if(o.elbow!=='v'&&(o.elbow==='h'||(o.elbowDir?o.elbowDir==='h':Math.abs(dx)>=Math.abs(dy)))){const mx=x1+dx/2;p=[[x1,y1],[mx,y1],[mx,y2],[x2,y2]]}
     else{const my=y1+dy/2;p=[[x1,y1],[x1,my],[x2,my],[x2,y2]]}}
   return p.filter((q,i)=>i===0||Math.hypot(q[0]-p[i-1][0],q[1]-p[i-1][1])>.01);
 }
@@ -1651,6 +1791,7 @@ function drawObj(c,o){
     case'rect':c.beginPath();c.rect(o.x,o.y,o.w,o.h);fillStroke(c,o);break;
     case'ellipse':c.beginPath();c.ellipse(o.x+o.w/2,o.y+o.h/2,Math.abs(o.w/2),Math.abs(o.h/2),0,0,7);fillStroke(c,o);break;
     case'text':drawText(c,o);break;
+    case'table':drawTable(c,o);break;
     case'sym':if(o!==editingObj&&SYM[o.sym])SYM[o.sym].draw(c,o,o.x,o.y,o.w,o.h);else if(SYM[o.sym]){const l=o.label;o.label='';SYM[o.sym].draw(c,o,o.x,o.y,o.w,o.h);o.label=l}break;
   }
   c.restore();
@@ -1662,7 +1803,7 @@ function bbox(o){
     case'pen':{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of o.pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}const p=o.lw/2;return{x:a-p,y:b-p,w:c-a+2*p,h:d-b+2*p}}
     case'line':case'measure':{const pts=o.type==='line'?linePts(o):[[o.x1,o.y1],[o.x2,o.y2]];let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}return{x:a,y:b,w:c-a,h:d-b}}
     case'text':{const t=textBox(o);return{x:o.x,y:o.y,w:t.w,h:t.h}}
-    case'sym':{const s=SYM[o.sym];let h=o.h,x=o.x,w=o.w;if(s&&s.below&&o.label){const fs=o.fs||11;mctx.font=`${fs}px ${FONT}`;const lw=mctx.measureText(o.label).width;h+=fs*1.6;if(lw>w){x=o.x+w/2-lw/2;w=lw}}return{x,y:o.y,w,h}}
+    case'sym':{const s=SYM[o.sym];let h=o.h,x=o.x,w=o.w;if(s&&s.below&&o.label){const fs=o.fs||11;mctx.font=`${fs}px ${FONT}`;const LL=String(o.label).split('\n');const lw=Math.max(...LL.map(l=>mctx.measureText(l).width));h+=fs*(.45+1.2*LL.length);if(lw>w){x=o.x+w/2-lw/2;w=lw}}return{x,y:o.y,w,h}}
     case'group':{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const it of o.items){const q=bbox(it);a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
     default:return{x:o.x,y:o.y,w:o.w,h:o.h};
   }
@@ -1761,6 +1902,7 @@ function redraw(i){
       c.save();c.globalAlpha=1-e;drawObj(c,D.ghost);c.restore();const b=bbox(D.o),cx=b.x+b.w/2,cy=b.y+b.h/2,sc=.9+.1*bk;
       c.save();c.globalAlpha=.3+.7*e;c.translate(cx,cy);c.scale(sc,sc);c.translate(-cx,-cy);drawObj(c,D.o);c.restore();if(t>=1)D.ghost=null}
     else drawObj(c,D.o)}
+  if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o);
   if(S.lasso&&S.lasso.p===i)drawLasso(c,S.lasso.pts,1);
   if(S.lassoFade&&S.lassoFade.p===i){const F=S.lassoFade,t=(performance.now()-F.t0)/260;if(t>=1)S.lassoFade=null;else drawLasso(c,F.pts,1-t)}
   if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawObj(c,ED.o);
@@ -1802,7 +1944,7 @@ let selAnim=null;
 function setSel(sel){const prev=S.sel;S.sel=sel;if(prev)redraw(prev.p);
   if(sel&&(!prev||prev.o!==sel.o)&&!motionOff()){const a={o:sel.o,p:sel.p,t0:performance.now()};selAnim=a;
     const step=()=>{if(selAnim!==a)return;redraw(a.p);if(performance.now()-a.t0<300)requestAnimationFrame(step);else{selAnim=null;redraw(a.p)}};requestAnimationFrame(step)}
-  if(sel){redraw(sel.p);syncControls(sel.o)}}
+  if(sel){redraw(sel.p);syncControls(sel.o)}try{updTblUI()}catch(e){}}
 function delSel(){if(!S.sel)return;pushHist();const P=S.pages[S.sel.p],T=selItems();P.objs=P.objs.filter(o=>!T.includes(o));const p=S.sel.p;S.sel=null;redraw(p);markDirty()}
 function dupSel(){if(!S.sel)return;pushHist();const p=S.sel.p,C=selItems().map(o=>{const c=JSON.parse(JSON.stringify(o));moveObj(c,12,12);if(c.sym==='num')c.label=String(S.num++);return c});orgRemap(C);S.pages[p].objs.push(...C);selectItems(p,C);markDirty()}
 function orderSel(front){if(!S.sel)return;pushHist();const P=S.pages[S.sel.p],T=P.objs.filter(o=>selItems().includes(o));P.objs=P.objs.filter(o=>!T.includes(o));if(front)P.objs.push(...T);else P.objs.unshift(...T);redraw(S.sel.p);markDirty()}
@@ -1974,6 +2116,7 @@ function attachInk(P,i){
     switch(S.tool){
       case'select':{
         if(S.sel&&S.sel.p===i){const k=handleAt(S.sel.o,x,y,tol);if(k){st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);return}}
+        if(S.sel&&S.sel.p===i&&S.sel.o.type==='table'){const tb=tblBorderAt(S.sel.o,x,y,tol);if(tb&&!handleAt(S.sel.o,x,y,tol)){st.mode=tb[0]==='c'?'tcol':'trow';st.idx=tb[1];st.o=S.sel.o;st.selDrag=1;break}}
         if(S.sel&&S.sel.p===i&&S.sel.o.type==='group'&&!e.shiftKey&&hit(S.sel.o,x,y,tol)){st.wasSel=true;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;break}
         const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
         if(o&&e.shiftKey&&S.sel&&S.sel.p===i){const cur=selItems().slice(),k=cur.indexOf(o);if(k>=0)cur.splice(k,1);else cur.push(o);selectItems(i,cur);st=null;break}
@@ -1993,8 +2136,9 @@ function attachInk(P,i){
         const o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tol));
         if(o&&nearBorder(o,x,y,tol)){setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;break}
         if(o)editText(i,o,[e.clientX,e.clientY]);else newText(i,x,y);st=null;break}
-      case'line':case'arrow':S.draft={p:i,o:{type:'line',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:S.lw,dash:S.dash,elbow:S.elbow,start:S.tool==='arrow'?S.startH:'none',end:S.tool==='arrow'?S.endH:'none'}};break;
+      case'line':case'arrow':st.dockA=e.altKey?null:dockAt(P,x,y,6/S.zoom);S.dock=st.dockA?{p:i,o:st.dockA}:null;S.draft={p:i,o:{type:'line',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:S.lw,dash:S.dash,elbow:S.elbow,start:S.tool==='arrow'?S.startH:'none',end:S.tool==='arrow'?S.endH:'none'}};break;
       case'measure':S.draft={p:i,o:{type:'measure',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:Math.min(S.lw,1.5)}};break;
+      case'table':S.draft={p:i,o:newTable(x,y,S.tblR||3,S.tblC||3)};break;
       case'rect':case'ellipse':S.draft={p:i,o:{type:S.tool,x,y,w:0,h:0,color:S.color,lw:S.lw,fill:S.fillShape,dash:S.dash}};break;
       case'symbol':{const d=SYM[S.sym];S.draft={p:i,o:{type:'sym',sym:S.sym,x,y,w:0,h:0,color:S.color,lw:Math.max(.75,+(S.lw*.75).toFixed(2)),fill:S.fillSym,fs:11,label:S.sym==='num'?String(S.num):d.label,dash:false}};break}
     }
@@ -2007,6 +2151,7 @@ function attachInk(P,i){
         if(k)cur=CURS[k];
         else if(S.tool==='select'){if(P.objs.some(o=>hit(o,x,y,tol)))cur='move'}
         else{const o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tol));if(o)cur=nearBorder(o,x,y,tol)?'move':'text'}}
+      if(S.tool==='select'&&S.sel&&S.sel.p===i&&S.sel.o.type==='table'){const[x,y]=toPt(e.clientX,e.clientY),tb=tblBorderAt(S.sel.o,x,y,6/S.zoom);if(tb&&!handleAt(S.sel.o,x,y,6/S.zoom))cur=tb[0]==='c'?'col-resize':'row-resize'}
       if(!cur&&S.sel&&S.sel.p===i&&(S.tool==='lasso'||(S.tool==='select'&&S.sel.o.type==='group'))){const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,k=handleAt(S.sel.o,x,y,tl);cur=k?CURS[k]:inBox(S.sel.o,x,y,tl)?'move':''}
       ink.style.cursor=cur;return}const sp=st.snap?snapPt(st.snap,e.clientX,e.clientY):[e.clientX,e.clientY];let [x,y]=toPt(...sp);st.moved=st.moved||Math.hypot(x-st.x,y-st.y)>2/S.zoom;st.lp=[x,y];st.lc=[e.clientX,e.clientY];
     if(st.marq){const L=S.lasso;if(!L)return;if(L.rect)L.pts=[[st.x,st.y],[x,st.y],[x,y],[st.x,y]];else{const l=L.pts[L.pts.length-1];if(Math.hypot(x-l[0],y-l[1])>1.5/S.zoom)L.pts.push([x,y])}redraw(i);return}
@@ -2015,8 +2160,14 @@ function attachInk(P,i){
       case'select':case'text':{
         if(!st.mode||!st.moved)return;if(!st.hist){pushHist();st.hist=true}const o=st.o;
         if(st.mode==='move'){moveObj(o,x-st.lx,y-st.ly);st.lx=x;st.ly=y}
-        else if(st.mode==='p1'){[x,y]=e.shiftKey?angSnap(o.x2,o.y2,x,y):[x,y];o.x1=x;o.y1=y}
-        else if(st.mode==='p2'){[x,y]=e.shiftKey?angSnap(o.x1,o.y1,x,y):[x,y];o.x2=x;o.y2=y}
+        else if(st.mode==='p1'||st.mode==='p2'){const one=st.mode==='p1';if(o.type==='line')tmpProp(o,'__drag',one?'a':'b');
+          const oid2=o.link?(one?o.link.b:o.link.a):null,other=oid2?P.objs.find(q=>q.oid===oid2):null;
+          [x,y]=e.shiftKey?angSnap(one?o.x2:o.x1,one?o.y2:o.y1,x,y):[x,y];
+          const dk=o.type==='line'&&!e.altKey?dockAt(P,x,y,6/S.zoom,other):null;st.dockT=dk;S.dock=dk?{p:i,o:dk}:null;
+          if(dk){const sd=one?autoSides(dk,other,[x,y],[o.x2,o.y2]):autoSides(other,dk,[o.x1,o.y1],[x,y]);const q=orgAnchor(dk,one?sd[0]:sd[1]);x=q[0];y=q[1]}
+          if(one){o.x1=x;o.y1=y}else{o.x2=x;o.y2=y}}
+        else if(st.mode==='tcol'||st.mode==='trow'){const X=st.mode==='tcol',k=st.idx,fr=X?o.cw:o.rh,len=X?o.w:o.h,pos=(X?x-o.x:y-o.y)/len;
+          let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np}
         else resizeTo(o,st,x,y,e.shiftKey);
         if(o.type==='text'&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
         redraw(i);break}
@@ -2025,8 +2176,11 @@ function attachInk(P,i){
         if(st.qsOk&&Math.hypot(e.clientX-st.qsA[0],e.clientY-st.qsA[1])>4){st.qsA=[e.clientX,e.clientY];clearTimeout(st.qsT);const s0=st;st.qsT=setTimeout(()=>qsFire(s0),QS_HOLD)}
         break}
       case'eraser':eraseAt(P,i,x,y,st);break;
-      case'line':case'arrow':case'measure':{if(e.shiftKey)[x,y]=angSnap(d.x1,d.y1,x,y);d.x2=x;d.y2=y;redraw(i);break}
-      case'rect':case'ellipse':case'symbol':{let w=x-st.x,h=y-st.y;if(e.shiftKey||(S.tool==='symbol'&&SYM[S.sym].fixed)){const s=Math.max(Math.abs(w),Math.abs(h));if(S.tool==='symbol'){const r=SYM[S.sym].h/SYM[S.sym].w;w=Math.sign(w||1)*s;h=Math.sign(h||1)*s*r}else{w=Math.sign(w||1)*s;h=Math.sign(h||1)*s}}d.x=st.x;d.y=st.y;d.w=w;d.h=h;redraw(i);break}
+      case'line':case'arrow':case'measure':{if(e.shiftKey)[x,y]=angSnap(d.x1,d.y1,x,y);d.x2=x;d.y2=y;
+        if(S.tool!=='measure'){const db=e.altKey?null:dockAt(P,x,y,6/S.zoom,st.dockA);st.dockB=db;S.dock=db?{p:i,o:db}:st.dockA?{p:i,o:st.dockA}:null;
+          if(st.dockA||db){const sd=autoSides(st.dockA,db,[d.x1,d.y1],[x,y]);if(st.dockA){const q=orgAnchor(st.dockA,sd[0]);d.x1=q[0];d.y1=q[1]}if(db){const q=orgAnchor(db,sd[1]);d.x2=q[0];d.y2=q[1]}d.elbowDir=sd[2]}else delete d.elbowDir}
+        redraw(i);break}
+      case'rect':case'ellipse':case'table':case'symbol':{let w=x-st.x,h=y-st.y;if(e.shiftKey||(S.tool==='symbol'&&SYM[S.sym].fixed)){const s=Math.max(Math.abs(w),Math.abs(h));if(S.tool==='symbol'){const r=SYM[S.sym].h/SYM[S.sym].w;w=Math.sign(w||1)*s;h=Math.sign(h||1)*s*r}else{w=Math.sign(w||1)*s;h=Math.sign(h||1)*s}}d.x=st.x;d.y=st.y;d.w=w;d.h=h;redraw(i);break}
     }
   });
   const end=e=>{
@@ -2034,15 +2188,21 @@ function attachInk(P,i){
     if(st.marq){const L=S.lasso,add=st.add;S.lasso=null;st=null;if(L)lassoFinish(i,L,add);return}
     const d=S.draft&&S.draft.o;
     switch(st.selDrag?'select':S.tool){
-      case'pen':case'marker':case'line':case'arrow':case'measure':case'rect':case'ellipse':{
+      case'pen':case'marker':case'line':case'arrow':case'measure':case'rect':case'ellipse':case'table':{
         if(!d)break;let ok=true;
         if(d.type==='line'||d.type==='measure')ok=Math.hypot(d.x2-d.x1,d.y2-d.y1)>3/S.zoom;
         if(d.type==='rect'||d.type==='ellipse'){norm(d);ok=d.w>2&&d.h>2}
-        S.draft=null;if(ok){pushHist();P.objs.push(d);markDirty();if((d.type==='rect'||d.type==='ellipse')&&!st.qs)setSel({p:i,o:d})}else if(S.sel)setSel(null);redraw(i);break}
+        if(d.type==='line'&&ok&&(st.dockA||st.dockB)&&st.dockA!==st.dockB)d.link={a:st.dockA?ensureOid(st.dockA):null,ta:'auto',b:st.dockB?ensureOid(st.dockB):null,tb:'auto'};
+        if(d.type==='table'){norm(d);if(d.w<24||d.h<14){d.w=d.cols*72;d.h=d.rows*22;d.x=st.x;d.y=st.y}ok=true}
+        S.dock=null;
+        S.draft=null;if(ok){pushHist();P.objs.push(d);markDirty();if((d.type==='rect'||d.type==='ellipse')&&!st.qs)setSel({p:i,o:d});if(d.type==='table'){setTool('select');setSel({p:i,o:d});const dd=d;setTimeout(()=>editCell(i,dd,0,0),30)}}else if(S.sel)setSel(null);redraw(i);break}
       case'symbol':{if(!d)break;S.draft=null;const s=SYM[S.sym];norm(d);
         if(d.w<8||d.h<6){d.w=s.w;d.h=s.h;d.x=st.x-s.w/2;d.y=st.y-s.h/2}
         pushHist();P.objs.push(d);if(S.sym==='num')S.num++;markDirty();setSel({p:i,o:d});redraw(i);break}
-      case'select':case'text':if(st.hist)markDirty();else if(S.tool==='select'&&!st.selDrag&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='text'&&!st.moved){const o=st.o;st=null;editText(i,o,[e.clientX,e.clientY]);return}break;
+      case'select':case'text':
+        if(st.o&&st.o.type==='line'&&(st.mode==='p1'||st.mode==='p2')){const o=st.o,one=st.mode==='p1';delete o.__drag;
+          if(st.moved){const L=o.link||{a:null,b:null,ta:'auto',tb:'auto'},dk=st.dockT;if(one){L.a=dk?ensureOid(dk):null;L.ta='auto'}else{L.b=dk?ensureOid(dk):null;L.tb='auto'}if(L.a&&L.a===L.b)L[one?'a':'b']=null;if(L.a||L.b)o.link=L;else delete o.link}S.dock=null;redraw(i)}
+        if(st.hist)markDirty();else if(S.tool==='select'&&!st.selDrag&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='text'&&!st.moved){const o=st.o;st=null;editText(i,o,[e.clientX,e.clientY]);return}break;
     }
     st=null;
   };
@@ -2050,7 +2210,7 @@ function attachInk(P,i){
   ink.addEventListener('pointerup',end);ink.addEventListener('pointercancel',end);
   ink.addEventListener('dblclick',e=>{
     if(S.tool!=='select')return;const[x,y]=toPt(e.clientX,e.clientY);const o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o)return;
-    if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&!['start','end','flowend','fork','activation','timer','check','cross','star','exclam','question'].includes(o.sym))editLabel(i,o);
+    if(o.type==='table'){const rc=tblCell(o,x,y);if(rc)editCell(i,o,rc[0],rc[1])}else if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&!['start','end','flowend','fork','activation','timer','check','cross','star','exclam','question'].includes(o.sym))editLabel(i,o);
   });
 }
 function angSnap(x0,y0,x,y){const a=Math.atan2(y-y0,x-x0),st=Math.PI/12,s=Math.round(a/st)*st,l=Math.hypot(x-x0,y-y0);return[x0+Math.cos(s)*l,y0+Math.sin(s)*l]}
@@ -2342,10 +2502,11 @@ function fillSym(sel,grid,after){
   sel.innerHTML='';for(const c of CATS){const op=document.createElement('option');op.value=c;op.textContent=c+' ('+Object.values(SYM).filter(s=>s.cat===c).length+')';sel.appendChild(op)}
   sel.value=S.cat;sel.onchange=()=>{S.cat=sel.value;buildCats()};
   grid.innerHTML='';
-  if(S.cat==='Organigramm'){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
-    for(const t of ORG_TPL){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
+  const TPLS=S.cat==='Organigramm'?ORG_TPL:S.cat==='Netzwerk'?NET_TPL:null;
+  if(TPLS){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
+    for(const t of TPLS){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
       b.onclick=()=>{insertOrgTemplate(t.k);after&&after()};grid.appendChild(b)}
-    const h2=document.createElement('div');h2.className='tpl-h';h2.textContent='Bausteine';grid.appendChild(h2)}
+    const h2=document.createElement('div');h2.className='tpl-h';h2.textContent=S.cat==='Netzwerk'?'Geräte':'Bausteine';grid.appendChild(h2)}
   for(const s of Object.values(SYM).filter(s=>s.cat===S.cat)){
     const b=document.createElement('button');b.type='button';b.className='sym';b.title=s.name;b.dataset.s=s.id;b.setAttribute('aria-pressed',s.id===S.sym&&S.tool==='symbol');
     b.append(thumb(s.id));const sp=document.createElement('span');sp.textContent=s.name;b.append(sp);
@@ -2618,6 +2779,52 @@ setTimeout(async()=>{let l=LANG;
   if(!l&&window.werkbank&&werkbank.appInfo){try{const i=await werkbank.appInfo();if(i&&(i.installLang==='de'||i.installLang==='en'))l=i.installLang}catch(e){}}
   if(l){if(l==='en'||LANG!==l)setLang(l);else{i18nStart();if(window.werkbank&&werkbank.setLang)werkbank.setLang(l)}}
   else{i18nStart();showLangDlg()}},0);
+/* ---------- Subnetzrechner (IPv4) ---------- */
+const ip2n=s=>{const m=String(s).trim().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);if(!m)return null;const p=m.slice(1).map(Number);if(p.some(v=>v>255))return null;return((p[0]<<24)>>>0)+(p[1]<<16)+(p[2]<<8)+p[3]};
+const n2ip=n=>[n>>>24,(n>>>16)&255,(n>>>8)&255,n&255].join('.');
+const pmask=p=>p===0?0:((0xFFFFFFFF<<(32-p))>>>0);
+const mask2p=m=>{const n=ip2n(m);if(n===null)return null;let p=0;while(p<32&&(n&(0x80000000>>>p)))p++;return pmask(p)===n?p:null};
+function ipParse(s){s=String(s).trim().replace(/\s+/g,' ');let m=s.match(/^([\d.]+)\s*\/\s*(\d{1,2})$/);let ip,p;
+  if(m){ip=ip2n(m[1]);p=+m[2]}else if((m=s.match(/^([\d.]+)\s+([\d.]+)$/))){ip=ip2n(m[1]);p=mask2p(m[2])}else{ip=ip2n(s);if(ip!==null){const a=ip>>>24;p=a<128?8:a<192?16:24}}
+  if(ip===null||p===null||p===undefined||p<0||p>32)return null;return{ip,p}}
+function ipNet(ip,p){const m=pmask(p),net=(ip&m)>>>0,bc=(net|(~m>>>0))>>>0,size=2**(32-p);
+  const hosts=p>=31?(p===31?2:1):size-2,first=p>=31?net:net+1,last=p>=31?bc:bc-1;return{net,bc,m,p,size,hosts,first,last}}
+function ipKind(ip){const a=ip>>>24,b=(ip>>>16)&255;const cls=a<128?'A':a<192?'B':a<224?'C':a<240?'D (Multicast)':'E';
+  const priv=a===10||(a===172&&b>=16&&b<=31)||(a===192&&b===168);const lo=a===127,apipa=a===169&&b===254;
+  return tr('Klasse')+' '+cls+' · '+tr(lo?'Loopback':apipa?'APIPA (link-lokal)':priv?'privat (RFC 1918)':'öffentlich')}
+const bin8=n=>[n>>>24,(n>>>16)&255,(n>>>8)&255,n&255].map(v=>v.toString(2).padStart(8,'0')).join('.');
+let IPR=null; // letztes Ergebnis {head:[...],rows:[[...]]}
+function ipCompute(){const out=$('#ipOut'),mode=document.querySelector('#ipMode [aria-pressed="true"]').dataset.v,P=ipParse($('#ipAddr').value);
+  $('#ipSplitIn').hidden=mode!=='split';$('#ipVlsmIn').hidden=mode!=='vlsm';
+  const err=t=>{IPR=null;out.innerHTML='<p class="ip-err"></p>';out.firstChild.textContent=tr(t);$('#ipPlace').disabled=true;$('#ipCopy').disabled=true};
+  if(!P)return err('Bitte eine IPv4-Adresse eingeben, z. B. 192.168.10.0/24 oder 192.168.10.0 255.255.255.0');
+  const N=ipNet(P.ip,P.p);let head,rows;
+  if(mode==='info'){head=['Wert','Ergebnis'];rows=[['Netzadresse',n2ip(N.net)+'/'+N.p],['Subnetzmaske',n2ip(N.m)+' (/'+N.p+')'],['Wildcard-Maske',n2ip((~N.m)>>>0)],['Broadcast',n2ip(N.bc)],
+      ['Erster Host',n2ip(N.first)],['Letzter Host',n2ip(N.last)],['Nutzbare Hosts',N.hosts.toLocaleString(LANG==='en'?'en':'de')],['Adressbereich',ipKind(P.ip)],['Maske binär',bin8(N.m)]]}
+  else if(mode==='split'){const n=Math.max(2,Math.min(1024,parseInt($('#ipCount').value,10)||2)),add=Math.ceil(Math.log2(n)),np=N.p+add;
+    if(np>30)return err('So viele Subnetze passen nicht in dieses Netz.');const sz=2**(32-np);head=['Nr.','Netz','Erster Host','Letzter Host','Broadcast','Hosts'];rows=[];
+    for(let k=0;k<2**add&&k<256;k++){const s=ipNet((N.net+k*sz)>>>0,np);rows.push([String(k+1),n2ip(s.net)+'/'+np,n2ip(s.first),n2ip(s.last),n2ip(s.bc),String(s.hosts)])}}
+  else{const req=$('#ipHosts').value.split(/[,;\s]+/).map(v=>parseInt(v,10)).filter(v=>v>0);if(!req.length)return err('Bitte die benötigten Hosts je Subnetz eingeben, z. B. 50, 20, 10');
+    const L=req.map((h,k)=>({h,k})).sort((a,b)=>b.h-a.h);let cur=N.net;head=['Bedarf','Netz','Erster Host','Letzter Host','Broadcast','Hosts'];rows=[];
+    for(const q of L){const p=32-Math.ceil(Math.log2(q.h+2));if(p<N.p)return err('Das Netz ist zu klein für diese Anforderungen.');const sz=2**(32-p);cur=Math.ceil(cur/sz)*sz;
+      if(cur+sz-1>N.bc)return err('Das Netz ist zu klein für diese Anforderungen.');const s=ipNet(cur>>>0,p);rows.push([String(q.h),n2ip(s.net)+'/'+p,n2ip(s.first),n2ip(s.last),n2ip(s.bc),String(s.hosts)]);cur+=sz}}
+  IPR={head:head.map(tr),rows:rows.map(r=>r.map((v,j)=>mode==='info'&&j===0?tr(v):v))};
+  let h='<table><thead><tr>'+IPR.head.map(v=>'<th>'+v+'</th>').join('')+'</tr></thead><tbody>';for(const r of IPR.rows)h+='<tr>'+r.map(v=>'<td>'+v.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</td>').join('')+'</tr>';
+  out.innerHTML=h+'</tbody></table>'+(rows.length>=256?'<p class="hint">'+tr('Es werden nur die ersten 256 Subnetze angezeigt.')+'</p>':'');$('#ipPlace').disabled=false;$('#ipCopy').disabled=false}
+function openIpDlg(){const d=$('#ipDlg');showEl(d);ipCompute();setTimeout(()=>{const a=$('#ipAddr');a.focus();a.select()},60)}
+function closeIpDlg(){animHide($('#ipDlg'))}
+function ipPlace(){if(!IPR||!S.pages.length)return;const i=curPage(),P=S.pages[i],rows=IPR.rows.length+1,cols=IPR.head.length;
+  const t=newTable(0,0,rows,cols);t.cells=[IPR.head.slice(),...IPR.rows.map(r=>r.slice())];t.fs=cols>2?9:10;t.head=true;
+  t.w=Math.min(P.w-60,cols>2?cols*88:340);t.h=rows*(t.fs*2);if(cols===6)t.cw=[.09,.21,.19,.19,.19,.13];if(cols===2)t.cw=[.36,.64];
+  const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();t.x=(P.w-t.w)/2;t.y=Math.min(Math.max(40,(vr.top-pr.top)/S.zoom+40),Math.max(40,P.h-t.h-30));
+  pushHist();P.objs.push(t);closeIpDlg();setTool('select');setSel({p:i,o:t});redraw(i);markDirty();toast(tr('Ergebnis als Tabelle eingefügt.'))}
+
+{const d=$('#ipDlg');$('#ipX').onclick=closeIpDlg;d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeIpDlg()}else if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();ipPlace()}});
+  d.addEventListener('pointerdown',e=>{if(e.target===d)closeIpDlg()});
+  for(const id of ['ipAddr','ipCount','ipHosts'])$('#'+id).addEventListener('input',ipCompute);
+  document.querySelectorAll('#ipMode button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#ipMode button').forEach(x=>x.setAttribute('aria-pressed',x===b));ipCompute()}));
+  $('#ipPlace').onclick=ipPlace;
+  $('#ipCopy').onclick=async()=>{if(!IPR)return;const t=[IPR.head,...IPR.rows].map(r=>r.join('\t')).join('\n');try{await navigator.clipboard.writeText(t)}catch(e){}toast(tr('Ergebnis kopiert.'))}}
 // Personalisieren-Fenster öffnen/schließen
 const studio=$('#studio'),studioBg=$('#studioBg');
 const studioIsOpen=()=>!studio.hidden&&!studio._ah;
@@ -2688,7 +2895,7 @@ function setBars(tools,side,instant){const a=$('#app'),pt=bars.tools,ps=bars.sid
   $('#bTglTools').setAttribute('aria-pressed',tools);$('#bTglSide').setAttribute('aria-pressed',side);try{localStorage.setItem('pdfwerkbank:bars',JSON.stringify(bars))}catch(e){}}
 $('#bTglTools').onclick=()=>setBars(!bars.tools,bars.side);$('#bTglSide').onclick=()=>setBars(bars.tools,!bars.side);
 try{const b=JSON.parse(localStorage.getItem('pdfwerkbank:bars')||'null');if(b)setBars(b.tools!==false,b.side!==false,true)}catch(e){}
-const KEYS={v:'select',h:'hand',p:'pen',m:'marker',e:'eraser',t:'text',l:'line',a:'arrow',r:'rect',o:'ellipse',s:'symbol',g:'measure',q:'lasso'};
+const KEYS={v:'select',h:'hand',p:'pen',m:'marker',e:'eraser',t:'text',l:'line',a:'arrow',r:'rect',o:'ellipse',s:'symbol',g:'measure',q:'lasso',k:'table'};
 addEventListener('keydown',e=>{
   const t=e.target,k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey;
   if(editorEl)dbg('key '+e.key+' @'+desc(t));
@@ -2712,6 +2919,7 @@ addEventListener('keydown',e=>{
   else if(k==='u')toggleRuler();
   else if(S.sel&&e.key.startsWith('Arrow')){e.preventDefault();pushHist();const d=e.shiftKey?10:1;moveObj(S.sel.o,k==='arrowleft'?-d:k==='arrowright'?d:0,k==='arrowup'?-d:k==='arrowdown'?d:0);redraw(S.sel.p);markDirty()}
   else if(k==='n'&&!e.altKey&&!e.shiftKey)notesOpen();
+  else if(k==='i'&&!e.altKey&&!e.shiftKey)openIpDlg();
   else if(KEYS[k])setTool(KEYS[k]);
 });
 if(!window.werkbank)addEventListener('beforeunload',e=>{if(S.dirty&&!S.sample){e.preventDefault();e.returnValue=''}});

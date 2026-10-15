@@ -13,7 +13,11 @@
 - **Write on any PDF** – text boxes with 16 fonts (Arial, Times New Roman, Calibri, Roboto, handwriting …), bold, underline, colours, bullet and numbered lists
 - **Pen and highlighter with shape recognition** – draw freehand, hold at the end and the stroke snaps into a straight line, circle, rectangle or triangle
 - **Lasso and multi-select** – move, scale, recolour, duplicate or delete several items at once
+- **Docking connectors** – lines and arrows that start or end on a symbol stick to it and follow when you move it
+- **Tables** – drag out a table, type with Tab from cell to cell, add or remove rows and columns, drag the dividers
 - **Org charts** – ready-made templates (line, line-and-staff, divisional, matrix, IT department, project …) plus single building blocks; remove boxes you don't need and their lines go with them
+- **Network diagrams** – templates for a small office, a company with DMZ, VLANs, a home network and a school network, all with IP addresses
+- **Subnet calculator** – network, broadcast, host range and mask for any IPv4 address, split a network into subnets or plan with VLSM, then put the result on the page as a table
 - **Big symbol library** – general shapes, UML, flowcharts (PAP), Nassi-Shneiderman, ER models, 40+ network symbols, topologies and IT-security symbols
 - **Notes and to-dos per document** – a notes panel with checkable tasks, stored *inside* the PDF
 - **Stays editable** – save over the original file; reopen it in Layr and every annotation can still be moved or removed

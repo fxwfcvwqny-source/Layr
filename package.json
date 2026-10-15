@@ -1,6 +1,6 @@
 {
   "name": "layr",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "description": "Layr – annotate, draw and take notes on PDFs",
   "main": "app/main.js",
   "author": {
