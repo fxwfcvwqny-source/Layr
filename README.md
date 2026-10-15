@@ -22,8 +22,12 @@
 - **Big symbol library** – general shapes, UML, flowcharts (PAP), Nassi-Shneiderman, ER models, 40+ network symbols, topologies and IT-security symbols
 - **Notes and to-dos per document** – a notes panel with checkable tasks, stored *inside* the PDF
 - **Stays editable** – save over the original file; reopen it in Layr and every annotation can still be moved or removed
+- **Fill in PDF forms** – text fields, checkboxes, radio buttons and drop-downs become real input fields; the values are saved into the PDF's own form fields, so every other PDF program sees them
+- **Signatures** – draw, type or scan your signature and place it anywhere or into a signature field; Layr can remember it on your device (a visible signature like on paper, not a certificate-based digital signature)
+- **Spell checking (German and English)** – misspelled words in text boxes, tables and notes get a red wavy line, right-click for suggestions or to add a word to your dictionary; works offline with the real Hunspell engine
 - **Search (Ctrl+F)** – find words in the PDF text and in your own annotations, with every match highlighted
 - **Pages and documents** – rotate, sort, duplicate and delete pages in a page overview (drag to reorder), add blank, lined, grid or dotted pages, merge several PDFs
+- **Rename files** – click the file name at the top left (or press F2) to rename the PDF right where it is
 - **Recently opened** – reopen your last files with one click (desktop app; the list stays on your computer and can be turned off)
 - **Make it yours** – light and dark themes, accent colours, desk and sheet colours, toolbar styles, notification styles, animations on or off
 
@@ -41,12 +45,14 @@ Download the file for your system from the [latest release](https://github.com/f
 
 **Windows SmartScreen:** the installer is not code-signed, so Windows may show *"Windows protected your PC"* the first time. Click **More info → Run anyway**.
 
-**Updates:** Layr checks this page for a newer version (can be turned off under *Personalize → Layr & updates*) and shows a download button when one is available.
+**Updates:** Layr checks this page for a newer version and installs it by itself: the new installer is downloaded in the background, verified against the SHA-512 checksum published with the release and installed when you restart or quit Layr. On Ubuntu with the `.deb` package, Ubuntu asks for your password to install it. Both can be turned off under *Personalize → Layr & updates*.
 
 ## Privacy
 
 - Your PDFs, notes and settings stay on your computer. Layr has no account, no telemetry and no tracking.
-- The only network request is the optional update check, which asks the public GitHub API for the latest version number.
+- Layr only goes online for updates: it asks the public GitHub API for the latest version number and downloads new versions from this repository's releases. Both can be turned off.
+- Spell checking runs completely offline. Electron's built-in spell checker, which would download dictionaries from a Google server, is switched off. Only if you click *Download German dictionary* does Layr fetch that one file from the public npm registry (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
+- Remembered signatures and your personal dictionary stay on your computer.
 - Crash reports are only written locally to Layr's own settings folder and are never uploaded.
 - The "Recently opened" list only stores file paths in Layr's settings folder on your computer. You can clear it or turn it off under *Personalize → Layr & updates*.
 

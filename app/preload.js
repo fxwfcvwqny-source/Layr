@@ -16,4 +16,12 @@ contextBridge.exposeInMainWorld('werkbank', {
   recentRemove: p => ipcRenderer.send('recent-remove', String(p)),
   recentClear: () => ipcRenderer.send('recent-clear'),
   recentEnable: on => ipcRenderer.send('recent-enable', !!on),
+  renameFile: n => ipcRenderer.invoke('rename-file', String(n || '')),
+  spellDict: l => ipcRenderer.invoke('spell-dict', String(l)),
+  spellDownload: l => ipcRenderer.invoke('spell-download', String(l)),
+  updState: () => ipcRenderer.invoke('upd-state'),
+  updDownload: () => ipcRenderer.invoke('upd-download'),
+  updInstall: auto => ipcRenderer.invoke('upd-install', !!auto),
+  updAutoInstall: on => ipcRenderer.send('upd-auto-install', !!on),
+  onUpdProgress: cb => ipcRenderer.on('upd-progress', (_e, got, total) => cb(+got || 0, +total || 0)),
 });

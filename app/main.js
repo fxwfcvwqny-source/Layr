@@ -1,5 +1,8 @@
 // Layr – Desktop-App (Electron) für Linux und Windows, früher PDF-Werkbank
 const { app, BrowserWindow, ipcMain, dialog, Menu, shell, net } = require('electron');
+const crypto = require('crypto');
+const zlib = require('zlib');
+const { spawn } = require('child_process');
 const REPO = 'fxwfcvwqny-source/Layr';   // öffentliche Seite für Downloads und Updates
 const path = require('path');
 const fs = require('fs');
@@ -103,7 +106,7 @@ else {
       width: 1400, height: 900, minWidth: 420, minHeight: 400,
       title: 'Layr', backgroundColor: '#e6eaee',
       icon: path.join(__dirname, 'icon.png'),
-      webPreferences: { preload: path.join(__dirname, 'preload.js') },
+      webPreferences: { preload: path.join(__dirname, 'preload.js'), spellcheck: false },
     });
     win.loadFile(path.join(__dirname, 'web', 'index.html'));
     win.on('close', e => { if (allowClose) return; e.preventDefault(); handleClose(); });
@@ -211,16 +214,17 @@ const cmpVer = (a, b) => { const x = String(a).split('.').map(n => parseInt(n, 1
   for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0) ? 1 : -1; } return 0; };
 const pickAsset = assets => { const L = (assets || []).map(a => ({ n: String(a.name || ''), u: String(a.browser_download_url || '') }));
   const f = process.platform === 'win32' ? L.find(a => /setup.*\.exe$/i.test(a.n)) : (L.find(a => /\.deb$/i.test(a.n)) || L.find(a => /\.appimage$/i.test(a.n)));
-  return f && f.u.startsWith(`https://github.com/${REPO}/releases/download/`) ? f.u : null; };
+  return f && f.u.startsWith(DL_PREFIX) ? f.u : null; };
 ipcMain.handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO, installLang: installLang() }));
 ipcMain.on('set-lang', (_e, l) => { uiLang = l === 'en' ? 'en' : 'de'; try { fs.writeFileSync(langFile(), uiLang); } catch (e) {} });
 ipcMain.handle('check-update', async () => {
   try {
-    const r = await net.fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' } });
+    const r = await net.fetch(API_LATEST, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' } });
     if (!r.ok) return { error: r.status };
     const j = await r.json(), v = String(j.tag_name || '').replace(/^v/i, '');
     if (!/^\d+\.\d+\.\d+$/.test(v)) return { error: 'keine Version' };
-    return { version: v, newer: cmpVer(v, app.getVersion()) > 0, url: String(j.html_url || ''), asset: pickAsset(j.assets), name: String(j.name || ('Layr ' + v)).slice(0, 80), notes: String(j.body || '').slice(0, 600) };
+    lastRel = { version: v, notes: String(j.body || '').slice(0, 600), assets: (Array.isArray(j.assets) ? j.assets : []).map(a => ({ name: String(a.name || ''), url: String(a.browser_download_url || '') })) };
+    return { version: v, newer: cmpVer(v, app.getVersion()) > 0, url: String(j.html_url || ''), asset: pickAsset(j.assets), name: String(j.name || ('Layr ' + v)).slice(0, 80), notes: String(j.body || '').slice(0, 600), canInstall: !!pkgType() };
   } catch (e) { return { error: String(e && e.message || e) }; }
 });
 // Nur Links auf die eigene GitHub-Seite öffnen
@@ -228,5 +232,196 @@ ipcMain.on('open-release', (_e, u) => {
   const ok = typeof u === 'string' && (u.startsWith(`https://github.com/${REPO}/releases/`) || u === `https://github.com/${REPO}`);
   shell.openExternal(ok ? u : `https://github.com/${REPO}/releases/latest`);
 });
+
+// ---------- Datei umbenennen (Klick auf den Namen oben links) ----------
+ipcMain.handle('rename-file', (_e, base) => {
+  base = String(base || '').replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\.pdf$/i, '').trim().slice(0, 200);
+  if (!base || base === '.' || base === '..') return { error: 'name' };
+  const src = savedPath || currentFile;
+  if (!src) return { ok: true, disk: false, name: base + '.pdf' };
+  const target = path.join(path.dirname(src), base + '.pdf');
+  if (path.resolve(target) === path.resolve(src)) return { ok: true, disk: true, name: path.basename(target) };
+  const sameFile = path.resolve(target).toLowerCase() === path.resolve(src).toLowerCase();
+  if (!sameFile && fs.existsSync(target)) return { error: 'exists' };
+  try { if (!fs.existsSync(src)) return { ok: true, disk: false, name: base + '.pdf' }; fs.renameSync(src, target); }
+  catch (e) { return { error: 'fs', msg: String(e && e.code || e) }; }
+  if (savedPath && path.resolve(savedPath) === path.resolve(src)) savedPath = target;
+  if (currentFile && path.resolve(currentFile) === path.resolve(src)) currentFile = target;
+  const r = recentLoad(); r.items = r.items.filter(x => x.p !== target).map(x => x.p === path.resolve(src) ? { p: target, t: Date.now() } : x); recentSave();
+  return { ok: true, disk: true, name: path.basename(target) };
+});
+
+// ---------- Rechtschreibprüfung: Wörterbücher ----------
+// Deutsch: zuerst ein selbst geladenes, dann das des Systems (Linux) oder von LibreOffice (Windows). Es wird nichts mitgeliefert.
+const DICT_DIR = () => path.join(app.getPath('userData'), 'dictionaries');
+const DE_PKG = { url: 'https://registry.npmjs.org/dictionary-de/-/dictionary-de-3.0.0.tgz',
+  sha512: '0Xbq+YpWTscAL1e18aPPaqfG4goC2o9T595L/54v2OvOPC0/TJFFlclYanxuUoK73wutM5f9EgSuWGkvQXlOXw==',
+  aff: '8y+QWjEPnsmuegOacg5fi272rq+Fj9jy6JE2Db63JXYBJnquJwQf5jtKRNF/JmTz8LQegtB5BM2y2YJCxdVrJQ==',
+  dic: 'UuHSlZeJkWngbVpXmwZiT0a8Ai1PyQkhL0sI2Cnsto9LYwQPb9xhQLbOVEb6CnOI7jXDugSYhRsVYJdLGZgfsA==' };
+const sha512 = b => crypto.createHash('sha512').update(b).digest('base64');
+function readDict(aff, dic) {
+  try {
+    if (!fs.statSync(aff).isFile() || !fs.statSync(dic).isFile() || fs.statSync(dic).size > 40e6 || fs.statSync(aff).size > 5e6) return null;
+    let a = fs.readFileSync(aff), d = fs.readFileSync(dic);
+    const set = (/^SET\s+(\S+)/m.exec(a.toString('latin1')) || [])[1] || 'ISO8859-1';
+    if (/^utf-?8$/i.test(set)) return { aff: a.toString('utf8'), dic: d.toString('utf8') };
+    if (/^(iso-?8859-(1|15)|latin-?1|cp1252|windows-1252)$/i.test(set)) return { aff: a.toString('latin1').replace(/^SET\s+\S+/m, 'SET UTF-8'), dic: d.toString('latin1') };
+    return null;
+  } catch (e) { return null; }
+}
+function deCandidates() {
+  const L = [[path.join(DICT_DIR(), 'de_DE.aff'), path.join(DICT_DIR(), 'de_DE.dic'), 'download']];
+  if (process.platform === 'linux') {
+    for (const d of ['/usr/share/hunspell', '/usr/share/myspell', '/usr/share/myspell/dicts'])
+      for (const n of ['de_DE', 'de_AT', 'de_CH', 'de_DE_frami']) L.push([`${d}/${n}.aff`, `${d}/${n}.dic`, 'system']);
+  } else if (process.platform === 'win32') {
+    for (const pf of [process.env.ProgramFiles, process.env['ProgramFiles(x86)']].filter(Boolean))
+      for (const n of ['de_DE_frami', 'de_DE']) L.push([path.join(pf, 'LibreOffice', 'share', 'extensions', 'dict-de', n + '.aff'), path.join(pf, 'LibreOffice', 'share', 'extensions', 'dict-de', n + '.dic'), 'libreoffice']);
+  }
+  return L;
+}
+ipcMain.handle('spell-dict', (_e, lang) => {
+  if (lang !== 'de') return null;
+  for (const [a, d, src] of deCandidates()) { const r = readDict(a, d); if (r) return { ...r, src }; }
+  return null;
+});
+// Nur auf ausdrücklichen Klick: das deutsche Wörterbuch (igerman98, GPL) einmal aus dem öffentlichen npm-Verzeichnis laden.
+// Die Datei wird gegen feste Prüfsummen geprüft, bevor sie gespeichert wird.
+function untar(buf) { const out = {}; let o = 0;
+  while (o + 512 <= buf.length) { const name = buf.toString('utf8', o, o + 100).replace(/\0.*$/s, ''); if (!name) break;
+    const size = parseInt(buf.toString('utf8', o + 124, o + 136).replace(/\0.*$/s, '').trim() || '0', 8); const type = buf[o + 156];
+    if (type === 0 || type === 48) out[name] = buf.subarray(o + 512, o + 512 + size);
+    o += 512 + Math.ceil(size / 512) * 512; }
+  return out; }
+ipcMain.handle('spell-download', async (_e, lang) => {
+  if (lang !== 'de') return { error: 'lang' };
+  try {
+    const r = await net.fetch(DE_PKG.url, { headers: { 'User-Agent': 'Layr' } });
+    if (!r.ok) return { error: r.status };
+    const tgz = Buffer.from(await r.arrayBuffer());
+    if (tgz.length > 5e6 || sha512(tgz) !== DE_PKG.sha512) return { error: 'hash' };
+    const files = untar(zlib.gunzipSync(tgz)), aff = files['package/index.aff'], dic = files['package/index.dic'], lic = files['package/license'];
+    if (!aff || !dic || sha512(aff) !== DE_PKG.aff || sha512(dic) !== DE_PKG.dic) return { error: 'hash' };
+    fs.mkdirSync(DICT_DIR(), { recursive: true });
+    fs.writeFileSync(path.join(DICT_DIR(), 'de_DE.aff'), aff); fs.writeFileSync(path.join(DICT_DIR(), 'de_DE.dic'), dic);
+    if (lic) fs.writeFileSync(path.join(DICT_DIR(), 'de_DE-LICENSE.txt'), lic);
+    return { ok: true };
+  } catch (e) { return { error: String(e && e.message || e) }; }
+});
+
+// ---------- Updates selbst installieren ----------
+// Lädt den passenden Installer der neuesten Version von der eigenen GitHub-Seite, prüft ihn gegen die sha512-Summe aus
+// latest.yml / latest-linux.yml (gleiche Veröffentlichung) und installiert ihn: Windows still über den Installer,
+// AppImage durch Austausch der Datei, .deb über pkexec (Ubuntu fragt nach dem Passwort).
+// Zum Testen kann LAYR_UPDATE_FEED auf einen Server auf diesem Rechner (127.0.0.1) zeigen; andere Adressen werden ignoriert.
+const FEED = /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(process.env.LAYR_UPDATE_FEED || '') ? process.env.LAYR_UPDATE_FEED : null;
+const API_LATEST = FEED ? `${FEED}/repos/${REPO}/releases/latest` : `https://api.github.com/repos/${REPO}/releases/latest`;
+const DL_PREFIX = FEED ? `${FEED}/${REPO}/releases/download/` : `https://github.com/${REPO}/releases/download/`;
+const UPD_DIR = () => path.join(app.getPath('userData'), 'updates');
+let lastRel = null, pending = null, dlBusy = false, installOnQuit = false, relaunchAfter = false;
+function pkgType() {
+  if (process.platform === 'win32') return 'nsis';
+  if (process.platform === 'linux') {
+    if (process.env.APPIMAGE) return 'appimage';
+    try { if (fs.readFileSync(path.join(process.resourcesPath, 'package-type'), 'utf8').trim() === 'deb') return 'deb'; } catch (e) {}
+  }
+  return null;
+}
+const ASSET_RX = { nsis: /^Layr-Setup-\d+\.\d+\.\d+\.exe$/, appimage: /^Layr-\d+\.\d+\.\d+-x86_64\.AppImage$/, deb: /^Layr-\d+\.\d+\.\d+-amd64\.deb$/ };
+function ymlEntry(yml, name) {
+  const re = new RegExp(`-\\s+url:\\s*${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\n\\s+sha512:\\s*([A-Za-z0-9+/=]+)\\s*\\n\\s+size:\\s*(\\d+)`);
+  const m = re.exec(yml); return m ? { sha512: m[1], size: +m[2] } : null;
+}
+function loadPending() {
+  try { const p = JSON.parse(fs.readFileSync(path.join(UPD_DIR(), 'pending.json'), 'utf8'));
+    if (p && cmpVer(p.version, app.getVersion()) > 0 && p.type === pkgType() && fs.existsSync(p.file) && path.dirname(p.file) === UPD_DIR()) return p;
+  } catch (e) {}
+  try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {}
+  return null;
+}
+ipcMain.handle('upd-state', () => { if (!pending) pending = loadPending(); const t = pkgType();
+  return { type: t, canInstall: !!t, pending: pending ? { version: pending.version, notes: pending.notes || '' } : null, busy: dlBusy }; });
+async function fetchText(u, max) { if (!u.startsWith(DL_PREFIX)) throw new Error('url'); const r = await net.fetch(u, { headers: { 'User-Agent': 'Layr-Update' } }); if (!r.ok) throw new Error('http ' + r.status);
+  const t = await r.text(); if (t.length > max) throw new Error('size'); return t; }
+ipcMain.handle('upd-download', async () => {
+  const type = pkgType(); if (!type) return { error: 'unsupported' };
+  if (dlBusy) return { error: 'busy' };
+  if (!lastRel) return { error: 'norelease' };
+  const rel = lastRel; if (cmpVer(rel.version, app.getVersion()) <= 0) return { error: 'notnewer' };
+  if (pending && pending.version === rel.version) return { ok: true, version: rel.version };
+  const asset = rel.assets.find(a => ASSET_RX[type].test(a.name) && a.name.includes(rel.version));
+  const ymlA = rel.assets.find(a => a.name === (type === 'nsis' ? 'latest.yml' : 'latest-linux.yml'));
+  if (!asset || !ymlA || !asset.url.startsWith(DL_PREFIX) || !ymlA.url.startsWith(DL_PREFIX)) return { error: 'asset' };
+  dlBusy = true;
+  const dir = UPD_DIR(), part = path.join(dir, asset.name + '.part'), file = path.join(dir, asset.name);
+  try {
+    const yml = await fetchText(ymlA.url, 65536);
+    if (!new RegExp(`^version:\\s*${rel.version.replace(/\./g, '\\.')}\\s*$`, 'm').test(yml)) throw new Error('yml');
+    const want = ymlEntry(yml, asset.name); if (!want || want.size > 400e6) throw new Error('yml');
+    try { fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
+    fs.mkdirSync(dir, { recursive: true });
+    const r = await net.fetch(asset.url, { headers: { 'User-Agent': 'Layr-Update' } });
+    if (!r.ok || !r.body) throw new Error('http ' + r.status);
+    const h = crypto.createHash('sha512'), fd = fs.openSync(part, 'w'); let got = 0, last = 0;
+    try { const rd = r.body.getReader();
+      for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > want.size) throw new Error('size');
+        h.update(value); fs.writeSync(fd, value);
+        if (Date.now() - last > 150 && win) { last = Date.now(); win.webContents.send('upd-progress', got, want.size); } }
+    } finally { fs.closeSync(fd); }
+    if (got !== want.size || h.digest('base64') !== want.sha512) throw new Error('hash');
+    fs.renameSync(part, file);
+    pending = { version: rel.version, file, type, sha512: want.sha512, notes: rel.notes };
+    fs.writeFileSync(path.join(dir, 'pending.json'), JSON.stringify(pending));
+    if (win) win.webContents.send('upd-progress', want.size, want.size);
+    return { ok: true, version: rel.version };
+  } catch (e) {
+    try { fs.rmSync(dir, { recursive: true, force: true }); } catch (x) {}
+    return { error: String(e && e.message || e) };
+  } finally { dlBusy = false; }
+});
+function verifyPending() { try { return pending && fs.existsSync(pending.file) && sha512(fs.readFileSync(pending.file)) === pending.sha512; } catch (e) { return false; } }
+function keepLang() { try { fs.writeFileSync(langFile(), getLang()); } catch (e) {} }
+// Windows und AppImage: Installation passiert beim Beenden (auch automatisch, falls eingeschaltet)
+function installNow(relaunch) {
+  if (!pending || !verifyPending()) return false;
+  keepLang();
+  if (pending.type === 'nsis') {
+    const args = ['/S', '--updated']; if (relaunch) args.push('--force-run');
+    spawn(pending.file, args, { detached: true, stdio: 'ignore' }).unref(); pending = null; return true;
+  }
+  if (pending.type === 'appimage') {
+    const target = process.env.APPIMAGE; if (!target) return false;
+    try { const tmp = target + '.layr-new'; fs.copyFileSync(pending.file, tmp); fs.chmodSync(tmp, 0o755); fs.renameSync(tmp, target); }
+    catch (e) { return false; }
+    try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {}
+    pending = null; return true;
+  }
+  return false;
+}
+ipcMain.handle('upd-install', async (_e, auto) => {
+  if (!pending) pending = loadPending();
+  if (!pending) return { error: 'nopending' };
+  if (!verifyPending()) { pending = null; try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} return { error: 'hash' }; }
+  if (auto) { installOnQuit = true; relaunchAfter = false; return { ok: true, later: true }; }
+  if (pending.type === 'deb') {
+    // .deb braucht Administratorrechte: pkexec zeigt die Passwortabfrage von Ubuntu
+    const asRoot = typeof process.getuid === 'function' && process.getuid() === 0;
+    const cmd = asRoot ? '/usr/bin/dpkg' : '/usr/bin/pkexec', args = asRoot ? ['-i', pending.file] : ['/usr/bin/dpkg', '-i', pending.file];
+    if (!fs.existsSync(cmd)) return { error: 'pkexec' };
+    const code = await new Promise(res => { try { const p = spawn(cmd, args, { stdio: 'ignore' }); p.on('exit', c => res(c)); p.on('error', () => res(-1)); } catch (e) { res(-1); } });
+    if (code !== 0) return { error: code === 126 || code === 127 ? 'cancel' : 'dpkg', code };
+    keepLang(); try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} pending = null;
+    app.relaunch(); relaunchAfter = false; installOnQuit = false;
+    setImmediate(() => { try { win.close(); } catch (e) {} });
+    return { ok: true };
+  }
+  installOnQuit = true; relaunchAfter = pending.type === 'nsis';
+  // AppImage: Electron startet die (dann ausgetauschte) Datei erst neu, wenn diese Instanz ganz beendet ist
+  if (pending.type === 'appimage') app.relaunch({ execPath: process.env.APPIMAGE });
+  setImmediate(() => { try { win.close(); } catch (e) {} });
+  return { ok: true };
+});
+ipcMain.on('upd-auto-install', (_e, on) => { if (pending && (pending.type === 'nsis' || pending.type === 'appimage')) installOnQuit = !!on; });
+app.on('will-quit', () => { if (installOnQuit && pending) installNow(relaunchAfter); });
 
 app.on('window-all-closed', () => app.quit());

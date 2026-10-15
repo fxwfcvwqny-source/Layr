@@ -629,6 +629,58 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .langdlg .lang-card>:nth-child(2){animation-delay:.05s!important}.langdlg .lang-card>:nth-child(3){animation-delay:.1s!important}.langdlg .lang-card>:nth-child(4){animation-delay:.15s!important}.langdlg .lang-card>:nth-child(5){animation-delay:.2s!important}
 .symgrid .tpl-h{grid-column:1/-1;font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 2px 0}
 .sym.tpl canvas{border-radius:4px}
+/* 2.9: Formulare, Unterschrift, Rechtschreibung, Umbenennen, Updates */
+.formlayer{position:absolute;inset:0;pointer-events:none;z-index:3}
+.fm{position:absolute;box-sizing:border-box;margin:0;pointer-events:auto;border:1px solid rgba(48,104,214,.32);border-radius:2px;background:rgba(66,133,244,.11);color:#111;font-family:Helvetica,Arial,sans-serif;padding:0 .2em;outline:none;transition:background .15s,border-color .15s,box-shadow .15s}
+.fm:hover{background:rgba(66,133,244,.18);border-color:rgba(48,104,214,.55)}
+.fm:focus,.fm:focus-visible{background:rgba(255,255,255,.92);border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+textarea.fm{resize:none;padding:.15em .25em;line-height:1.2}
+select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
+.fm.ro{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.12);color:#444}
+.fm-check,.fm-radio{display:grid;place-items:center;padding:0;cursor:pointer;color:#111}
+.fm-check svg{width:80%;height:80%;opacity:0;transform:scale(.4);transition:opacity .15s,transform .22s cubic-bezier(.3,1.6,.5,1)}
+.fm-check[aria-checked="true"] svg{opacity:1;transform:none}
+.fm-radio{border-radius:50%}.fm-radio i{width:50%;height:50%;border-radius:50%;background:#111;transform:scale(0);transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
+.fm-radio[aria-checked="true"] i{transform:none}
+.fm-sig{display:flex;align-items:center;justify-content:center;gap:.4em;cursor:pointer;color:var(--accent);font:600 12px var(--f-ui);border-style:dashed;background:rgba(66,133,244,.07);overflow:hidden;white-space:nowrap}
+.fm-sig svg{width:16px;height:16px;flex:none}
+.fm-pulse{animation:lyr-fm-pulse .9s ease-out}
+@keyframes lyr-fm-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
+#app:not(.mode-select):not(.mode-text):not(.mode-hand) .fm{pointer-events:none;opacity:.6}
+.fm-pill{border:0;cursor:pointer;background:color-mix(in srgb,#3068d6 13%,transparent);color:#2a5cc0;font:inherit;font-size:11px}
+.fm-pill:hover{background:color-mix(in srgb,#3068d6 22%,transparent)}
+:root[data-theme="dark"] .fm-pill{color:#8fb3ff}
+.sigcard{width:min(600px,100%);gap:12px}
+.sig-pad{position:relative;height:190px;border:1px solid var(--line);border-radius:var(--r);background:#fff;overflow:hidden}
+.sig-pad::after{content:"";position:absolute;left:8%;right:8%;bottom:28%;border-bottom:1.5px solid #c9ced6;pointer-events:none}
+#sigPad{position:absolute;inset:0;width:100%;height:100%;touch-action:none;z-index:1}#sigPad.drawing{cursor:crosshair}
+.sig-x{position:absolute;left:8%;bottom:calc(28% + 2px);font:20px var(--f-ui);color:#aab1bb;pointer-events:none}
+.sig-hint{position:absolute;left:0;right:0;top:34%;text-align:center;color:#9aa3ae;font-size:13px;pointer-events:none}
+.sig-input{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sig-input input{flex:1;height:36px;border:1px solid var(--line);border-radius:var(--r);padding:0 10px;background:var(--panel);color:var(--ink);font:500 15px var(--f-ui)}
+.sig-input input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.sig-row{display:flex;align-items:center;gap:10px}.sig-row span{flex:1}
+.sig-colors{display:flex;gap:8px}.sig-colors button{width:24px;height:24px;border-radius:50%;border:2px solid var(--panel);background:var(--c);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.sig-colors button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--accent)}
+.sig-saved{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.sig-sh{font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);width:100%}
+.sig-it{position:relative}.sig-use{height:54px;width:132px;border:1px solid var(--line);border-radius:var(--r);background:#fff;display:grid;place-items:center;padding:4px;cursor:pointer;transition:border-color .15s,transform .15s}
+.sig-use:hover{border-color:var(--accent);transform:translateY(-1px)}.sig-use img{max-width:100%;max-height:100%}
+.sig-del{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--muted);display:grid;place-items:center;padding:0;cursor:pointer;opacity:0;transition:opacity .15s}
+.sig-it:hover .sig-del,.sig-del:focus{opacity:1}.sig-del:hover{color:var(--danger);border-color:var(--danger)}.sig-del svg{width:12px;height:12px}
+.sprow{margin-top:4px}
+.nt-tw{flex:1;min-height:0;position:relative;display:flex;background-color:var(--panel)}
+.nt-tw #ntText{background-color:transparent;position:relative;z-index:1}
+.sp-bd{position:absolute;left:0;top:0;bottom:0;margin:0;padding:12px 18px;font:14px/24px var(--f-ui);white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;color:transparent;overflow:hidden;pointer-events:none;box-sizing:border-box}
+.sp-bd mark{background:none;color:transparent;text-decoration:underline wavy #e5484d;text-decoration-thickness:1.2px;text-underline-offset:3px;text-decoration-skip-ink:none}
+.ctx .sp-h{padding:6px 10px 4px;font-size:11.5px;color:var(--muted);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctx .sp-s{font-weight:600}
+#fname{cursor:text;border-radius:6px;padding:2px 6px;margin:-2px -6px;transition:background .15s}
+#fname:hover,#fname:focus-visible{background:var(--hover);outline:none}
+.fname-in{height:28px;border:1px solid var(--accent);border-radius:6px;padding:0 6px;font:500 14px var(--f-ui);color:var(--ink);background:var(--panel);box-shadow:0 0 0 3px var(--accent-soft);outline:none;min-width:80px;max-width:min(420px,45vw);animation:lyr-unfold .18s ease-out}
+.up-row{display:flex;flex-direction:column;gap:6px}
+.upd-prog{height:6px;border-radius:3px;background:var(--hover);overflow:hidden}.upd-prog i{display:block;height:100%;width:0;background:var(--accent);border-radius:3px;transition:width .2s ease-out}
+.upd-n{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.upd-note{font-size:12px;color:var(--muted)}
 /* 2.8: Suchen, Bilder, Seiten ordnen, Zuletzt geöffnet */
 .findbar{position:absolute;top:10px;right:26px;z-index:40;display:flex;align-items:center;gap:2px;padding:4px 5px 4px 11px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:calc(var(--r) + 5px);box-shadow:0 12px 32px rgba(10,16,22,.18),var(--shadow);max-width:calc(100% - 36px)}
 .findbar:not([hidden]){animation:lyr-find-in .34s cubic-bezier(.2,.9,.25,1.12);transform-origin:top right}
@@ -775,7 +827,7 @@ header,.file{min-width:0}
 <div class="app" id="app">
   <header>
     <div class="brand" aria-label="Layr"><svg class="logo" width="24" height="28" viewBox="12 12 88 104" aria-hidden="true"><rect class="lg-b" x="34" y="18" width="60" height="76" rx="9"/><rect class="lg-m" x="26" y="26" width="60" height="76" rx="9"/><path class="lg-f" d="M27 34 H60 L78 52 V101 Q78 110 69 110 H27 Q18 110 18 101 V43 Q18 34 27 34 Z"/><path class="lg-o" d="M60 34 V45 Q60 52 67 52 H78 Z"/></svg><span class="hide-sm bt">layr</span></div>
-    <div class="file"><b id="fname">–</b><span class="pill" id="hdrSave" hidden></span></div>
+    <div class="file"><b id="fname">–</b><span class="pill" id="hdrSave" hidden></span><button type="button" class="pill fm-pill" id="hdrForm" hidden></button></div>
     <div class="grp">
       <button class="ib" id="bUndo" title="Rückgängig (Strg+Z)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
       <button class="ib" id="bRedo" title="Wiederholen (Strg+Y)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></button>
@@ -846,6 +898,9 @@ header,.file{min-width:0}
       <div class="row"><label for="fontBtn">Schrift</label><button type="button" class="fontbtn" id="fontBtn" aria-haspopup="listbox" aria-expanded="false"><span id="fontBtnN">Standard</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
       <div class="row"><label for="fs">Größe</label><input type="range" id="fs" min="6" max="60" step="1" value="14"><span class="val" id="fsV">14 pt</span></div>
       <div class="row"><label class="chk"><input type="checkbox" id="bold"> Fett</label><label class="chk"><input type="checkbox" id="underl"> Unterstrichen</label></div>
+      <label class="tgl sprow"><input type="checkbox" id="spOn" role="switch" checked><span class="knob"></span><span class="tl">Rechtschreibung prüfen</span></label>
+      <div class="row" id="spLangRow"><label for="spLang">Sprache</label><select id="spLang"><option value="auto">Deutsch + Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select></div>
+      <p class="hint" id="spHint" hidden></p><button class="btn" id="spGet" hidden style="align-self:flex-start">Deutsches Wörterbuch laden</button>
     </div>
     <div class="sec">
       <h3>Linien &amp; Pfeile</h3>
@@ -906,7 +961,7 @@ header,.file{min-width:0}
     <label class="nt-add" for="ntNew"><span class="nt-plus" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span><input id="ntNew" placeholder="Neue Aufgabe … (Enter)" autocomplete="off" spellcheck="true"></label>
   </section>
   <div class="nt-lbl">Notizen</div>
-  <textarea id="ntText" spellcheck="true" placeholder="Gedanken, Aufgaben und Fragen zu diesem Dokument …"></textarea>
+  <div class="nt-tw"><div class="sp-bd" id="ntBd" aria-hidden="true" hidden></div><textarea id="ntText" spellcheck="true" placeholder="Gedanken, Aufgaben und Fragen zu diesem Dokument …"></textarea></div>
   <div class="nt-foot"><span id="ntCount">0 Wörter</span><span id="ntState">Im PDF gespeichert</span></div>
 </aside>
 <div class="modal langdlg" id="langDlg" hidden data-noi18n role="dialog" aria-modal="true" aria-labelledby="langT">
@@ -949,6 +1004,20 @@ header,.file{min-width:0}
   <ul class="rc-list" id="rcList" data-noi18n></ul>
   <div class="rc-foot" id="rcFoot"><button type="button" class="rc-clear" id="rcClear">Liste leeren</button></div>
 </div>
+<div class="modal" id="sigDlg" hidden role="dialog" aria-modal="true" aria-labelledby="sigT">
+  <div class="card sigcard">
+    <div class="ip-h"><h2 id="sigT">Unterschrift</h2><button class="ib" id="sigX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="sig-saved" id="sigSaved" hidden></div>
+    <div class="seg" id="sigMode"><button data-v="draw" aria-pressed="true">Zeichnen</button><button data-v="type">Tippen</button><button data-v="img">Bild</button></div>
+    <div class="sig-input" id="sigTypeIn" hidden><input id="sigName" placeholder="Vor- und Nachname" autocomplete="off" spellcheck="false"></div>
+    <div class="sig-input" id="sigImgIn" hidden><button class="btn" id="sigPick">Bild wählen …</button><span class="hint">Foto oder Scan auf weißem Papier. Der Hintergrund wird durchsichtig.</span><input type="file" id="sigFile" accept="image/*" hidden></div>
+    <div class="sig-pad"><canvas id="sigPad" class="drawing"></canvas><span class="sig-x" aria-hidden="true">×</span><span class="sig-hint" id="sigHint">Hier mit Maus, Stift oder Finger unterschreiben</span></div>
+    <div class="sig-row"><div class="sig-colors" id="sigColors"><button type="button" data-c="#1b1f24" aria-pressed="true" title="Schwarz" style="--c:#1b1f24"></button><button type="button" data-c="#1d3f9e" aria-pressed="false" title="Blau (Kugelschreiber)" style="--c:#1d3f9e"></button></div><span></span><button class="btn" id="sigClear">Neu zeichnen</button></div>
+    <label class="chk"><input type="checkbox" id="sigKeep" checked> Unterschrift auf diesem Gerät merken</label>
+    <p class="hint">Das ist eine sichtbare Unterschrift wie auf Papier, keine digitale Signatur mit Zertifikat.</p>
+    <div class="ip-btns"><span></span><button class="btn" id="sigCancel">Abbrechen</button><button class="btn primary" id="sigOk" disabled>Einfügen</button></div>
+  </div>
+</div>
 <div class="drawer-bg" id="studioBg" hidden></div>
 <aside class="studio" id="studio" role="dialog" aria-modal="true" aria-labelledby="stT" hidden>
   <div class="st-head"><div><h2 id="stT">Personalisieren</h2><p>Gilt nur auf diesem Rechner und ändert keine PDF.</p></div><button class="ib" id="stClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -978,6 +1047,7 @@ header,.file{min-width:0}
     <section id="dAbout" hidden><h3>Layr &amp; Updates</h3>
       <div class="ab-row"><span class="ab-logo" aria-hidden="true"></span><div><b>Layr</b><span id="abVer">Version …</span></div></div>
       <label class="tgl big"><input type="checkbox" id="upAuto" role="switch" checked><span class="knob"></span><span class="tl">Automatisch nach Updates suchen</span></label>
+      <div id="upAutoRow" class="up-row" hidden><label class="tgl big"><input type="checkbox" id="upAutoDl" role="switch" checked><span class="knob"></span><span class="tl">Updates selbst installieren</span></label><p class="hint" id="upAutoHint"></p></div>
       <div class="ab-btns"><button class="btn" id="upNow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>Jetzt suchen</button><button class="btn" id="abGh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Downloads &amp; Neuigkeiten</button></div>
       <p class="hint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
       <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
@@ -1212,6 +1282,31 @@ const I18N_EN={
 'Noch keine Dateien geöffnet. Was du öffnest oder speicherst, erscheint hier.':'No files opened yet. What you open or save shows up here.',
 'Diese Datei gibt es dort nicht mehr. Sie wurde aus der Liste entfernt.':'This file is no longer there. It was removed from the list.','Diese Datei lässt sich nicht öffnen.':'This file can’t be opened.',
 'Liste „Zuletzt geöffnet“ geleert.':'“Recently opened” list cleared.','Layr merkt sich ab jetzt die zuletzt geöffneten Dateien.':'Layr now remembers recently opened files.','Verlauf aus. Die Liste wurde geleert.':'History off. The list was cleared.',
+// 2.9
+'Unterschrift':'Signature','Unterschrift zeichnen, tippen oder als Bild einfügen. Kann gemerkt werden (nur auf diesem Gerät).':'Draw, type or insert your signature as an image. Can be remembered (on this device only).',
+'Zeichnen':'Draw','Tippen':'Type','Vor- und Nachname':'First and last name','Bild wählen …':'Choose image …','Foto oder Scan auf weißem Papier. Der Hintergrund wird durchsichtig.':'Photo or scan on white paper. The background becomes transparent.',
+'Hier mit Maus, Stift oder Finger unterschreiben':'Sign here with mouse, pen or finger','Blau (Kugelschreiber)':'Blue (ballpoint)','Neu zeichnen':'Clear',
+'Unterschrift auf diesem Gerät merken':'Remember signature on this device','Das ist eine sichtbare Unterschrift wie auf Papier, keine digitale Signatur mit Zertifikat.':'This is a visible signature like on paper, not a digital signature with a certificate.',
+'Gemerkt':'Saved','Gemerkte Unterschrift':'Saved signature','Diese Unterschrift einfügen':'Insert this signature','Vergessen':'Forget',
+'Die Unterschrift ließ sich nicht merken (zu wenig Speicher).':'The signature could not be remembered (not enough storage).','Bitte erst unterschreiben.':'Please sign first.',
+'Unterschrift eingefügt.':'Signature inserted.','Unterschrift eingefügt. Zieh sie an die richtige Stelle, Ecken ändern die Größe.':'Signature inserted. Drag it into place, the corners change the size.',
+'Hier unterschreiben':'Sign here','Zum nächsten leeren Feld springen':'Jump to the next empty field',
+'Rechtschreibung prüfen':'Check spelling','Deutsch + Englisch':'German + English','Deutsch':'German','Englisch':'English','Deutsches Wörterbuch laden':'Download German dictionary',
+'Wörterbücher werden geladen …':'Loading dictionaries …','Für Deutsch fehlt ein Wörterbuch. Layr kann es einmalig herunterladen (ca. 1 MB, aus dem öffentlichen npm-Verzeichnis, geprüft).':'A German dictionary is missing. Layr can download it once (about 1 MB, from the public npm registry, verified).',
+'Deutsch wird in der Desktop-App geprüft. Hier prüft Layr Englisch.':'German is checked in the desktop app. Here Layr checks English.','Das Wörterbuch ließ sich nicht laden.':'The dictionary could not be loaded.',
+'Lädt …':'Loading …','Download hat nicht geklappt. Bist du online?':'Download failed. Are you online?','Deutsches Wörterbuch installiert. Layr prüft jetzt auch Deutsch.':'German dictionary installed. Layr now checks German too.',
+'Keine Vorschläge':'No suggestions','Zum Wörterbuch hinzufügen':'Add to dictionary','Ignorieren':'Ignore',
+'Klicken zum Umbenennen (F2)':'Click to rename (F2)','Dateiname':'File name','Umbenennen hat nicht geklappt.':'Renaming failed.',
+'Updates selbst installieren':'Install updates automatically','Jetzt installieren':'Install now',
+'Im Hintergrund':'In the background','Neu starten':'Restart','Wird geprüft und ist danach mit einem Klick installiert.':'It is verified and can then be installed with one click.',
+'Bitte im Fenster von Ubuntu dein Passwort eingeben.':'Please enter your password in the Ubuntu window.','Layr startet gleich neu.':'Layr is about to restart.',
+'Zum Installieren fragt Ubuntu nach deinem Passwort.':'Ubuntu will ask for your password to install it.','Sonst wird es beim Beenden von Layr installiert.':'Otherwise it is installed when you quit Layr.','Installiert wird beim Neustart.':'It is installed when Layr restarts.',
+'Das Update ließ sich nicht laden oder prüfen. Du kannst es im Browser herunterladen.':'The update could not be downloaded or verified. You can download it in your browser.',
+'Installation abgebrochen. Du kannst es später noch einmal versuchen.':'Installation cancelled. You can try again later.','Zum Installieren fehlt pkexec. Bitte das .deb-Paket aus dem Browser installieren.':'pkexec is missing. Please install the .deb package from your browser.',
+'Die Installation hat nicht geklappt.':'The installation failed.',
+'Neue Versionen werden im Hintergrund geladen und geprüft. Zum Installieren fragt Ubuntu nach deinem Passwort.':'New versions are downloaded and verified in the background. Ubuntu asks for your password to install them.',
+'Neue Versionen werden im Hintergrund geladen, geprüft und beim nächsten Beenden installiert.':'New versions are downloaded and verified in the background and installed the next time you quit.',
+'Updates werden ab jetzt selbst installiert.':'Updates are now installed automatically.','Updates werden nur noch angezeigt.':'Updates are only announced from now on.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -1321,6 +1416,7 @@ const TOOLS=[
   {id:'table',k:'K',n:'Tabelle',i:I('<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 10h18M3 14.5h18M9 5v14M15 5v14"/>'),h:'Tabelle aufziehen. Doppelklick in eine Zelle zum Schreiben, Tab springt zur nächsten. Zeilen und Spalten rechts einstellen.'},
   {id:'symbol',k:'S',n:'Symbol setzen',i:I('<rect x="3" y="4" width="8" height="6" rx="1.5"/><path d="M17 3l4 4-4 4-4-4z"/><circle cx="7" cy="17" r="3"/><path d="M14 14h7v6h-7z"/>'),h:'Klick öffnet die Symbol-Auswahl. Symbol wählen, dann aufs Blatt klicken oder ziehen.'},
   {id:'image',k:'B',n:'Bild einfügen',i:I('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M21 15.5l-5-5L6 20"/>'),h:'Bild (PNG, JPG, WebP, GIF, SVG) aufs Blatt setzen. Geht auch mit Strg+V oder durch Hineinziehen.',action:()=>pickImage()},
+  {id:'sign',k:'W',n:'Unterschrift',i:I('<path d="M3 17c3-1 4-6 6-6s1 5 3 5 3-4 5-4 2 2 4 2"/><path d="M3 21h18"/>'),h:'Unterschrift zeichnen, tippen oder als Bild einfügen. Kann gemerkt werden (nur auf diesem Gerät).',action:()=>openSigDlg()},
   '-',
   {id:'measure',k:'G',n:'Messen',i:I('<path d="M4 12h16M4 8v8M20 8v8"/><path d="M8 11v2M12 10v4M16 11v2"/>'),h:'Strecke ziehen, die Länge steht in cm (Originalmaßstab des PDFs).'},
   {id:'subnet',k:'I',n:'Subnetzrechner',i:I('<rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v4h11v4M6.5 12v4"/><path d="M15 5.5h6M18 2.5v6"/>'),h:'IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.',action:()=>openIpDlg()},
@@ -2019,12 +2115,14 @@ function layout(){
   {const a=$('#addPageCard'),L=S.pages[S.pages.length-1];if(a&&L)a.style.width=Math.max(220,L.w*S.zoom)+'px'}
   $('#bFit').textContent=Math.round(S.zoom*100)+' %';
   if(rulerOn)drawRuler();
+  try{formsLayout()}catch(e){}
   renderAll();
 }
 function redraw(i){
   const P=S.pages[i];if(!P||!P.ictx)return;orgRelink(P);const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);
   const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);
   for(const o of P.objs)drawObj(c,o);
+  try{drawSpell(c,i)}catch(e){}
   try{drawFind(c,i)}catch(e){}
   if(S.draft&&S.draft.p===i){const D=S.draft;
     if(D.ghost){const t=Math.min(1,(performance.now()-D.t0)/240),e=1-Math.pow(1-t,3),bk=1+2.4*Math.pow(t-1,3)+1.4*Math.pow(t-1,2);
@@ -2050,7 +2148,7 @@ async function renderPage(i,g){
   const P=S.pages[i];const page=await S.doc.getPage(i+1);if(g!==renderGen)return;
   const vp=page.getViewport({scale:S.zoom*DPR()});const cv=document.createElement('canvas');cv.className='pdf';
   cv.width=Math.round(vp.width);cv.height=Math.round(vp.height);
-  try{await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise}catch(e){return}
+  try{await page.render({canvasContext:cv.getContext('2d'),viewport:vp,annotationMode:pdfjsLib.AnnotationMode.ENABLE_FORMS}).promise}catch(e){return}
   if(g!==renderGen)return;P.el.replaceChild(cv,P.pdf);P.pdf=cv;
 }
 
@@ -2667,11 +2765,11 @@ async function openPdf(bytes,name,opt={}){
   let fromLayr=false;
   if(!opt.objs){try{const at=await doc.getAttachments();const a=at&&at[LAYR_ORIG],j=at&&at[LAYR_DATA];
     if(a&&j){const data=JSON.parse(new TextDecoder().decode(j.content)),ob=new Uint8Array(a.content);const d2=await pdfjsLib.getDocument({data:ob.slice()}).promise;
-      doc.destroy();doc=d2;bytes=ob;imgsLoad(data.imgs);opt={...opt,objs:data.objs,notes:data.notes||'',tasks:Array.isArray(data.tasks)?data.tasks:[]};fromLayr=true;dbg('Layr-Anhang geladen: '+data.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
+      doc.destroy();doc=d2;bytes=ob;imgsLoad(data.imgs);opt={...opt,form:data.form,objs:data.objs,notes:data.notes||'',tasks:Array.isArray(data.tasks)?data.tasks:[]};fromLayr=true;dbg('Layr-Anhang geladen: '+data.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
   catch(e){dbg('Anhang nicht lesbar: '+e)}}
   if(S.doc)S.doc.destroy();S.doc=doc;S.bytes=bytes;if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
   S.pages=[];for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});S.pages.push({w:vp.width,h:vp.height,objs:[]})}
-  $('#fname').textContent=name;$('#fname').title=name;editingObj=null;
+  $('#fname').textContent=name;$('#fname').title=name+' · '+tr('Klicken zum Umbenennen (F2)');editingObj=null;
   {let nv='';if(opt.notes!=null)nv=opt.notes;else if(opt.keepHist)nv=S.notes||'';else if(!opt.isNew&&!opt.sample){try{nv=localStorage.getItem(storeKey()+':notes')||''}catch(e){}}notesSet(nv);let tv=[];if(opt.tasks!=null)tv=opt.tasks;else if(opt.keepHist)tv=S.tasks||[];else if(!opt.isNew&&!opt.sample){try{tv=JSON.parse(localStorage.getItem(storeKey()+':tasks')||'[]')}catch(e){}}tasksSet(tv);tasksMigrate()}
   if(opt.objs)opt.objs.forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));
   else{try{const js=localStorage.getItem(storeKey());if(js){JSON.parse(js).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));toast('Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.')}}catch(e){}}
@@ -2680,6 +2778,7 @@ async function openPdf(bytes,name,opt={}){
   S.dirty=false;setSaveState();if(!opt.keepHist)fitZoom(false);buildPages();if(!opt.keepHist)viewer.scrollTop=0;updPg();buildThumbs();
   if(fromLayr)toast('Deine Beschriftungen sind wieder bearbeitbar.');
   try{if(FD.open)findSoon(false)}catch(e){}
+  formsInit(opt.form!==undefined?opt.form:(opt.keepHist?S.form:null));
 }
 function fitZoom(apply=true){S.autoFit=true;const mw=Math.max(...S.pages.map(p=>p.w),1);S.zoom=clamp((viewer.clientWidth-(innerWidth<=860?24:44))/mw,.25,1.5);if(apply)layout()}
 const fileIn=$('#fileIn');
@@ -2716,9 +2815,9 @@ async function buildOutput(){
   if(S.pages.some(P=>P.objs.length)||notesExport().trim()){
     if(notesExport().trim())await pdf.attach(new TextEncoder().encode(notesExport()),notesFile(),{mimeType:'text/plain',description:'Layr: Notizen zu diesem Dokument'});
     await pdf.attach(S.bytes.slice(),LAYR_ORIG,{mimeType:'application/pdf',description:'Layr: unbeschriftete Fassung'});
-    await pdf.attach(new TextEncoder().encode(JSON.stringify({v:1,objs:JSON.parse(snapshot()),notes:S.notes||'',tasks:S.tasks||[],imgs:imgsUsed()})),LAYR_DATA,{mimeType:'application/json',description:'Layr: Beschriftungen'});
+    await pdf.attach(new TextEncoder().encode(JSON.stringify({v:1,objs:JSON.parse(snapshot()),notes:S.notes||'',tasks:S.tasks||[],imgs:imgsUsed(),...(FM.fields.length?{form:S.form}:{})})),LAYR_DATA,{mimeType:'application/json',description:'Layr: Beschriftungen'});
   }
-  return pdf.save();
+  return pdfSave(pdf,await formFill(pdf));
 }
 /* gibt true zurück, wenn gespeichert wurde */
 async function save(saveAs){
@@ -2876,16 +2975,7 @@ function notesOpen(v){const n=$('#notes');if(v==null)v=!notesIsOpen();
   addEventListener('resize',()=>{if(notesIsOpen()){const h=document.querySelector('header');if(h&&innerWidth>860)n.style.top=(h.getBoundingClientRect().bottom+10)+'px';else n.style.top=''}})}
 if(!S.tasks)S.tasks=[];renderTasks();
 // Über Layr & Updates (nur in der Desktop-App)
-function showUpd(r,manual){const W=window.werkbank;let skip='';try{skip=localStorage.getItem('pdfwerkbank:updSkip')||''}catch(e){}if(!manual&&skip===r.version)return;
-  let el=document.getElementById('updCard');if(!el){el=document.createElement('div');el.id='updCard';el.className='upd';el.hidden=true;el.setAttribute('role','dialog');el.setAttribute('aria-label','Update verfügbar');document.body.appendChild(el)}
-  el.innerHTML='<div class="upd-h"><span class="upd-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></span><div><b></b><p></p></div></div>'
-    +'<div class="upd-b"><button type="button" class="skip" title="Für diese Version nicht mehr erinnern">Überspringen</button><button type="button" class="btn later">Später</button><button type="button" class="btn primary get">Herunterladen</button></div>';
-  el.querySelector('b').textContent='Layr '+r.version+' ist da';
-  const notes=String(r.notes||'').replace(/[#*_`>]/g,'').replace(/\n{2,}/g,'\n').trim();el.querySelector('p').textContent=notes||'Eine neue Version steht zum Download bereit.';
-  el.querySelector('.later').onclick=()=>animHide(el);
-  el.querySelector('.skip').onclick=()=>{try{localStorage.setItem('pdfwerkbank:updSkip',r.version)}catch(e){}animHide(el)};
-  el.querySelector('.get').onclick=()=>{W.openRelease(r.asset||r.url);animHide(el);toast('Der Download startet im Browser. Danach den Installer öffnen.')};
-  showEl(el)}
+function showUpd(r,manual){updShow(r,manual)}
 (async()=>{const W=window.werkbank;if(!W||!W.appInfo)return;let info;try{info=await W.appInfo()}catch(e){return}
   $('#dAbout').hidden=false;$('#abVer').textContent='Version '+info.version+' · '+(info.platform==='win32'?'Windows':info.platform==='darwin'?'macOS':'Linux');
   const auto=$('#upAuto');let on=true;try{on=localStorage.getItem('pdfwerkbank:updates')!=='0'}catch(e){}auto.checked=on;
@@ -3278,6 +3368,373 @@ async function flushAuto(){clearTimeout(autoT);if(S.dirty&&window.werkbank&&S.au
     tg.onchange=()=>{W.recentEnable(tg.checked);RC.on=tg.checked;if(!tg.checked)RC.items=[];toast(tg.checked?tr('Layr merkt sich ab jetzt die zuletzt geöffneten Dateien.'):tr('Verlauf aus. Die Liste wurde geleert.'))};
     $('#rcClear2').onclick=()=>{W.recentClear();RC.items=[];toast(tr('Liste „Zuletzt geöffnet“ geleert.'))}}}
 
+/* ---------- PDF-Formulare ausfüllen ----------
+   Formularfelder der PDF (Text, Ankreuzfelder, Optionsfelder, Auswahllisten) liegen als echte Eingabefelder über der Seite.
+   Beim Speichern schreibt Layr die Werte in die Felder der PDF, so sieht jedes andere Programm sie ebenfalls. */
+const FM={fields:[],gen:0,layers:[],radio:{}};S.form={};S.formInit={};
+const fmEq=(a,b)=>a===b||(a==null&&(b===''||b===false))||(b==null&&(a===''||a===false));
+async function formsInit(saved){
+  const g=++FM.gen,doc=S.doc;FM.fields=[];FM.radio={};S.formInit={};S.form={};FM.layers.forEach(l=>l.remove());FM.layers=[];fmPill();
+  if(!doc)return;
+  for(let i=0;i<S.pages.length;i++){let an,vp;
+    try{const pg=await doc.getPage(i+1);an=await pg.getAnnotations({intent:'display'});vp=pg.getViewport({scale:1})}catch(e){continue}
+    if(g!==FM.gen||doc!==S.doc)return;
+    for(const a of an){
+      if(a.annotationType!==20||!a.fieldName||a.pushButton||(a.annotationFlags&34))continue;
+      const kind=a.fieldType==='Tx'?'text':a.fieldType==='Ch'?'choice':a.fieldType==='Sig'?'sig':a.checkBox?'check':a.radioButton?'radio':null;if(!kind)continue;
+      const r=vp.convertToViewportRectangle(a.rect),x=Math.min(r[0],r[2]),y=Math.min(r[1],r[3]),w=Math.abs(r[2]-r[0]),h=Math.abs(r[3]-r[1]);if(w<3||h<3)continue;
+      const f={p:i,name:String(a.fieldName),kind,x,y,w,h,ro:!!a.readOnly,multi:!!a.multiLine,max:+a.maxLen||0,comb:!!a.comb,align:+a.textAlignment||0,
+        fs:(a.defaultAppearanceData&&+a.defaultAppearanceData.fontSize)||0,combo:!!a.combo,multiSel:!!a.multiSelect,
+        opts:(a.options||[]).map(o=>({v:String(o.exportValue??o.displayValue??''),t:String(o.displayValue??o.exportValue??'')})),
+        on:a.checkBox?String(a.exportValue||'Yes'):a.radioButton?String(a.buttonValue||''):null};
+      if(!(f.name in S.formInit)){let v=a.fieldValue;
+        if(kind==='check')v=v!=null&&v!==''&&v!=='Off'&&(String(v)===f.on||!a.exportValue);
+        else if(kind==='radio')v=v!=null&&v!==''&&v!=='Off'?String(v):null;
+        else if(kind==='choice')v=Array.isArray(v)?(v.length?String(v[0]):''):String(v??'');
+        else if(kind==='text')v=String(v??'');else v=null;
+        S.formInit[f.name]=v}
+      if(kind==='radio')(FM.radio[f.name]=FM.radio[f.name]||[]).push(f.on);
+      FM.fields.push(f)}}
+  if(g!==FM.gen)return;
+  S.form={...S.formInit};
+  if(saved&&typeof saved==='object')for(const[k,v]of Object.entries(saved))if(k in S.formInit&&(v===null||['string','boolean'].includes(typeof v)))S.form[k]=v;
+  formsRender();
+  const n=new Set(FM.fields.filter(f=>f.kind!=='sig').map(f=>f.name)).size;
+  if(n)setTimeout(()=>toast(LANG==='en'?`This PDF is a form with ${n} fields. Click into the blue fields to fill them in.`:`Diese PDF ist ein Formular mit ${n} Feldern. Klick in die blauen Felder, um sie auszufüllen.`),600)}
+function fmSet(name,v,src){S.form[name]=v;for(const el of document.querySelectorAll('.fm')){if(el===src||el._f.name!==name)continue;fmShow(el)}fmPill();markDirty()}
+function fmShow(el){const f=el._f,v=S.form[f.name];
+  if(f.kind==='check'){el.setAttribute('aria-checked',!!v)}
+  else if(f.kind==='radio'){el.setAttribute('aria-checked',v!=null&&v===f.on)}
+  else if(f.kind==='text'||f.kind==='choice'){if(el.value!==(v??''))el.value=v??''}}
+function fmEl(f){let el;
+  if(f.kind==='text'){el=document.createElement(f.multi?'textarea':'input');if(!f.multi)el.type='text';if(f.max)el.maxLength=f.max;el.spellcheck=false;el.autocomplete='off';
+    el.style.textAlign=['left','center','right'][f.align]||'left';if(f.comb&&f.max)el.classList.add('comb');
+    el.addEventListener('input',()=>fmSet(f.name,el.value,el))}
+  else if(f.kind==='choice'){el=document.createElement('select');if(!f.combo)el.size=Math.max(2,Math.min(f.opts.length,Math.floor(f.h/12)));
+    if(f.combo){const o=document.createElement('option');o.value='';o.textContent='';el.appendChild(o)}
+    for(const op of f.opts){const o=document.createElement('option');o.value=op.v;o.textContent=op.t;el.appendChild(o)}
+    el.addEventListener('change',()=>fmSet(f.name,el.value,el))}
+  else if(f.kind==='check'||f.kind==='radio'){el=document.createElement('button');el.type='button';el.setAttribute('role',f.kind==='check'?'checkbox':'radio');
+    el.innerHTML=f.kind==='check'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':'<i></i>';
+    el.addEventListener('click',()=>{if(f.ro)return;if(f.kind==='check')fmSet(f.name,!S.form[f.name],el);else fmSet(f.name,S.form[f.name]===f.on?null:f.on,el);fmShow(el)})}
+  else{el=document.createElement('button');el.type='button';el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-1 4-6 6-6s1 5 3 5 3-4 5-4 2 2 4 2"/><path d="M3 21h18"/></svg><span></span>';
+    el.querySelector('span').textContent=tr('Hier unterschreiben');el.addEventListener('click',()=>openSigDlg({p:f.p,x:f.x,y:f.y,w:f.w,h:f.h,name:f.name}))}
+  el.className='fm fm-'+f.kind;el._f=f;el.title=f.name;if(f.ro&&f.kind!=='sig'){el.disabled=true;el.classList.add('ro')}
+  el.setAttribute('aria-label',f.name);el.setAttribute('data-noi18n','');fmShow(el);return el}
+function formsRender(){FM.layers.forEach(l=>l.remove());FM.layers=[];
+  S.pages.forEach((P,i)=>{const L=FM.fields.filter(f=>f.p===i);if(!L.length||!P.el)return;const lay=document.createElement('div');lay.className='formlayer';
+    // schreibgeschützte Felder malt pdf.js selbst ins Seitenbild
+    for(const f of L)if(!f.ro)lay.appendChild(fmEl(f));P.el.appendChild(lay);FM.layers.push(lay)});
+  formsLayout();fmPill()}
+function formsLayout(){const z=S.zoom;
+  for(const el of document.querySelectorAll('.fm')){const f=el._f,st=el.style;st.left=f.x*z+'px';st.top=f.y*z+'px';st.width=f.w*z+'px';st.height=f.h*z+'px';
+    if(f.kind==='text'||f.kind==='choice'){const fs=f.multi?(f.fs>0&&f.fs<=14?f.fs:10):(f.fs>0?Math.min(f.fs,f.h*.78):Math.max(7,Math.min(12,f.h*.62)));st.fontSize=fs*z+'px';if(el.classList.contains('comb'))st.letterSpacing=(f.w/f.max-fs*.6)*z+'px'}
+    if(f.kind==='sig')el.hidden=S.pages[f.p]&&S.pages[f.p].objs.some(o=>o.type==='image'&&o.sigField===f.name)}}
+function fmPill(){const el=$('#hdrForm');if(!el)return;const names=[...new Set(FM.fields.filter(f=>f.kind!=='sig'&&!f.ro).map(f=>f.name))];
+  el.hidden=!names.length;if(!names.length)return;const done=names.filter(n=>{const v=S.form[n];return v!=null&&v!==''&&v!==false}).length;
+  el.textContent=LANG==='en'?`Form · ${done}/${names.length}`:`Formular · ${done}/${names.length}`;
+  el.title=tr('Zum nächsten leeren Feld springen')}
+function fmNextEmpty(){const L=[...document.querySelectorAll('.fm:not(.ro):not(.fm-sig)')];if(!L.length)return;
+  const k=L.findIndex(el=>{const v=S.form[el._f.name];return v==null||v===''||v===false});const el=L[k<0?0:k],f=el._f,P=S.pages[f.p];
+  const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();viewer.scrollTo({top:viewer.scrollTop+pr.top-vr.top+f.y*S.zoom-vr.height*.3,behavior:motionOff()?'auto':'smooth'});
+  setTimeout(()=>{el.focus({preventScroll:true});el.classList.remove('fm-pulse');void el.offsetWidth;el.classList.add('fm-pulse')},motionOff()?0:320)}
+/* Werte beim Speichern in die Felder der PDF schreiben (nur geänderte). Die Darstellung für andere Programme wird
+   je Feld erzeugt; kann die Standardschrift ein Zeichen nicht (z. B. →), übernimmt das Leseprogramm die Anzeige. */
+async function formFill(pdf){
+  const ch=Object.keys(S.form||{}).filter(k=>!fmEq(S.form[k],S.formInit[k]));if(!ch.length)return false;let form;try{form=pdf.getForm()}catch(e){return false}
+  const done=[];
+  for(const k of ch){let f=null;try{f=form.getField(k)}catch(e){}if(!f)continue;const v=S.form[k];
+    try{if(f instanceof PDFLib.PDFTextField){const m=f.getMaxLength();f.setText(v?String(m!=null?String(v).slice(0,m):v):undefined)}
+      else if(f instanceof PDFLib.PDFCheckBox){v?f.check():f.uncheck()}
+      else if(f instanceof PDFLib.PDFRadioGroup){const op=f.getOptions(),sel=v==null?null:op.includes(v)?v:op[(FM.radio[k]||[]).indexOf(v)];if(sel!=null)f.select(sel);else f.clear()}
+      else if(f instanceof PDFLib.PDFDropdown||f instanceof PDFLib.PDFOptionList){if(v&&f.getOptions().includes(v))f.select(v);else if(v&&f instanceof PDFLib.PDFDropdown&&f.isEditable())f.select(v,false);else f.clear()}
+      else continue;done.push(f)}
+    catch(e){console.warn('Formularfeld',k,e)}}
+  let helv=null,need=false;
+  for(const f of done){try{if(f instanceof PDFLib.PDFCheckBox||f instanceof PDFLib.PDFRadioGroup)f.defaultUpdateAppearances();else{helv=helv||await pdf.embedFont(PDFLib.StandardFonts.Helvetica);f.defaultUpdateAppearances(helv)}}
+    catch(e){need=true}try{form.markFieldAsClean(f.ref)}catch(e){}}
+  if(need)try{form.acroForm.dict.set(PDFLib.PDFName.of('NeedAppearances'),PDFLib.PDFBool.True)}catch(e){}
+  return true}
+async function pdfSave(pdf,filled){return filled?pdf.save({updateFieldAppearances:false}):pdf.save()}
+$('#hdrForm')&&($('#hdrForm').onclick=fmNextEmpty);
+
+/* ---------- Unterschrift ----------
+   Zeichnen, Tippen (Handschrift) oder als Bild. Wird als transparentes Bild eingefügt und kann gemerkt werden
+   (nur auf diesem Gerät). Sichtbare Unterschrift wie auf Papier, keine digitale Signatur mit Zertifikat. */
+const SG={mode:'draw',color:'#1b1f24',strokes:[],cur:null,target:null,img:null};
+const sigDlg=$('#sigDlg'),sigPad=$('#sigPad');
+function sigList(){try{const L=JSON.parse(localStorage.getItem('pdfwerkbank:sigs')||'[]');return Array.isArray(L)?L.filter(s=>typeof s==='string'&&IMG_OK.test(s)):[]}catch(e){return[]}}
+function sigSaveList(L){try{localStorage.setItem('pdfwerkbank:sigs',JSON.stringify(L.slice(0,4)))}catch(e){toast(tr('Die Unterschrift ließ sich nicht merken (zu wenig Speicher).'))}}
+function sigRenderSaved(){const box=$('#sigSaved'),L=sigList();box.innerHTML='';box.hidden=!L.length;if(!L.length)return;
+  const h=document.createElement('div');h.className='sig-sh';h.textContent=tr('Gemerkt');box.appendChild(h);
+  L.forEach((src,k)=>{const b=document.createElement('div');b.className='sig-it';const im=new Image();im.src=src;im.alt=tr('Gemerkte Unterschrift');
+    const use=document.createElement('button');use.type='button';use.className='sig-use';use.title=tr('Diese Unterschrift einfügen');use.appendChild(im);use.onclick=()=>sigPlace(src,false);
+    const x=document.createElement('button');x.type='button';x.className='sig-del';x.title=tr('Vergessen');x.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+    x.onclick=()=>{const M=sigList();M.splice(k,1);sigSaveList(M);sigRenderSaved();const n=$('#sigSaved .sig-use')||$('#sigMode button[aria-pressed="true"]');n&&n.focus()};b.append(use,x);box.appendChild(b)})}
+function sigSize(){const r=sigPad.getBoundingClientRect(),k=Math.min(3,(devicePixelRatio||1)*2);sigPad.width=Math.round(r.width*k);sigPad.height=Math.round(r.height*k);SG.k=k;sigRedraw()}
+function sigSeg(c,a,b,w){c.lineWidth=w;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
+function sigStroke(c,s){if(!s.length)return;c.lineCap='round';c.lineJoin='round';c.strokeStyle=SG.color;c.fillStyle=SG.color;
+  if(s.length===1){c.beginPath();c.arc(s[0][0],s[0][1],s[0][2]/2,0,7);c.fill();return}
+  for(let i=1;i<s.length;i++){const p0=s[i-1],p1=s[i];const m0=i>1?[(s[i-2][0]+p0[0])/2,(s[i-2][1]+p0[1])/2]:p0,m1=[(p0[0]+p1[0])/2,(p0[1]+p1[1])/2];
+    c.lineWidth=(p0[2]+p1[2])/2;c.beginPath();c.moveTo(m0[0],m0[1]);c.quadraticCurveTo(p0[0],p0[1],m1[0],m1[1]);c.stroke()}
+  const L=s[s.length-1],M=[(s[s.length-2][0]+L[0])/2,(s[s.length-2][1]+L[1])/2];sigSeg(c,M,L,L[2])}
+function sigRedraw(){const c=sigPad.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,sigPad.width,sigPad.height);c.setTransform(SG.k,0,0,SG.k,0,0);
+  if(SG.mode==='draw'){for(const s of SG.strokes)sigStroke(c,s);if(SG.cur)sigStroke(c,SG.cur)}
+  else if(SG.mode==='type'){const t=$('#sigName').value.trim();if(t){const W=sigPad.width/SG.k,H=sigPad.height/SG.k;let fs=Math.min(H*.55,72);c.font=`700 ${fs}px "Layr Caveat", Caveat, cursive`;
+      while(c.measureText(t).width>W*.9&&fs>14){fs-=2;c.font=`700 ${fs}px "Layr Caveat", Caveat, cursive`}c.fillStyle=SG.color;c.textAlign='center';c.textBaseline='alphabetic';c.fillText(t,W/2,H*.68)}}
+  else if(SG.mode==='img'&&SG.img){const W=sigPad.width/SG.k,H=sigPad.height/SG.k,im=SG.img,s=Math.min(W*.92/im.width,H*.86/im.height);c.drawImage(im,(W-im.width*s)/2,(H-im.height*s)/2,im.width*s,im.height*s)}
+  $('#sigOk').disabled=!sigHas();$('#sigHint').hidden=sigHas()||SG.mode!=='draw'}
+function sigHas(){return SG.mode==='draw'?SG.strokes.length>0:SG.mode==='type'?!!$('#sigName').value.trim():!!SG.img}
+function sigTrim(){const c=sigPad.getContext('2d',{willReadFrequently:true}),W=sigPad.width,H=sigPad.height,d=c.getImageData(0,0,W,H).data;let x0=W,y0=H,x1=-1,y1=-1;
+  for(let y=0;y<H;y+=1)for(let x=0;x<W;x+=1)if(d[(y*W+x)*4+3]>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1<0)return null;const p=Math.round(4*SG.k);x0=Math.max(0,x0-p);y0=Math.max(0,y0-p);x1=Math.min(W-1,x1+p);y1=Math.min(H-1,y1+p);
+  const o=document.createElement('canvas');o.width=x1-x0+1;o.height=y1-y0+1;o.getContext('2d').drawImage(sigPad,x0,y0,o.width,o.height,0,0,o.width,o.height);return o.toDataURL('image/png')}
+async function sigPlace(src,keep){if(!S.pages.length)return;const id=imgId(src);S.imgs[id]=src;imgLsPut(id,src);const im=imgEl(id);try{await im.decode()}catch(e){}
+  const ar=im.naturalWidth/im.naturalHeight||3;let o,i;const T=SG.target;
+  if(T){i=T.p;const pad=Math.min(T.w,T.h)*.08,bw=T.w-2*pad,bh=T.h-2*pad;let w=bw,h=w/ar;if(h>bh){h=bh;w=h*ar}o={type:'image',x:T.x+(T.w-w)/2,y:T.y+(T.h-h)/2,w,h,img:id,lw:0,color:'#000000',sig:true,sigField:T.name}}
+  else{i=curPage();const P=S.pages[i],vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();let w=Math.min(170,P.w*.4),h=w/ar;if(h>70){h=70;w=h*ar}
+    const cy=Math.min(P.h-h-20,Math.max(20,((Math.max(vr.top,pr.top)+Math.min(vr.bottom,pr.bottom))/2-pr.top)/S.zoom)),cx=P.w/2;o={type:'image',x:cx-w/2,y:cy-h/2,w,h,img:id,lw:0,color:'#000000',sig:true}}
+  if(keep){const L=sigList().filter(s=>s!==src);L.unshift(src);sigSaveList(L)}
+  closeSigDlg();pushHist();S.pages[i].objs.push(o);if(S.tool!=='select')setTool('select');setSel({p:i,o});redraw(i);markDirty();formsLayout();
+  toast(T?tr('Unterschrift eingefügt.'):tr('Unterschrift eingefügt. Zieh sie an die richtige Stelle, Ecken ändern die Größe.'))}
+function openSigDlg(target){if(!S.pages.length)return;closeEditor();SG.target=target||null;SG.strokes=[];SG.cur=null;SG.img=null;$('#sigName').value='';
+  sigRenderSaved();showEl(sigDlg);requestAnimationFrame(()=>{sigSize();if(SG.mode==='type')$('#sigName').focus()})}
+function closeSigDlg(){animHide(sigDlg)}
+function sigMode(m){SG.mode=m;document.querySelectorAll('#sigMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===m));
+  $('#sigTypeIn').hidden=m!=='type';$('#sigImgIn').hidden=m!=='img';$('#sigClear').hidden=m!=='draw';sigPad.classList.toggle('drawing',m==='draw');
+  if(m==='type'){ensureFont('caveat').then(sigRedraw);setTimeout(()=>$('#sigName').focus(),30)}sigRedraw()}
+{const pt=e=>{const r=sigPad.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};let lastT=0,lastP=null,wNow=2.2;
+  sigPad.addEventListener('pointerdown',e=>{if(SG.mode!=='draw'||e.button>0)return;sigPad.setPointerCapture(e.pointerId);const p=pt(e);wNow=2.4;SG.cur=[[p[0],p[1],wNow]];lastP=p;lastT=performance.now();sigRedraw()});
+  sigPad.addEventListener('pointermove',e=>{if(!SG.cur)return;const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
+    for(const ev of evs){const p=pt(ev),t=performance.now(),d=Math.hypot(p[0]-lastP[0],p[1]-lastP[1]);if(d<.8)continue;const v=d/Math.max(1,t-lastT);
+      const pr=ev.pointerType==='pen'&&ev.pressure>0?.6+ev.pressure*1.2:1,target=clamp(3.1-v*1.4,1.1,3.1)*pr;wNow=wNow*.72+target*.28;SG.cur.push([p[0],p[1],wNow]);lastP=p;lastT=t}sigRedraw()});
+  const up=()=>{if(!SG.cur)return;SG.strokes.push(SG.cur);SG.cur=null;sigRedraw()};sigPad.addEventListener('pointerup',up);sigPad.addEventListener('pointercancel',up);
+  document.querySelectorAll('#sigMode button').forEach(b=>b.onclick=()=>sigMode(b.dataset.v));
+  document.querySelectorAll('#sigColors button').forEach(b=>b.onclick=()=>{SG.color=b.dataset.c;document.querySelectorAll('#sigColors button').forEach(x=>x.setAttribute('aria-pressed',x===b));sigRedraw()});
+  $('#sigClear').onclick=()=>{SG.strokes=[];SG.cur=null;sigRedraw()};
+  $('#sigName').addEventListener('input',sigRedraw);
+  $('#sigPick').onclick=()=>$('#sigFile').click();
+  $('#sigFile').onchange=async()=>{const f=$('#sigFile').files[0];$('#sigFile').value='';if(!f)return;
+    try{const url=URL.createObjectURL(f);const im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});URL.revokeObjectURL(url);
+      const s=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,c.width,c.height);
+      const d=x.getImageData(0,0,c.width,c.height),D=d.data;for(let k=0;k<D.length;k+=4){const l=.299*D[k]+.587*D[k+1]+.114*D[k+2];const a=clamp((235-l)/85,0,1);D[k+3]=Math.round(D[k+3]*a)}x.putImageData(d,0,0);SG.img=c;sigRedraw()}
+    catch(e){toast(tr('Dieses Bild lässt sich nicht lesen.'))}};
+  $('#sigOk').onclick=()=>{const src=sigTrim();if(!src){toast(tr('Bitte erst unterschreiben.'));return}sigPlace(src,$('#sigKeep').checked)};
+  $('#sigX').onclick=closeSigDlg;$('#sigCancel').onclick=closeSigDlg;
+  sigDlg.addEventListener('pointerdown',e=>{if(e.target===sigDlg)closeSigDlg()});
+  sigDlg.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeSigDlg()}else if(e.key==='Enter'&&e.target.id==='sigName'&&!$('#sigOk').disabled){e.preventDefault();$('#sigOk').click()}});
+  addEventListener('resize',()=>{if(!sigDlg.hidden)sigSize()})}
+/* Nach dem Kopieren der Seiten (drehen, sortieren …) das Formularverzeichnis der neuen PDF wieder aufbauen */
+function fixAcroForm(src,out){try{const{PDFName,PDFDict,PDFRef}=PDFLib;const N=n=>PDFName.of(n);const af0=src.catalog.lookupMaybe(N('AcroForm'),PDFDict);if(!af0)return;
+  const fields=[],seen=new Set();
+  for(const pg of out.getPages()){const an=pg.node.Annots();if(!an)continue;
+    for(let k=0;k<an.size();k++){let ref=an.get(k),d=out.context.lookup(ref);if(!(d instanceof PDFDict)||d.get(N('Subtype'))!==N('Widget'))continue;
+      for(let n=0;n<16;n++){const par=d.get(N('Parent'));if(!(par instanceof PDFRef))break;const pd=out.context.lookup(par);if(!(pd instanceof PDFDict))break;ref=par;d=pd}
+      if(ref instanceof PDFRef&&!seen.has(ref.toString())){seen.add(ref.toString());fields.push(ref)}}}
+  if(!fields.length)return;const af=out.context.obj({});af.set(N('Fields'),out.context.obj(fields));const da=af0.get(N('DA'));if(da&&!(da instanceof PDFRef))af.set(N('DA'),da);
+  out.catalog.set(N('AcroForm'),out.context.register(af))}catch(e){console.warn('Formular',e)}}
+/* Esc schließt das offene Fenster auch dann, wenn der Fokus gerade nicht darin liegt */
+addEventListener('keydown',e=>{if(e.key!=='Escape')return;const m=[...document.querySelectorAll('.modal')].find(m=>!m.hidden&&!m._ah);if(!m||m.contains(document.activeElement))return;
+  const x=m.querySelector('#sigX,#ipX,#pgX,#nCancel,#mCancel');if(x){e.preventDefault();e.stopImmediatePropagation();x.click()}},true);
+
+/* ---------- Rechtschreibprüfung ----------
+   Echtes Hunspell (WebAssembly), komplett offline. Englisch liegt bei; Deutsch kommt aus dem Wörterbuch des
+   Systems (Linux) oder wird nur auf ausdrücklichen Klick einmal geladen und geprüft (Desktop-App).
+   Rote Wellenlinien sind nur auf dem Bildschirm zu sehen und landen nie in der gespeicherten PDF. */
+const SP={on:true,lang:'auto',mod:null,modP:null,eng:{},st:{en:'idle',de:'idle'},src:{},ver:1,cache:new Map(),user:new Set(),ign:new Set(),box:new WeakMap(),T:0};
+try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:spell')||'{}');if(j.on===false)SP.on=false;if(['auto','de','en'].includes(j.lang))SP.lang=j.lang}catch(e){}
+try{for(const w of JSON.parse(localStorage.getItem('pdfwerkbank:dict')||'[]'))if(typeof w==='string'&&w.length<64)SP.user.add(w)}catch(e){}
+function spSave(){try{localStorage.setItem('pdfwerkbank:spell',JSON.stringify({on:SP.on,lang:SP.lang}))}catch(e){}}
+const spScripts={};
+function spScript(src){return spScripts[src]||(spScripts[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>{delete spScripts[src];rej(new Error(src))};document.head.appendChild(s)}))}
+async function spModule(){if(SP.mod)return SP.mod;if(SP.modP)return SP.modP;
+  SP.modP=(async()=>{await spScript('spell/hunspell-wasm.js');await spScript('spell/hunspell.js');
+    const b=atob(window.LAYR_HUNSPELL_WASM),u=new Uint8Array(b.length);for(let k=0;k<b.length;k++)u[k]=b.charCodeAt(k);
+    SP.mod=await window.LayrHunspellFactory({wasmBinary:u.buffer,print:()=>{},printErr:()=>{}});return SP.mod})();
+  try{return await SP.modP}catch(e){SP.modP=null;throw e}}
+/* kleine Hülle um die C-Schnittstelle von Hunspell */
+function spHun(m,aff,dic){const id='d'+Math.random().toString(36).slice(2,8);m.FS.writeFile(id+'.aff',aff);m.FS.writeFile(id+'.dic',dic);
+  const str=s=>{const b=new TextEncoder().encode(s+'\0'),p=m._malloc(b.length);m.HEAPU8.set(b,p);return p};
+  const rd=p=>{const H=m.HEAPU8;let e=p;while(H[e])e++;return new TextDecoder().decode(H.subarray(p,e))};
+  const a=str(id+'.aff'),d=str(id+'.dic'),h=m._Hunspell_create(a,d);m._free(a);m._free(d);try{m.FS.unlink(id+'.aff');m.FS.unlink(id+'.dic')}catch(e){}
+  if(!h)throw new Error('hunspell');
+  return{ok(w){const p=str(w),r=m._Hunspell_spell(h,p);m._free(p);return!!r},
+    sug(w){const p=str(w),pp=m._malloc(4);const n=m._Hunspell_suggest(h,pp,p);const out=[];if(n>0){const L=m.HEAPU32[pp>>2];for(let k=0;k<n;k++)out.push(rd(m.HEAPU32[(L>>2)+k]));m._Hunspell_free_list(h,pp,n)}m._free(pp);m._free(p);return out},
+    add(w){const p=str(w);m._Hunspell_add(h,p);m._free(p)}}}
+async function spLoad(lang){
+  if(SP.eng[lang]||SP.st[lang]==='busy')return;SP.st[lang]='busy';
+  try{let D=null;
+    if(lang==='en'){await spScript('spell/en_US.js');D=window.LAYR_DICT_EN;SP.src.en='app'}
+    else if(window.werkbank&&werkbank.spellDict){const r=await werkbank.spellDict('de');if(r&&r.aff&&r.dic){D=r;SP.src.de=r.src}}
+    if(!D){SP.st[lang]='none';spUI();return}
+    const m=await spModule();const e=spHun(m,D.aff,D.dic);for(const w of SP.user)try{e.add(w)}catch(x){}
+    SP.eng[lang]=e;SP.st[lang]='ok';SP.cache.clear();SP.ver++}
+  catch(e){console.error(e);SP.st[lang]='err'}
+  spUI();redrawAll();spNotesSoon()}
+function spWant(){return SP.lang==='auto'?['de','en']:[SP.lang]}
+function spEnsure(){if(!SP.on)return;for(const l of spWant())if(SP.st[l]==='idle')spLoad(l)}
+/* Wörter, die nicht geprüft werden: Abkürzungen in Großbuchstaben, Wörter mit Ziffern, BinnenMajuskeln, Adressen */
+function spSkip(w,chunk){if(w.length<2)return true;if(w===w.toUpperCase())return true;if(/[a-zäöüß][A-ZÄÖÜ]/.test(w.replace(/-[A-ZÄÖÜ]/g,'')))return true;
+  if(chunk){if(/[\d@_\\/]|:\/\/|^www\./i.test(chunk))return true;const c2=chunk.replace(/[.,;:!?)"“”'’]+$/,'');if(/\w\.\w/.test(c2)&&/\.[a-z]{2,4}$/i.test(c2))return true}
+  return false}
+function spOk(w){if(SP.user.has(w)||SP.ign.has(w))return true;let r=SP.cache.get(w);if(r!==undefined)return r;
+  const E=spWant().map(l=>SP.eng[l]).filter(Boolean);if(!E.length)return true;
+  r=E.some(e=>e.ok(w));if(!r&&w.includes('-'))r=w.split('-').filter(Boolean).every(p=>p.length<2||p===p.toUpperCase()||E.some(e=>e.ok(p)));
+  if(SP.cache.size>20000)SP.cache.clear();SP.cache.set(w,r);return r}
+function spSug(w){const E=spWant().map(l=>SP.eng[l]).filter(Boolean),out=[];for(const e of E)for(const s of e.sug(w))if(!out.includes(s))out.push(s);return out.slice(0,6)}
+/* falsche Wörter einer Zeile: [{a,b}] (Zeichenpositionen) */
+const SP_RX=/[\p{L}][\p{L}\p{M}'’-]*[\p{L}\p{M}]|[\p{L}]/gu;
+function spLine(L){const out=[];if(!SP.on)return out;for(const ch of L.matchAll(/\S+/g)){const chunk=ch[0];for(const m of chunk.matchAll(SP_RX)){const w=m[0];if(spSkip(w,chunk))continue;if(!spOk(w))out.push({a:ch.index+m.index,b:ch.index+m.index+w.length,w})}}return out}
+/* Lage der falschen Wörter eines Objekts (relativ zu o.x/o.y), mit Zwischenspeicher */
+function spItems(o){
+  if(!SP.on||o===editingObj)return[];
+  let key;if(o.type==='text'){if(o.orient!=='h'||!o.text)return[];key='t|'+o.text+'|'+tfont(o)+'|'+(o.wrapW||0)}
+  else if(o.type==='table'){key='b|'+JSON.stringify(o.cells)+'|'+o.w+'|'+o.h+'|'+o.cw+'|'+o.rh+'|'+(o.fs||11)+'|'+famOf(o)+'|'+o.head}
+  else return[];key+='|'+SP.ver;
+  const c=SP.box.get(o);if(c&&c.key===key)return c.items;const items=[];
+  if(o.type==='text'){const b=textBox(o),off=(b.lh-o.fs)/2;mctx.font=tfont(o);let pos=0;
+    b.lines.forEach((L,li)=>{for(const r of spLine(L)){const x=mctx.measureText(L.slice(0,r.a)).width,w=mctx.measureText(L.slice(r.a,r.b)).width;items.push({x,y:li*b.lh+off,w,h:o.fs,base:li*b.lh+off+o.fs*1.02,i:pos+r.a,n:r.b-r.a,word:r.w,cell:null})}pos+=L.length+1})}
+  else{const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.22,fam=famOf(o);
+    for(let r=0;r<o.rows;r++)for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;
+      const cw=X[k+1]-X[k],ch=Y[r+1]-Y[r],L=wrapLines(mctx,t,Math.max(10,cw-8)),y0=Y[r]+ch/2-(L.length-1)*lh/2;let pos=0;
+      L.forEach((l,j)=>{for(const q of spLine(l)){const x=X[k]+4+mctx.measureText(l.slice(0,q.a)).width,w=mctx.measureText(l.slice(q.a,q.b)).width,yy=y0+j*lh;
+          if(yy>Y[r+1]||yy<Y[r])continue;items.push({x:x-o.x,y:yy-fs*.55-o.y,w,h:fs*1.1,base:yy+fs*.5-o.y,i:pos+q.a,n:q.b-q.a,word:q.w,cell:[r,k]})}pos+=l.length+1})}}
+  SP.box.set(o,{key,items});return items}
+function spWave(c,x1,x2,y,z){const a=1.15/z,s=2.6/z;c.beginPath();c.moveTo(x1,y);let k=0;for(let x=x1;x<x2;x+=s){c.lineTo(Math.min(x+s,x2),y+(k++%2?-a:a))}c.stroke()}
+function drawSpell(c,i){if(!SP.on)return;const P=S.pages[i];if(!P)return;const z=S.zoom;let any=false;
+  for(const o of P.objs){if(o.type!=='text'&&o.type!=='table')continue;const it=spItems(o);if(!it.length)continue;
+    if(!any){c.save();c.setLineDash([]);c.globalAlpha=1;c.strokeStyle='#e5484d';c.lineWidth=1.1/z;c.lineJoin='round';any=true}
+    for(const q of it)spWave(c,o.x+q.x,o.x+q.x+q.w,o.y+q.base,z)}
+  if(any)c.restore()}
+function spAt(i,x,y){const P=S.pages[i];if(!P||!SP.on)return null;const tol=3/S.zoom;
+  for(let k=P.objs.length-1;k>=0;k--){const o=P.objs[k];if(o.type!=='text'&&o.type!=='table')continue;for(const q of spItems(o)){const qx=o.x+q.x,qy=o.y+q.y;if(x>=qx-tol&&x<=qx+q.w+tol&&y>=qy-tol&&y<=qy+q.h+q.h*.4+tol)return{o,q}}}return null}
+function spReplace(o,q,s){pushHist();
+  if(o.type==='text'){const t=String(o.text);o.text=t.slice(0,q.i)+s+t.slice(q.i+q.n)}
+  else{const[r,k]=q.cell,t=String(o.cells[r][k]);o.cells[r][k]=t.slice(0,q.i)+s+t.slice(q.i+q.n)}
+  redrawAll();markDirty()}
+function spAdd(w){SP.user.add(w);for(const e of Object.values(SP.eng))try{e.add(w)}catch(x){}SP.cache.clear();SP.ver++;try{localStorage.setItem('pdfwerkbank:dict',JSON.stringify([...SP.user].slice(-2000)))}catch(e){}redrawAll();spNotesSoon()}
+function spMenu(x,y,word,apply){
+  ctx.innerHTML='';const head=document.createElement('div');head.className='sp-h';head.textContent=word;ctx.appendChild(head);
+  const S2=spSug(word);if(!S2.length){const b=document.createElement('button');b.disabled=true;b.textContent=tr('Keine Vorschläge');ctx.appendChild(b)}
+  for(const s of S2){const b=document.createElement('button');b.setAttribute('role','menuitem');b.className='sp-s';b.textContent=s;b.onclick=()=>{closeMenu();apply(s)};ctx.appendChild(b)}
+  ctx.appendChild(document.createElement('hr'));
+  const add=(t,f)=>{const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=t;b.onclick=()=>{closeMenu();f()};ctx.appendChild(b)};
+  add(tr('Zum Wörterbuch hinzufügen'),()=>{spAdd(word);toast(LANG==='en'?`“${word}” added to your dictionary.`:`„${word}“ steht jetzt in deinem Wörterbuch.`)});
+  add(tr('Ignorieren'),()=>{SP.ign.add(word);SP.cache.delete(word);SP.ver++;redrawAll();spNotesSoon()});
+  showEl(ctx);const r=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-r.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-r.height-8)+'px'}
+/* Rechtsklick auf ein rot unterstrichenes Wort */
+pagesEl.addEventListener('contextmenu',e=>{if(!SP.on)return;const tg=pageAt(e.clientX,e.clientY);if(!tg)return;const h=spAt(tg.p,tg.pt[0],tg.pt[1]);if(!h)return;
+  e.preventDefault();e.stopImmediatePropagation();closeEditor();spMenu(e.clientX,e.clientY,h.q.word,s=>spReplace(h.o,h.q,s))},true);
+/* Notizen: Wellenlinien über eine Ebene hinter dem Textfeld (nur Desktop-App; im Browser prüft der Browser selbst) */
+const spNt=$('#ntText'),spBd=$('#ntBd');let spNtT=0;
+function spNotesSoon(){clearTimeout(spNtT);spNtT=setTimeout(spNotes,250)}
+function spNotes(){if(!spBd)return;const on=SP.on&&!!window.werkbank;spNt.spellcheck=!on;spBd.hidden=!on;if(!on)return;
+  const v=spNt.value;let h='',last=0;const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  let lineStart=0;for(const L of v.split('\n')){for(const r of spLine(L)){const a=lineStart+r.a,b=lineStart+r.b;h+=esc(v.slice(last,a))+'<mark data-a="'+a+'" data-b="'+b+'">'+esc(v.slice(a,b))+'</mark>';last=b}lineStart+=L.length+1}
+  spBd.innerHTML=h+esc(v.slice(last))+'\n';spBd.style.width=spNt.clientWidth+'px';spBd.scrollTop=spNt.scrollTop}
+if(spNt&&spBd){spNt.addEventListener('input',spNotesSoon);spNt.addEventListener('scroll',()=>{spBd.scrollTop=spNt.scrollTop});
+  try{new ResizeObserver(()=>{if(!spBd.hidden){spBd.style.width=spNt.clientWidth+'px';spBd.scrollTop=spNt.scrollTop}}).observe(spNt)}catch(e){}
+  spNt.addEventListener('contextmenu',e=>{if(spBd.hidden)return;for(const m of spBd.querySelectorAll('mark')){for(const r of m.getClientRects()){if(e.clientX>=r.left-2&&e.clientX<=r.right+2&&e.clientY>=r.top-2&&e.clientY<=r.bottom+2){
+      e.preventDefault();const a=+m.dataset.a,b=+m.dataset.b,w=spNt.value.slice(a,b);
+      spMenu(e.clientX,e.clientY,w,s=>{spNt.focus();spNt.setRangeText(s,a,b,'end');spNt.dispatchEvent(new Event('input',{bubbles:true}))});return}}}})}
+/* Seitenleiste */
+function spUI(){const t=$('#spOn');if(!t)return;t.checked=SP.on;$('#spLang').value=SP.lang;$('#spLangRow').hidden=!SP.on;
+  const h=$('#spHint'),btn=$('#spGet');let msg='';btn.hidden=true;
+  if(SP.on&&spWant().includes('de')){const s=SP.st.de;
+    if(s==='busy')msg=tr('Wörterbücher werden geladen …');
+    else if(s==='none'){if(window.werkbank&&werkbank.spellDownload){msg=tr('Für Deutsch fehlt ein Wörterbuch. Layr kann es einmalig herunterladen (ca. 1 MB, aus dem öffentlichen npm-Verzeichnis, geprüft).');btn.hidden=false}else msg=tr('Deutsch wird in der Desktop-App geprüft. Hier prüft Layr Englisch.')}
+    else if(s==='err')msg=tr('Das Wörterbuch ließ sich nicht laden.')}
+  h.textContent=msg;h.hidden=!msg}
+{const t=$('#spOn');if(t){
+  t.onchange=()=>{SP.on=t.checked;spSave();spUI();if(SP.on)spEnsure();SP.ver++;redrawAll();spNotes()};
+  $('#spLang').onchange=()=>{SP.lang=$('#spLang').value;spSave();SP.cache.clear();SP.ver++;spEnsure();spUI();redrawAll();spNotesSoon()};
+  $('#spGet').onclick=async()=>{const b=$('#spGet');b.disabled=true;b.textContent=tr('Lädt …');
+    let r=null;try{r=await werkbank.spellDownload('de')}catch(e){}
+    b.disabled=false;b.textContent=tr('Deutsches Wörterbuch laden');
+    if(!r||!r.ok){toast(tr('Download hat nicht geklappt. Bist du online?'));return}
+    SP.st.de='idle';await spLoad('de');if(SP.eng.de)toast(tr('Deutsches Wörterbuch installiert. Layr prüft jetzt auch Deutsch.'))};
+  spUI()}}
+setTimeout(()=>{spEnsure();spNotes()},400);
+
+/* ---------- Dateiname umbenennen (Klick auf den Namen oben links) ----------
+   Desktop-App: die Datei wird im selben Ordner umbenannt. Neues, noch nicht gespeichertes Blatt oder Browser:
+   nur der Name, unter dem gespeichert wird. */
+const fnEl=$('#fname');let fnEdit=null;
+function fnStart(){if(fnEdit||!S.bytes||S.sample)return;closeEditor();const cur=S.name.replace(/\.pdf$/i,'');
+  const inp=document.createElement('input');inp.className='fname-in';inp.value=cur;inp.spellcheck=false;inp.setAttribute('aria-label',tr('Dateiname'));inp.maxLength=200;
+  fnEdit=inp;fnEl.hidden=true;fnEl.after(inp);const sz=()=>{inp.style.width=Math.max(80,Math.min(420,(inp.value.length+2)*8.4))+'px'};sz();inp.addEventListener('input',sz);
+  inp.focus();inp.select();let done=false;
+  const fin=async ok=>{if(done)return;done=true;const v=inp.value.replace(/[\\/:*?"<>|\x00-\x1f]/g,'-').replace(/\.pdf$/i,'').trim();
+    const close=()=>{inp.remove();fnEl.hidden=false;fnEdit=null};
+    if(!ok||!v||v===cur){close();return}
+    const oldKey=storeKey();let name=v+'.pdf',r=null;
+    if(window.werkbank&&werkbank.renameFile){try{r=await werkbank.renameFile(v)}catch(e){r={error:'fs'}}
+      if(!r||r.error){close();toast(r&&r.error==='exists'?(LANG==='en'?`A file named “${name}” already exists in this folder.`:`Im Ordner gibt es schon eine Datei „${name}“.`):tr('Umbenennen hat nicht geklappt.'));return}
+      name=r.name||name}
+    S.name=name;fnEl.textContent=name;fnEl.title=name;
+    // Zwischenspeicher der Beschriftungen mitnehmen
+    try{const nk=storeKey();for(const suf of ['',':notes',':tasks']){const v2=localStorage.getItem(oldKey+suf);if(v2!=null){localStorage.setItem(nk+suf,v2);localStorage.removeItem(oldKey+suf)}}}catch(e){}
+    close();popEl(fnEl);
+    toast(r&&r.disk?(LANG==='en'?`Renamed to “${name}”.`:`Umbenannt in „${name}“.`):(LANG==='en'?`The sheet is now called “${name}” and will be saved under this name.`:`Das Blatt heißt jetzt „${name}“ und wird unter diesem Namen gespeichert.`))};
+  inp.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();fin(true)}else if(e.key==='Escape'){e.preventDefault();fin(false)}});
+  inp.addEventListener('blur',()=>fin(true))}
+fnEl.addEventListener('click',fnStart);fnEl.addEventListener('mouseenter',()=>{fnEl.title=S.name+' · '+tr('Klicken zum Umbenennen (F2)')});fnEl.tabIndex=0;fnEl.setAttribute('role','button');
+fnEl.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key==='F2'){e.preventDefault();fnStart()}});
+addEventListener('keydown',e=>{if(e.key==='F2'&&!fnEdit&&!e.target.closest('input,textarea,select,.modal')&&!editorEl){e.preventDefault();fnStart()}});
+
+/* ---------- Updates selbst installieren (Oberfläche) ----------
+   Gefundene Updates lädt die Desktop-App im Hintergrund, prüft sie (sha512) und installiert sie beim Neustart
+   bzw. beim Beenden. Ohne Unterstützung (z. B. im Browser) bleibt es beim Download-Link. */
+const UPD={auto:true,type:null,can:false,r:null,mode:null,got:0,total:0};
+try{UPD.auto=localStorage.getItem('pdfwerkbank:updAutoDl')!=='0'}catch(e){}
+const UPD_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>';
+function updCard(){let el=document.getElementById('updCard');if(!el){el=document.createElement('div');el.id='updCard';el.className='upd';el.hidden=true;el.setAttribute('role','dialog');el.setAttribute('aria-label',tr('Update verfügbar'));document.body.appendChild(el)}return el}
+const updMB=n=>(n/1048576).toFixed(n>10485760?0:1).replace('.',LANG==='en'?'.':',')+' MB';
+function updRender(mode){const el=updCard(),r=UPD.r||{},W=window.werkbank;UPD.mode=mode;
+  const notes=String(r.notes||'').replace(/[#*_`>]/g,'').replace(/\n{2,}/g,'\n').trim();
+  const title={found:LANG==='en'?`Layr ${r.version} is available`:`Layr ${r.version} ist da`,dl:LANG==='en'?`Downloading Layr ${r.version} …`:`Layr ${r.version} wird geladen …`,
+    ready:LANG==='en'?`Layr ${r.version} is ready`:`Layr ${r.version} ist bereit`,inst:LANG==='en'?`Installing Layr ${r.version} …`:`Layr ${r.version} wird installiert …`}[mode];
+  let sub=notes||tr('Eine neue Version steht zum Download bereit.'),btns='';
+  if(mode==='found')btns=`<button type="button" class="skip" title="${tr('Für diese Version nicht mehr erinnern')}">${tr('Überspringen')}</button><button type="button" class="btn later">${tr('Später')}</button><button type="button" class="btn primary go">${UPD.can?tr('Jetzt installieren'):tr('Herunterladen')}</button>`;
+  if(mode==='dl'){sub=tr('Wird geprüft und ist danach mit einem Klick installiert.');btns=`<button type="button" class="btn later">${tr('Im Hintergrund')}</button>`}
+  if(mode==='ready'){btns=`<button type="button" class="btn later">${tr('Später')}</button><button type="button" class="btn primary go">${tr('Neu starten')}</button>`}
+  if(mode==='inst'){sub=UPD.type==='deb'?tr('Bitte im Fenster von Ubuntu dein Passwort eingeben.'):tr('Layr startet gleich neu.');btns=''}
+  el.innerHTML=`<div class="upd-h"><span class="upd-i">${UPD_ICON}</span><div><b></b><p></p></div></div>`+(mode==='dl'?`<div class="upd-prog"><i></i></div><div class="upd-n"></div>`:'')
+    +(mode==='ready'?`<div class="upd-note"></div>`:'')+(btns?`<div class="upd-b">${btns}</div>`:'');
+  el.querySelector('b').textContent=title;el.querySelector('p').textContent=sub;
+  const note=el.querySelector('.upd-note');if(note)note.textContent=UPD.type==='deb'?tr('Zum Installieren fragt Ubuntu nach deinem Passwort.'):UPD.auto?tr('Sonst wird es beim Beenden von Layr installiert.'):tr('Installiert wird beim Neustart.');
+  const q=s=>el.querySelector(s);
+  q('.later')&&(q('.later').onclick=()=>animHide(el));
+  q('.skip')&&(q('.skip').onclick=()=>{try{localStorage.setItem('pdfwerkbank:updSkip',r.version)}catch(e){}animHide(el)});
+  if(q('.go'))q('.go').onclick=mode==='found'?(UPD.can?()=>updDownload(true):()=>{W.openRelease(r.asset||r.url);animHide(el);toast(tr('Der Download startet im Browser. Danach den Installer öffnen.'))}):updInstall;
+  updProg();showEl(el)}
+function updProg(){const el=document.getElementById('updCard');if(!el||UPD.mode!=='dl')return;const i=el.querySelector('.upd-prog i'),n=el.querySelector('.upd-n');if(!i)return;
+  const p=UPD.total?UPD.got/UPD.total:0;i.style.width=(p*100).toFixed(1)+'%';n.textContent=UPD.total?`${updMB(UPD.got)} / ${updMB(UPD.total)} · ${Math.round(p*100)} %`:''}
+async function updDownload(show){const W=window.werkbank;if(!W||!W.updDownload)return;UPD.got=0;UPD.total=0;if(show)updRender('dl');
+  let r=null;try{r=await W.updDownload()}catch(e){}
+  if(!r||r.error){if(show||UPD.mode==='dl'){animHide(updCard());toast(tr('Das Update ließ sich nicht laden oder prüfen. Du kannst es im Browser herunterladen.'));setTimeout(()=>{UPD.can=false;updRender('found')},400)}return}
+  if(UPD.auto)W.updAutoInstall(true);
+  let skip='';try{skip=localStorage.getItem('pdfwerkbank:updSkip')||''}catch(e){}
+  if(show||skip!==UPD.r.version)updRender('ready')}
+async function updInstall(){const W=window.werkbank;updRender('inst');await flushAuto();
+  let r=null;try{r=await W.updInstall(false)}catch(e){}
+  if(r&&r.ok)return;
+  animHide(updCard());
+  toast(r&&r.error==='cancel'?tr('Installation abgebrochen. Du kannst es später noch einmal versuchen.'):r&&r.error==='pkexec'?tr('Zum Installieren fehlt pkexec. Bitte das .deb-Paket aus dem Browser installieren.'):tr('Die Installation hat nicht geklappt.'));
+  setTimeout(()=>updRender('ready'),500)}
+// ersetzt die bisherige Karte: wird von der Update-Suche aufgerufen
+function updShow(r,manual){let skip='';try{skip=localStorage.getItem('pdfwerkbank:updSkip')||''}catch(e){}if(!manual&&skip===r.version)return;
+  UPD.r=r;UPD.can=!!r.canInstall;
+  if(UPD.can&&UPD.auto&&!manual){updDownload(false);return}
+  updRender('found')}
+{const W=window.werkbank;
+  if(W&&W.updState){W.onUpdProgress((g,t)=>{UPD.got=g;UPD.total=t;updProg()});
+    W.updState().then(st=>{if(!st)return;UPD.type=st.type;UPD.can=!!st.canInstall;const row=$('#upAutoRow');
+      if(row&&UPD.can){row.hidden=false;const t=$('#upAutoDl');t.checked=UPD.auto;
+        $('#upAutoHint').textContent=st.type==='deb'?tr('Neue Versionen werden im Hintergrund geladen und geprüft. Zum Installieren fragt Ubuntu nach deinem Passwort.'):tr('Neue Versionen werden im Hintergrund geladen, geprüft und beim nächsten Beenden installiert.');
+        t.onchange=()=>{UPD.auto=t.checked;try{localStorage.setItem('pdfwerkbank:updAutoDl',UPD.auto?'1':'0')}catch(e){}W.updAutoInstall(UPD.auto);toast(UPD.auto?tr('Updates werden ab jetzt selbst installiert.'):tr('Updates werden nur noch angezeigt.'))}}
+      if(st.pending){UPD.r={version:st.pending.version,notes:st.pending.notes};if(UPD.auto)W.updAutoInstall(true);setTimeout(()=>updRender('ready'),2500)}}).catch(()=>{})}}
+
 // Personalisieren-Fenster öffnen/schließen
 const studio=$('#studio'),studioBg=$('#studioBg');
 const studioIsOpen=()=>!studio.hidden&&!studio._ah;
@@ -3375,6 +3832,7 @@ addEventListener('keydown',e=>{
   else if(k==='n'&&!e.altKey&&!e.shiftKey)notesOpen();
   else if(k==='i'&&!e.altKey&&!e.shiftKey)openIpDlg();
   else if(k==='b'&&!e.altKey&&!e.shiftKey)pickImage();
+  else if(k==='w'&&!e.altKey&&!e.shiftKey)openSigDlg();
   else if(k==='f3'){e.preventDefault();if(FD.open)findStep(e.shiftKey?-1:1);else openFind()}
   else if(KEYS[k])setTool(KEYS[k]);
 });
@@ -3437,7 +3895,7 @@ async function rebuildPages(entries,msg,focus){
     if(en.blank){const ref=srcPages[en.like];let dims=[595.28,841.89];if(en.fmt&&FMT[en.fmt])dims=FMT[en.fmt];else if(ref){const sz=ref.getSize(),r=((ref.getRotation().angle%360)+360)%360;dims=r%180?[sz.height,sz.width]:[sz.width,sz.height]}paintBg(out.addPage(dims),en.bg!=null?en.bg:(S.isNew?S.bg:'blank'),en.paper!=null?en.paper:(S.isNew?S.paper:'white'));objs.push([])}
     else{const[cp]=await out.copyPages(src,[en.i]);if(en.rot)cp.setRotation(PDFLib.degrees((((cp.getRotation().angle+en.rot)%360)+360)%360));out.addPage(cp);const P0=S.pages[en.i];objs.push(rotObjs(JSON.parse(JSON.stringify(P0.objs,(k,v)=>k==='_editing'?undefined:v)),P0.w,P0.h,en.rot||0))}
   }
-  H.u.push(docSnap());H.r=[];
+  fixAcroForm(src,out);H.u.push(docSnap());H.r=[];
   await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
   updUndo();markDirty();if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);
 }
