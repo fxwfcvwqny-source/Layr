@@ -11,4 +11,9 @@ contextBridge.exposeInMainWorld('werkbank', {
   checkUpdate: () => ipcRenderer.invoke('check-update'),
   openRelease: u => ipcRenderer.send('open-release', String(u || '')),
   setLang: l => ipcRenderer.send('set-lang', l === 'en' ? 'en' : 'de'),
+  recent: () => ipcRenderer.invoke('recent-list'),
+  recentOpen: p => ipcRenderer.invoke('recent-open', String(p)),
+  recentRemove: p => ipcRenderer.send('recent-remove', String(p)),
+  recentClear: () => ipcRenderer.send('recent-clear'),
+  recentEnable: on => ipcRenderer.send('recent-enable', !!on),
 });

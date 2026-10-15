@@ -13,6 +13,7 @@
 - **Write on any PDF** – text boxes with 16 fonts (Arial, Times New Roman, Calibri, Roboto, handwriting …), bold, underline, colours, bullet and numbered lists
 - **Pen and highlighter with shape recognition** – draw freehand, hold at the end and the stroke snaps into a straight line, circle, rectangle or triangle
 - **Lasso and multi-select** – move, scale, recolour, duplicate or delete several items at once
+- **Images** – insert PNG, JPG, WebP, GIF or SVG with the image tool, Ctrl+V or drag and drop; resize, change opacity, replace
 - **Docking connectors** – lines and arrows that start or end on a symbol stick to it and follow when you move it
 - **Tables** – drag out a table, type with Tab from cell to cell, add or remove rows and columns, drag the dividers
 - **Org charts** – ready-made templates (line, line-and-staff, divisional, matrix, IT department, project …) plus single building blocks; remove boxes you don't need and their lines go with them
@@ -21,7 +22,9 @@
 - **Big symbol library** – general shapes, UML, flowcharts (PAP), Nassi-Shneiderman, ER models, 40+ network symbols, topologies and IT-security symbols
 - **Notes and to-dos per document** – a notes panel with checkable tasks, stored *inside* the PDF
 - **Stays editable** – save over the original file; reopen it in Layr and every annotation can still be moved or removed
-- **Pages and documents** – add blank, lined, grid or dotted pages, merge several PDFs
+- **Search (Ctrl+F)** – find words in the PDF text and in your own annotations, with every match highlighted
+- **Pages and documents** – rotate, sort, duplicate and delete pages in a page overview (drag to reorder), add blank, lined, grid or dotted pages, merge several PDFs
+- **Recently opened** – reopen your last files with one click (desktop app; the list stays on your computer and can be turned off)
 - **Make it yours** – light and dark themes, accent colours, desk and sheet colours, toolbar styles, notification styles, animations on or off
 
 **Deutsch & English** – choose the language in the Windows installer or on first start, and switch any time under *Personalize*.
@@ -45,6 +48,7 @@ Download the file for your system from the [latest release](https://github.com/f
 - Your PDFs, notes and settings stay on your computer. Layr has no account, no telemetry and no tracking.
 - The only network request is the optional update check, which asks the public GitHub API for the latest version number.
 - Crash reports are only written locally to Layr's own settings folder and are never uploaded.
+- The "Recently opened" list only stores file paths in Layr's settings folder on your computer. You can clear it or turn it off under *Personalize → Layr & updates*.
 
 ## Building from source
 

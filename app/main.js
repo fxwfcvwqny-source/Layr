@@ -24,7 +24,27 @@ const langFile = () => path.join(app.getPath('userData'), 'lang.txt');
 const getLang = () => { if (uiLang) return uiLang; try { const v = fs.readFileSync(langFile(), 'utf8').trim(); if (v === 'en' || v === 'de') return (uiLang = v); } catch (e) {} return (uiLang = installLang() || 'de'); };
 const T = s => (getLang() === 'en' && DLG_EN[s]) || s;
 const pdfArg = argv => argv.slice(1).find(a => /\.pdf$/i.test(a) && fs.existsSync(a));
-const readPdf = f => { savedPath = null; currentFile = path.resolve(f); lastDir = path.dirname(currentFile); return { name: path.basename(f), data: fs.readFileSync(f) }; };
+const readPdf = f => { savedPath = null; currentFile = path.resolve(f); lastDir = path.dirname(currentFile); const data = fs.readFileSync(f); addRecent(currentFile); return { name: path.basename(f), data }; };
+
+// Zuletzt geöffnet: nur Dateipfade, nur auf diesem Rechner (recent.json im privaten Programmordner).
+// Abschaltbar unter Personalisieren; dann wird die Liste geleert und nichts mehr gemerkt.
+const RECENT_MAX = 12;
+const recentFile = () => path.join(app.getPath('userData'), 'recent.json');
+let recent = null;
+function recentLoad() {
+  if (recent) return recent;
+  try { const j = JSON.parse(fs.readFileSync(recentFile(), 'utf8'));
+    recent = { on: j.on !== false, items: Array.isArray(j.items) ? j.items.filter(x => x && typeof x.p === 'string' && path.isAbsolute(x.p) && /\.pdf$/i.test(x.p)).slice(0, RECENT_MAX) : [] };
+  } catch (e) { recent = { on: true, items: [] }; }
+  return recent;
+}
+function recentSave() { try { fs.writeFileSync(recentFile(), JSON.stringify(recent)); } catch (e) {} }
+function addRecent(p) {
+  const r = recentLoad(); if (!r.on || !p || !/\.pdf$/i.test(p)) return; p = path.resolve(p);
+  if (r.items[0] && r.items[0].p === p && Date.now() - r.items[0].t < 60000) return;
+  r.items = [{ p, t: Date.now() }, ...r.items.filter(x => x.p !== p)].slice(0, RECENT_MAX); recentSave();
+  try { app.addRecentDocument(p); } catch (e) {}
+}
 
 // Linux: Das Eingabesystem (IBus o. ä.) für diese App umgehen und die einfache GTK-Eingabe nehmen.
 // Sonst kommen Buchstaben im Textfeld nicht oder nur einzeln an. Umlaute und Tottasten (^, ´) gehen weiterhin.
@@ -118,11 +138,11 @@ ipcMain.handle('initial-file', () => {
   if (!initialFile) return null;
   const r = readPdf(initialFile); initialFile = null; return r;
 });
-ipcMain.on('set-file', (_e, p) => { if (p) { savedPath = null; currentFile = path.resolve(p); lastDir = path.dirname(currentFile); } });
+ipcMain.on('set-file', (_e, p) => { if (p) { savedPath = null; currentFile = path.resolve(p); lastDir = path.dirname(currentFile); addRecent(currentFile); } });
 ipcMain.handle('save', async (_e, name, data, saveAs) => {
   if (!saveAs) {
     const t = quickTarget(name);
-    writeSafe(t, data); savedPath = t; return path.basename(t);
+    writeSafe(t, data); savedPath = t; addRecent(t); return path.basename(t);
   }
   for (;;) {
     const r = await dialog.showSaveDialog(win, {
@@ -135,6 +155,7 @@ ipcMain.handle('save', async (_e, name, data, saveAs) => {
     writeSafe(target, data);
     lastDir = path.dirname(target);
     savedPath = path.resolve(target);
+    addRecent(savedPath);
     return path.basename(target);
   }
 });
@@ -150,9 +171,21 @@ ipcMain.on('new-doc', () => { savedPath = null; currentFile = null; });
 ipcMain.handle('autosave', (_e, name, data, fresh) => {
   let t = quickTarget(name);
   if (fresh && !savedPath && !currentFile) { const b = t.replace(/\.pdf$/i, ''); let n = 2; while (fs.existsSync(t)) t = `${b} (${n++}).pdf`; }
-  writeSafe(t, data); savedPath = t;
+  writeSafe(t, data); savedPath = t; addRecent(t);
   return path.basename(t);
 });
+ipcMain.handle('recent-list', () => {
+  const r = recentLoad();
+  return { on: r.on, items: r.items.map(x => ({ path: x.p, name: path.basename(x.p), dir: path.dirname(x.p), t: x.t, exists: fs.existsSync(x.p) })) };
+});
+// Öffnet nur Dateien, die wirklich in der Liste stehen
+ipcMain.handle('recent-open', (_e, p) => {
+  const r = recentLoad(); if (typeof p !== 'string' || !r.items.some(x => x.p === p)) return null;
+  try { if (!fs.statSync(p).isFile()) return null; return readPdf(p); } catch (e) { return null; }
+});
+ipcMain.on('recent-remove', (_e, p) => { const r = recentLoad(); r.items = r.items.filter(x => x.p !== p); recentSave(); });
+ipcMain.on('recent-clear', () => { const r = recentLoad(); r.items = []; recentSave(); try { app.clearRecentDocuments(); } catch (e) {} });
+ipcMain.on('recent-enable', (_e, on) => { const r = recentLoad(); r.on = !!on; if (!r.on) { r.items = []; try { app.clearRecentDocuments(); } catch (e) {} } recentSave(); });
 
 function askRenderer(code, ms) {
   return Promise.race([win.webContents.executeJavaScript(code).catch(() => null), new Promise(r => setTimeout(() => r(null), ms))]);
