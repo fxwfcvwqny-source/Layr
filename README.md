@@ -51,6 +51,8 @@ npx electron-builder --win     # Windows installer (on Linux this needs Wine)
 npx electron-builder --linux   # AppImage
 ```
 
+Official downloads are built by GitHub Actions directly from this repository ([`.github/workflows/release.yml`](.github/workflows/release.yml)), so every installer matches the code you see here.
+
 The app itself is plain HTML/JavaScript in [`app/web/index.html`](app/web/index.html); [`app/main.js`](app/main.js) is the Electron main process.
 
 ## License

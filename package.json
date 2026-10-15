@@ -65,19 +65,39 @@
     },
     "linux": {
       "target": [
-        "AppImage"
+        "AppImage",
+        "deb"
       ],
       "icon": "build/icon.png",
       "category": "Office",
       "executableName": "layr",
       "artifactName": "Layr-${version}-x86_64.${ext}",
-      "synopsis": "PDFs beschriften, zeichnen, Notizen und Diagramme"
+      "synopsis": "PDFs beschriften, zeichnen, Notizen und Diagramme",
+      "maintainer": "Layr <fxwfcvwqny-source@users.noreply.github.com>",
+      "vendor": "Layr",
+      "description": "PDFs beschriften, zeichnen, Notizen und Diagramme",
+      "mimeTypes": [
+        "application/pdf"
+      ]
     },
     "publish": {
       "provider": "github",
       "owner": "fxwfcvwqny-source",
       "repo": "Layr",
-      "releaseType": "release"
+      "releaseType": "draft"
+    },
+    "deb": {
+      "artifactName": "Layr-${version}-amd64.${ext}",
+      "packageCategory": "office",
+      "priority": "optional",
+      "fpm": [
+        "--replaces",
+        "pdf-werkbank",
+        "--conflicts",
+        "pdf-werkbank",
+        "--provides",
+        "pdf-werkbank"
+      ]
     }
   },
   "homepage": "https://github.com/fxwfcvwqny-source/Layr",

@@ -1,0 +1,43 @@
+# Baut Layr für Windows und Linux, sobald ein Versions-Tag (z. B. v2.5.0) hochgeladen wird,
+# und legt die Dateien in einen Release-ENTWURF. Veröffentlicht wird erst per Klick auf GitHub.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: GitHub-Abhängigkeiten über HTTPS laden
+        run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+      - run: npm ci --no-audit --no-fund
+      - name: Windows-Installer bauen und in den Entwurf laden
+        run: npx electron-builder --win --x64 --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  linux:
+    needs: windows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: GitHub-Abhängigkeiten über HTTPS laden
+        run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+      - run: npm ci --no-audit --no-fund
+      - name: AppImage und .deb bauen und in den Entwurf laden
+        run: npx electron-builder --linux AppImage deb --x64 --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
