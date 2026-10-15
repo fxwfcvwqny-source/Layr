@@ -1,0 +1,2 @@
+# Dateien unverändert lassen (keine Umwandlung der Zeilenenden), damit jeder Build byte-gleich zum Repository ist
+* -text
