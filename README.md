@@ -10,11 +10,11 @@
 
 ## Features
 
-- **Dictation (offline)** – click the microphone (or press Ctrl+Shift+D) and speak into a text box, a table cell or the notes; punctuation included. German, English and 23 more European languages are recognized automatically. Uses NVIDIA's Parakeet v3 model, which runs entirely on your computer – nothing you say is uploaded. The model (about 490 MB) is only downloaded after you agree, the first time you use dictation (desktop app)
+- **Dictation (offline)** – click the microphone (or press Ctrl+Shift+D, or a shortcut of your choice) and speak into a text box, a table cell or the notes; punctuation included. German, English and 23 more European languages are recognized automatically. Uses NVIDIA's Parakeet v3 model, which runs entirely on your computer – nothing you say is uploaded. The model (about 490 MB) is only downloaded after you agree, the first time you use dictation (desktop app)
 - **Tabs** – open several PDFs at once, each in its own tab; switch with a click or Ctrl+Tab, close with × or Ctrl+W. Opening a file that is already open just switches to its tab
 - **Write on any PDF** – text boxes with 16 fonts (Arial, Times New Roman, Calibri, Roboto, handwriting …), bold, underline, bullet and numbered lists, automatic capital letters at the start of a sentence (Ctrl+Z undoes it, can be turned off); colour the whole box or just single letters and words. In the saved PDF your text can be selected, copied and searched in any PDF viewer
 - **Pen and highlighter with shape recognition** – draw freehand, hold at the end and the stroke snaps into a straight line, circle, rectangle or triangle
-- **One select tool** – click to select, drag to move; circle items with the lasso (or drag a rectangle) to select several, then move, scale, recolour, duplicate or delete them together. In the shape tools a click on an existing item moves it, no tool switching needed
+- **One select tool** – click to select, drag to move; drag a rectangle on an empty spot to select everything it touches (like on the desktop), then move, scale, recolour, duplicate or delete them together. In the shape tools a click on an existing item moves it, no tool switching needed
 - **Images** – insert PNG, JPG, WebP, GIF or SVG with the image tool, Ctrl+V or drag and drop; resize, change opacity, replace
 - **Docking connectors** – lines and arrows that start or end on a symbol stick to it and follow when you move it
 - **Tables** – drag out a table (toolbar or symbol picker), click a cell to type, Tab from cell to cell; a small bar next to the selected table adds or removes rows and columns, right-click a cell to insert or delete them right there, drag the dividers to resize columns (the width is shown in mm)
@@ -27,14 +27,15 @@
 - **Stays editable** – save over the original file; reopen it in Layr and every annotation can still be moved or removed
 - **Fill in PDF forms** – text fields, checkboxes, radio buttons and drop-downs become real input fields; the values are saved into the PDF's own form fields, so every other PDF program sees them
 - **Signatures** – draw, type or scan your signature and place it anywhere or into a signature field; Layr can remember it on your device (a visible signature like on paper, not a certificate-based digital signature)
-- **Spell checking (German and English)** – misspelled words in text boxes, tables and notes get a red wavy line, right-click for suggestions or to add a word to your dictionary; works offline with the real Hunspell engine
+- **Spell checking (German and English)** – misspelled words in text boxes, tables and notes get a red wavy line, right-click for suggestions or to add a word to your dictionary (manage your words under *Settings → Writing & spelling*); works offline with the real Hunspell engine
+- **Your own keyboard shortcuts** – change or remove any shortcut under *Settings → Keyboard shortcuts*, e.g. F9 for dictation or a single key for your favourite tool
 - **Search (Ctrl+F)** – find words in the PDF text and in your own annotations, with every match highlighted
 - **Pages and documents** – rotate, sort, duplicate and delete pages in a page overview (drag to reorder), add blank, lined, grid or dotted pages, merge several PDFs
 - **Rename files** – click the file name at the top left (or press F2) to rename the PDF right where it is
 - **Recently opened** – reopen your last files with one click (desktop app; the list stays on your computer and can be turned off)
 - **Make it yours** – light and dark themes, accent colours, desk and sheet colours, toolbar styles, notification styles, animations on or off
 
-**Deutsch & English** – choose the language in the Windows installer or on first start, and switch any time under *Personalize*.
+**Deutsch & English** – choose the language in the Windows installer or on first start, and switch any time under *Settings → Customize design*.
 
 ## Installation
 
@@ -48,7 +49,7 @@ Download the file for your system from the [latest release](https://github.com/f
 
 **Windows SmartScreen:** the installer is not code-signed, so Windows may show *"Windows protected your PC"* the first time. Click **More info → Run anyway**.
 
-**Updates** (under the update button at the top right, next to *Personalize*): Layr checks this page for a newer version and installs it by itself: the new installer is downloaded in the background and installed when you restart or quit Layr. Before that, Layr checks the release's update description against a digital signature (Ed25519, the public key is built into Layr) and the file against the SHA-512 checksum in that signed description. If anything doesn't match, nothing is installed and Layr only offers the download page. On Ubuntu with the `.deb` package, Ubuntu asks for your password to install it; if no password window appears, Layr can open a terminal for the installation instead. Both can be turned off under *Personalize → Layr & updates*.
+**Updates** (*Settings* ⚙ at the top right → *Layr & updates*): Layr checks this page for a newer version and installs it by itself: the new installer is downloaded in the background and installed when you restart or quit Layr. Before that, Layr checks the release's update description against a digital signature (Ed25519, the public key is built into Layr) and the file against the SHA-512 checksum in that signed description. If anything doesn't match, nothing is installed and Layr only offers the download page. On Ubuntu with the `.deb` package, Ubuntu asks for your password to install it; if no password window appears, Layr can open a terminal for the installation instead. Both can be turned off under *Settings → Layr & updates*.
 
 ## Privacy
 
@@ -57,7 +58,7 @@ Download the file for your system from the [latest release](https://github.com/f
 - Spell checking runs completely offline. Electron's built-in spell checker, which would download dictionaries from a Google server, is switched off. Only if you click *Download German dictionary* does Layr fetch that one file from the public npm registry (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
 - Remembered signatures and your personal dictionary stay on your computer.
 - Crash reports are only written locally to Layr's own settings folder and are never uploaded.
-- The "Recently opened" list only stores file paths in Layr's settings folder on your computer. You can clear it or turn it off under *Personalize → Layr & updates*.
+- The "Recently opened" list only stores file paths in Layr's settings folder on your computer. You can clear it or turn it off under *Settings → Layr & updates*.
 
 ## Security
 

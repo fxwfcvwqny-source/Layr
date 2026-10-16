@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-LGWHS2JGjU//EBLGVFx3vB5yuHX4gSRIJa49fLnLt7o=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-W6aUR4kl5OmcDWX8rcncT6sYX1uswrKkHsDO2SxAN6w=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -799,6 +799,50 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 #asrSec .upd-i svg{width:18px;height:18px}
 #asrSec .ab-row .hint{display:block}
 @media (prefers-reduced-motion:reduce){#bMic.rec,#bMic.load svg{animation:none}}
+/* 3.3.1: Menüs in der Kopfleiste, Schreiben & Rechtschreibung, Tastenkürzel */
+.hdr-moved{display:none!important}
+#dAboutLink{display:none!important}
+.hmb{position:relative;gap:4px}
+.hmb .hm-c{width:10px;height:10px;flex:none;opacity:.7}
+.ib.hmb{width:auto;padding:0 6px;display:inline-flex;align-items:center}
+.hmb[aria-expanded="true"]{background:var(--hover)}
+#bSetMenu .upd-dot{position:absolute;top:5px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--panel);display:none}
+#bSetMenu.has-upd .upd-dot{display:block}
+.ctx.hm{min-width:250px}
+.ctx.hm button{display:flex;align-items:center;gap:18px}
+.ctx.hm .hm-l{flex:1;white-space:nowrap}
+.ctx.hm kbd{font:11.5px var(--f-mono);color:var(--muted);white-space:nowrap}
+.ctx.hm .hm-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+.ctx.hm button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.sp-more{align-self:flex-start;height:30px;font-size:12.5px;margin-top:2px}
+.sp-more.warn{border-color:var(--accent)}.sp-more.warn::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:2px}
+#wrDlg .wrcard{width:min(560px,100%);max-height:calc(100vh - 40px)}
+.wr-body{display:flex;flex-direction:column;gap:18px;overflow:auto;padding-right:2px}
+.wr-s{display:flex;flex-direction:column;gap:10px}
+.wr-s h3{margin:0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.wr-s+.wr-s{border-top:1px solid var(--line);padding-top:16px}
+.wr-wh{display:flex;align-items:center;gap:8px}
+.wr-cnt{font:12px var(--f-mono);color:var(--muted)}
+.wr-clear{margin-left:auto;height:28px;font-size:12px}
+.wr-wl{display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow:auto}
+.wr-wl:empty{display:none}
+.wr-w{display:inline-flex;align-items:center;gap:2px;padding:2px 2px 2px 9px;border:1px solid var(--line);border-radius:99px;font-size:12.5px}
+.wr-w button{border:0;background:transparent;width:20px;height:20px;border-radius:50%;color:var(--muted);cursor:pointer;line-height:1}
+.wr-w button:hover{background:var(--hover);color:var(--danger,#c2412d)}
+#kbDlg .kbcard{width:min(560px,100%);max-height:calc(100vh - 40px)}
+#kbQ{height:32px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--panel);color:var(--ink)}
+.kb-list{overflow:auto;display:flex;flex-direction:column;gap:2px;min-height:120px}
+.kb-list h3{margin:10px 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.kb-list h3:first-child{margin-top:0}
+.kb-r{display:flex;align-items:center;gap:8px;padding:3px 4px;border-radius:8px}
+.kb-r:hover{background:var(--hover)}
+.kb-n{flex:1;font-size:13px}
+.kb-k{min-width:130px;height:28px;padding:0 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font:12px var(--f-mono);text-align:center;cursor:pointer}
+.kb-k:hover{border-color:var(--accent)}
+.kb-k.rec{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.kb-x{width:28px;height:28px}
+.kb-x svg{width:15px;height:15px}
+.kb-x[hidden]{visibility:hidden;display:inline-grid}
 /* 3.0: IT-Rechner */
 .calccard{width:min(700px,100%)}
 #calcMode{flex-wrap:wrap}
@@ -907,20 +951,23 @@ header,.file{min-width:0}
       <button class="ib hide-sm" id="bZoomIn" title="Vergrößern (Strg++)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M11 8v6M20 20l-4-4"/></svg></button>
       <button class="ib hide-sm" id="bFind" aria-pressed="false" title="Suchen (Strg+F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></button>
       <span class="sep"></span>
-      <button class="btn" id="bNew" title="Neues Blatt oder leere Seiten hinzufügen (Strg+Alt+N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M12 10v6M9 13h6"/></svg><span class="hide-sm bl">Neu</span></button>
-      <button class="btn" id="bMerge" title="Mehrere PDFs zusammenführen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6v7H4zM14 4h6v7h-6z"/><path d="M7 11v3a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3v-3"/><path d="M12 17v4M9.5 19l2.5 2 2.5-2"/></svg><span class="hide-sm bl">Zusammenführen</span></button>
-      <button class="ib" id="bPages" title="Seiten ordnen: drehen, sortieren, löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><path d="M3.5 19.5a4.5 4.5 0 0 1 8-2.8"/><path d="M11.8 13.8v3h-3"/><rect x="14" y="15" width="7" height="6" rx="1"/></svg></button>
-      <button class="btn" id="bOpen" title="PDF öffnen (Strg+O)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="hide-sm bl">Öffnen</span></button>
-      <button class="ib" id="bRecent" hidden aria-haspopup="true" aria-expanded="false" title="Zuletzt geöffnet (Strg+Umschalt+O)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></button>
+      <button class="btn hmb" id="bFileMenu" aria-haspopup="menu" aria-expanded="false" title="Datei: öffnen, neu, zusammenführen, Seiten ordnen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="hide-sm bl">Datei</span><svg class="hm-c" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="btn hdr-moved" id="bNew" title="Neues Blatt oder leere Seiten hinzufügen (Strg+Alt+N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M12 10v6M9 13h6"/></svg><span class="hide-sm bl">Neu</span></button>
+      <button class="btn hdr-moved" id="bMerge" title="Mehrere PDFs zusammenführen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6v7H4zM14 4h6v7h-6z"/><path d="M7 11v3a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3v-3"/><path d="M12 17v4M9.5 19l2.5 2 2.5-2"/></svg><span class="hide-sm bl">Zusammenführen</span></button>
+      <button class="ib hdr-moved" id="bPages" title="Seiten ordnen: drehen, sortieren, löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><path d="M3.5 19.5a4.5 4.5 0 0 1 8-2.8"/><path d="M11.8 13.8v3h-3"/><rect x="14" y="15" width="7" height="6" rx="1"/></svg></button>
+      <button class="btn hdr-moved" id="bOpen" title="PDF öffnen (Strg+O)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="hide-sm bl">Öffnen</span></button>
+      <button class="ib hdr-moved" id="bRecent" hidden aria-haspopup="true" aria-expanded="false" title="Zuletzt geöffnet (Strg+Umschalt+O)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></button>
       <label class="tgl" id="autoHdr" title="Automatisch speichern ein/aus"><input type="checkbox" id="autoSaveHdr" role="switch"><span class="knob"></span><span class="tl">Auto</span></label>
       <button class="btn primary" id="bSave" title="Speichern (Strg+S) · Speichern unter: Strg+Umschalt+S"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Speichern</button>
-      <button class="ib" id="bThumbs" aria-pressed="false" title="Seitenvorschau ein/aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="3" y="15" width="7" height="6" rx="1"/><rect x="14" y="15" width="7" height="6" rx="1"/></svg></button>
-      <button class="ib" id="bTglTools" aria-pressed="true" title="Werkzeugleiste ein/aus (Tab blendet alle Leisten aus)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M6.5 6.5h0M9.5 6.5h0M12.5 6.5h0" stroke-linecap="round" stroke-width="2.4"/></svg></button>
-      <button class="ib hide-sm" id="bTglSide" aria-pressed="true" title="Seitenleiste ein/aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></button>
+      <button class="ib hdr-moved" id="bThumbs" aria-pressed="false" title="Seitenvorschau ein/aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="3" y="15" width="7" height="6" rx="1"/><rect x="14" y="15" width="7" height="6" rx="1"/></svg></button>
+      <button class="ib hdr-moved" id="bTglTools" aria-pressed="true" title="Werkzeugleiste ein/aus (Tab blendet alle Leisten aus)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M6.5 6.5h0M9.5 6.5h0M12.5 6.5h0" stroke-linecap="round" stroke-width="2.4"/></svg></button>
+      <button class="ib hide-sm hdr-moved" id="bTglSide" aria-pressed="true" title="Seitenleiste ein/aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></button>
+      <button class="ib hmb" id="bViewMenu" aria-haspopup="menu" aria-expanded="false" title="Ansicht: Leisten, Seitenvorschau, Zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg><svg class="hm-c" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="ib" id="bMic" aria-pressed="false" title="Diktieren (Strg+Umschalt+D)" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></button>
       <button class="ib" id="bNotes" aria-pressed="false" title="Notizen (N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7z"/><path d="M7 3v18M4.5 7.5h4M4.5 12h4M4.5 16.5h4M11.5 8h4.5M11.5 12h4.5"/></svg></button>
-      <button class="ib hide-sm" id="bInfo" title="Layr &amp; Updates" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/><path d="M12 8v4l2.5 1.5"/></svg><span class="upd-dot" aria-hidden="true"></span></button>
-      <button class="ib hide-sm" id="bDesign" title="Personalisieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 9.7C22 5.5 17.5 2 12 2z"/></svg></button>
+      <button class="ib hide-sm hdr-moved" id="bInfo" title="Layr &amp; Updates" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/><path d="M12 8v4l2.5 1.5"/></svg><span class="upd-dot" aria-hidden="true"></span></button>
+      <button class="ib hide-sm hdr-moved" id="bDesign" title="Personalisieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 9.7C22 5.5 17.5 2 12 2z"/></svg></button>
+      <button class="ib hmb" id="bSetMenu" aria-haspopup="menu" aria-expanded="false" title="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="upd-dot" aria-hidden="true"></span></button>
       <button class="ib mobile-only" id="bPanel" title="Optionen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
     </div>
     <input type="file" id="fileIn" accept="application/pdf,.pdf" hidden>
@@ -971,9 +1018,7 @@ header,.file{min-width:0}
       <div class="row"><label for="fontBtn">Schrift</label><button type="button" class="fontbtn" id="fontBtn" aria-haspopup="listbox" aria-expanded="false"><span id="fontBtnN">Standard</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
       <div class="row"><label for="fs">Größe</label><input type="range" id="fs" min="6" max="60" step="1" value="14"><span class="val" id="fsV">14 pt</span></div>
       <div class="row"><label class="chk"><input type="checkbox" id="bold"> Fett</label><label class="chk"><input type="checkbox" id="underl"> Unterstrichen</label></div>
-      <label class="tgl sprow"><input type="checkbox" id="spOn" role="switch" checked><span class="knob"></span><span class="tl">Rechtschreibung prüfen</span></label>
-      <div class="row" id="spLangRow"><label for="spLang">Sprache</label><select id="spLang"><option value="auto">Deutsch + Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select></div>
-      <p class="hint" id="spHint" hidden></p><button class="btn" id="spGet" hidden style="align-self:flex-start">Deutsches Wörterbuch laden</button>
+      <button class="btn sp-more" id="spMore" type="button">Rechtschreibung, Schreiben &amp; Diktieren …</button>
     </div>
     <div class="sec">
       <h3>Linien &amp; Pfeile</h3>
@@ -1113,7 +1158,6 @@ header,.file{min-width:0}
       <p class="hint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
       <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
       <p class="hint">Die Liste liegt nur auf diesem Rechner und enthält nur Dateinamen und Ordner.</p></div></section>
-    <section id="asrSec" hidden><div class="ab-row"><span class="upd-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span><div><b>Diktieren</b><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div></section>
   </div>
 </div>
 <div class="modal" id="asrDlg" hidden role="dialog" aria-modal="true" aria-labelledby="asrT">
@@ -1128,7 +1172,7 @@ header,.file{min-width:0}
         <li><b>Sprachen:</b> Deutsch, Englisch und 23 weitere europäische Sprachen, automatisch erkannt, mit Satzzeichen.</li>
         <li><b>Herkunft:</b> GitHub-Seite des Projekts sherpa-onnx; Layr prüft jede Datei gegen eine feste Prüfsumme.</li>
       </ul>
-      <p class="hint">Modell: NVIDIA, Lizenz CC BY 4.0. Später entfernbar unter „Layr &amp; Updates“.</p>
+      <p class="hint">Modell: NVIDIA, Lizenz CC BY 4.0. Später entfernbar unter Einstellungen → Schreiben &amp; Rechtschreibung.</p>
       <p class="asr-err" id="asrErr" role="alert" hidden></p>
       <div class="ab-btns asr-btns"><button class="btn" id="asrNo">Nicht jetzt</button><button class="btn primary" id="asrYes">Herunterladen und installieren</button></div>
     </div>
@@ -1141,6 +1185,31 @@ header,.file{min-width:0}
   </div>
 </div>
 <div class="dict" id="dictBar" role="status" aria-live="polite" hidden><span class="dict-lv" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="dict-t" id="dictT"></span><button class="btn" id="dictStop">Beenden</button></div>
+<div class="modal" id="wrDlg" hidden role="dialog" aria-modal="true" aria-labelledby="wrT">
+  <div class="card ipcard wrcard">
+    <div class="ip-h"><h2 id="wrT">Schreiben &amp; Rechtschreibung</h2><button class="ib" id="wrX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="wr-body">
+    <section class="wr-s"><h3>Rechtschreibung</h3>
+      <label class="tgl sprow"><input type="checkbox" id="spOn" role="switch" checked><span class="knob"></span><span class="tl">Rechtschreibung prüfen</span></label>
+      <div class="row" id="spLangRow"><label for="spLang">Sprache</label><select id="spLang"><option value="auto">Deutsch + Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select></div>
+      <p class="hint" id="spHint" hidden></p><button class="btn" id="spGet" hidden style="align-self:flex-start">Deutsches Wörterbuch laden</button>
+      <div class="wr-words"><div class="wr-wh"><b>Eigene Wörter</b> <span class="wr-cnt" id="wrCnt"></span><button class="btn wr-clear" id="wrClear" type="button" hidden>Alle entfernen</button></div>
+        <div class="wr-wl" id="wrWords"></div><p class="hint" id="wrNone">Noch keine. Rechtsklick auf ein rot unterstrichenes Wort → „Zum Wörterbuch hinzufügen“.</p></div>
+    </section>
+    <section class="wr-s"><h3>Schreiben</h3><div class="seg" id="dAutoCap"><button data-v="on">Satzanfang groß</button><button data-v="off">Aus</button></div><p class="hint">Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.</p></section>
+    <section class="wr-s" id="asrSec" hidden><h3>Diktieren</h3><div class="ab-row"><span class="upd-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span><div><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div><p class="hint" id="wrDictKey"></p><button class="btn" id="wrKeys" type="button" style="align-self:flex-start">Tastenkürzel ändern …</button></section>
+    </div>
+  </div>
+</div>
+<div class="modal" id="kbDlg" hidden role="dialog" aria-modal="true" aria-labelledby="kbT">
+  <div class="card ipcard kbcard">
+    <div class="ip-h"><h2 id="kbT">Tastenkürzel</h2><button class="ib" id="kbX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="hint">Auf ein Kürzel klicken und die neue Taste oder Tastenkombination drücken, z. B. F9 fürs Diktieren. Esc bricht ab, Entf entfernt das Kürzel.</p>
+    <input type="search" id="kbQ" placeholder="Aktion suchen …" autocomplete="off" spellcheck="false">
+    <div class="kb-list" id="kbList"></div>
+    <div class="ab-btns asr-btns"><button class="btn" id="kbReset" type="button">Alle zurücksetzen</button></div>
+  </div>
+</div>
 <div class="drawer-bg" id="studioBg" hidden></div>
 <aside class="studio" id="studio" role="dialog" aria-modal="true" aria-labelledby="stT" hidden>
   <div class="st-head"><div><h2 id="stT">Personalisieren</h2><p>Gilt nur auf diesem Rechner und ändert keine PDF.</p></div><button class="ib" id="stClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -1166,7 +1235,6 @@ header,.file{min-width:0}
       <span class="lbl">Position</span><div class="seg" id="dToastPos"><button data-v="bc">Unten mittig</button><button data-v="br">Unten rechts</button><button data-v="tc">Oben</button></div>
       <span class="lbl">Anzeigedauer</span><div class="seg" id="dToastDur"><button data-v="short">Kurz</button><button data-v="normal">Normal</button><button data-v="long">Lang</button></div>
       <button class="btn" id="dToastTest" style="align-self:flex-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Test-Meldung zeigen</button></section>
-    <section><h3>Schreiben</h3><div class="seg" id="dAutoCap"><button data-v="on">Satzanfang groß</button><button data-v="off">Aus</button></div><p class="hint">Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.</p></section>
     <section><h3>Bewegung</h3><div class="seg" id="dMotion"><button data-v="on">Animationen an</button><button data-v="off">Aus</button></div></section>
     <section id="dAboutLink" hidden><h3>Layr &amp; Updates</h3><p class="hint">Version, Updates und „Zuletzt geöffnet“ haben ein eigenes Fenster (Knopf oben rechts).</p><button class="btn" id="abOpen2" style="align-self:flex-start">Layr &amp; Updates öffnen</button></section>
     <button class="btn" id="dReset">Alles auf Standard</button>
@@ -1460,7 +1528,7 @@ const I18N_EN={
 'Befehl kopieren':'Copy command','Terminal öffnen':'Open terminal','Befehl kopiert.':'Command copied.',
 'Im Terminal dein Passwort eingeben. Layr startet danach neu.':'Enter your password in the terminal. Layr restarts afterwards.',
 'Kein Terminal gefunden. Bitte den Befehl kopieren und im Terminal ausführen.':'No terminal found. Please copy the command and run it in a terminal.',
-'Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche umkreisen wählt mehrere aus (noch einmal auf das Werkzeug klicken: Rechteck). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, circle items to select several (click the tool again: rectangle). In the shape tools, a click on an annotation is enough to move it. Back here: Esc, V or right-click.',
+'Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, drag a rectangle to select everything it touches (like on the desktop). In the shape tools, a click on an annotation is enough to move it. Back here: Esc, V or right-click.',
 'Auswählen mit Rechteck. Noch einmal klicken: umkreisen.':'Select with a rectangle. Click again: circle to select.','Auswählen durch Umkreisen. Noch einmal klicken: Rechteck.':'Select by circling. Click again: rectangle.',
 'Zelle bearbeiten':'Edit cell','Zeile darüber einfügen':'Insert row above','Zeile darunter einfügen':'Insert row below','Spalte links einfügen':'Insert column left','Spalte rechts einfügen':'Insert column right',
 'Zeile löschen':'Delete row','Spalte löschen':'Delete column','Zelleninhalt leeren':'Clear cell',
@@ -1501,6 +1569,24 @@ const I18N_EN={
 'Sprachmodell NVIDIA Parakeet v3 ist eingerichtet (belegt ':'Speech model NVIDIA Parakeet v3 is set up (uses ','). Erkannt wird nur auf diesem Rechner.':'). Recognition runs only on this computer.',
 'Wird gerade eingerichtet …':'Being set up …','Noch nicht eingerichtet. Einmaliger Download: ':'Not set up yet. One-time download: ',
 'Noch einmal klicken, um das Sprachmodell zu entfernen.':'Click again to remove the speech model.','Sprachmodell entfernt.':'Speech model removed.','Entfernen hat nicht geklappt.':'Removing failed.',
+// 3.3.1
+'Datei':'File','Datei: öffnen, neu, zusammenführen, Seiten ordnen':'File: open, new, merge, arrange pages','Ansicht: Leisten, Seitenvorschau, Zoom':'View: bars, page thumbnails, zoom','Einstellungen':'Settings',
+'PDF öffnen …':'Open PDF …','Zuletzt geöffnet …':'Recently opened …','Neues Blatt oder leere Seiten …':'New sheet or blank pages …','Mehrere PDFs zusammenführen …':'Merge several PDFs …',
+'Seiten ordnen (drehen, sortieren, löschen) …':'Arrange pages (rotate, sort, delete) …','Speichern unter …':'Save as …','Seitenvorschau':'Page thumbnails','Werkzeugleiste':'Toolbar','Seitenleiste':'Sidebar','Lineal':'Ruler',
+'Vergrößern':'Zoom in','Verkleinern':'Zoom out','An Breite anpassen':'Fit to width','Design anpassen …':'Customize design …','Schreiben & Rechtschreibung …':'Writing & spelling …','Tastenkürzel …':'Keyboard shortcuts …',
+'Layr & Updates …':'Layr & updates …','Layr & Updates (Update da)':'Layr & updates (update available)',
+'Schreiben & Rechtschreibung':'Writing & spelling','Rechtschreibung':'Spelling','Schreiben':'Writing','Eigene Wörter':'Own words','Alle entfernen':'Remove all',
+'Noch keine. Rechtsklick auf ein rot unterstrichenes Wort → „Zum Wörterbuch hinzufügen“.':'None yet. Right-click a word underlined in red → “Add to dictionary”.',
+'Aus dem Wörterbuch entfernen':'Remove from dictionary','Noch einmal klicken, um alle eigenen Wörter zu entfernen.':'Click again to remove all your own words.',
+'Rechtschreibung, Schreiben & Diktieren …':'Spelling, writing & dictation …','Tastenkürzel ändern …':'Change keyboard shortcuts …','Starten und beenden: Mikrofon-Knopf oben oder ':'Start and stop: microphone button at the top or ',
+'Tastenkürzel':'Keyboard shortcuts','Auf ein Kürzel klicken und die neue Taste oder Tastenkombination drücken, z. B. F9 fürs Diktieren. Esc bricht ab, Entf entfernt das Kürzel.':'Click a shortcut and press the new key or key combination, e.g. F9 for dictation. Esc cancels, Delete removes the shortcut.',
+'Aktion suchen …':'Search action …','Alle zurücksetzen':'Reset all','Taste drücken …':'Press a key …','Klicken und neue Taste drücken':'Click and press a new key','Standard':'Default',
+'Diese Taste ist fest vergeben. Bitte eine andere wählen.':'This key is reserved. Please choose another one.','War vorher für „':'Was used for “','“ – dort entfernt.':'” – removed there.',
+'Alle Tastenkürzel sind wieder auf Standard.':'All keyboard shortcuts are back to default.','Allgemein':'General','Ansicht':'View','Werkzeuge':'Tools',
+'Diktieren starten/beenden':'Start/stop dictation','Notizen ein/aus':'Notes on/off','Suchen':'Search','Speichern':'Save','Speichern unter':'Save as','PDF öffnen':'Open PDF','Zuletzt geöffnet':'Recently opened',
+'Neues Blatt oder leere Seiten':'New sheet or blank pages','Rückgängig':'Undo','Wiederholen':'Redo','Seitenvorschau ein/aus':'Page thumbnails on/off','Nächster Tab':'Next tab','Vorheriger Tab':'Previous tab','Tab schließen':'Close tab',
+'Für Deutsch fehlt ein Wörterbuch. Hier kann es geladen werden.':'The German dictionary is missing. You can download it here.','Diktat beenden':'Stop dictation','Diktieren':'Dictation','Notizen':'Notes','Diktieren ist eingerichtet. Einfach sprechen.':'Dictation is set up. Just speak.',
+'Modell: NVIDIA, Lizenz CC BY 4.0. Später entfernbar unter Einstellungen → Schreiben & Rechtschreibung.':'Model: NVIDIA, licence CC BY 4.0. Can be removed later under Settings → Writing & spelling.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -1594,7 +1680,7 @@ const S={tool:'select',color:'#1b1f24',lw:2,fs:14,orient:'h',bold:false,dash:fal
 /* ---------- Icons ---------- */
 const I=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const TOOLS=[
-  {id:'select',k:'V',n:'Auswählen',i:I('<path d="M5.2 12.6C3.8 11.6 3 10.4 3 9c0-3.3 4-6 9-6s9 2.7 9 6-4 6-9 6c-1 0-2-.1-2.9-.3" stroke-dasharray="2.4 2.6"/><circle cx="7.6" cy="15.4" r="2.1"/><path d="M7 17.4c-.6 1.4-.3 2.6.9 3.4"/>'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche umkreisen wählt mehrere aus (noch einmal auf das Werkzeug klicken: Rechteck). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.'},
+  {id:'select',k:'V',n:'Auswählen',i:I('<rect x="3" y="3" width="14" height="11" rx="1.5" stroke-dasharray="2.4 2.4"/><path d="M11.5 10.5l8.5 3.4-3.6 1.4-1.4 3.6z"/>'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.'},
   '-',
   {id:'pen',k:'P',n:'Stift',i:I('<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'),h:'Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.'},
   {id:'marker',k:'M',n:'Textmarker',i:I('<path d="M9 15l-3 3h5l1-1"/><path d="M8 14l8-9 3 3-9 8z"/><path d="M4 21h16"/>'),h:'Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.'},
@@ -1638,7 +1724,7 @@ for(const t of TOOLS){
   const b=document.createElement('button');b.className='tool';b.dataset.t=t.id;b.setAttribute('aria-label',t.n+' ('+t.k+')');tipFor(b,t);
   b.innerHTML=t.i+`<span class="k">${t.k}</span>`+(t.id==='symbol'?'<svg class="dd" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'');b.setAttribute('aria-pressed','false');
   if(t.id==='symbol'){b.setAttribute('aria-haspopup','true');b.setAttribute('aria-expanded','false')}
-  b.style.setProperty('--i',toolN++);b.onclick=()=>{if(t.action)return t.action();if(t.toggle)return toggleRuler();if(t.id==='symbol'){const open=symPop&&!symPop.hidden&&!symPop._ah;setTool('symbol');if(open)closeSymPop();else openSymPop(b)}else{closeSymPop();if(t.id==='select'&&S.tool==='select'){selModeToggle();return}setTool(t.id)}};tb.appendChild(b);
+  b.style.setProperty('--i',toolN++);b.onclick=()=>{if(t.action)return t.action();if(t.toggle)return toggleRuler();if(t.id==='symbol'){const open=symPop&&!symPop.hidden&&!symPop._ah;setTool('symbol');if(open)closeSymPop();else openSymPop(b)}else{closeSymPop();setTool(t.id)}};tb.appendChild(b);
 }
 const toolInd=document.createElement('span');toolInd.className='tool-ind';toolInd.setAttribute('aria-hidden','true');tb.prepend(toolInd);tb.classList.add('has-ind');
 function moveToolInd(){const b=tb.querySelector('.tool[aria-pressed="true"]:not([data-t="ruler"])');if(!b||!b.offsetWidth){toolInd.style.opacity=0;return}
@@ -2320,8 +2406,8 @@ function redraw(i){
       c.save();c.globalAlpha=.3+.7*e;c.translate(cx,cy);c.scale(sc,sc);c.translate(-cx,-cy);drawObj(c,D.o);c.restore();if(t>=1)D.ghost=null}
     else drawObj(c,D.o)}
   if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o);
-  if(S.lasso&&S.lasso.p===i)drawLasso(c,S.lasso.pts,1);
-  if(S.lassoFade&&S.lassoFade.p===i){const F=S.lassoFade,t=(performance.now()-F.t0)/260;if(t>=1)S.lassoFade=null;else drawLasso(c,F.pts,1-t)}
+  if(S.lasso&&S.lasso.p===i)drawLasso(c,S.lasso.pts,1,S.lasso.rect);
+  if(S.lassoFade&&S.lassoFade.p===i){const F=S.lassoFade,t=(performance.now()-F.t0)/260;if(t>=1)S.lassoFade=null;else drawLasso(c,F.pts,1-t,F.rect)}
   if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawObj(c,ED.o);
   if(S.sel&&S.sel.p===i&&S.sel.o!==editingObj)drawSel(c,S.sel.o);
 }
@@ -2488,13 +2574,13 @@ function lassoHit(o,poly){const s=objSamples(o);if(!s.length)return false;let n=
 const selItems=()=>!S.sel?[]:S.sel.o.type==='group'?S.sel.o.items:[S.sel.o];
 function selectItems(i,items){const P=S.pages[i];if(!P){setSel(null);return}const L=P.objs.filter(o=>items.includes(o));
   if(!L.length)setSel(null);else if(L.length===1)setSel({p:i,o:L[0]});else setSel({p:i,o:{type:'group',items:L,lw:0,color:L[0].color}})}
-function drawLasso(c,pts,a){if(!pts||pts.length<2)return;const z=S.zoom;c.save();c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let k=1;k<pts.length;k++)c.lineTo(pts[k][0],pts[k][1]);c.closePath();
+function drawLasso(c,pts,a,rect){if(!pts||pts.length<2)return;if(rect){const z=S.zoom,xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0,h=Math.max(...ys)-y0;c.save();c.setLineDash([]);c.fillStyle=accentCol();c.globalAlpha=a*.13;c.fillRect(x0,y0,w,h);c.globalAlpha=a*.95;c.strokeStyle=accentCol();c.lineWidth=1/z;c.strokeRect(x0,y0,w,h);c.restore();return}const z=S.zoom;c.save();c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let k=1;k<pts.length;k++)c.lineTo(pts[k][0],pts[k][1]);c.closePath();
   c.fillStyle=accentCol();c.globalAlpha=a*.08;c.fill();c.lineJoin='round';c.globalAlpha=a*.9;c.strokeStyle='#fff';c.lineWidth=3/z;c.stroke();
   c.globalAlpha=a;c.strokeStyle=accentCol();c.lineWidth=1.4/z;c.setLineDash([5/z,4/z]);c.lineDashOffset=-((performance.now()/30)%9)/z;c.stroke();c.restore()}
 function lassoFinish(i,L,add){const P=S.pages[i];if(!P)return;const poly=L.pts;
-  if(!motionOff()&&poly.length>2){const F={p:i,pts:poly,t0:performance.now()};S.lassoFade=F;const step=()=>{if(S.lassoFade!==F){redraw(i);return}redraw(i);requestAnimationFrame(step)};requestAnimationFrame(step)}
+  if(!motionOff()&&poly.length>2){const F={p:i,pts:poly,t0:performance.now(),rect:!!L.rect};S.lassoFade=F;const step=()=>{if(S.lassoFade!==F){redraw(i);return}redraw(i);requestAnimationFrame(step)};requestAnimationFrame(step)}
   if(poly.length<3||QS.area(poly)<16/(S.zoom*S.zoom)){redraw(i);return}
-  let found=P.objs.filter(o=>lassoHit(o,poly));
+  let found;if(L.rect){const xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);found=P.objs.filter(o=>{const b=bbox(o);return b.x<=x1&&b.x+b.w>=x0&&b.y<=y1&&b.y+b.h>=y0})}else found=P.objs.filter(o=>lassoHit(o,poly));
   if(add&&S.sel&&S.sel.p===i)found=[...new Set([...selItems(),...found])];
   selectItems(i,found);redraw(i)}
 function groupResize(o,st,x,y,shift){const gb=st.ob,k=st.mode;if(!k||k.length!==2)return;const left=k[1]==='l',top=k[0]==='t',ax=left?gb.x+gb.w:gb.x,ay=top?gb.y+gb.h:gb.y;
@@ -2542,7 +2628,7 @@ function attachInk(P,i){
         const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
         if(o&&e.shiftKey&&S.sel&&S.sel.p===i){const cur=selItems().slice(),k=cur.indexOf(o);if(k>=0)cur.splice(k,1);else cur.push(o);selectItems(i,cur);st=null;break}
         if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.mode='move';st.o=o;st.lx=x;st.ly=y}
-        else{if(!e.shiftKey)setSel(null);st.marq=true;st.add=e.shiftKey;const rect=(S.selMode==='rect')!==e.altKey;S.lasso={p:i,pts:[[x,y]],rect};
+        else{if(!e.shiftKey)setSel(null);st.marq=true;st.add=e.shiftKey;const rect=true;S.lasso={p:i,pts:[[x,y]],rect};
           if(!rect&&!motionOff()){const L=S.lasso,step=()=>{if(S.lasso!==L)return;redraw(i);requestAnimationFrame(step)};requestAnimationFrame(step)}}
         break}
       case'lasso':{
@@ -3554,7 +3640,7 @@ function rcRender(){const ul=$('#rcList');ul.innerHTML='';const foot=$('#rcFoot'
 async function rcOpen(it){closeRecent();if(!it.exists){toast(tr('Diese Datei gibt es dort nicht mehr. Sie wurde aus der Liste entfernt.'));window.werkbank.recentRemove(it.path);return}
   await tabGate(()=>tabOpenWith(async()=>{let r=null;try{r=await window.werkbank.recentOpen(it.path)}catch(e){}
     if(r&&r.dup)return r;if(!r||!r.data){toast(tr('Diese Datei lässt sich nicht öffnen.'));return false}return tabLoad(new Uint8Array(r.data),r.name)}))}
-async function openRecent(){const W=window.werkbank;if(!W||!W.recent)return;const b=$('#bRecent');
+async function openRecent(){const W=window.werkbank;if(!W||!W.recent)return;const b=$('#bRecent').offsetParent?$('#bRecent'):$('#bFileMenu');
   if(!rcPop.hidden&&!rcPop._ah){closeRecent();return}
   await rcLoad();rcRender();showEl(rcPop);b.setAttribute('aria-expanded','true');
   const r=b.getBoundingClientRect(),w=rcPop.offsetWidth;rcPop.style.top=(r.bottom+8)+'px';rcPop.style.left=clamp(r.right-w,8,innerWidth-w-8)+'px';
@@ -3767,7 +3853,8 @@ function spHun(m,aff,dic){const id='d'+Math.random().toString(36).slice(2,8);m.F
   if(!h)throw new Error('hunspell');
   return{ok(w){const p=str(w),r=m._Hunspell_spell(h,p);m._free(p);return!!r},
     sug(w){const p=str(w),pp=m._malloc(4);const n=m._Hunspell_suggest(h,pp,p);const out=[];if(n>0){const L=m.HEAPU32[pp>>2];for(let k=0;k<n;k++)out.push(rd(m.HEAPU32[(L>>2)+k]));m._Hunspell_free_list(h,pp,n)}m._free(pp);m._free(p);return out},
-    add(w){const p=str(w);m._Hunspell_add(h,p);m._free(p)}}}
+    add(w){const p=str(w);m._Hunspell_add(h,p);m._free(p)},
+    remove(w){const p=str(w);m._Hunspell_remove(h,p);m._free(p)}}}
 async function spLoad(lang){
   if(SP.eng[lang]||SP.st[lang]==='busy')return;SP.st[lang]='busy';
   try{let D=null;
@@ -4325,7 +4412,7 @@ const capOf=ch=>{if(!ch||ch.length!==1||!/\p{Ll}/u.test(ch))return null;const u=
   e.preventDefault();document.execCommand('insertText',false,e.data);const p=nt.selectionStart;nt.setSelectionRange(p-1,p);document.execCommand('insertText',false,u)})}
 {const g=document.getElementById('dAutoCap');if(g){const sync=()=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.v==='on')===!!S.autoCap)));sync();
   g.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.autoCap=b.dataset.v==='on';try{localStorage.setItem('pdfwerkbank:autocap',S.autoCap?'1':'0')}catch(err){}sync()});
-  const rs=document.getElementById('dReset');if(rs)rs.addEventListener('click',()=>{S.autoCap=true;try{localStorage.removeItem('pdfwerkbank:autocap')}catch(err){}sync()})}}
+  }}
 
 /* Tabellen: kleine Leiste direkt an der ausgewählten Tabelle */
 let tblBarEl=null;
@@ -4428,7 +4515,7 @@ function dictMeter(){cancelAnimationFrame(DICT.raf);const bars=document.querySel
     if(DICT.tgt&&DICT.tgt.k==='notes'&&!notesIsOpen())dictStop();DICT.raf=requestAnimationFrame(step)};DICT.raf=requestAnimationFrame(step)}
 function dictUI(){const b=document.getElementById('bMic'),bar=document.getElementById('dictBar');if(!b||!bar)return;
   const on=DICT.on,load=DICT.busy,pend=DICT.pending>0;b.classList.toggle('rec',on);b.classList.toggle('load',load);b.setAttribute('aria-pressed',on?'true':'false');
-  b.title=on?tr('Diktat beenden (Strg+Umschalt+D)'):tr('Diktieren (Strg+Umschalt+D)');
+  b.title=(on?tr('Diktat beenden'):tr('Diktieren'))+kbHint('dictate');
   if(on||load||pend){if(bar.hidden)showEl(bar)}else if(!bar.hidden&&!bar._ah)animHide(bar);
   bar.classList.toggle('on',on);
   $('#dictT').textContent=load?tr('Sprachmodell wird geladen …'):on?(pend?tr('Hört zu … erkennt gerade'):tr('Hört zu … einfach sprechen')):pend?tr('Erkennt den Rest …'):'';
@@ -4436,7 +4523,7 @@ function dictUI(){const b=document.getElementById('bMic'),bar=document.getElemen
 // Wechsel von Textfeld/Tab beendet das Diktat (der zuletzt gesprochene Satz wird noch eingefügt)
 {const ce=closeEditor;closeEditor=function(...a){if((DICT.on||DICT.busy)&&DICT.tgt&&DICT.tgt.k==='eng'&&editorEl)dictStop();return ce.apply(this,a)}}
 {const tq=tabQuiet;tabQuiet=async function(){if(DICT.on||DICT.busy)dictStop();try{await DICT.q}catch(e){}return tq()}}
-addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&!e.altKey&&(e.key==='d'||e.key==='D')&&asrOK()){e.preventDefault();e.stopImmediatePropagation();dictToggle()}},true);
+
 {const b=document.getElementById('bMic');if(b){b.hidden=!asrOK();b.addEventListener('mousedown',e=>e.preventDefault());b.onclick=()=>dictToggle()}
  const s=document.getElementById('dictStop');if(s){s.addEventListener('mousedown',e=>e.preventDefault());s.onclick=()=>dictStop()}}
 
@@ -4460,7 +4547,7 @@ function asrProg(ph,got,total){const p=total>0?Math.max(0,Math.min(1,got/total))
   $('#asrN').textContent=ph==='dl'||ph==='unpack'?asrMB(got)+' / '+asrMB(total):''}
 async function asrInstall(){if(asrBusy)return;asrBusy=true;$('#asrAsk').hidden=true;$('#asrRun').hidden=false;$('#asrErr').hidden=true;asrProg('dl',0,1);
   let r=null;try{r=await werkbank.asrInstall()}catch(e){r={error:'ipc'}}asrBusy=false;asrSecUpd();
-  if(r&&r.ok){const d=$('#asrDlg'),vis=!d.hidden&&!d._ah;asrDlgOpen(false);toast(tr('Diktieren ist eingerichtet. Einfach sprechen – Strg+Umschalt+D beendet.'));if(vis&&DICT.after&&dictTarget())dictStart();return}
+  if(r&&r.ok){const d=$('#asrDlg'),vis=!d.hidden&&!d._ah;asrDlgOpen(false);toast(tr('Diktieren ist eingerichtet. Einfach sprechen.'));if(vis&&DICT.after&&dictTarget())dictStart();return}
   $('#asrRun').hidden=true;$('#asrAsk').hidden=false;
   if(r&&r.error==='canceled')return;$('#asrErr').textContent=asrErrText(r);$('#asrErr').hidden=false}
 async function asrSecUpd(){const sec=document.getElementById('asrSec');if(!sec)return;sec.hidden=!asrOK();if(sec.hidden)return;
@@ -4473,7 +4560,7 @@ if(asrOK()){
   const d=$('#asrDlg');$('#asrX').onclick=()=>asrDlgOpen(false);$('#asrNo').onclick=()=>asrDlgOpen(false);$('#asrYes').onclick=asrInstall;
   $('#asrCancel').onclick=()=>{try{werkbank.asrCancel()}catch(e){}};
   d.addEventListener('pointerdown',e=>{if(e.target===d&&!asrBusy)asrDlgOpen(false)});d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();asrDlgOpen(false)}});
-  $('#asrSet').onclick=()=>{abOpen(false);asrDlgOpen(true,false)};
+  $('#asrSet').onclick=()=>{wrOpen(false);asrDlgOpen(true,false)};
   $('#asrDel').onclick=async()=>{if(Date.now()-asrDelArm>4000){asrDelArm=Date.now();toast(tr('Noch einmal klicken, um das Sprachmodell zu entfernen.'));return}asrDelArm=0;
     dictStop();const r=await werkbank.asrRemove();toast(r&&r.ok?tr('Sprachmodell entfernt.'):tr('Entfernen hat nicht geklappt.'));asrSecUpd()};
   $('#bInfo').addEventListener('click',()=>setTimeout(asrSecUpd,0));asrSecUpd()}
@@ -4775,6 +4862,151 @@ function sampleObjs(){
 }
 
 /* ---------- Start ---------- */
+/* ---------- 3.3.1: aufgeräumte Kopfleiste (Menüs), eigener Bereich „Schreiben & Rechtschreibung“, eigene Tastenkürzel ---------- */
+const KB_NAMES_DE={Ctrl:'Strg',Shift:'Umschalt',Space:'Leertaste',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',PageUp:'Bild↑',PageDown:'Bild↓',Insert:'Einfg',Home:'Pos1',End:'Ende'};
+const KB_NAMES_EN={Space:'Space',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→'};
+// Tastendruck → feste Schreibweise, z. B. „Ctrl+Shift+D“, „F9“, „N“
+function kbCombo(e){const k=e.key;if(!k||['Control','Shift','Alt','Meta','AltGraph','Dead','Unidentified','Process','CapsLock','NumLock','ScrollLock','OS'].includes(k))return null;
+  let key=k===' '?'Space':k.length===1?k.toUpperCase():k;if(/^Digit\d$/.test(e.code)&&(e.ctrlKey||e.altKey))key=e.code.slice(5);
+  const m=[];if(e.ctrlKey||e.metaKey)m.push('Ctrl');if(e.altKey)m.push('Alt');if(e.shiftKey&&!(k.length===1&&!/\p{L}/u.test(k)&&!(e.ctrlKey||e.altKey)))m.push('Shift');
+  m.push(key);return m.join('+')}
+const kbShow=c=>!c?tr('–'):c.split(/\+(?!$)/).map(p=>(LANG==='en'?KB_NAMES_EN:KB_NAMES_DE)[p]||p).join('+');
+const kbTool=id=>TOOLS.find(t=>t&&t.id===id);
+const kbRunTool=id=>{const t=kbTool(id);if(!t)return;closeSymPop&&closeSymPop();if(t.action)t.action();else if(t.toggle)toggleRuler();else setTool(t.id)};
+// native: Standardbelegung wird weiter von der bisherigen Tastenverarbeitung erledigt; text: darf auch beim Schreiben
+const KB_DEF=[
+  {id:'dictate',g:'Allgemein',n:'Diktieren starten/beenden',def:'Ctrl+Shift+D',run:()=>dictToggle(),when:()=>asrOK(),text:true},
+  {id:'notes',g:'Allgemein',n:'Notizen ein/aus',def:'N',run:()=>$('#bNotes').click(),native:true},
+  {id:'find',g:'Allgemein',n:'Suchen',def:'Ctrl+F',run:()=>openFind(),native:true,text:true},
+  {id:'save',g:'Allgemein',n:'Speichern',def:'Ctrl+S',run:()=>save(false),native:true,text:true},
+  {id:'saveAs',g:'Allgemein',n:'Speichern unter',def:'Ctrl+Shift+S',run:()=>save(true),native:true,text:true},
+  {id:'open',g:'Allgemein',n:'PDF öffnen',def:'Ctrl+O',run:()=>fileIn.click(),native:true},
+  {id:'recent',g:'Allgemein',n:'Zuletzt geöffnet',def:'Ctrl+Shift+O',run:()=>openRecent(),native:true,when:()=>!!(window.werkbank&&werkbank.recent)},
+  {id:'newDoc',g:'Allgemein',n:'Neues Blatt oder leere Seiten',def:'Ctrl+Alt+N',run:()=>openNewDlg(),native:true},
+  {id:'undo',g:'Allgemein',n:'Rückgängig',def:'Ctrl+Z',run:()=>undo(),native:true},
+  {id:'redo',g:'Allgemein',n:'Wiederholen',def:'Ctrl+Y',run:()=>redo(),native:true},
+  {id:'zoomIn',g:'Ansicht',n:'Vergrößern',def:'Ctrl++',run:()=>zoomTo(S.zoom*1.2),native:true},
+  {id:'zoomOut',g:'Ansicht',n:'Verkleinern',def:'Ctrl+-',run:()=>zoomTo(S.zoom/1.2),native:true},
+  {id:'fit',g:'Ansicht',n:'An Breite anpassen',def:'',run:()=>fitZoom()},
+  {id:'thumbs',g:'Ansicht',n:'Seitenvorschau ein/aus',def:'',run:()=>$('#bThumbs').click()},
+  {id:'tabNext',g:'Ansicht',n:'Nächster Tab',def:'Ctrl+Tab',run:()=>tabStep(1),native:true},
+  {id:'tabPrev',g:'Ansicht',n:'Vorheriger Tab',def:'Ctrl+Shift+Tab',run:()=>tabStep(-1),native:true},
+  {id:'tabClose',g:'Ansicht',n:'Tab schließen',def:'Ctrl+W',run:()=>{if(TABS.length>1)tabClose(TAB)},native:true},
+  ...TOOLS.filter(t=>t&&t!=='-'&&t.k).map(t=>({id:'tool:'+t.id,g:'Werkzeuge',n:t.n,def:t.k,run:()=>kbRunTool(t.id),native:true}))];
+let KB_USER={};try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:keys')||'{}');for(const[a,c]of Object.entries(j))if(KB_DEF.some(x=>x.id===a)&&typeof c==='string'&&c.length<40)KB_USER[a]=c}catch(e){}
+const kbGet=a=>Object.prototype.hasOwnProperty.call(KB_USER,a.id)?KB_USER[a.id]:a.def;
+const kbOf=id=>{const a=KB_DEF.find(x=>x.id===id);return a?kbGet(a):''};
+const kbHint=id=>{try{const c=kbOf(id);return c?' ('+kbShow(c)+')':''}catch(e){return''}};
+function kbSave(){for(const a of KB_DEF)if(KB_USER[a.id]===a.def)delete KB_USER[a.id];try{localStorage.setItem('pdfwerkbank:keys',JSON.stringify(KB_USER))}catch(e){}kbLabels()}
+// Kürzel überall sichtbar aktuell halten (Werkzeugleiste, Knöpfe)
+function kbLabels(){for(const a of KB_DEF){if(!a.id.startsWith('tool:'))continue;const id=a.id.slice(5),b=document.querySelector(`.tool[data-t="${id}"]`),t=kbTool(id);if(!b||!t)continue;
+    const c=kbGet(a),k=b.querySelector('.k');if(k)k.textContent=c&&c.length<=3?kbShow(c):'';b.setAttribute('aria-label',tr(t.n)+(c?' ('+kbShow(c)+')':''))}
+  const set=(sel,txt,id)=>{const b=document.querySelector(sel);if(b){b.title=tr(txt)+kbHint(id);b.__dA=null;b.__sA=null}};
+  set('#bNotes','Notizen','notes');set('#bFind','Suchen','find');set('#bUndo','Rückgängig','undo');set('#bRedo','Wiederholen','redo');
+  set('#bZoomIn','Vergrößern','zoomIn');set('#bZoomOut','Verkleinern','zoomOut');try{dictUI()}catch(e){}}
+let kbRec=null;
+const KB_RESERVED=new Set(['Escape','Enter','Tab','Backspace','Delete','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Shift+Tab','Space','Shift+Space']);
+const kbTyping=t=>!!editorEl||!!(t&&(t.tagName==='TEXTAREA'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|number|search|email|url|password|)$/.test(t.type))));
+const kbModalOpen=()=>[...document.querySelectorAll('.modal')].some(m=>!m.hidden&&!m._ah)||(typeof studioIsOpen==='function'&&studioIsOpen());
+addEventListener('keydown',e=>{
+  if(kbRec){e.preventDefault();e.stopImmediatePropagation();kbRecKey(e);return}
+  if(e.key==='Escape'&&(ctx.hidden||ctx._ah)){const vis=id=>{const d=document.getElementById(id);return d&&!d.hidden&&!d._ah};
+    if(vis('kbDlg')){e.preventDefault();e.stopImmediatePropagation();kbOpen(false);return}if(vis('wrDlg')&&!vis('asrDlg')){e.preventDefault();e.stopImmediatePropagation();wrOpen(false);return}}
+  if(e.repeat&&!e.ctrlKey&&!e.altKey)return;
+  const c=kbCombo(e);if(!c||kbModalOpen())return;
+  const a=KB_DEF.find(x=>kbGet(x)===c&&(!x.when||x.when())),custom=a&&kbGet(a)!==a.def;
+  if(kbTyping(e.target)){if(a&&a.text&&(custom||!a.native)){e.preventDefault();e.stopImmediatePropagation();a.run()}return}
+  if(a){if(!custom&&a.native)return;e.preventDefault();e.stopImmediatePropagation();a.run();return}
+  // Standardtaste einer Aktion, die woanders liegt oder entfernt wurde: nichts mehr auslösen
+  if(KB_DEF.some(x=>x.native&&x.def===c&&kbGet(x)!==c)){e.preventDefault();e.stopImmediatePropagation()}
+},true);
+function kbRecKey(e){const R=kbRec;const k=e.key;
+  if(k==='Escape'&&!e.ctrlKey&&!e.altKey&&!e.shiftKey){kbRec=null;kbRender();kbFocus(R.id);return}
+  if((k==='Backspace'||k==='Delete')&&!e.ctrlKey&&!e.altKey&&!e.shiftKey){KB_USER[R.id]='';kbRec=null;kbSave();kbRender();kbFocus(R.id);return}
+  const c=kbCombo(e);if(!c)return;
+  if(KB_RESERVED.has(c)){toast(tr('Diese Taste ist fest vergeben. Bitte eine andere wählen.'));return}
+  const other=KB_DEF.find(x=>x.id!==R.id&&kbGet(x)===c);
+  if(other){KB_USER[other.id]='';toast(tr('War vorher für „')+tr(other.n)+tr('“ – dort entfernt.'))}
+  KB_USER[R.id]=c;kbRec=null;kbSave();kbRender();kbFocus(R.id)}
+function kbFocus(id){const b=document.querySelector(`#kbList .kb-k[data-id="${CSS.escape(id)}"]`);if(b)b.focus()}
+function kbRender(){const L=document.getElementById('kbList');if(!L)return;const q=($('#kbQ').value||'').trim().toLowerCase();L.textContent='';let grp='';
+  for(const a of KB_DEF){if(a.when&&!a.when())continue;const name=tr(a.n);if(q&&!name.toLowerCase().includes(q)&&!kbShow(kbGet(a)).toLowerCase().includes(q))continue;
+    if(a.g!==grp){grp=a.g;const h=document.createElement('h3');h.textContent=tr(grp);L.appendChild(h)}
+    const row=document.createElement('div');row.className='kb-r';const n=document.createElement('span');n.className='kb-n';n.textContent=name;row.appendChild(n);
+    const b=document.createElement('button');b.type='button';b.className='kb-k'+(kbRec&&kbRec.id===a.id?' rec':'');b.dataset.id=a.id;
+    b.textContent=kbRec&&kbRec.id===a.id?tr('Taste drücken …'):kbShow(kbGet(a));b.title=tr('Klicken und neue Taste drücken');
+    b.onclick=()=>{kbRec={id:a.id};kbRender();const nb=L.querySelector(`.kb-k[data-id="${CSS.escape(a.id)}"]`);nb&&nb.focus()};row.appendChild(b);
+    const r=document.createElement('button');r.type='button';r.className='ib kb-x';r.title=tr('Standard')+(a.def?': '+kbShow(a.def):': –');r.setAttribute('aria-label',r.title);r.hidden=kbGet(a)===a.def;
+    r.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
+    r.onclick=()=>{delete KB_USER[a.id];kbSave();kbRender()};row.appendChild(r);L.appendChild(row)}}
+function kbOpen(v){const d=$('#kbDlg');if(v){kbRec=null;$('#kbQ').value='';kbRender();showEl(d);setTimeout(()=>$('#kbQ').focus(),0)}else{kbRec=null;animHide(d)}}
+{const d=$('#kbDlg');$('#kbX').onclick=()=>kbOpen(false);d.addEventListener('pointerdown',e=>{if(e.target===d)kbOpen(false)});
+  d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&!kbRec){e.preventDefault();kbOpen(false)}});
+  $('#kbQ').addEventListener('input',()=>kbRender());
+  $('#kbReset').onclick=()=>{KB_USER={};kbSave();kbRender();toast(tr('Alle Tastenkürzel sind wieder auf Standard.'))}}
+
+/* Schreiben & Rechtschreibung: eigenes Fenster */
+function wrWords(){const W=$('#wrWords');if(!W)return;W.textContent='';const list=[...SP.user].sort((a,b)=>a.localeCompare(b,'de'));
+  $('#wrCnt').textContent=list.length?String(list.length):'';$('#wrNone').hidden=list.length>0;$('#wrClear').hidden=!list.length;
+  for(const w of list){const c=document.createElement('span');c.className='wr-w';const t=document.createElement('span');t.textContent=w;c.appendChild(t);
+    const x=document.createElement('button');x.type='button';x.title=tr('Aus dem Wörterbuch entfernen');x.setAttribute('aria-label',tr('Aus dem Wörterbuch entfernen')+': '+w);x.textContent='×';x.onclick=()=>{spRemove([w]);wrWords()};c.appendChild(x);W.appendChild(c)}}
+function spRemove(ws){for(const w of ws){SP.user.delete(w);for(const e of Object.values(SP.eng))try{e.remove&&e.remove(w)}catch(x){}}
+  SP.cache.clear();SP.ver++;try{localStorage.setItem('pdfwerkbank:dict',JSON.stringify([...SP.user].slice(-2000)))}catch(e){}redrawAll();try{spNotesSoon()}catch(e){}}
+function wrOpen(v){const d=$('#wrDlg');if(v){if(typeof studioIsOpen==='function'&&studioIsOpen())studioOpen(false);abOpen(false);try{spUI()}catch(e){}wrWords();try{asrSecUpd()}catch(e){}
+    $('#wrDictKey').textContent=tr('Starten und beenden: Mikrofon-Knopf oben oder ')+kbShow(kbOf('dictate'))+'.';showEl(d);setTimeout(()=>$('#wrX').focus(),0)}
+  else animHide(d)}
+{const d=$('#wrDlg');$('#wrX').onclick=()=>wrOpen(false);d.addEventListener('pointerdown',e=>{if(e.target===d)wrOpen(false)});
+  d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();wrOpen(false)}});
+  let arm=0;$('#wrClear').onclick=()=>{if(Date.now()-arm>4000){arm=Date.now();toast(tr('Noch einmal klicken, um alle eigenen Wörter zu entfernen.'));return}arm=0;spRemove([...SP.user]);wrWords()};
+  $('#wrKeys').onclick=()=>{wrOpen(false);kbOpen(true)};const m=$('#spMore');if(m)m.onclick=()=>wrOpen(true)}
+
+// Hinweis im Seitenbereich, wenn für Deutsch noch ein Wörterbuch fehlt (der Knopf dazu ist jetzt im eigenen Fenster)
+{const su=spUI;spUI=function(...a){const r=su.apply(this,a);const m=document.getElementById('spMore'),g=document.getElementById('spGet');
+  if(m&&g){m.classList.toggle('warn',!g.hidden);m.title=g.hidden?'':tr('Für Deutsch fehlt ein Wörterbuch. Hier kann es geladen werden.')}return r};try{spUI()}catch(e){}}
+/* Menüs in der Kopfleiste: Datei, Ansicht, Einstellungen (statt vieler einzelner Symbole) */
+{const cm=closeMenu;closeMenu=function(){ctx._closedAt=Date.now();return cm()}}
+function hmOpen(btn,items){if(!ctx.hidden&&!ctx._ah&&ctx._owner===btn){closeMenu();return}if(ctx._owner===btn&&Date.now()-(ctx._closedAt||0)<350)return;
+  ctx.innerHTML='';ctx.classList.add('hm');ctx._owner=btn;
+  for(const it of items){if(!it||it.hidden)continue;if(it.sep){ctx.appendChild(document.createElement('hr'));continue}
+    const b=document.createElement('button');b.type='button';b.setAttribute('role',it.check!==undefined?'menuitemcheckbox':'menuitem');if(it.check!==undefined)b.setAttribute('aria-checked',it.check?'true':'false');
+    const l=document.createElement('span');l.className='hm-l';l.textContent=(it.check!==undefined?(it.check?'✓ ':' '):'')+tr(it.t);b.appendChild(l);
+    if(it.dot){const d=document.createElement('i');d.className='hm-dot';b.appendChild(d)}
+    if(it.k){const k=document.createElement('kbd');k.textContent=kbShow(it.k);b.appendChild(k)}
+    b.onclick=()=>{closeMenu();it.run()};ctx.appendChild(b)}
+  showEl(ctx);btn.setAttribute('aria-expanded','true');const r=btn.getBoundingClientRect(),w=ctx.offsetWidth;
+  ctx.style.left=clamp(r.right-w,8,innerWidth-w-8)+'px';ctx.style.top=(r.bottom+6)+'px';
+  const f=ctx.querySelector('button');f&&f.focus()}
+ctx.addEventListener('keydown',e=>{if(!ctx.classList.contains('hm'))return;const B=[...ctx.querySelectorAll('button')];const i=B.indexOf(document.activeElement);
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=B[(i+(e.key==='ArrowDown'?1:-1)+B.length)%B.length];n&&n.focus()}else if(e.key==='Tab'){e.preventDefault();closeMenu()}});
+new MutationObserver(()=>{if((ctx.hidden||ctx._ah)&&ctx.classList.contains('hm')){ctx.classList.remove('hm');for(const b of document.querySelectorAll('.hmb[aria-expanded="true"]'))b.setAttribute('aria-expanded','false')}}).observe(ctx,{attributes:true,attributeFilter:['hidden','class']});
+const hmPressed=id=>{const b=document.getElementById(id);return!!b&&b.getAttribute('aria-pressed')==='true'};
+$('#bFileMenu').onclick=()=>hmOpen($('#bFileMenu'),[
+  {t:'PDF öffnen …',k:kbOf('open'),run:()=>fileIn.click()},
+  {t:'Zuletzt geöffnet …',k:kbOf('recent'),hidden:$('#bRecent').hidden,run:()=>openRecent()},
+  {t:'Neues Blatt oder leere Seiten …',k:kbOf('newDoc'),run:()=>$('#bNew').click()},
+  {sep:1},
+  {t:'Mehrere PDFs zusammenführen …',run:()=>$('#bMerge').click()},
+  {t:'Seiten ordnen (drehen, sortieren, löschen) …',run:()=>$('#bPages').click()},
+  {sep:1},
+  {t:'Speichern unter …',k:kbOf('saveAs'),run:()=>save(true)}]);
+$('#bViewMenu').onclick=()=>hmOpen($('#bViewMenu'),[
+  {t:'Seitenvorschau',check:hmPressed('bThumbs'),k:kbOf('thumbs'),run:()=>$('#bThumbs').click()},
+  {t:'Werkzeugleiste',check:hmPressed('bTglTools'),run:()=>$('#bTglTools').click()},
+  {t:'Seitenleiste',check:hmPressed('bTglSide'),hidden:innerWidth<=860,run:()=>$('#bTglSide').click()},
+  {t:'Lineal',check:!!(typeof rulerOn!=='undefined'&&rulerOn),k:kbOf('tool:ruler'),run:()=>toggleRuler()},
+  {sep:1},
+  {t:'Vergrößern',k:kbOf('zoomIn'),run:()=>zoomTo(S.zoom*1.2)},{t:'Verkleinern',k:kbOf('zoomOut'),run:()=>zoomTo(S.zoom/1.2)},{t:'An Breite anpassen',k:kbOf('fit'),run:()=>fitZoom()}]);
+$('#bSetMenu').onclick=()=>hmOpen($('#bSetMenu'),[
+  {t:'Design anpassen …',run:()=>$('#bDesign').click()},
+  {t:'Schreiben & Rechtschreibung …',run:()=>wrOpen(true)},
+  {t:'Tastenkürzel …',run:()=>kbOpen(true)},
+  {sep:1,hidden:$('#bInfo').hidden},
+  {t:$('#bInfo').classList.contains('has-upd')?'Layr & Updates (Update da)':'Layr & Updates …',dot:$('#bInfo').classList.contains('has-upd'),hidden:$('#bInfo').hidden,run:()=>$('#bInfo').click()}]);
+// Update-Punkt vom alten Knopf auf das Zahnrad übertragen
+{const i=$('#bInfo'),g=$('#bSetMenu');const upd=()=>g.classList.toggle('has-upd',i.classList.contains('has-upd'));new MutationObserver(upd).observe(i,{attributes:true,attributeFilter:['class']});upd()}
+// „Zuletzt geöffnet“ öffnet sich unter dem Datei-Menü, weil der alte Knopf nicht mehr zu sehen ist
+kbLabels();
+
 if(window.werkbank)werkbank.onOpen((name,bytes,ticket)=>{(async()=>{for(let n=0;tabBusy&&n<600;n++)await tabSleep(25);
   await tabGate(()=>tabOpenWith(async()=>{if(ticket&&werkbank.tabClaim){const r=await werkbank.tabClaim(ticket);if(r&&r.dup)return r}return tabLoad(new Uint8Array(bytes),name)}))})()});
 setColor(S.color,true);setTool('select');buildCats();updUndo();
