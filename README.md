@@ -10,12 +10,13 @@
 
 ## Features
 
-- **Write on any PDF** – text boxes with 16 fonts (Arial, Times New Roman, Calibri, Roboto, handwriting …), bold, underline, bullet and numbered lists; colour the whole box or just single letters and words. In the saved PDF your text can be selected, copied and searched in any PDF viewer
+- **Tabs** – open several PDFs at once, each in its own tab; switch with a click or Ctrl+Tab, close with × or Ctrl+W. Opening a file that is already open just switches to its tab
+- **Write on any PDF** – text boxes with 16 fonts (Arial, Times New Roman, Calibri, Roboto, handwriting …), bold, underline, bullet and numbered lists, automatic capital letters at the start of a sentence (Ctrl+Z undoes it, can be turned off); colour the whole box or just single letters and words. In the saved PDF your text can be selected, copied and searched in any PDF viewer
 - **Pen and highlighter with shape recognition** – draw freehand, hold at the end and the stroke snaps into a straight line, circle, rectangle or triangle
 - **One select tool** – click to select, drag to move; circle items with the lasso (or drag a rectangle) to select several, then move, scale, recolour, duplicate or delete them together. In the shape tools a click on an existing item moves it, no tool switching needed
 - **Images** – insert PNG, JPG, WebP, GIF or SVG with the image tool, Ctrl+V or drag and drop; resize, change opacity, replace
 - **Docking connectors** – lines and arrows that start or end on a symbol stick to it and follow when you move it
-- **Tables** – drag out a table, click a cell to type, Tab from cell to cell; right-click a cell to insert or delete rows and columns right there, drag the dividers
+- **Tables** – drag out a table (toolbar or symbol picker), click a cell to type, Tab from cell to cell; a small bar next to the selected table adds or removes rows and columns, right-click a cell to insert or delete them right there, drag the dividers to resize columns (the width is shown in mm)
 - **Org charts** – ready-made templates (line, line-and-staff, divisional, matrix, IT department, project …) plus single building blocks; remove boxes you don't need and their lines go with them
 - **Network diagrams** – templates for a small office, a company with DMZ, VLANs, a home network and a school network, all with IP addresses
 - **IT calculator** – convert between binary, hexadecimal, decimal and octal with the working shown step by step (two's complement, 8–64 bit), data sizes (GB vs. GiB), transfer times, UPS sizing and battery runtime, power consumption, costs and waste heat; put any result on the page as a table

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-et9cAlrzPK6x/480U1ZCcGq2h77LJmd+EMu2iOF8Zcc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-PYlOkuI+mHcy3DSUpA5DuEkbOVHm52f2LbtQVnOglMg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -36,7 +36,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--f-ui);font-size:1
 button,select,input{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.app{display:grid;height:100%;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto minmax(0,1fr);grid-template-areas:"top top top" "tools tools tools" "thumbs view panel"}
+.app{display:grid;height:100%;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto auto minmax(0,1fr);grid-template-areas:"top top top" "tabs tabs tabs" "tools tools tools" "thumbs view panel"}
 :root{interpolate-size:allow-keywords}
 @media (min-width:861px){
   .panel,.thumbs{transition:width .36s cubic-bezier(.3,.9,.3,1),opacity .26s ease,border-width .36s,padding .36s}
@@ -752,6 +752,31 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .edh.mt{top:-6px;left:50%;margin-left:-6px;cursor:ns-resize;border-radius:50%}
 .edh.mb{bottom:-6px;left:50%;margin-left:-6px;cursor:ns-resize;border-radius:50%}
 .upd-cmd{display:block;margin:8px 0 2px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:color-mix(in srgb,var(--ink) 5%,var(--panel));font:12px/1.45 var(--f-mono);white-space:pre-wrap;word-break:break-all;user-select:all}
+/* 3.2: Tabs, Tabellen-Leiste */
+.tabbar{grid-area:tabs;display:flex;align-items:flex-end;gap:2px;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;background:color-mix(in srgb,var(--ink) 4%,var(--panel));border-bottom:1px solid var(--line);padding:5px max(10px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px))}
+.tabbar[hidden]{display:none}
+.tabbar .tab{position:relative;display:flex;align-items:center;gap:6px;flex:0 1 220px;min-width:96px;height:30px;padding:0 4px 0 12px;border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;color:var(--muted);cursor:pointer;user-select:none;font-size:12.5px}
+.tabbar .tab:hover{background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink)}
+.tabbar .tab.on{background:var(--panel);border-color:var(--line);color:var(--ink);font-weight:600;margin-bottom:-1px;height:31px}
+.tabbar .tab.on::before{content:"";position:absolute;left:8px;right:8px;top:-1px;height:2px;border-radius:2px;background:var(--accent)}
+.tabbar .tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tabbar .tn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tabbar .td{flex:none;width:7px;height:7px;border-radius:50%;background:var(--danger,#c2412d)}
+.tabbar .tx{flex:none;width:22px;height:22px;border:0;border-radius:6px;background:transparent;color:inherit;display:grid;place-items:center;padding:0;opacity:.65;cursor:pointer}
+.tabbar .tx:hover{opacity:1;background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.tabbar .tx svg{width:13px;height:13px}
+.tabbar .tplus{flex:none;align-self:center;width:28px;height:26px;border:0;border-radius:7px;background:transparent;color:var(--muted);display:grid;place-items:center;padding:0;cursor:pointer;margin-left:2px}
+.tabbar .tplus:hover{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink)}
+.tabbar .tplus svg{width:16px;height:16px}
+.tblbar{position:absolute;z-index:6;display:flex;align-items:center;gap:3px;padding:4px 6px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(10,16,22,.16);white-space:nowrap;font-size:12px;user-select:none}
+.tblbar[hidden]{display:none}
+.tblbar .tl{color:var(--muted);padding:0 2px 0 4px}
+.tblbar .ts{width:1px;height:18px;background:var(--line);margin:0 3px}
+.tblbar button{height:26px;min-width:26px;padding:0 8px;border:1px solid var(--line);border-radius:7px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.tblbar button:hover{border-color:var(--accent);color:var(--accent)}
+.tblbar button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+:root[data-sheet="night"] .page .tblbar{filter:none}
+.sym.symtbl svg{width:60px;height:40px;padding:5px 0;color:#2b3440}
 /* 3.0: IT-Rechner */
 .calccard{width:min(700px,100%)}
 #calcMode{flex-wrap:wrap}
@@ -829,7 +854,7 @@ header,.file{min-width:0}
   :root:not([data-density]),:root[data-density="normal"]{--tool:36px;--tool-i:19px}
 }
 @media (max-width:860px){
-  .app,.app.no-panel{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "tools" "view"}
+  .app,.app.no-panel{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "tabs" "tools" "view"}
   .app.no-panel .panel{display:block}
   .thumbs{position:fixed;left:0;top:0;bottom:0;z-index:49;box-shadow:var(--shadow);padding-top:calc(12px + env(safe-area-inset-top,0px))}
   .tools{flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--line);padding:4px max(8px,env(safe-area-inset-left,0px));justify-content:flex-start}
@@ -878,6 +903,7 @@ header,.file{min-width:0}
     <input type="file" id="fileIn" accept="application/pdf,.pdf" hidden>
     <input type="file" id="imgIn" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/bmp" multiple hidden>
   </header>
+  <div class="tabbar" id="tabBar" role="tablist" aria-label="Geöffnete Dateien" hidden></div>
 
   <nav class="tools" id="tools" aria-label="Werkzeuge"></nav>
 
@@ -1091,6 +1117,7 @@ header,.file{min-width:0}
       <span class="lbl">Position</span><div class="seg" id="dToastPos"><button data-v="bc">Unten mittig</button><button data-v="br">Unten rechts</button><button data-v="tc">Oben</button></div>
       <span class="lbl">Anzeigedauer</span><div class="seg" id="dToastDur"><button data-v="short">Kurz</button><button data-v="normal">Normal</button><button data-v="long">Lang</button></div>
       <button class="btn" id="dToastTest" style="align-self:flex-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Test-Meldung zeigen</button></section>
+    <section><h3>Schreiben</h3><div class="seg" id="dAutoCap"><button data-v="on">Satzanfang groß</button><button data-v="off">Aus</button></div><p class="hint">Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.</p></section>
     <section><h3>Bewegung</h3><div class="seg" id="dMotion"><button data-v="on">Animationen an</button><button data-v="off">Aus</button></div></section>
     <section id="dAboutLink" hidden><h3>Layr &amp; Updates</h3><p class="hint">Version, Updates und „Zuletzt geöffnet“ haben ein eigenes Fenster (Knopf oben rechts).</p><button class="btn" id="abOpen2" style="align-self:flex-start">Layr &amp; Updates öffnen</button></section>
     <button class="btn" id="dReset">Alles auf Standard</button>
@@ -1389,6 +1416,15 @@ const I18N_EN={
 'Zelle bearbeiten':'Edit cell','Zeile darüber einfügen':'Insert row above','Zeile darunter einfügen':'Insert row below','Spalte links einfügen':'Insert column left','Spalte rechts einfügen':'Insert column right',
 'Zeile löschen':'Delete row','Spalte löschen':'Delete column','Zelleninhalt leeren':'Clear cell',
 'Tabelle anklicken, dann in eine Zelle klicken zum Schreiben; Tab springt zur nächsten. Rechtsklick auf eine Zelle: Zeilen und Spalten an dieser Stelle einfügen oder löschen. Trennlinien ziehen ändert Breite und Höhe.':'Click the table, then click a cell to type; Tab jumps to the next one. Right-click a cell to insert or delete rows and columns there. Drag the dividers to change width and height.',
+// 3.2
+'Geöffnete Dateien':'Open files','Nicht gespeichert':'Not saved','Tab schließen (Strg+W)':'Close tab (Ctrl+W)','PDF in neuem Tab öffnen (Strg+O)':'Open PDF in a new tab (Ctrl+O)',
+'Diese Datei ist schon geöffnet.':'This file is already open.',
+'Nicht gespeichert. Zum Schließen ohne Speichern noch einmal auf × klicken.':'Not saved. Click × again to close without saving.',
+'Schreiben':'Writing','Satzanfang groß':'Capitalize sentences','Aus':'Off',
+'Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.':'The first letter of a sentence is capitalized automatically. Ctrl+Z right after makes it lowercase again.',
+'Tabelle':'Table','Zeilen':'Rows','Spalten':'Columns','Zeile':'Row','Spalte':'Column','Zeile entfernen':'Remove row','Zeile hinzufügen':'Add row','Spalte entfernen':'Remove column','Spalte hinzufügen':'Add column',
+'Kopfzeile':'Header','Kopfzeile hervorheben ein/aus':'Highlight header row on/off','Gleich breit':'Even widths','Spalten gleich breit':'Even column widths',
+'Tabelle aufziehen. Danach in eine Zelle klicken zum Schreiben.':'Drag out a table. Then click a cell to type.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -2189,7 +2225,7 @@ function buildPages(){
 }
 function layout(){
   const k=DPR();
-  S.pages.forEach((P,i)=>{const w=P.w*S.zoom,h=P.h*S.zoom;P.el.style.width=w+'px';P.el.style.height=h+'px';P.ink.width=Math.round(w*k);P.ink.height=Math.round(h*k);redraw(i)});
+  S.pages.forEach((P,i)=>{const W=Math.max(1,Math.round(P.w*S.zoom*k)),Hh=Math.max(1,Math.round(P.h*S.zoom*k));P.el.style.width=(W/k)+'px';P.el.style.height=(Hh/k)+'px';P.ink.width=W;P.ink.height=Hh;redraw(i)});
   {const a=$('#addPageCard'),L=S.pages[S.pages.length-1];if(a&&L)a.style.width=Math.max(220,L.w*S.zoom)+'px'}
   $('#bFit').textContent=Math.round(S.zoom*100)+' %';
   if(rulerOn)drawRuler();
@@ -2224,8 +2260,9 @@ async function renderAll(){
 }
 async function renderPage(i,g){
   const P=S.pages[i];const page=await S.doc.getPage(i+1);if(g!==renderGen)return;
-  const vp=page.getViewport({scale:S.zoom*DPR()});const cv=document.createElement('canvas');cv.className='pdf';
-  cv.width=Math.round(vp.width);cv.height=Math.round(vp.height);
+  let vp=page.getViewport({scale:S.zoom*DPR()});const cv=document.createElement('canvas');cv.className='pdf';
+  {const v1=page.getViewport({scale:1}),W=P.ink&&P.ink.width;if(W&&Math.abs(v1.width-P.w)<1&&Math.abs(v1.height-P.h)<1)vp=page.getViewport({scale:W/v1.width})}
+  cv.width=P.ink&&P.ink.width&&Math.abs(Math.round(vp.width)-P.ink.width)<=1?P.ink.width:Math.round(vp.width);cv.height=P.ink&&P.ink.height&&Math.abs(Math.round(vp.height)-P.ink.height)<=1?P.ink.height:Math.round(vp.height);
   try{await page.render({canvasContext:cv.getContext('2d'),viewport:vp,annotationMode:pdfjsLib.AnnotationMode.ENABLE_FORMS}).promise}catch(e){return}
   if(g!==renderGen)return;P.el.replaceChild(cv,P.pdf);P.pdf=cv;
 }
@@ -2476,7 +2513,7 @@ function attachInk(P,i){
           if(dk){const sd=one?autoSides(dk,other,[x,y],[o.x2,o.y2]):autoSides(other,dk,[o.x1,o.y1],[x,y]);const q=orgAnchor(dk,one?sd[0]:sd[1]);x=q[0];y=q[1]}
           if(one){o.x1=x;o.y1=y}else{o.x2=x;o.y2=y}}
         else if(st.mode==='tcol'||st.mode==='trow'){const X=st.mode==='tcol',k=st.idx,fr=X?o.cw:o.rh,len=X?o.w:o.h,pos=(X?x-o.x:y-o.y)/len;
-          let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np}
+          let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;tblHintSet(o,st.mode,k,x,y)}
         else resizeTo(o,st,x,y,e.shiftKey);
         if(o.type==='text'&&st.orig&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
         redraw(i);break}
@@ -2493,6 +2530,7 @@ function attachInk(P,i){
     }
   });
   const end=e=>{
+    if(S.tblHint){S.tblHint=null;redraw(i)}
     if(!st)return;clearTimeout(st.qsT);if(st.qs)qsTagHide();
     if(st.marq){const L=S.lasso,add=st.add;S.lasso=null;st=null;if(L)lassoFinish(i,L,add);return}
     const d=S.draft&&S.draft.o;
@@ -2564,6 +2602,8 @@ function textEngine(host,initial,opt){
   const isW=ch=>!!ch&&/[\p{L}\p{N}_]/u.test(ch);
   const wordL=i=>{while(i>0&&!isW(st.v[i-1]))i--;while(i>0&&isW(st.v[i-1]))i--;return i};
   const wordR=i=>{const n=st.v.length;while(i<n&&!isW(st.v[i]))i++;while(i<n&&isW(st.v[i]))i++;return i};
+  const typeChar=t=>{const u=lo()===hi()?capOf(t):null;if(!u||!needCap(st.v.slice(0,st.c))){put(t);return}
+    put(t);rec();st.v=st.v.slice(0,st.c-1)+u+st.v.slice(st.c);upd()};
   const del=(dir,word)=>{if(lo()!==hi())return put('');let a=st.c,b=st.c;
     if(dir<0)a=word?wordL(st.c):Math.max(0,st.c-1);else b=word?wordR(st.c):Math.min(st.v.length,st.c+1);if(a===b)return;st.c=a;st.a=b;put('')};
   const move=(i,ext)=>{st.c=clamp(i,0,st.v.length);if(!ext)st.a=st.c;upd()};
@@ -2635,7 +2675,7 @@ function textEngine(host,initial,opt){
     else if(mod&&!sh&&kl==='z'){if(hist.length){fut.push([st.v,st.c,st.a]);[st.v,st.c,st.a]=hist.pop();upd()}else if(opt.onEmptyUndo)opt.onEmptyUndo()}
     else if(mod&&(kl==='y'||(sh&&kl==='z'))){if(fut.length){hist.push([st.v,st.c,st.a]);[st.v,st.c,st.a]=fut.pop();upd()}}
     else if(k==='Tab'){if(opt.lists)listIndent(sh?-1:1)}
-    else if(isChar(e))put(withDead(k));
+    else if(isChar(e))typeChar(withDead(k));
     else done=false;
     if(done){e.preventDefault();dbg('-> '+JSON.stringify(st.v.slice(-24))+' n='+st.v.length+' c='+st.c);return true}
     dbg('ignoriert '+JSON.stringify(k)+' ctrl='+e.ctrlKey+' alt='+e.altKey+' meta='+e.metaKey+' altgr='+e.getModifierState('AltGraph'));
@@ -2817,7 +2857,7 @@ let symPop=null,symPopBtn=null;
 function fillSym(sel,grid,after){
   sel.innerHTML='';for(const c of CATS){const op=document.createElement('option');op.value=c;op.textContent=c+' ('+Object.values(SYM).filter(s=>s.cat===c).length+')';sel.appendChild(op)}
   sel.value=S.cat;sel.onchange=()=>{S.cat=sel.value;buildCats()};
-  grid.innerHTML='';
+  grid.innerHTML='';symTableBtn(grid,after);
   const TPLS=S.cat==='Organigramm'?ORG_TPL:S.cat==='Netzwerk'?NET_TPL:null;
   if(TPLS){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
     for(const t of TPLS){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
@@ -2874,7 +2914,8 @@ function fitZoom(apply=true){S.autoFit=true;const mw=Math.max(...S.pages.map(p=>
 const fileIn=$('#fileIn');
 $('#bOpen').onclick=()=>fileIn.click();
 fileIn.onchange=async()=>{const f=fileIn.files[0];if(f)await loadFile(f);fileIn.value=''};
-async function loadFile(f){if(!/pdf$/i.test(f.type)&&!/\.pdf$/i.test(f.name)){toast('Bitte eine PDF-Datei wählen.');return}await flushAuto();if(window.werkbank)werkbank.setFile(f);await openPdf(new Uint8Array(await f.arrayBuffer()),f.name)}
+async function loadFile(f){if(!/pdf$/i.test(f.type)&&!/\.pdf$/i.test(f.name)){toast('Bitte eine PDF-Datei wählen.');return}
+  return tabGate(()=>tabOpenWith(async()=>{if(window.werkbank){const r=await werkbank.setFile(f);if(r&&r.dup)return r}return tabLoad(new Uint8Array(await f.arrayBuffer()),f.name)}))}
 let dragN=0;
 addEventListener('dragenter',e=>{if([...e.dataTransfer.types].includes('Files')){dragN++;$('#drop').hidden=false}});
 addEventListener('dragleave',()=>{if(--dragN<=0){dragN=0;$('#drop').hidden=true}});
@@ -3435,10 +3476,8 @@ function rcRender(){const ul=$('#rcList');ul.innerHTML='';const foot=$('#rcFoot'
       if(motionOff())return rcRender();li.classList.add('gone-out');setTimeout(rcRender,180)};
     ul.appendChild(li)})}
 async function rcOpen(it){closeRecent();if(!it.exists){toast(tr('Diese Datei gibt es dort nicht mehr. Sie wurde aus der Liste entfernt.'));window.werkbank.recentRemove(it.path);return}
-  if(typeof flushAuto==='function')await flushAuto();
-  let r=null;try{r=await window.werkbank.recentOpen(it.path)}catch(e){}
-  if(!r){toast(tr('Diese Datei lässt sich nicht öffnen.'));return}
-  await openPdf(new Uint8Array(r.data),r.name)}
+  await tabGate(()=>tabOpenWith(async()=>{let r=null;try{r=await window.werkbank.recentOpen(it.path)}catch(e){}
+    if(r&&r.dup)return r;if(!r||!r.data){toast(tr('Diese Datei lässt sich nicht öffnen.'));return false}return tabLoad(new Uint8Array(r.data),r.name)}))}
 async function openRecent(){const W=window.werkbank;if(!W||!W.recent)return;const b=$('#bRecent');
   if(!rcPop.hidden&&!rcPop._ah){closeRecent();return}
   await rcLoad();rcRender();showEl(rcPop);b.setAttribute('aria-expanded','true');
@@ -4121,6 +4160,130 @@ function tblMenu(i,o,r,c,x,y){ctx.innerHTML='';const add=(t,f,dis)=>{const b=doc
   add('Zelleninhalt leeren',()=>{o.cells[r][c]=''},!(o.cells[r]&&o.cells[r][c]));
   showEl(ctx);const b=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-b.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-b.height-8)+'px'}
 
+/* ---------- 3.2: Tabs, Satzanfänge groß, Tabellen-Leiste ---------- */
+/* Tabs: Jede geöffnete Datei ist ein Tab. Der aktive Tab lebt in S; die anderen liegen als Schnappschuss im Speicher.
+   Speicherorte kennt nur der Hauptprozess (werkbank.tabActivate wechselt dort den Zielpfad mit). */
+const TABS=[];let TAB=null,tabBusy=false,tabArm=null,tabSig='',tabSame=false,saveHold=0;
+const tabNewId=()=>{const a=new Uint8Array(10);crypto.getRandomValues(a);return[...a].map(b=>(b%36).toString(36)).join('')};
+const tabSleep=ms=>new Promise(r=>setTimeout(r,ms));
+function tabCapture(){return{bytes:S.bytes,name:S.name,isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs:JSON.parse(snapshot()),notes:S.notes||'',
+  tasks:JSON.parse(JSON.stringify(S.tasks||[])),form:S.form?Object.assign(Object.create(null),S.form):null,hu:H.u.slice(),hr:H.r.slice(),dirty:!!S.dirty,
+  savedName:S.savedName||null,zoom:S.zoom,autoFit:S.autoFit,scroll:viewer.scrollTop}}
+const tabPristine=()=>!!S.isNew&&!S.dirty&&S.pages.every(P=>!P.objs.length)&&!String(S.notes||'').trim()&&!(S.tasks&&S.tasks.length)&&!H.u.length;
+async function tabMain(id){if(window.werkbank&&werkbank.tabActivate){try{await werkbank.tabActivate(id)}catch(e){}}}
+const tabMainClose=id=>{try{window.werkbank&&werkbank.tabClose&&werkbank.tabClose(id)}catch(e){}};
+// Vor einem Wechsel: Eingabe übernehmen, laufendes Speichern abwarten (sonst landet es im falschen Tab), offenes Auto-Speichern erledigen
+async function tabQuiet(){closeEditor();for(let n=0;(autoBusy||saveHold)&&n<2400;n++)await tabSleep(25);await flushAuto();clearTimeout(autoT)}
+// Nur eine Tab-Aktion gleichzeitig
+async function tabGate(fn){if(tabBusy)return false;tabBusy=true;try{await tabQuiet();return await fn()}finally{tabBusy=false;tabRender()}}
+// Neuen Tab beginnen; S bleibt dabei unverändert (der alte Tab ist so per tabBack sofort wieder da)
+async function tabOpen_(){
+  if(tabSame){tabSame=false;return{t:TAB,reused:true}}
+  if(TAB&&(!S.bytes||tabPristine()))return{t:TAB,reused:true};
+  const prev=TAB;if(prev)prev.snap=tabCapture();
+  const t={id:tabNewId(),snap:null};TABS.splice(prev?TABS.indexOf(prev)+1:TABS.length,0,t);TAB=t;await tabMain(t.id);return{t,prev,reused:false}}
+// Öffnen hat nicht geklappt: zurück zum vorherigen Tab (dessen Inhalt steht noch in S)
+async function tabBack(h){if(!h||h.reused||!h.prev)return;const k=TABS.indexOf(h.t);if(k>=0)TABS.splice(k,1);TAB=h.prev;await tabMain(h.prev.id);tabMainClose(h.t.id);h.prev.snap=null}
+async function tabRestore(sn){S.autoFit=sn.autoFit;S.zoom=sn.zoom;
+  await openPdf(sn.bytes,sn.name,{isNew:sn.isNew,bg:sn.bg,paper:sn.paper,sample:sn.sample,objs:sn.objs,notes:sn.notes,tasks:sn.tasks,form:sn.form,keepHist:true});
+  if(sn.autoFit)fitZoom();H.u=sn.hu;H.r=sn.hr;updUndo();S.savedName=sn.savedName;S.dirty=sn.dirty;setSaveState();if(S.dirty)scheduleAutoSave();
+  viewer.scrollTop=sn.scroll;requestAnimationFrame(()=>{viewer.scrollTop=sn.scroll;try{updPg()}catch(e){}})}
+async function tabSwitch_(t){if(!t||t===TAB||!t.snap)return;if(TAB)TAB.snap=tabCapture();const sn=t.snap;TAB=t;await tabMain(t.id);await tabRestore(sn);t.snap=null}
+// Ein Dokument in einem neuen Tab öffnen (Datei, Zuletzt geöffnet, Doppelklick im Dateimanager, neues Blatt).
+// fn liefert {dup:id} (schon offen), false (nicht geklappt) oder true.
+async function tabOpenWith(fn){const h=await tabOpen_();let r=false;
+  try{r=await fn()}catch(e){console.error(e);r=false}
+  if(r&&r.dup){await tabBack(h);const d=TABS.find(x=>x.id===r.dup);if(d&&d!==TAB)await tabSwitch_(d);toast(tr('Diese Datei ist schon geöffnet.'));return false}
+  if(!r){await tabBack(h);return false}
+  return true}
+// openPdf meldet keinen Fehler zurück; geklappt hat es, wenn danach andere Bytes geladen sind
+async function tabLoad(bytes,name,opt){const b0=S.bytes;await openPdf(bytes,name,opt);return S.bytes!==b0}
+const tabDirty=t=>t===TAB?!!(S.dirty&&!S.sample&&S.bytes):!!(t.snap&&t.snap.dirty&&!t.snap.sample);
+function tabSwitch(t){return tabGate(()=>tabSwitch_(t))}
+function tabStep(d){if(TABS.length<2)return;const k=TABS.indexOf(TAB);tabSwitch(TABS[(k+d+TABS.length)%TABS.length])}
+function tabClose(t){if(!t)return;return tabGate(async()=>{
+  if(tabDirty(t)&&tabArm!==t){tabArm=t;setTimeout(()=>{if(tabArm===t)tabArm=null},4000);toast(tr('Nicht gespeichert. Zum Schließen ohne Speichern noch einmal auf × klicken.'));return}
+  tabArm=null;const k=TABS.indexOf(t);if(k<0)return;
+  if(TABS.length===1){tabSame=true;try{await openBlank()}finally{tabSame=false}return}
+  if(t!==TAB){TABS.splice(k,1);tabMainClose(t.id);return}
+  const n=TABS[k+1]||TABS[k-1],sn=n.snap;TABS.splice(k,1);TAB=n;await tabMain(n.id);tabMainClose(t.id);await tabRestore(sn);n.snap=null})}
+function tabRender(force){const bar=document.getElementById('tabBar');if(!bar)return;
+  const info=TABS.map(t=>[t.id,(t===TAB?S.name:t.snap&&t.snap.name)||'',tabDirty(t),t===TAB]);const sig=JSON.stringify(info);if(!force&&sig===tabSig)return;tabSig=sig;
+  bar.hidden=TABS.length<2;bar.textContent='';
+  for(const[id,name,dirty,act]of info){const t=TABS.find(x=>x.id===id);const b=document.createElement('div');b.className='tab'+(act?' on':'');b.setAttribute('role','tab');b.setAttribute('aria-selected',act?'true':'false');b.tabIndex=act?0:-1;b.title=name;
+    const n=document.createElement('span');n.className='tn';n.textContent=name.replace(/\.pdf$/i,'');b.appendChild(n);
+    if(dirty){const d=document.createElement('i');d.className='td';d.title=tr('Nicht gespeichert');b.appendChild(d)}
+    const x=document.createElement('button');x.type='button';x.className='tx';x.title=tr('Tab schließen (Strg+W)');x.setAttribute('aria-label',tr('Tab schließen (Strg+W)'));
+    x.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+    x.onclick=e=>{e.stopPropagation();tabClose(t)};b.appendChild(x);
+    b.addEventListener('mousedown',e=>{if(e.button===1)e.preventDefault()});b.addEventListener('auxclick',e=>{if(e.button===1){e.preventDefault();tabClose(t)}});
+    b.onclick=()=>tabSwitch(t);b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tabSwitch(t)}};bar.appendChild(b)}
+  const plus=document.createElement('button');plus.type='button';plus.className='tplus';plus.title=tr('PDF in neuem Tab öffnen (Strg+O)');plus.setAttribute('aria-label',tr('PDF in neuem Tab öffnen (Strg+O)'));
+  plus.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';plus.onclick=()=>fileIn.click();bar.appendChild(plus);
+  {const on=bar.querySelector('.tab.on');if(on&&on.scrollIntoView&&!bar.hidden)on.scrollIntoView({block:'nearest',inline:'nearest'})}}
+// Manuelles Speichern blockiert Tab-Wechsel, bis es fertig ist
+{const sv=save;save=async(...a)=>{saveHold++;try{return await sv(...a)}finally{saveHold--}}}
+{const ss=setSaveState;setSaveState=function(...a){ss(...a);tabRender()}}
+try{new MutationObserver(()=>tabRender()).observe($('#fname'),{childList:true,characterData:true,subtree:true})}catch(e){}
+// Schließen der App: alle Tabs berücksichtigen
+window.__wbState=()=>({dirty:TABS.some(tabDirty)||!!(S.dirty&&!S.sample&&S.bytes),auto:!!S.autoSave});
+window.__wbSaveForClose=async()=>{closeEditor();
+  const saveCur=async()=>{if(!(S.dirty&&!S.sample&&S.bytes))return true;if(S.autoSave){if(await autoSaveNow())return true}return save()};
+  for(const t of TABS.slice()){if(t===TAB||!tabDirty(t))continue;await tabSwitch(t);if(TAB!==t)return false;if(!await saveCur())return false}
+  return saveCur()};
+
+/* Satzanfänge automatisch groß (Textfelder, Zellen, Beschriftungen, Notizen). Strg+Z direkt danach macht es wieder klein. */
+S.autoCap=true;try{S.autoCap=localStorage.getItem('pdfwerkbank:autocap')!=='0'}catch(e){}
+const CAP_ABBR=/(?:^|[\s(])(?:z\.\s?B|z\.\s?T|bzw|ca|Nr|usw|u\.\s?ä|d\.\s?h|u\.\s?a|o\.\s?ä|etc|vgl|evtl|ggf|inkl|exkl|bspw|sog|Dr|Prof|Hr|Fr|Std|Min|max|min|Mio|Mrd|e\.\s?g|i\.\s?e|vs|Mr|Mrs|Ms|No|approx|ff|Abs|Art|Tel|Fa|Str|Kap|Abb|Tab|Anm)\.\s+$/;
+function needCap(before){if(!S.autoCap)return false;const line=before.slice(before.lastIndexOf('\n')+1);
+  if(/^\s*(?:(?:•|◦|▪|-|–|☐|☑|\d+[.)]|[a-z]\))\s+)?$/.test(line))return true;   // Anfang, neue Zeile, nach Aufzählungszeichen
+  if(!/[.!?…]["»«“”'’)\]]*\s+$/.test(before))return false;
+  if(/\d\.\s+$/.test(before))return false;                  // „am 3. Oktober“, „2. Stock“
+  if(CAP_ABBR.test(before))return false;
+  if(/(?:^|\s)\p{L}\.\s+$/u.test(before))return false;      // Initialen, einzelne Buchstaben
+  if(/[^.]\.\.\s+$/.test(before))return false;
+  return true}
+const capOf=ch=>{if(!ch||ch.length!==1||!/\p{Ll}/u.test(ch))return null;const u=ch.toUpperCase();return u.length===1&&u!==ch?u:null};
+{const nt=document.getElementById('ntText');if(nt)nt.addEventListener('beforeinput',e=>{
+  if(e.inputType!=='insertText'||e.isComposing||nt.selectionStart!==nt.selectionEnd)return;const u=capOf(e.data);if(!u||!needCap(nt.value.slice(0,nt.selectionStart)))return;
+  e.preventDefault();document.execCommand('insertText',false,e.data);const p=nt.selectionStart;nt.setSelectionRange(p-1,p);document.execCommand('insertText',false,u)})}
+{const g=document.getElementById('dAutoCap');if(g){const sync=()=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.v==='on')===!!S.autoCap)));sync();
+  g.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.autoCap=b.dataset.v==='on';try{localStorage.setItem('pdfwerkbank:autocap',S.autoCap?'1':'0')}catch(err){}sync()});
+  const rs=document.getElementById('dReset');if(rs)rs.addEventListener('click',()=>{S.autoCap=true;try{localStorage.removeItem('pdfwerkbank:autocap')}catch(err){}sync()})}}
+
+/* Tabellen: kleine Leiste direkt an der ausgewählten Tabelle */
+let tblBarEl=null;
+function tblBarUpd(){const o=S.sel&&S.sel.o&&S.sel.o.type==='table'?S.sel.o:null,P=o&&S.pages[S.sel.p];let bar=tblBarEl;
+  if(!o||!P||!P.el||!P.objs.includes(o)){if(bar&&!bar.hidden)bar.hidden=true;return}
+  if(!bar){bar=tblBarEl=document.createElement('div');bar.id='tblBar';bar.className='tblbar';bar.setAttribute('role','toolbar');bar.setAttribute('aria-label',tr('Tabelle'));
+    const B=(a,label,title,fn)=>{const b=document.createElement('button');b.type='button';b.dataset.a=a;b.textContent=label;b.title=tr(title);b.setAttribute('aria-label',tr(title));b.onclick=e=>{e.stopPropagation();fn()};bar.appendChild(b)};
+    const L=t=>{const s=document.createElement('span');s.className='tl';s.textContent=tr(t);bar.appendChild(s)};
+    const sp=()=>{const s=document.createElement('i');s.className='ts';bar.appendChild(s)};
+    L('Zeilen');B('rm','−','Zeile entfernen',()=>$('#tRm').click());B('rp','+','Zeile hinzufügen',()=>$('#tRp').click());sp();
+    L('Spalten');B('cm','−','Spalte entfernen',()=>$('#tCm').click());B('cp','+','Spalte hinzufügen',()=>$('#tCp').click());sp();
+    B('hd',tr('Kopfzeile'),'Kopfzeile hervorheben ein/aus',()=>$('#tHead').click());B('ev',tr('Gleich breit'),'Spalten gleich breit',()=>$('#tEven').click());
+    for(const ev of['pointerdown','mousedown','dblclick','contextmenu'])bar.addEventListener(ev,e=>e.stopPropagation())}
+  if(bar.parentNode!==P.el)P.el.appendChild(bar);bar.hidden=false;
+  const z=S.zoom,b=bbox(o);bar.querySelector('[data-a=hd]').setAttribute('aria-pressed',o.head?'true':'false');
+  const bw=bar.offsetWidth||300,W=P.w*z,Hh=P.h*z;let top=(b.y+b.h)*z+10;if(top+40>Hh)top=b.y*z-46;if(top<0)top=Math.min(Hh-40,(b.y+b.h)*z+10);
+  bar.style.left=Math.max(0,Math.min(b.x*z,W-bw))+'px';bar.style.top=Math.max(0,top)+'px'}
+{const rd=redraw;redraw=function(i){rd(i);try{tblBarUpd()}catch(e){}}}
+// Trennlinien der ausgewählten Tabelle sichtbar machen, beim Ziehen die Maße anzeigen
+function drawTblGrips(c,o){const X=tblCols(o),Y=tblRows(o),z=S.zoom,r=3.4/z;c.save();c.setLineDash([]);
+  c.strokeStyle=accentCol();c.lineWidth=1/z;c.globalAlpha=.35;c.beginPath();for(let k=1;k<o.cols;k++){c.moveTo(X[k],o.y);c.lineTo(X[k],o.y+o.h)}for(let k=1;k<o.rows;k++){c.moveTo(o.x,Y[k]);c.lineTo(o.x+o.w,Y[k])}c.stroke();c.globalAlpha=1;
+  c.fillStyle='#fff';c.lineWidth=1.5/z;const dot=(x,y)=>{c.beginPath();c.arc(x,y,r,0,7);c.fill();c.stroke()};
+  for(let k=1;k<o.cols;k++){dot(X[k],o.y);dot(X[k],o.y+o.h)}for(let k=1;k<o.rows;k++){dot(o.x,Y[k]);dot(o.x+o.w,Y[k])}
+  const T=S.tblHint;if(T&&T.o===o){c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(T.t).width,px=7/z,hh=22/z;let x=T.x+10/z,y=T.y-hh-8/z;if(y<0)y=T.y+12/z;
+    c.fillStyle=accentCol();rr(c,x,y,tw+2*px,hh,6/z);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(T.t,x+px,y+hh/2)}
+  c.restore()}
+{const ds=drawSel;drawSel=function(c,o){ds(c,o);if(o&&o.type==='table'&&o!==editingObj)try{drawTblGrips(c,o)}catch(e){}}}
+function tblHintSet(o,mode,k,x,y){const X=mode==='tcol',fr=X?o.cw:o.rh,len=X?o.w:o.h,mm=v=>{const s=(v*25.4/72).toFixed(1);return LANG==='en'?s:s.replace('.',',')};
+  S.tblHint={o,x,y,t:(X?tr('Spalte'):tr('Zeile'))+' '+k+': '+mm(fr[k-1]*len)+' mm  ·  '+(k+1)+': '+mm(fr[k]*len)+' mm'}}
+// „Tabelle“ auch in der Symbol-Auswahl
+function symTableBtn(grid,after){const b=document.createElement('button');b.type='button';b.className='sym symtbl';b.title=tr('Tabelle');b.setAttribute('aria-pressed',S.tool==='table'?'true':'false');
+  b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 10h18M3 14.5h18M9 5v14M15 5v14"/></svg>';
+  const s=document.createElement('span');s.textContent=tr('Tabelle');b.appendChild(s);b.onclick=()=>{setTool('table');after&&after();toast(tr('Tabelle aufziehen. Danach in eine Zelle klicken zum Schreiben.'))};grid.appendChild(b)}
+
 // Personalisieren-Fenster öffnen/schließen
 const studio=$('#studio'),studioBg=$('#studioBg');
 const studioIsOpen=()=>!studio.hidden&&!studio._ah;
@@ -4200,6 +4363,9 @@ addEventListener('keydown',e=>{
   if(t&&(t.tagName==='TEXTAREA'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|number|search|email|url|)$/.test(t.type))))return;
   if(t&&t.tagName==='SELECT'&&!mod)return;
   if(k==='tab'&&!mod&&!e.altKey&&$('#newDlg').hidden&&$('#mergeDlg').hidden){e.preventDefault();const hide=!(bars.tools||bars.side)?false:true;setBars(!hide,!hide);return}
+  if(mod&&!e.altKey&&k==='tab'){e.preventDefault();tabStep(e.shiftKey?-1:1);return}
+  if(mod&&!e.altKey&&(k==='pagedown'||k==='pageup')){e.preventDefault();tabStep(k==='pagedown'?1:-1);return}
+  if(mod&&!e.altKey&&!e.shiftKey&&k==='w'){e.preventDefault();if(TABS.length>1)tabClose(TAB);return}
   if(mod&&k==='z'&&!e.shiftKey){e.preventDefault();undo()}
   else if(mod&&(k==='y'||(k==='z'&&e.shiftKey))){e.preventDefault();redo()}
   else if(mod&&k==='s'){e.preventDefault();save(e.shiftKey)}
@@ -4267,7 +4433,7 @@ $('#nOk').onclick=async()=>{
     rebuildPages(entries,`${w} eingefügt (Seite ${at+1}${cnt>1?'–'+(at+cnt):''}). Rückgängig mit Strg+Z.`,at);return}
   const name=($('#nName').value.trim()||docBase()).replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
   const d=await PDFLib.PDFDocument.create();d.setTitle(name.replace(/\.pdf$/,''));for(let i=0;i<cnt;i++)paintBg(d.addPage(FMT[NS.fmt]),NS.bg,NS.paper);
-  window.werkbank&&werkbank.newDoc&&werkbank.newDoc();await openPdf(await d.save(),name,{isNew:true,bg:NS.bg,paper:NS.paper,objs:[]});
+  {const bytes=await d.save();await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,bg:NS.bg,paper:NS.paper,objs:[]})}))}
   if(S.pages[0]&&S.pages[0].el)popEl(S.pages[0].el);
   if(S.tool==='select'){S.cat='UML';buildCats()}
   toast(`„${name}“ ist angelegt. Gespeichert wird unter diesem Namen.`);
@@ -4372,7 +4538,7 @@ $('#mOk').onclick=async()=>{
   for(const it of mItems){const src=await PDFLib.PDFDocument.load(it.bytes.slice(),{ignoreEncryption:true});const pages=await out.copyPages(src,src.getPageIndices());
     pages.forEach((p,k)=>{out.addPage(p);objs.push(it.current?JSON.parse(JSON.stringify(it.objs[k]||[])):[])})}
   const name=($('#mName').value.trim()||'Zusammengeführt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
-  closeMerge();window.werkbank&&werkbank.newDoc&&werkbank.newDoc();await openPdf(await out.save(),name,{isNew:true,objs});
+  closeMerge();{const bytes=await out.save();await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs})}))}
   if(objs.some(o=>o.length))markDirty();
   toast(`${mItems.length} Dateien mit zusammen ${S.pages.length} Seiten zusammengeführt. Mit „Speichern“ sicherst du „${name}“.`);
 };
@@ -4415,15 +4581,18 @@ function sampleObjs(){
 }
 
 /* ---------- Start ---------- */
-if(window.werkbank)werkbank.onOpen((name,bytes)=>openPdf(new Uint8Array(bytes),name));
+if(window.werkbank)werkbank.onOpen((name,bytes,ticket)=>{(async()=>{for(let n=0;tabBusy&&n<600;n++)await tabSleep(25);
+  await tabGate(()=>tabOpenWith(async()=>{if(ticket&&werkbank.tabClaim){const r=await werkbank.tabClaim(ticket);if(r&&r.dup)return r}return tabLoad(new Uint8Array(bytes),name)}))})()});
 setColor(S.color,true);setTool('select');buildCats();updUndo();
 async function openBlank(){
   const d=await PDFLib.PDFDocument.create();d.setTitle(docBase());d.addPage(FMT.a4p);
-  window.werkbank&&werkbank.newDoc&&werkbank.newDoc();await openPdf(await d.save(),docBase()+'.pdf',{isNew:true,bg:'blank',objs:[]});
+  const bytes=await d.save(),name=docBase()+'.pdf';
+  const run=()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,bg:'blank',objs:[]})});
+  return tabSame?run():tabGate(run);
 }
 (async()=>{
   try{let f=null;if(window.werkbank){try{f=await werkbank.initial()}catch(e){}}
-    if(f)await openPdf(new Uint8Array(f.data),f.name);else await openBlank()}
+    let ok=false;if(f)ok=await tabGate(()=>tabOpenWith(()=>tabLoad(new Uint8Array(f.data),f.name)));if(!ok)await openBlank()}
   catch(e){console.error(e);pagesEl.innerHTML='<div class="empty"><p>Die PDF-Bibliotheken konnten nicht geladen werden.<br>Bitte Internetverbindung prüfen und neu laden.</p></div>'}
   document.fonts&&document.fonts.ready.then(()=>{redrawAll();buildCats()});
 })();

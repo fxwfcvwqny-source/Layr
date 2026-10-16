@@ -58,6 +58,11 @@ const langFile = () => path.join(app.getPath('userData'), 'lang.txt');
 const getLang = () => { if (uiLang) return uiLang; try { const v = fs.readFileSync(langFile(), 'utf8').trim(); if (v === 'en' || v === 'de') return (uiLang = v); } catch (e) {} return (uiLang = installLang() || 'de'); };
 const T = s => (getLang() === 'en' && DLG_EN[s]) || s;
 const pdfArg = argv => argv.slice(1).find(a => !a.startsWith('-') && isPdfPath(path.resolve(a)));
+// Tabs: Speicherort je Tab (Schlüssel = zufällige Tab-Kennung aus der Oberfläche). Die Oberfläche bekommt nie Pfade.
+const DOCS = new Map(); let activeTab = null; const TICKETS = new Map();
+const TAB_RX = /^[a-z0-9]{1,24}$/;
+const samePath = (a, b) => { if (!a || !b) return false; const x = path.resolve(a), y = path.resolve(b); return process.platform === 'win32' ? x.toLowerCase() === y.toLowerCase() : x === y; };
+function dupOf(p) { for (const [id, d] of DOCS) if (id !== activeTab && (samePath(d.s, p) || (!d.s && samePath(d.c, p)))) return id; return null; }
 const readPdf = f => { if (fs.statSync(f).size > 2e9) throw new Error('size'); savedPath = null; currentFile = path.resolve(f); lastDir = path.dirname(currentFile); const data = fs.readFileSync(f); addRecent(currentFile); return { name: path.basename(f), data }; };
 
 // Zuletzt geöffnet: nur Dateipfade, nur auf diesem Rechner (recent.json im privaten Programmordner).
@@ -124,7 +129,8 @@ else {
   app.on('second-instance', (_e, argv) => {
     const f = pdfArg(argv);
     if (win) {
-      if (f) { const r = readPdf(f); win.webContents.send('open-file', r.name, r.data); }
+      if (f) { try { if (fs.statSync(f).size > 2e9) throw new Error('size'); const data = fs.readFileSync(f), t = crypto.randomBytes(9).toString('hex');
+        TICKETS.set(t, path.resolve(f)); if (TICKETS.size > 20) TICKETS.delete(TICKETS.keys().next().value); win.webContents.send('open-file', path.basename(f), data, t); } catch (e) {} }
       if (win.isMinimized()) win.restore();
       win.focus();
     }
@@ -184,10 +190,28 @@ else {
 }
 
 handle('initial-file', () => {
+  DOCS.clear(); activeTab = null; TICKETS.clear();   // Seite neu geladen (Start oder nach Absturz): Tabs beginnen von vorn
   if (!initialFile) return null;
   const r = readPdf(initialFile); initialFile = null; return r;
 });
-listen('set-file', (_e, p) => { if (!isPdfPath(p)) return; savedPath = null; currentFile = path.resolve(p); lastDir = path.dirname(currentFile); addRecent(currentFile); });
+handle('set-file', (_e, p) => { if (!isPdfPath(p)) return null; const dup = dupOf(p); if (dup) { addRecent(path.resolve(p)); return { dup }; }
+  savedPath = null; currentFile = path.resolve(p); lastDir = path.dirname(currentFile); addRecent(currentFile); return { ok: true }; });
+handle('tab-activate', (_e, id) => {
+  if (typeof id !== 'string' || !TAB_RX.test(id)) return false;
+  if (activeTab === null) { activeTab = id; return true; }          // erster Tab übernimmt den bisherigen Zustand
+  if (id === activeTab) return true;
+  DOCS.set(activeTab, { c: currentFile, s: savedPath });
+  const d = DOCS.get(id) || { c: null, s: null }; DOCS.delete(id);
+  currentFile = d.c; savedPath = d.s; activeTab = id;
+  while (DOCS.size > 200) DOCS.delete(DOCS.keys().next().value);
+  return true;
+});
+listen('tab-close', (_e, id) => { if (typeof id === 'string' && id !== activeTab) DOCS.delete(id); });
+handle('tab-claim', (_e, t) => {
+  const p = typeof t === 'string' ? TICKETS.get(t) : null; if (!p) return null; TICKETS.delete(t);
+  const dup = dupOf(p); if (dup) { addRecent(p); return { dup }; }
+  savedPath = null; currentFile = p; lastDir = path.dirname(p); addRecent(p); return { ok: true };
+});
 handle('save', async (_e, name, data, saveAs) => {
   if (!isPdfBytes(data)) return null;
   const known = savedPath || currentFile, base = safeBase(name);
@@ -242,7 +266,7 @@ handle('recent-list', () => {
 // Öffnet nur Dateien, die wirklich in der Liste stehen
 handle('recent-open', (_e, p) => {
   const r = recentLoad(); if (typeof p !== 'string' || !r.items.some(x => x.p === p)) return null;
-  try { if (!fs.statSync(p).isFile()) return null; return readPdf(p); } catch (e) { return null; }
+  try { if (!fs.statSync(p).isFile()) return null; const dup = dupOf(p); if (dup) { addRecent(path.resolve(p)); return { dup }; } return readPdf(p); } catch (e) { return null; }
 });
 listen('recent-remove', (_e, p) => { const r = recentLoad(); r.items = r.items.filter(x => x.p !== p); recentSave(); });
 listen('recent-clear', () => { const r = recentLoad(); r.items = []; recentSave(); try { app.clearRecentDocuments(); } catch (e) {} });

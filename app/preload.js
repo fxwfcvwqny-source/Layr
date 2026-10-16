@@ -1,12 +1,15 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron');
 contextBridge.exposeInMainWorld('werkbank', {
-  setFile: f => { try { if (f instanceof File) ipcRenderer.send('set-file', webUtils.getPathForFile(f)); } catch (e) {} },
+  setFile: f => { try { if (f instanceof File) return ipcRenderer.invoke('set-file', webUtils.getPathForFile(f)); } catch (e) {} return Promise.resolve(null); },
+  tabActivate: id => ipcRenderer.invoke('tab-activate', String(id || '')),
+  tabClose: id => ipcRenderer.send('tab-close', String(id || '')),
+  tabClaim: t => ipcRenderer.invoke('tab-claim', String(t || '')),
   save: (name, data, saveAs) => ipcRenderer.invoke('save', String(name || ''), data instanceof Uint8Array ? data : null, !!saveAs),
   autoSave: (name, data, fresh) => ipcRenderer.invoke('autosave', String(name || ''), data instanceof Uint8Array ? data : null, !!fresh),
   newDoc: () => ipcRenderer.send('new-doc'),
   log: t => ipcRenderer.send('log', String(t).slice(0, 60000)),
   initial: () => ipcRenderer.invoke('initial-file'),
-  onOpen: cb => ipcRenderer.on('open-file', (_e, name, data) => cb(name, data)),
+  onOpen: cb => ipcRenderer.on('open-file', (_e, name, data, t) => cb(name, data, typeof t === 'string' ? t : null)),
   appInfo: () => ipcRenderer.invoke('app-info'),
   checkUpdate: () => ipcRenderer.invoke('check-update'),
   openRelease: u => ipcRenderer.send('open-release', String(u || '')),
