@@ -466,6 +466,21 @@ function pendingBytes() {
   } catch (e) { return null; }
 }
 function verifyPending() { return !!pendingBytes(); }
+const ROOT_SCRIPT = 'set -eu; d=$(mktemp -d); trap \'rm -rf "$d"\' EXIT; cp -- "$1" "$d/layr.deb"; echo "$2  $d/layr.deb" | sha512sum -c --status || exit 3; dpkg -i "$d/layr.deb"';
+let pkChild = null, termTakeover = false;
+const updLog = t => { try { fs.appendFileSync(path.join(app.getPath('userData'), 'update-log.txt'), `${new Date().toISOString()} ${app.getVersion()} ${t}\n`, { mode: 0o600 }); } catch (e) {} };
+function debHex() { const want = ymlEntry(fs.readFileSync(path.join(UPD_DIR(), 'release.yml'), 'utf8'), path.basename(pending.file)); const hex = want && Buffer.from(want.sha512, 'base64').toString('hex'); return hex && hex.length === 128 ? hex : null; }
+const debCmd = () => `sudo apt install "${pending.file}"`;
+// Terminal öffnen, das als Benutzer läuft und nur die Installation mit sudo macht (Ubuntu fragt dort nach dem Passwort)
+function openTerminal(argv) {
+  const cands = [['ptyxis', ['--']], ['gnome-terminal', ['--']], ['kgx', ['--']], ['konsole', ['-e']], ['xfce4-terminal', ['-x']], ['mate-terminal', ['-x']], ['tilix', ['-e']], ['x-terminal-emulator', ['-e']], ['xterm', ['-e']]];
+  for (const [bin, pre] of cands) {
+    const full = ['/usr/bin/', '/bin/', '/usr/local/bin/'].map(d => d + bin).find(p => { try { return fs.statSync(p).isFile(); } catch (e) { return false; } });
+    if (!full) continue;
+    try { const p = spawn(full, [...pre, ...argv], { detached: true, stdio: 'ignore' }); p.on('error', () => {}); p.unref(); updLog('Terminal: ' + bin); return true; } catch (e) {}
+  }
+  return false;
+}
 function keepLang() { try { fs.writeFileSync(langFile(), getLang()); } catch (e) {} }
 // Windows und AppImage: Installation passiert beim Beenden (auch automatisch, falls eingeschaltet)
 function installNow(relaunch) {
@@ -500,12 +515,21 @@ handle('upd-install', async (_e, auto) => {
     const asRoot = typeof process.getuid === 'function' && process.getuid() === 0;
     const want = ymlEntry(fs.readFileSync(path.join(UPD_DIR(), 'release.yml'), 'utf8'), path.basename(pending.file));
     const hex = want && Buffer.from(want.sha512, 'base64').toString('hex'); if (!hex || hex.length !== 128) return { error: 'hash' };
-    const script = 'set -eu; d=$(mktemp -d); trap \'rm -rf "$d"\' EXIT; cp -- "$1" "$d/layr.deb"; echo "$2  $d/layr.deb" | sha512sum -c --status || exit 3; dpkg -i "$d/layr.deb"';
+    const script = ROOT_SCRIPT;
     const sh = ['/bin/sh', '-c', script, 'layr-update', pending.file, hex];
     const cmd = asRoot ? sh[0] : '/usr/bin/pkexec', args = asRoot ? sh.slice(1) : sh;
-    if (!fs.existsSync(cmd)) return { error: 'pkexec' };
-    const code = await new Promise(res => { try { const p = spawn(cmd, args, { stdio: 'ignore' }); p.on('exit', c => res(c)); p.on('error', () => res(-1)); } catch (e) { res(-1); } });
-    if (code !== 0) return { error: code === 126 || code === 127 ? 'cancel' : 'dpkg', code };
+    if (!fs.existsSync(cmd)) return { error: 'pkexec', cmd: debCmd() };
+    termTakeover = false; let errText = '';
+    const code = await new Promise(res => { try { const p = spawn(cmd, args, { stdio: ['ignore', 'ignore', 'pipe'] }); pkChild = p;
+      p.stderr.on('data', d => { if (errText.length < 4000) errText += d.toString('utf8'); }); p.on('exit', c => res(c)); p.on('error', () => res(-1)); } catch (e) { res(-1); } });
+    pkChild = null;
+    if (termTakeover) return { error: 'takeover' };
+    if (code !== 0) {
+      updLog(`pkexec Ende ${code}: ${errText.replace(/\s+/g, ' ').slice(0, 600)}`);
+      if (code === 126) return { error: 'cancel', code };
+      if (code === 127 || code === -1) return { error: 'noauth', code, msg: errText.slice(0, 300), cmd: debCmd() };
+      return { error: 'dpkg', code, msg: errText.slice(0, 300) };
+    }
     keepLang(); try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} pending = null;
     app.relaunch(); relaunchAfter = false; installOnQuit = false;
     setImmediate(() => { try { win.close(); } catch (e) {} });
@@ -515,6 +539,24 @@ handle('upd-install', async (_e, auto) => {
   // AppImage: Electron startet die (dann ausgetauschte) Datei erst neu, wenn diese Instanz ganz beendet ist
   if (pending.type === 'appimage') app.relaunch({ execPath: process.env.APPIMAGE });
   setImmediate(() => { try { win.close(); } catch (e) {} });
+  return { ok: true };
+});
+handle('upd-terminal', async () => {
+  if (!pending) pending = loadPending();
+  if (!pending || pending.type !== 'deb') return { error: 'nopending' };
+  if (!verifyPending()) return { error: 'hash' };
+  const hex = debHex(); if (!hex) return { error: 'hash' };
+  if (pkChild) { termTakeover = true; try { pkChild.kill(); } catch (e) {} }
+  const en = getLang() === 'en';
+  const user = 'printf "%s\\n\\n" "$5"; if sudo /bin/sh -c "$3" layr-update "$1" "$2"; then printf "\\n%s\\n" "$6"; (setsid "$4" >/dev/null 2>&1 &); sleep 2; else printf "\\n%s\\n%s" "$7" "$8"; read -r _; fi';
+  const ok = openTerminal(['/bin/sh', '-c', user, 'layr-update', pending.file, hex, ROOT_SCRIPT, process.execPath,
+    en ? 'Layr update: Ubuntu now asks for your password.' : 'Layr-Update: Ubuntu fragt jetzt nach deinem Passwort.',
+    en ? 'Done. Layr is starting again …' : 'Fertig. Layr startet neu …',
+    en ? 'The installation did not work.' : 'Die Installation hat nicht geklappt.',
+    en ? 'Press Enter to close …' : 'Enter drücken zum Schließen …']);
+  if (!ok) return { error: 'noterm', cmd: debCmd() };
+  keepLang(); installOnQuit = false; relaunchAfter = false;
+  setTimeout(() => { try { win.close(); } catch (e) {} }, 400);
   return { ok: true };
 });
 listen('upd-auto-install', (_e, on) => { if (pending && (pending.type === 'nsis' || pending.type === 'appimage')) installOnQuit = !!on; });

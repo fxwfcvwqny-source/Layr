@@ -12,10 +12,10 @@
 
 - **Write on any PDF** – text boxes with 16 fonts (Arial, Times New Roman, Calibri, Roboto, handwriting …), bold, underline, bullet and numbered lists; colour the whole box or just single letters and words. In the saved PDF your text can be selected, copied and searched in any PDF viewer
 - **Pen and highlighter with shape recognition** – draw freehand, hold at the end and the stroke snaps into a straight line, circle, rectangle or triangle
-- **Lasso and multi-select** – move, scale, recolour, duplicate or delete several items at once
+- **One select tool** – click to select, drag to move; circle items with the lasso (or drag a rectangle) to select several, then move, scale, recolour, duplicate or delete them together. In the shape tools a click on an existing item moves it, no tool switching needed
 - **Images** – insert PNG, JPG, WebP, GIF or SVG with the image tool, Ctrl+V or drag and drop; resize, change opacity, replace
 - **Docking connectors** – lines and arrows that start or end on a symbol stick to it and follow when you move it
-- **Tables** – drag out a table, type with Tab from cell to cell, add or remove rows and columns, drag the dividers
+- **Tables** – drag out a table, click a cell to type, Tab from cell to cell; right-click a cell to insert or delete rows and columns right there, drag the dividers
 - **Org charts** – ready-made templates (line, line-and-staff, divisional, matrix, IT department, project …) plus single building blocks; remove boxes you don't need and their lines go with them
 - **Network diagrams** – templates for a small office, a company with DMZ, VLANs, a home network and a school network, all with IP addresses
 - **IT calculator** – convert between binary, hexadecimal, decimal and octal with the working shown step by step (two's complement, 8–64 bit), data sizes (GB vs. GiB), transfer times, UPS sizing and battery runtime, power consumption, costs and waste heat; put any result on the page as a table
@@ -46,7 +46,7 @@ Download the file for your system from the [latest release](https://github.com/f
 
 **Windows SmartScreen:** the installer is not code-signed, so Windows may show *"Windows protected your PC"* the first time. Click **More info → Run anyway**.
 
-**Updates:** Layr checks this page for a newer version and installs it by itself: the new installer is downloaded in the background and installed when you restart or quit Layr. Before that, Layr checks the release's update description against a digital signature (Ed25519, the public key is built into Layr) and the file against the SHA-512 checksum in that signed description. If anything doesn't match, nothing is installed and Layr only offers the download page. On Ubuntu with the `.deb` package, Ubuntu asks for your password to install it. Both can be turned off under *Personalize → Layr & updates*.
+**Updates** (under the update button at the top right, next to *Personalize*): Layr checks this page for a newer version and installs it by itself: the new installer is downloaded in the background and installed when you restart or quit Layr. Before that, Layr checks the release's update description against a digital signature (Ed25519, the public key is built into Layr) and the file against the SHA-512 checksum in that signed description. If anything doesn't match, nothing is installed and Layr only offers the download page. On Ubuntu with the `.deb` package, Ubuntu asks for your password to install it; if no password window appears, Layr can open a terminal for the installation instead. Both can be turned off under *Personalize → Layr & updates*.
 
 ## Privacy
 

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Zorwqqy0+O2YhDlV94MTR8J5cRuCyvnhql+itZ2EHsM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-et9cAlrzPK6x/480U1ZCcGq2h77LJmd+EMu2iOF8Zcc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -743,6 +743,15 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .rc-foot{border-top:1px solid var(--line);margin-top:4px;padding:6px 4px 2px;display:flex;justify-content:flex-end}
 .rc-clear{border:0;background:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 6px;border-radius:6px}.rc-clear:hover{color:var(--danger);background:var(--hover)}
 .rc-row{display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:6px}
+/* 3.1: Layr & Updates, Textfeld-Höhe, Terminal-Befehl */
+#abDlg .abcard{width:min(460px,100%);gap:14px}
+#abDlg section{display:flex;flex-direction:column;gap:12px}
+#bInfo{position:relative}
+#bInfo .upd-dot{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--panel);display:none}
+#bInfo.has-upd .upd-dot{display:block}
+.edh.mt{top:-6px;left:50%;margin-left:-6px;cursor:ns-resize;border-radius:50%}
+.edh.mb{bottom:-6px;left:50%;margin-left:-6px;cursor:ns-resize;border-radius:50%}
+.upd-cmd{display:block;margin:8px 0 2px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:color-mix(in srgb,var(--ink) 5%,var(--panel));font:12px/1.45 var(--f-mono);white-space:pre-wrap;word-break:break-all;user-select:all}
 /* 3.0: IT-Rechner */
 .calccard{width:min(700px,100%)}
 #calcMode{flex-wrap:wrap}
@@ -862,6 +871,7 @@ header,.file{min-width:0}
       <button class="ib" id="bTglTools" aria-pressed="true" title="Werkzeugleiste ein/aus (Tab blendet alle Leisten aus)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M6.5 6.5h0M9.5 6.5h0M12.5 6.5h0" stroke-linecap="round" stroke-width="2.4"/></svg></button>
       <button class="ib hide-sm" id="bTglSide" aria-pressed="true" title="Seitenleiste ein/aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></button>
       <button class="ib" id="bNotes" aria-pressed="false" title="Notizen (N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7z"/><path d="M7 3v18M4.5 7.5h4M4.5 12h4M4.5 16.5h4M11.5 8h4.5M11.5 12h4.5"/></svg></button>
+      <button class="ib hide-sm" id="bInfo" title="Layr &amp; Updates" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/><path d="M12 8v4l2.5 1.5"/></svg><span class="upd-dot" aria-hidden="true"></span></button>
       <button class="ib hide-sm" id="bDesign" title="Personalisieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 9.7C22 5.5 17.5 2 12 2z"/></svg></button>
       <button class="ib mobile-only" id="bPanel" title="Optionen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
     </div>
@@ -930,7 +940,7 @@ header,.file{min-width:0}
       <div class="row tblrow"><label>Spalten</label><button class="btn" id="tCm" title="Spalte entfernen">−</button><span class="val" id="tCv">3</span><button class="btn" id="tCp" title="Spalte hinzufügen">+</button></div>
       <div class="row"><label class="chk"><input type="checkbox" id="tHead" checked> Kopfzeile hervorheben</label></div>
       <button class="btn" id="tEven" style="align-self:flex-start">Spalten gleich breit</button>
-      <p class="hint">Doppelklick in eine Zelle zum Schreiben, Tab springt zur nächsten. Trennlinien der ausgewählten Tabelle ziehen ändert Spaltenbreite und Zeilenhöhe.</p>
+      <p class="hint">Tabelle anklicken, dann in eine Zelle klicken zum Schreiben; Tab springt zur nächsten. Rechtsklick auf eine Zelle: Zeilen und Spalten an dieser Stelle einfügen oder löschen. Trennlinien ziehen ändert Breite und Höhe.</p>
     </div>
     <div class="sec">
       <h3>Füllung</h3>
@@ -1043,6 +1053,19 @@ header,.file{min-width:0}
     <div class="ip-btns"><button class="btn" id="calcCopy">Kopieren</button><span></span><button class="btn primary" id="calcPlace">Als Tabelle aufs Blatt</button></div>
   </div>
 </div>
+<div class="modal" id="abDlg" hidden role="dialog" aria-modal="true" aria-labelledby="abT">
+  <div class="card ipcard abcard">
+    <div class="ip-h"><h2 id="abT">Layr &amp; Updates</h2><button class="ib" id="abX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <section id="dAbout" hidden>
+      <div class="ab-row"><span class="ab-logo" aria-hidden="true"></span><div><b>Layr</b><span id="abVer">Version …</span></div></div>
+      <label class="tgl big"><input type="checkbox" id="upAuto" role="switch" checked><span class="knob"></span><span class="tl">Automatisch nach Updates suchen</span></label>
+      <div id="upAutoRow" class="up-row" hidden><label class="tgl big"><input type="checkbox" id="upAutoDl" role="switch" checked><span class="knob"></span><span class="tl">Updates selbst installieren</span></label><p class="hint" id="upAutoHint"></p></div>
+      <div class="ab-btns"><button class="btn" id="upNow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>Jetzt suchen</button><button class="btn" id="abGh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Downloads &amp; Neuigkeiten</button></div>
+      <p class="hint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
+      <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
+      <p class="hint">Die Liste liegt nur auf diesem Rechner und enthält nur Dateinamen und Ordner.</p></div></section>
+  </div>
+</div>
 <div class="drawer-bg" id="studioBg" hidden></div>
 <aside class="studio" id="studio" role="dialog" aria-modal="true" aria-labelledby="stT" hidden>
   <div class="st-head"><div><h2 id="stT">Personalisieren</h2><p>Gilt nur auf diesem Rechner und ändert keine PDF.</p></div><button class="ib" id="stClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -1069,14 +1092,7 @@ header,.file{min-width:0}
       <span class="lbl">Anzeigedauer</span><div class="seg" id="dToastDur"><button data-v="short">Kurz</button><button data-v="normal">Normal</button><button data-v="long">Lang</button></div>
       <button class="btn" id="dToastTest" style="align-self:flex-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Test-Meldung zeigen</button></section>
     <section><h3>Bewegung</h3><div class="seg" id="dMotion"><button data-v="on">Animationen an</button><button data-v="off">Aus</button></div></section>
-    <section id="dAbout" hidden><h3>Layr &amp; Updates</h3>
-      <div class="ab-row"><span class="ab-logo" aria-hidden="true"></span><div><b>Layr</b><span id="abVer">Version …</span></div></div>
-      <label class="tgl big"><input type="checkbox" id="upAuto" role="switch" checked><span class="knob"></span><span class="tl">Automatisch nach Updates suchen</span></label>
-      <div id="upAutoRow" class="up-row" hidden><label class="tgl big"><input type="checkbox" id="upAutoDl" role="switch" checked><span class="knob"></span><span class="tl">Updates selbst installieren</span></label><p class="hint" id="upAutoHint"></p></div>
-      <div class="ab-btns"><button class="btn" id="upNow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>Jetzt suchen</button><button class="btn" id="abGh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Downloads &amp; Neuigkeiten</button></div>
-      <p class="hint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
-      <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
-      <p class="hint">Die Liste liegt nur auf diesem Rechner und enthält nur Dateinamen und Ordner.</p></div></section>
+    <section id="dAboutLink" hidden><h3>Layr &amp; Updates</h3><p class="hint">Version, Updates und „Zuletzt geöffnet“ haben ein eigenes Fenster (Knopf oben rechts).</p><button class="btn" id="abOpen2" style="align-self:flex-start">Layr &amp; Updates öffnen</button></section>
     <button class="btn" id="dReset">Alles auf Standard</button>
   </div>
 </aside>
@@ -1361,6 +1377,18 @@ const I18N_EN={
 'Bitte die Leistung in Watt eingeben.':'Please enter the power in watts.','Stunden pro Tag: 0 bis 24.':'Hours per day: 0 to 24.','Tage pro Jahr: 0 bis 366.':'Days per year: 0 to 366.',
 'Verbrauch pro Tag':'Consumption per day','Verbrauch pro Jahr':'Consumption per year','Kosten pro Tag':'Cost per day','Kosten pro Monat':'Cost per month','Kosten pro Jahr':'Cost per year','Stromstärke':'Current','Abwärme':'Waste heat',
 'Monat = Jahr ÷ 12. Die Abwärme entspricht der aufgenommenen Leistung – wichtig für die Kühlung im Serverraum.':'Month = year ÷ 12. The waste heat equals the power drawn – important for cooling in the server room.',
+// 3.1
+'Höhe ziehen':'Drag height','Version, Updates und „Zuletzt geöffnet“ haben ein eigenes Fenster (Knopf oben rechts).':'Version, updates and “Recently opened” have their own window (button at the top right).',
+'Layr & Updates öffnen':'Open Layr & updates','Kein Fenster? Im Terminal installieren':'No window? Install in the terminal',
+'Ubuntu hat kein Passwort-Fenster angezeigt. Im Terminal klappt es: Dort nach deinem Passwort fragen lassen, danach startet Layr neu.':'Ubuntu did not show a password window. The terminal works: enter your password there, then Layr restarts.',
+'Befehl kopieren':'Copy command','Terminal öffnen':'Open terminal','Befehl kopiert.':'Command copied.',
+'Im Terminal dein Passwort eingeben. Layr startet danach neu.':'Enter your password in the terminal. Layr restarts afterwards.',
+'Kein Terminal gefunden. Bitte den Befehl kopieren und im Terminal ausführen.':'No terminal found. Please copy the command and run it in a terminal.',
+'Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche umkreisen wählt mehrere aus (noch einmal auf das Werkzeug klicken: Rechteck). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, circle items to select several (click the tool again: rectangle). In the shape tools, a click on an annotation is enough to move it. Back here: Esc, V or right-click.',
+'Auswählen mit Rechteck. Noch einmal klicken: umkreisen.':'Select with a rectangle. Click again: circle to select.','Auswählen durch Umkreisen. Noch einmal klicken: Rechteck.':'Select by circling. Click again: rectangle.',
+'Zelle bearbeiten':'Edit cell','Zeile darüber einfügen':'Insert row above','Zeile darunter einfügen':'Insert row below','Spalte links einfügen':'Insert column left','Spalte rechts einfügen':'Insert column right',
+'Zeile löschen':'Delete row','Spalte löschen':'Delete column','Zelleninhalt leeren':'Clear cell',
+'Tabelle anklicken, dann in eine Zelle klicken zum Schreiben; Tab springt zur nächsten. Rechtsklick auf eine Zelle: Zeilen und Spalten an dieser Stelle einfügen oder löschen. Trennlinien ziehen ändert Breite und Höhe.':'Click the table, then click a cell to type; Tab jumps to the next one. Right-click a cell to insert or delete rows and columns there. Drag the dividers to change width and height.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -1454,9 +1482,7 @@ const S={tool:'select',color:'#1b1f24',lw:2,fs:14,orient:'h',bold:false,dash:fal
 /* ---------- Icons ---------- */
 const I=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const TOOLS=[
-  {id:'select',k:'V',n:'Auswählen & verschieben',i:I('<path d="M5 3l14 8-6 1.6L10 19z"/>'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Entf löscht. Zurück hierher: Esc, V oder Rechtsklick.'},
-  {id:'lasso',k:'Q',n:'Lasso',i:I('<path d="M5.2 12.6C3.8 11.6 3 10.4 3 9c0-3.3 4-6 9-6s9 2.7 9 6-4 6-9 6c-1 0-2-.1-2.9-.3" stroke-dasharray="2.4 2.6"/><circle cx="7.6" cy="15.4" r="2.1"/><path d="M7 17.4c-.6 1.4-.3 2.6.9 3.4"/>'),h:'Um Beschriftungen herumziehen: alle darin werden ausgewählt. Danach zusammen verschieben, an den Ecken skalieren, umfärben oder löschen. Umschalt fügt hinzu, Strg+A wählt alles.'},
-  {id:'hand',k:'H',n:'Hand (blättern)',i:I('<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v7M14 10V5.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.4 14.3a1.5 1.5 0 0 1 2.4-1.8L8 15"/>'),h:'Zum Blättern auf Touch-Geräten.'},
+  {id:'select',k:'V',n:'Auswählen',i:I('<path d="M5.2 12.6C3.8 11.6 3 10.4 3 9c0-3.3 4-6 9-6s9 2.7 9 6-4 6-9 6c-1 0-2-.1-2.9-.3" stroke-dasharray="2.4 2.6"/><circle cx="7.6" cy="15.4" r="2.1"/><path d="M7 17.4c-.6 1.4-.3 2.6.9 3.4"/>'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche umkreisen wählt mehrere aus (noch einmal auf das Werkzeug klicken: Rechteck). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.'},
   '-',
   {id:'pen',k:'P',n:'Stift',i:I('<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'),h:'Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.'},
   {id:'marker',k:'M',n:'Textmarker',i:I('<path d="M9 15l-3 3h5l1-1"/><path d="M8 14l8-9 3 3-9 8z"/><path d="M4 21h16"/>'),h:'Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.'},
@@ -1500,13 +1526,14 @@ for(const t of TOOLS){
   const b=document.createElement('button');b.className='tool';b.dataset.t=t.id;b.setAttribute('aria-label',t.n+' ('+t.k+')');tipFor(b,t);
   b.innerHTML=t.i+`<span class="k">${t.k}</span>`+(t.id==='symbol'?'<svg class="dd" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'');b.setAttribute('aria-pressed','false');
   if(t.id==='symbol'){b.setAttribute('aria-haspopup','true');b.setAttribute('aria-expanded','false')}
-  b.style.setProperty('--i',toolN++);b.onclick=()=>{if(t.action)return t.action();if(t.toggle)return toggleRuler();if(t.id==='symbol'){const open=symPop&&!symPop.hidden&&!symPop._ah;setTool('symbol');if(open)closeSymPop();else openSymPop(b)}else{closeSymPop();setTool(t.id)}};tb.appendChild(b);
+  b.style.setProperty('--i',toolN++);b.onclick=()=>{if(t.action)return t.action();if(t.toggle)return toggleRuler();if(t.id==='symbol'){const open=symPop&&!symPop.hidden&&!symPop._ah;setTool('symbol');if(open)closeSymPop();else openSymPop(b)}else{closeSymPop();if(t.id==='select'&&S.tool==='select'){selModeToggle();return}setTool(t.id)}};tb.appendChild(b);
 }
 const toolInd=document.createElement('span');toolInd.className='tool-ind';toolInd.setAttribute('aria-hidden','true');tb.prepend(toolInd);tb.classList.add('has-ind');
 function moveToolInd(){const b=tb.querySelector('.tool[aria-pressed="true"]:not([data-t="ruler"])');if(!b||!b.offsetWidth){toolInd.style.opacity=0;return}
   toolInd.style.left=b.offsetLeft+'px';toolInd.style.width=b.offsetWidth+'px';toolInd.style.opacity=1}
 addEventListener('resize',()=>moveToolInd());
 function setTool(id){
+  if(id==='lasso')id='select';
   if(S.tool==='marker'&&id!=='marker'&&S.color===MARKER_DEF)setColor(S._prevColor||'#1b1f24',true);
   if(id==='marker'&&S.tool!=='marker'){S._prevColor=S.color;if(!['#ffd60a','#4ade80','#38bdf8','#f472b6'].includes(S.color))setColor(MARKER_DEF,true)}
   S.tool=id;closeEditor();
@@ -2005,7 +2032,7 @@ function textBox(o){
   mctx.font=tfont(o);const wrapped=o.orient==='h'&&o.wrapW>0;const lines=wrapped?wrapLines(mctx,String(o.text),o.wrapW):String(o.text).split('\n'),lh=o.fs*1.25;let w=0;
   if(o.orient==='stack'){const cw=o.fs*1.2;let n=0;for(const l of lines)n=Math.max(n,[...l].length);return{w:Math.max(1,lines.length)*cw,h:Math.max(1,n)*o.fs*1.1,lines,lh,cw}}
   for(const l of lines)w=Math.max(w,mctx.measureText(l).width);w=wrapped?o.wrapW:Math.max(w,o.fs*.6);
-  return o.orient==='v'?{w:lines.length*lh,h:w,lines,lh}:{w,h:lines.length*lh,lines,lh};
+  return o.orient==='v'?{w:lines.length*lh,h:w,lines,lh}:{w,h:Math.max(lines.length*lh,o.minH>0?o.minH:0),lines,lh};
 }
 function linePts(o){
   const{x1,y1,x2,y2}=o;let p;
@@ -2109,22 +2136,25 @@ function handles(o){
   if(o.type==='pen')return[];
   const b=boxOf(o);
   const hs=[{k:'tl',x:b.x,y:b.y},{k:'tr',x:b.x+b.w,y:b.y},{k:'bl',x:b.x,y:b.y+b.h},{k:'br',x:b.x+b.w,y:b.y+b.h}];
-  if(o.type==='text'&&o.orient==='h')hs.push({k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2});
+  if(o.type==='text'&&o.orient==='h')hs.push({k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2},{k:'mt',x:b.x+b.w/2,y:b.y},{k:'mb',x:b.x+b.w/2,y:b.y+b.h});
   return hs;
 }
 const boxOf=o=>o.type==='text'||o.type==='group'?bbox(o):{x:o.x,y:o.y,w:o.w,h:o.h};
 function handleAt(o,x,y,tol){const h=handles(o).find(h=>Math.abs(h.x-x)<tol*1.4&&Math.abs(h.y-y)<tol*1.4);return h?h.k:null}
 function nearBorder(o,x,y,tol){const b=bbox(o);return!(x>b.x+tol&&x<b.x+b.w-tol&&y>b.y+tol&&y<b.y+b.h-tol)}
-const CURS={tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',ml:'ew-resize',mr:'ew-resize',p1:'move',p2:'move'};
+const CURS={tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',ml:'ew-resize',mr:'ew-resize',mt:'ns-resize',mb:'ns-resize',p1:'move',p2:'move'};
 function resizeTo(o,st,x,y,shift){
   if(o.type==='group'){groupResize(o,st,x,y,shift);return}
   const g=st.orig,gb=st.ob,k=st.mode;
+  if(k==='mt'||k==='mb'){const nat=textBox({...o,minH:0}).h,bottom=gb.y+gb.h;
+    if(k==='mb')o.minH=Math.max(nat,y-gb.y);else{const ny=Math.min(y,bottom-nat);o.minH=bottom-ny;o.y=ny}
+    if(o.minH<=nat+.5)delete o.minH;return}
   if(k==='mr'||k==='ml'){const right=gb.x+gb.w,minW=o.fs*1.5;
     if(k==='mr')o.wrapW=Math.max(minW,x-gb.x);else{const nx=Math.min(x,right-minW);o.wrapW=right-nx;o.x=nx}return}
   const left=k[1]==='l',top=k[0]==='t',ax=left?gb.x+gb.w:gb.x,ay=top?gb.y+gb.h:gb.y;
   if(o.type==='text'){
     const dx=(x-ax)*(left?-1:1),dy=(y-ay)*(top?-1:1),s=Math.max(.05,(dx*gb.w+dy*gb.h)/(gb.w*gb.w+gb.h*gb.h));
-    o.fs=clamp(Math.round(g.fs*s*2)/2,4,200);if(g.wrapW)o.wrapW=g.wrapW*o.fs/g.fs;
+    o.fs=clamp(Math.round(g.fs*s*2)/2,4,200);if(g.wrapW)o.wrapW=g.wrapW*o.fs/g.fs;if(g.minH)o.minH=g.minH*o.fs/g.fs;
     const nb=textBox(o);o.x=left?ax-nb.w:ax;o.y=top?ay-nb.h:ay;return}
   let w=Math.max(4,Math.abs(x-ax)),h=Math.max(4,Math.abs(y-ay));
   if((o.type==='image'?!shift:shift)||(o.type==='sym'&&SYM[o.sym].fixed))h=w*g.h/g.w;
@@ -2361,7 +2391,7 @@ function groupResize(o,st,x,y,shift){const gb=st.ob,k=st.mode;if(!k||k.length!==
 function scaleItem(t,g,f,sx,sy){if(!g)return;switch(g.type){
   case'pen':t.pts=g.pts.map(p=>f(p[0],p[1]));break;
   case'line':case'measure':{const a=f(g.x1,g.y1),b=f(g.x2,g.y2);t.x1=a[0];t.y1=a[1];t.x2=b[0];t.y2=b[1];break}
-  case'text':{const a=f(g.x,g.y);t.x=a[0];t.y=a[1];t.fs=clamp(Math.round(g.fs*Math.sqrt(sx*sy)*2)/2,4,200);if(g.wrapW)t.wrapW=g.wrapW*sx;break}
+  case'text':{const a=f(g.x,g.y);t.x=a[0];t.y=a[1];t.fs=clamp(Math.round(g.fs*Math.sqrt(sx*sy)*2)/2,4,200);if(g.wrapW)t.wrapW=g.wrapW*sx;if(g.minH)t.minH=g.minH*sy;break}
   default:{const a=f(g.x,g.y);t.x=a[0];t.y=a[1];t.w=g.w*sx;t.h=g.h*sy}}}
 
 /* ---------- Zeiger auf der Seite ---------- */
@@ -2388,6 +2418,9 @@ function attachInk(P,i){
       if(k){st.selDrag=1;st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);return}
       if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,tol)){st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
     }
+    // Form-Werkzeuge: Klick auf eine vorhandene Beschriftung wählt sie aus und verschiebt sie (Alt: trotzdem neu zeichnen)
+    if(!e.altKey&&['rect','ellipse','table','symbol'].includes(S.tool)){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
+      if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
     switch(S.tool){
       case'select':{
         if(S.sel&&S.sel.p===i){const k=handleAt(S.sel.o,x,y,tol);if(k){st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);return}}
@@ -2396,7 +2429,8 @@ function attachInk(P,i){
         const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
         if(o&&e.shiftKey&&S.sel&&S.sel.p===i){const cur=selItems().slice(),k=cur.indexOf(o);if(k>=0)cur.splice(k,1);else cur.push(o);selectItems(i,cur);st=null;break}
         if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.mode='move';st.o=o;st.lx=x;st.ly=y}
-        else{if(!e.shiftKey)setSel(null);st.marq=true;st.add=e.shiftKey;S.lasso={p:i,pts:[[x,y]],rect:true}}
+        else{if(!e.shiftKey)setSel(null);st.marq=true;st.add=e.shiftKey;const rect=(S.selMode==='rect')!==e.altKey;S.lasso={p:i,pts:[[x,y]],rect};
+          if(!rect&&!motionOff()){const L=S.lasso,step=()=>{if(S.lasso!==L)return;redraw(i);requestAnimationFrame(step)};requestAnimationFrame(step)}}
         break}
       case'lasso':{
         if(S.sel&&S.sel.p===i&&!e.shiftKey){const k=handleAt(S.sel.o,x,y,tol);if(k){st.selDrag=1;st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);break}
@@ -2477,14 +2511,17 @@ function attachInk(P,i){
       case'select':case'text':
         if(st.o&&st.o.type==='line'&&(st.mode==='p1'||st.mode==='p2')){const o=st.o,one=st.mode==='p1';delete o.__drag;
           if(st.moved){const L=o.link||{a:null,b:null,ta:'auto',tb:'auto'},dk=st.dockT;if(one){L.a=dk?ensureOid(dk):null;L.ta='auto'}else{L.b=dk?ensureOid(dk):null;L.tb='auto'}if(L.a&&L.a===L.b)L[one?'a':'b']=null;if(L.a||L.b)o.link=L;else delete o.link}S.dock=null;redraw(i)}
+        if(!st.hist&&!st.moved&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='table'){const o=st.o,rc=tblCell(o,st.x,st.y);st=null;if(rc)editCell(i,o,rc[0],rc[1]);return}
         if(st.hist)markDirty();else if(S.tool==='select'&&!st.selDrag&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='text'&&!st.moved){const o=st.o;st=null;editText(i,o,[e.clientX,e.clientY]);return}break;
     }
     st=null;
   };
-  ink.addEventListener('contextmenu',e=>{e.preventDefault();if(st)clearTimeout(st.qsT);qsTagHide();if(S.lasso){S.lasso=null;redraw(i)}if(S.draft){S.draft=null;redraw(i)}st=null;setTool('select')});
+  ink.addEventListener('contextmenu',e=>{e.preventDefault();
+    {const[x,y]=toPt(e.clientX,e.clientY),o=!st&&!S.draft&&[...P.objs].reverse().find(o=>o.type==='table'&&hit(o,x,y,6/S.zoom)),rc=o&&tblCell(o,x,y);
+      if(rc){closeEditor();if(S.tool!=='select')setTool('select');setSel({p:i,o});redraw(i);tblMenu(i,o,rc[0],rc[1],e.clientX,e.clientY);return}}if(st)clearTimeout(st.qsT);qsTagHide();if(S.lasso){S.lasso=null;redraw(i)}if(S.draft){S.draft=null;redraw(i)}st=null;setTool('select')});
   ink.addEventListener('pointerup',end);ink.addEventListener('pointercancel',end);
   ink.addEventListener('dblclick',e=>{
-    if(S.tool!=='select')return;const[x,y]=toPt(e.clientX,e.clientY);const o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o)return;
+    if(!['select','rect','ellipse','table','symbol'].includes(S.tool))return;const[x,y]=toPt(e.clientX,e.clientY);const o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o)return;
     if(o.type==='table'){const rc=tblCell(o,x,y);if(rc)editCell(i,o,rc[0],rc[1])}else if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&!['start','end','flowend','fork','activation','timer','check','cross','star','exclam','question'].includes(o.sym))editLabel(i,o);
   });
 }
@@ -2670,13 +2707,13 @@ function openTextEditor(i,o,isNew,at){
   closeEditor();const P=S.pages[i];const before=isNew?null:snapshot(),origJson=JSON.stringify(o),startText=o.text;
   editingObj=o;
   const root=document.createElement('div');root.className='tbx';
-  root.innerHTML=`<div class="edbar"><button type="button" data-a="font" class="edfont" title="Schriftart" aria-haspopup="listbox" aria-expanded="false"><span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><span class="edsep"></span><button type="button" data-a="dn" title="Schrift kleiner">A−</button><input type="number" class="edfs" id="edFs" min="4" max="200" step="1" aria-label="Schriftgröße"><button type="button" data-a="up" title="Schrift größer">A+</button><span class="edsep"></span><button type="button" data-a="bold" title="Fett (Strg+B)"><b>B</b></button><button type="button" data-a="ul" title="Unterstreichen (Strg+U)"><u>U</u></button><span class="edsep"></span><button type="button" data-a="lb" title="Aufzählung (Strg+Umschalt+8) · Tab: Unterpunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="7" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="12.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1.3" fill="currentColor" stroke="none"/><path d="M9 7h11M13 12.5h7M9 18h11"/></svg></button><button type="button" data-a="ln" title="Nummerierung (Strg+Umschalt+7) · Tab: Unterpunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 7h11M13 12.5h7M9 18h11"/><text x="2.2" y="9.4" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">1</text><text x="6" y="15" font-size="6.2" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">a</text><text x="2.2" y="20.4" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">2</text></svg></button><button type="button" data-a="out" title="Ebene höher (Umschalt+Tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 6h9M11 12h9M11 18h9M7 9l-3 3 3 3"/></svg></button><button type="button" data-a="in" title="Unterpunkt (Tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 6h9M11 12h9M11 18h9M4 9l3 3-3 3"/></svg></button><span class="edcolw"><button type="button" data-a="col" class="edcol" title="Schriftfarbe" aria-haspopup="true" aria-expanded="false"><span class="ca">A</span><span class="cbar"></span></button><span class="edpal" hidden><span class="edsws"><button type="button" class="edsw" data-c="#1b1f24" title="Schwarz" style="background:#1b1f24"></button><button type="button" class="edsw" data-c="#d62828" title="Rot" style="background:#d62828"></button><button type="button" class="edsw" data-c="#1d4ed8" title="Blau" style="background:#1d4ed8"></button><button type="button" class="edsw" data-c="#15803d" title="Grün" style="background:#15803d"></button><button type="button" class="edsw" data-c="#ea7a0b" title="Orange" style="background:#ea7a0b"></button><button type="button" class="edsw" data-c="#7c3aed" title="Lila" style="background:#7c3aed"></button><button type="button" class="edsw" data-c="#0e7490" title="Petrol" style="background:#0e7490"></button><button type="button" class="edsw" data-c="#6b7280" title="Grau" style="background:#6b7280"></button></span><label class="edcust"><input type="color" class="edcin" aria-label="Eigene Farbe"> Eigene Farbe</label></span></span><button type="button" data-a="del" title="Textfeld löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div><div class="tbx-in"><div class="tsel"></div><i class="crt"></i></div><span class="edh ml" data-h="ml"></span><span class="edh mr" data-h="mr"></span><span class="edh br" data-h="br" title="Schriftgröße ziehen"></span>`;
+  root.innerHTML=`<div class="edbar"><button type="button" data-a="font" class="edfont" title="Schriftart" aria-haspopup="listbox" aria-expanded="false"><span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><span class="edsep"></span><button type="button" data-a="dn" title="Schrift kleiner">A−</button><input type="number" class="edfs" id="edFs" min="4" max="200" step="1" aria-label="Schriftgröße"><button type="button" data-a="up" title="Schrift größer">A+</button><span class="edsep"></span><button type="button" data-a="bold" title="Fett (Strg+B)"><b>B</b></button><button type="button" data-a="ul" title="Unterstreichen (Strg+U)"><u>U</u></button><span class="edsep"></span><button type="button" data-a="lb" title="Aufzählung (Strg+Umschalt+8) · Tab: Unterpunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="7" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="12.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1.3" fill="currentColor" stroke="none"/><path d="M9 7h11M13 12.5h7M9 18h11"/></svg></button><button type="button" data-a="ln" title="Nummerierung (Strg+Umschalt+7) · Tab: Unterpunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 7h11M13 12.5h7M9 18h11"/><text x="2.2" y="9.4" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">1</text><text x="6" y="15" font-size="6.2" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">a</text><text x="2.2" y="20.4" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">2</text></svg></button><button type="button" data-a="out" title="Ebene höher (Umschalt+Tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 6h9M11 12h9M11 18h9M7 9l-3 3 3 3"/></svg></button><button type="button" data-a="in" title="Unterpunkt (Tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 6h9M11 12h9M11 18h9M4 9l3 3-3 3"/></svg></button><span class="edcolw"><button type="button" data-a="col" class="edcol" title="Schriftfarbe" aria-haspopup="true" aria-expanded="false"><span class="ca">A</span><span class="cbar"></span></button><span class="edpal" hidden><span class="edsws"><button type="button" class="edsw" data-c="#1b1f24" title="Schwarz" style="background:#1b1f24"></button><button type="button" class="edsw" data-c="#d62828" title="Rot" style="background:#d62828"></button><button type="button" class="edsw" data-c="#1d4ed8" title="Blau" style="background:#1d4ed8"></button><button type="button" class="edsw" data-c="#15803d" title="Grün" style="background:#15803d"></button><button type="button" class="edsw" data-c="#ea7a0b" title="Orange" style="background:#ea7a0b"></button><button type="button" class="edsw" data-c="#7c3aed" title="Lila" style="background:#7c3aed"></button><button type="button" class="edsw" data-c="#0e7490" title="Petrol" style="background:#0e7490"></button><button type="button" class="edsw" data-c="#6b7280" title="Grau" style="background:#6b7280"></button></span><label class="edcust"><input type="color" class="edcin" aria-label="Eigene Farbe"> Eigene Farbe</label></span></span><button type="button" data-a="del" title="Textfeld löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div><div class="tbx-in"><div class="tsel"></div><i class="crt"></i></div><span class="edh ml" data-h="ml"></span><span class="edh mr" data-h="mr"></span><span class="edh mt" data-h="mt" title="Höhe ziehen"></span><span class="edh mb" data-h="mb" title="Höhe ziehen"></span><span class="edh br" data-h="br" title="Schriftgröße ziehen"></span>`;
   P.el.appendChild(root);
   const area=root.querySelector('.tbx-in'),caret=root.querySelector('.crt'),selL=root.querySelector('.tsel'),fsIn=root.querySelector('.edfs'),bB=root.querySelector('[data-a=bold]'),bU=root.querySelector('[data-a=ul]'),bLb=root.querySelector('[data-a=lb]'),bLn=root.querySelector('[data-a=ln]'),bF=root.querySelector('[data-a=font]'),bC=root.querySelector('[data-a=col]'),pal=root.querySelector('.edpal'),cbar=root.querySelector('.cbar'),edcin=root.querySelector('.edcin');
   let g=hGeo(o),eng=null;
   const refresh=()=>{const z=S.zoom;g=hGeo(o);const lh=g.b.lh*z;
     root.style.left=(o.x*z-TBX_PAD-1)+'px';root.style.top=(o.y*z-TBX_PAD-1)+'px';root.style.padding=TBX_PAD+'px';
-    area.style.width=((o.wrapW?o.wrapW:Math.max(g.b.w,o.fs*.6))*z+2)+'px';area.style.height=Math.max(1,g.b.lines.length)*lh+'px';area.style.color=o.color;
+    area.style.width=((o.wrapW?o.wrapW:Math.max(g.b.w,o.fs*.6))*z+2)+'px';area.style.height=Math.max(lh,g.b.h*z)+'px';area.style.color=o.color;
     if(eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a),pc=idxPos(o,g,st.c);
       caret.style.left=pc.x*z+'px';caret.style.top=pc.y*z+'px';caret.style.height=lh+'px';caret.hidden=l!==h;
       if(refresh._c!==st.c){refresh._c=st.c;caret.style.animation='none';void caret.offsetWidth;caret.style.animation=''}
@@ -2737,12 +2774,13 @@ function openTextEditor(i,o,isNew,at){
   root.addEventListener('pointerdown',e=>{
     const h=e.target.dataset&&e.target.dataset.h;if(!h&&e.target!==root)return;
     e.preventDefault();e.stopPropagation();root.setPointerCapture(e.pointerId);
-    dragBegin(i,o);const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW},w0=(o.wrapW||g.b.w)||1;
+    dragBegin(i,o);const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW,minH:o.minH,h0:g.b.h},w0=(o.wrapW||g.b.w)||1;
     const mv=ev=>{const dx=(ev.clientX-sx)/z,dy=(ev.clientY-sy)/z;
       if(!h){o.x=gg.x+dx;o.y=gg.y+dy}
       else if(h==='br'){const k=Math.max(.1,(w0+dx)/w0);o.fs=clamp(Math.round(gg.fs*k*2)/2,4,200);if(gg.wrapW)o.wrapW=gg.wrapW*o.fs/gg.fs;S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}
       else if(h==='mr'){o.wrapW=Math.max(o.fs*1.5,w0+dx)}
       else if(h==='ml'){const nw=Math.max(o.fs*1.5,w0-dx);o.x=gg.x+(w0-nw);o.wrapW=nw}
+      else if(h==='mb'||h==='mt'){const nat=textBox({...o,minH:0}).h;let nh=Math.max(nat,gg.h0+(h==='mb'?dy:-dy));if(h==='mt'){o.y=gg.y+gg.h0-nh}if(nh<=nat+.5)delete o.minH;else o.minH=nh}
       refresh();redraw(i)};
     const up=()=>{root.removeEventListener('pointermove',mv);root.removeEventListener('pointerup',up);root.removeEventListener('pointercancel',up);eng.focus()};
     root.addEventListener('pointermove',mv);root.addEventListener('pointerup',up);root.addEventListener('pointercancel',up)});
@@ -3030,7 +3068,7 @@ if(!S.tasks)S.tasks=[];renderTasks();
 // Über Layr & Updates (nur in der Desktop-App)
 function showUpd(r,manual){updShow(r,manual)}
 (async()=>{const W=window.werkbank;if(!W||!W.appInfo)return;let info;try{info=await W.appInfo()}catch(e){return}
-  $('#dAbout').hidden=false;$('#abVer').textContent='Version '+info.version+' · '+(info.platform==='win32'?'Windows':info.platform==='darwin'?'macOS':'Linux');
+  $('#dAbout').hidden=false;$('#bInfo').hidden=false;$('#dAboutLink').hidden=false;$('#abVer').textContent='Version '+info.version+' · '+(info.platform==='win32'?'Windows':info.platform==='darwin'?'macOS':'Linux');
   const auto=$('#upAuto');let on=true;try{on=localStorage.getItem('pdfwerkbank:updates')!=='0'}catch(e){}auto.checked=on;
   auto.onchange=()=>{try{localStorage.setItem('pdfwerkbank:updates',auto.checked?'1':'0')}catch(e){}toast(auto.checked?'Layr sucht ab jetzt selbst nach Updates.':'Automatische Update-Suche aus.')};
   $('#abGh').onclick=()=>W.openRelease('https://github.com/'+info.repo+'/releases/latest');
@@ -3524,7 +3562,8 @@ function sigRenderSaved(){const box=$('#sigSaved'),L=sigList();box.innerHTML='';
     const use=document.createElement('button');use.type='button';use.className='sig-use';use.title=tr('Diese Unterschrift einfügen');use.appendChild(im);use.onclick=()=>sigPlace(src,false);
     const x=document.createElement('button');x.type='button';x.className='sig-del';x.title=tr('Vergessen');x.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
     x.onclick=()=>{const M=sigList();M.splice(k,1);sigSaveList(M);sigRenderSaved();const n=$('#sigSaved .sig-use')||$('#sigMode button[aria-pressed="true"]');n&&n.focus()};b.append(use,x);box.appendChild(b)})}
-function sigSize(){const r=sigPad.getBoundingClientRect(),k=Math.min(3,(devicePixelRatio||1)*2);sigPad.width=Math.round(r.width*k);sigPad.height=Math.round(r.height*k);SG.k=k;sigRedraw()}
+function sigSize(){const w=sigPad.clientWidth,h=sigPad.clientHeight;if(!w||!h)return;const k=Math.min(3,(devicePixelRatio||1)*2);if(sigPad.width===Math.round(w*k)&&sigPad.height===Math.round(h*k)&&SG.k===k)return;sigPad.width=Math.round(w*k);sigPad.height=Math.round(h*k);SG.k=k;sigRedraw()}
+try{new ResizeObserver(()=>{if(!sigDlg.hidden)sigSize()}).observe(sigPad)}catch(e){}
 function sigSeg(c,a,b,w){c.lineWidth=w;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
 function sigStroke(c,s){if(!s.length)return;c.lineCap='round';c.lineJoin='round';c.strokeStyle=SG.color;c.fillStyle=SG.color;
   if(s.length===1){c.beginPath();c.arc(s[0][0],s[0][1],s[0][2]/2,0,7);c.fill();return}
@@ -3556,8 +3595,8 @@ function closeSigDlg(){animHide(sigDlg)}
 function sigMode(m){SG.mode=m;document.querySelectorAll('#sigMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===m));
   $('#sigTypeIn').hidden=m!=='type';$('#sigImgIn').hidden=m!=='img';$('#sigClear').hidden=m!=='draw';sigPad.classList.toggle('drawing',m==='draw');
   if(m==='type'){ensureFont('caveat').then(sigRedraw);setTimeout(()=>$('#sigName').focus(),30)}sigRedraw()}
-{const pt=e=>{const r=sigPad.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};let lastT=0,lastP=null,wNow=2.2;
-  sigPad.addEventListener('pointerdown',e=>{if(SG.mode!=='draw'||e.button>0)return;sigPad.setPointerCapture(e.pointerId);const p=pt(e);wNow=2.4;SG.cur=[[p[0],p[1],wNow]];lastP=p;lastT=performance.now();sigRedraw()});
+{const pt=e=>{const r=sigPad.getBoundingClientRect(),sx=r.width?sigPad.clientWidth/r.width:1,sy=r.height?sigPad.clientHeight/r.height:1;return[(e.clientX-r.left)*sx,(e.clientY-r.top)*sy]};let lastT=0,lastP=null,wNow=2.2;
+  sigPad.addEventListener('pointerdown',e=>{if(SG.mode!=='draw'||e.button>0)return;sigSize();sigPad.setPointerCapture(e.pointerId);const p=pt(e);wNow=2.4;SG.cur=[[p[0],p[1],wNow]];lastP=p;lastT=performance.now();sigRedraw()});
   sigPad.addEventListener('pointermove',e=>{if(!SG.cur)return;const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
     for(const ev of evs){const p=pt(ev),t=performance.now(),d=Math.hypot(p[0]-lastP[0],p[1]-lastP[1]);if(d<.8)continue;const v=d/Math.max(1,t-lastT);
       const pr=ev.pointerType==='pen'&&ev.pressure>0?.6+ev.pressure*1.2:1,target=clamp(3.1-v*1.4,1.1,3.1)*pr;wNow=wNow*.72+target*.28;SG.cur.push([p[0],p[1],wNow]);lastP=p;lastT=t}sigRedraw()});
@@ -3746,17 +3785,20 @@ const updMB=n=>(n/1048576).toFixed(n>10485760?0:1).replace('.',LANG==='en'?'.':'
 function updRender(mode){const el=updCard(),r=UPD.r||{},W=window.werkbank;UPD.mode=mode;
   const notes=String(r.notes||'').replace(/[#*_`>]/g,'').replace(/\n{2,}/g,'\n').trim();
   const title={found:LANG==='en'?`Layr ${r.version} is available`:`Layr ${r.version} ist da`,dl:LANG==='en'?`Downloading Layr ${r.version} …`:`Layr ${r.version} wird geladen …`,
-    ready:LANG==='en'?`Layr ${r.version} is ready`:`Layr ${r.version} ist bereit`,inst:LANG==='en'?`Installing Layr ${r.version} …`:`Layr ${r.version} wird installiert …`}[mode];
+    ready:LANG==='en'?`Layr ${r.version} is ready`:`Layr ${r.version} ist bereit`,inst:LANG==='en'?`Installing Layr ${r.version} …`:`Layr ${r.version} wird installiert …`,term:LANG==='en'?`Install Layr ${r.version} in the terminal`:`Layr ${r.version} im Terminal installieren`}[mode];
   let sub=notes||tr('Eine neue Version steht zum Download bereit.'),btns='';
   if(mode==='found')btns=`<button type="button" class="skip" title="${tr('Für diese Version nicht mehr erinnern')}">${tr('Überspringen')}</button><button type="button" class="btn later">${tr('Später')}</button><button type="button" class="btn primary go">${UPD.can?tr('Jetzt installieren'):tr('Herunterladen')}</button>`;
   if(mode==='dl'){sub=tr('Wird geprüft und ist danach mit einem Klick installiert.');btns=`<button type="button" class="btn later">${tr('Im Hintergrund')}</button>`}
   if(mode==='ready'){btns=`<button type="button" class="btn later">${tr('Später')}</button><button type="button" class="btn primary go">${tr('Neu starten')}</button>`}
-  if(mode==='inst'){sub=UPD.type==='deb'?tr('Bitte im Fenster von Ubuntu dein Passwort eingeben.'):tr('Layr startet gleich neu.');btns=''}
+  if(mode==='inst'){sub=UPD.type==='deb'?tr('Bitte im Fenster von Ubuntu dein Passwort eingeben.'):tr('Layr startet gleich neu.');btns=UPD.type==='deb'?`<button type="button" class="btn term">${tr('Kein Fenster? Im Terminal installieren')}</button>`:''}
+  if(mode==='term'){sub=tr('Ubuntu hat kein Passwort-Fenster angezeigt. Im Terminal klappt es: Dort nach deinem Passwort fragen lassen, danach startet Layr neu.');btns=`<button type="button" class="btn later">${tr('Später')}</button><button type="button" class="btn copy">${tr('Befehl kopieren')}</button><button type="button" class="btn primary term">${tr('Terminal öffnen')}</button>`}
   el.innerHTML=`<div class="upd-h"><span class="upd-i">${UPD_ICON}</span><div><b></b><p></p></div></div>`+(mode==='dl'?`<div class="upd-prog"><i></i></div><div class="upd-n"></div>`:'')
-    +(mode==='ready'?`<div class="upd-note"></div>`:'')+(btns?`<div class="upd-b">${btns}</div>`:'');
+    +(mode==='ready'?`<div class="upd-note"></div>`:'')+(mode==='term'&&UPD.cmd?`<code class="upd-cmd"></code>`:'')+(btns?`<div class="upd-b">${btns}</div>`:'');
   el.querySelector('b').textContent=title;el.querySelector('p').textContent=sub;
   const note=el.querySelector('.upd-note');if(note)note.textContent=UPD.type==='deb'?tr('Zum Installieren fragt Ubuntu nach deinem Passwort.'):UPD.auto?tr('Sonst wird es beim Beenden von Layr installiert.'):tr('Installiert wird beim Neustart.');
   const q=s=>el.querySelector(s);
+  if(q('.upd-cmd'))q('.upd-cmd').textContent=UPD.cmd;
+  q('.term')&&(q('.term').onclick=updTerminal);q('.copy')&&(q('.copy').onclick=async()=>{try{await navigator.clipboard.writeText(UPD.cmd)}catch(e){}toast(tr('Befehl kopiert.'))});
   q('.later')&&(q('.later').onclick=()=>animHide(el));
   q('.skip')&&(q('.skip').onclick=()=>{try{localStorage.setItem('pdfwerkbank:updSkip',r.version)}catch(e){}animHide(el)});
   if(q('.go'))q('.go').onclick=mode==='found'?(UPD.can?()=>updDownload(true):()=>{W.openRelease(r.asset||r.url);animHide(el);toast(tr('Der Download startet im Browser. Danach den Installer öffnen.'))}):updInstall;
@@ -3769,14 +3811,19 @@ async function updDownload(show){const W=window.werkbank;if(!W||!W.updDownload)r
   if(UPD.auto)W.updAutoInstall(true);
   let skip='';try{skip=localStorage.getItem('pdfwerkbank:updSkip')||''}catch(e){}
   if(show||skip!==UPD.r.version)updRender('ready')}
+async function updTerminal(){const W=window.werkbank;if(!W||!W.updTerminal)return;await flushAuto();let r=null;try{r=await W.updTerminal()}catch(e){}
+  if(r&&r.ok){toast(tr('Im Terminal dein Passwort eingeben. Layr startet danach neu.'));return}
+  if(r&&r.cmd){UPD.cmd=r.cmd;updRender('term');toast(tr('Kein Terminal gefunden. Bitte den Befehl kopieren und im Terminal ausführen.'));return}
+  toast(tr('Die Installation hat nicht geklappt.'))}
 async function updInstall(){const W=window.werkbank;updRender('inst');await flushAuto();
   let r=null;try{r=await W.updInstall(false)}catch(e){}
-  if(r&&r.ok)return;
+  if(r&&r.ok)return;if(r&&r.error==='takeover')return;
+  if(r&&(r.error==='noauth'||r.error==='pkexec')&&r.cmd){UPD.cmd=r.cmd;updRender('term');return}
   animHide(updCard());
   toast(r&&r.error==='cancel'?tr('Installation abgebrochen. Du kannst es später noch einmal versuchen.'):r&&r.error==='pkexec'?tr('Zum Installieren fehlt pkexec. Bitte das .deb-Paket aus dem Browser installieren.'):tr('Die Installation hat nicht geklappt.'));
   setTimeout(()=>updRender('ready'),500)}
 // ersetzt die bisherige Karte: wird von der Update-Suche aufgerufen
-function updShow(r,manual){let skip='';try{skip=localStorage.getItem('pdfwerkbank:updSkip')||''}catch(e){}if(!manual&&skip===r.version)return;
+function updShow(r,manual){if(r&&r.newer!==false)$('#bInfo').classList.add('has-upd');let skip='';try{skip=localStorage.getItem('pdfwerkbank:updSkip')||''}catch(e){}if(!manual&&skip===r.version)return;
   UPD.r=r;UPD.can=!!r.canInstall;
   if(UPD.can&&UPD.auto&&!manual){updDownload(false);return}
   updRender('found')}
@@ -3826,7 +3873,7 @@ function sanObj(o){
     case'line':case'measure':if(!(isNum(r.x1)&&isNum(r.y1)&&isNum(r.x2)&&isNum(r.y2)))return null;
       if(r.link&&typeof r.link==='object'){const L=r.link;r.link={a:typeof L.a==='string'?L.a.slice(0,40):null,b:typeof L.b==='string'?L.b.slice(0,40):null,ta:typeof L.ta==='string'?L.ta.slice(0,8):'auto',tb:typeof L.tb==='string'?L.tb.slice(0,8):'auto'}}else delete r.link;return r;
     case'rect':case'ellipse':return box()?r:null;
-    case'text':if(!isNum(r.x)||!isNum(r.y)||typeof r.text!=='string')return null;if(!['h','v','stack'].includes(r.orient))r.orient='h';if(!isNum(r.fs))r.fs=14;
+    case'text':if(!isNum(r.x)||!isNum(r.y)||typeof r.text!=='string')return null;if(r.minH!=null&&!(isNum(r.minH)&&r.minH>0&&r.minH<=2e4))delete r.minH;if(!['h','v','stack'].includes(r.orient))r.orient='h';if(!isNum(r.fs))r.fs=14;
       if(r.spans!=null){r.spans=Array.isArray(r.spans)?r.spans.filter(s=>s&&isNum(s.a)&&isNum(s.b)&&s.b>s.a&&typeof s.color==='string'&&COL_RX.test(s.color)).slice(0,2000).map(s=>({a:Math.max(0,s.a|0),b:Math.min(r.text.length,s.b|0),color:s.color})).filter(s=>s.b>s.a):[];if(!r.spans.length)delete r.spans}
       return r;
     case'sym':return box()&&typeof r.sym==='string'&&own(SYM,r.sym)?r:null;
@@ -4049,6 +4096,31 @@ function calcPlace(){if(!CALC.res||!S.pages.length)return;const i=curPage(),P=S.
   $('#calcCopy').onclick=async()=>{if(!CALC.res)return;let t=[CALC.res.head,...CALC.res.rows].map(r=>r.join('\t')).join('\n');if(CALC.res.steps.length)t+='\n\n'+tr('Rechenweg')+'\n'+CALC.res.steps.join('\n');
     try{await navigator.clipboard.writeText(t)}catch(e){}toast(tr('Ergebnis kopiert.'))}}
 
+/* Layr & Updates: eigenes Fenster */
+function abOpen(v){const d=$('#abDlg');if(v){if(studioIsOpen&&studioIsOpen())studioOpen(false);showEl(d);setTimeout(()=>$('#abX').focus(),0)}else animHide(d)}
+{const d=$('#abDlg');$('#bInfo').onclick=()=>abOpen(!(!d.hidden&&!d._ah));$('#abX').onclick=()=>abOpen(false);
+  d.addEventListener('pointerdown',e=>{if(e.target===d)abOpen(false)});d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();abOpen(false)}});
+  $('#abOpen2').onclick=()=>abOpen(true)}
+/* ---------- 3.1: Auswählen = Lasso, Tabellen bearbeiten ---------- */
+// Auswählen: auf freier Fläche umkreisen (Lasso) oder Rechteck aufziehen. Noch ein Klick aufs Werkzeug wechselt.
+S.selMode='free';try{if(localStorage.getItem('pdfwerkbank:selmode')==='rect')S.selMode='rect'}catch(e){}
+function selModeToggle(){S.selMode=S.selMode==='rect'?'free':'rect';try{localStorage.setItem('pdfwerkbank:selmode',S.selMode)}catch(e){}
+  toast(S.selMode==='rect'?tr('Auswählen mit Rechteck. Noch einmal klicken: umkreisen.'):tr('Auswählen durch Umkreisen. Noch einmal klicken: Rechteck.'))}
+// Tabelle: Zeile/Spalte an beliebiger Stelle einfügen oder löschen (Höhen/Breiten bleiben stimmig)
+function tblInsert(o,dim,at){const R=dim==='r',n=R?o.rows:o.cols;if(n>=(R?200:60))return;at=clamp(at,0,n);
+  const fr=R?o.rh:o.cw,len=R?o.h:o.w,add=len/n,nl=len+add;const f=fr.map(v=>v*len/nl);f.splice(at,0,add/nl);
+  if(R){o.rh=f;o.h=nl;o.rows++;o.cells.splice(at,0,Array(o.cols).fill(''))}else{o.cw=f;o.w=nl;o.cols++;o.cells.forEach(r=>r.splice(at,0,''))}}
+function tblDelete(o,dim,at){const R=dim==='r',n=R?o.rows:o.cols;if(n<=1)return;const fr=R?o.rh:o.cw,len=R?o.h:o.w,g=fr[at],nl=len*(1-g);
+  const f=fr.filter((_,k)=>k!==at).map(v=>v/(1-g));if(R){o.rh=f;o.h=nl;o.rows--;o.cells.splice(at,1)}else{o.cw=f;o.w=nl;o.cols--;o.cells.forEach(r=>r.splice(at,1))}}
+function tblMenu(i,o,r,c,x,y){ctx.innerHTML='';const add=(t,f,dis)=>{const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr(t);b.disabled=!!dis;b.onclick=()=>{closeMenu();pushHist();f();redraw(i);markDirty();updTblUI()};ctx.appendChild(b)};
+  const sep=()=>ctx.appendChild(document.createElement('hr'));
+  {const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr('Zelle bearbeiten');b.onclick=()=>{closeMenu();editCell(i,o,r,c)};ctx.appendChild(b)}sep();
+  add('Zeile darüber einfügen',()=>tblInsert(o,'r',r),o.rows>=200);add('Zeile darunter einfügen',()=>tblInsert(o,'r',r+1),o.rows>=200);
+  add('Spalte links einfügen',()=>tblInsert(o,'c',c),o.cols>=60);add('Spalte rechts einfügen',()=>tblInsert(o,'c',c+1),o.cols>=60);sep();
+  add('Zeile löschen',()=>tblDelete(o,'r',r),o.rows<=1);add('Spalte löschen',()=>tblDelete(o,'c',c),o.cols<=1);
+  add('Zelleninhalt leeren',()=>{o.cells[r][c]=''},!(o.cells[r]&&o.cells[r][c]));
+  showEl(ctx);const b=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-b.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-b.height-8)+'px'}
+
 // Personalisieren-Fenster öffnen/schließen
 const studio=$('#studio'),studioBg=$('#studioBg');
 const studioIsOpen=()=>!studio.hidden&&!studio._ah;
@@ -4119,7 +4191,7 @@ function setBars(tools,side,instant){const a=$('#app'),pt=bars.tools,ps=bars.sid
   $('#bTglTools').setAttribute('aria-pressed',tools);$('#bTglSide').setAttribute('aria-pressed',side);try{localStorage.setItem('pdfwerkbank:bars',JSON.stringify(bars))}catch(e){}}
 $('#bTglTools').onclick=()=>setBars(!bars.tools,bars.side);$('#bTglSide').onclick=()=>setBars(bars.tools,!bars.side);
 try{const b=JSON.parse(localStorage.getItem('pdfwerkbank:bars')||'null');if(b)setBars(b.tools!==false,b.side!==false,true)}catch(e){}
-const KEYS={v:'select',h:'hand',p:'pen',m:'marker',e:'eraser',t:'text',l:'line',a:'arrow',r:'rect',o:'ellipse',s:'symbol',g:'measure',q:'lasso',k:'table'};
+const KEYS={v:'select',p:'pen',m:'marker',e:'eraser',t:'text',l:'line',a:'arrow',r:'rect',o:'ellipse',s:'symbol',g:'measure',q:'select',k:'table'};
 addEventListener('keydown',e=>{
   const t=e.target,k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey;
   if(editorEl)dbg('key '+e.key+' @'+desc(t));
@@ -4197,7 +4269,7 @@ $('#nOk').onclick=async()=>{
   const d=await PDFLib.PDFDocument.create();d.setTitle(name.replace(/\.pdf$/,''));for(let i=0;i<cnt;i++)paintBg(d.addPage(FMT[NS.fmt]),NS.bg,NS.paper);
   window.werkbank&&werkbank.newDoc&&werkbank.newDoc();await openPdf(await d.save(),name,{isNew:true,bg:NS.bg,paper:NS.paper,objs:[]});
   if(S.pages[0]&&S.pages[0].el)popEl(S.pages[0].el);
-  if(S.tool==='select'||S.tool==='hand'){S.cat='UML';buildCats()}
+  if(S.tool==='select'){S.cat='UML';buildCats()}
   toast(`„${name}“ ist angelegt. Gespeichert wird unter diesem Namen.`);
 };
 $('#bAddPage').onclick=()=>openAddDlg();

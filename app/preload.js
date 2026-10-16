@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('werkbank', {
   updState: () => ipcRenderer.invoke('upd-state'),
   updDownload: () => ipcRenderer.invoke('upd-download'),
   updInstall: auto => ipcRenderer.invoke('upd-install', !!auto),
+  updTerminal: () => ipcRenderer.invoke('upd-terminal'),
   updAutoInstall: on => ipcRenderer.send('upd-auto-install', !!on),
   onUpdProgress: cb => ipcRenderer.on('upd-progress', (_e, got, total) => cb(+got || 0, +total || 0)),
 });

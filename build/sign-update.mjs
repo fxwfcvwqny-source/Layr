@@ -4,7 +4,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 
-const fail = m => { console.error('Fehler: ' + m); process.exit(1); };
+const fail = m => { console.error('::error::' + m); process.exit(1); };
 const { GH_TOKEN, GITHUB_REPOSITORY, LAYR_UPDATE_KEY } = process.env;
 if (!GH_TOKEN || !GITHUB_REPOSITORY) fail('GH_TOKEN/GITHUB_REPOSITORY fehlen');
 if (!LAYR_UPDATE_KEY || !LAYR_UPDATE_KEY.includes('PRIVATE KEY')) fail('Secret LAYR_UPDATE_KEY fehlt (Settings → Secrets and variables → Actions)');
@@ -26,13 +26,17 @@ const api = (p, o = {}) => fetch(p.startsWith('http') ? p : `https://api.github.
   ...o, headers: { Authorization: `Bearer ${GH_TOKEN}`, 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'layr-sign', Accept: 'application/vnd.github+json', ...(o.headers || {}) },
 });
 
-let rel = null;
-for (let page = 1; page <= 5 && !rel; page++) {
+// Entwurf mit beiden Beschreibungen nehmen (falls es durch parallele Uploads doppelte Entwürfe gibt: den vollständigsten, dann den neuesten)
+const drafts = [];
+for (let page = 1; page <= 5; page++) {
   const r = await api(`/releases?per_page=50&page=${page}`); if (!r.ok) fail('Releases nicht lesbar: ' + r.status);
   const list = await r.json(); if (!list.length) break;
-  rel = list.find(x => x.tag_name === tag && x.draft) || null;
+  drafts.push(...list.filter(x => x.tag_name === tag && x.draft));
 }
-if (!rel) fail(`kein Release-Entwurf ${tag} gefunden`);
+const full = drafts.filter(d => ['latest.yml', 'latest-linux.yml'].every(n => d.assets.some(a => a.name === n)));
+const rel = full.sort((a, b) => b.assets.length - a.assets.length || b.id - a.id)[0];
+if (!rel) fail(`kein vollständiger Release-Entwurf ${tag} gefunden`);
+if (drafts.length > 1) console.log(`::warning::Es gibt ${drafts.length} Entwürfe für ${tag}. Signiert wird Entwurf ${rel.id}; die anderen bitte löschen.`);
 
 for (const name of ['latest.yml', 'latest-linux.yml']) {
   const a = rel.assets.find(x => x.name === name); if (!a) fail(name + ' fehlt im Entwurf');
