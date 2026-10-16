@@ -1,5 +1,6 @@
 // Layr – Desktop-App (Electron) für Linux und Windows, früher PDF-Werkbank
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell, net } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, net, session } = require('electron');
+const { pathToFileURL } = require('url');
 const crypto = require('crypto');
 const zlib = require('zlib');
 const { spawn } = require('child_process');
@@ -16,6 +17,36 @@ let initialFile = null;
 let savedPath = null;               // Zieldatei für Speichern/Autospeichern
 let allowClose = false, closing = false;
 
+// ---------- Sicherheit ----------
+// Alle Renderer laufen in der Sandbox (außer jemand startet Layr ausdrücklich mit --no-sandbox, z. B. als root in Tests).
+// Linux bleibt bei X11/XWayland (getestete Texteingabe, siehe IME-Hinweis unten).
+if (!app.commandLine.hasSwitch('no-sandbox')) app.enableSandbox();
+if (process.platform === 'linux' && !process.env.LAYR_WAYLAND) app.commandLine.appendSwitch('ozone-platform', 'x11');
+// Nur die eigene Seite (Hauptfenster, oberster Rahmen) darf Programmfunktionen aufrufen.
+const APP_PAGE = () => pathToFileURL(path.join(__dirname, 'web', 'index.html')).href;
+const samePage = u => typeof u === 'string' && u.split(/[?#]/)[0] === APP_PAGE();
+function okSender(e) {
+  try { return !!(win && !win.isDestroyed() && e.sender === win.webContents && e.senderFrame && e.senderFrame === win.webContents.mainFrame && samePage(e.senderFrame.url)); }
+  catch (x) { return false; }
+}
+const handle = (ch, fn) => ipcMain.handle(ch, (e, ...a) => (okSender(e) ? fn(e, ...a) : null));
+const listen = (ch, fn) => ipcMain.on(ch, (e, ...a) => { if (okSender(e)) fn(e, ...a); });
+// Externe Links: nur https auf die eigene GitHub-Seite
+const okExternal = u => { try { const x = new URL(u); return x.protocol === 'https:' && x.hostname === 'github.com' && !x.username && !x.password && (x.pathname === '/' + REPO || x.pathname.startsWith('/' + REPO + '/')); } catch (e) { return false; } };
+// Namen aus der Oberfläche sind nur Namen, nie Pfade
+const safeBase = n => { let b = path.basename(String(n || '').replace(/\\/g, '/')).replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\.pdf$/i, '').replace(/^[.\s]+/, '').trim().slice(0, 200); if (!b) b = 'Dokument'; return b + '.pdf'; };
+// Gespeichert werden nur echte PDF-Daten
+const isPdfBytes = d => d instanceof Uint8Array && d.length >= 8 && d.length <= 2e9 && d[0] === 0x25 && d[1] === 0x50 && d[2] === 0x44 && d[3] === 0x46 && d[4] === 0x2d;
+const isPdfPath = p => { try { return typeof p === 'string' && path.isAbsolute(p) && /\.pdf$/i.test(p) && fs.statSync(p).isFile(); } catch (e) { return false; } };
+// Antworten aus dem Netz nur bis zu einer festen Größe lesen
+async function readCapped(r, max) {
+  const len = +r.headers.get('content-length'); if (len > max) throw new Error('size');
+  if (!r.body) return Buffer.alloc(0);
+  const rd = r.body.getReader(), parts = []; let n = 0;
+  for (;;) { const { done, value } = await rd.read(); if (done) break; n += value.length; if (n > max) { try { rd.cancel(); } catch (e) {} throw new Error('size'); } parts.push(Buffer.from(value)); }
+  return Buffer.concat(parts);
+}
+
 // Sprache der Programm-Dialoge (Deutsch/English). Kommt aus der Oberfläche; beim allerersten Start aus dem Windows-Installer.
 const DLG_EN = { 'Ohne Speichern schließen': 'Close without saving', 'Abbrechen': 'Cancel', 'Es gibt ungespeicherte Beschriftungen.': 'There are unsaved annotations.',
   'Sie bleiben im Zwischenspeicher und kommen beim nächsten Öffnen derselben Datei wieder.': 'They stay in the cache and come back the next time you open the same file.',
@@ -26,8 +57,8 @@ let uiLang = null;
 const langFile = () => path.join(app.getPath('userData'), 'lang.txt');
 const getLang = () => { if (uiLang) return uiLang; try { const v = fs.readFileSync(langFile(), 'utf8').trim(); if (v === 'en' || v === 'de') return (uiLang = v); } catch (e) {} return (uiLang = installLang() || 'de'); };
 const T = s => (getLang() === 'en' && DLG_EN[s]) || s;
-const pdfArg = argv => argv.slice(1).find(a => /\.pdf$/i.test(a) && fs.existsSync(a));
-const readPdf = f => { savedPath = null; currentFile = path.resolve(f); lastDir = path.dirname(currentFile); const data = fs.readFileSync(f); addRecent(currentFile); return { name: path.basename(f), data }; };
+const pdfArg = argv => argv.slice(1).find(a => !a.startsWith('-') && isPdfPath(path.resolve(a)));
+const readPdf = f => { if (fs.statSync(f).size > 2e9) throw new Error('size'); savedPath = null; currentFile = path.resolve(f); lastDir = path.dirname(currentFile); const data = fs.readFileSync(f); addRecent(currentFile); return { name: path.basename(f), data }; };
 
 // Zuletzt geöffnet: nur Dateipfade, nur auf diesem Rechner (recent.json im privaten Programmordner).
 // Abschaltbar unter Personalisieren; dann wird die Liste geleert und nichts mehr gemerkt.
@@ -99,14 +130,25 @@ else {
     }
   });
 
+  app.on('web-contents-created', (_e, wc) => {
+    wc.on('will-attach-webview', e => e.preventDefault());
+    wc.setWindowOpenHandler(() => ({ action: 'deny' }));
+  });
   app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
+    // Berechtigungen: nur Text in die Zwischenablage schreiben (Kopieren-Knöpfe); keine Downloads aus der Seite
+    session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
+    session.defaultSession.setPermissionCheckHandler((_wc, perm) => perm === 'clipboard-sanitized-write');
+    session.defaultSession.on('will-download', e => e.preventDefault());
+    // Die Rechtschreibprüfung macht Layr selbst (Hunspell, lokal). Chromiums eigene Prüfung bleibt aus und lädt nichts von Google.
+    try { session.defaultSession.setSpellCheckerEnabled(false); session.defaultSession.setSpellCheckerLanguages([]); session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://127.0.0.1:9/'); } catch (e) {}
     initialFile = pdfArg(process.argv) || null;
     win = new BrowserWindow({
       width: 1400, height: 900, minWidth: 420, minHeight: 400,
       title: 'Layr', backgroundColor: '#e6eaee',
       icon: path.join(__dirname, 'icon.png'),
-      webPreferences: { preload: path.join(__dirname, 'preload.js'), spellcheck: false },
+      webPreferences: { preload: path.join(__dirname, 'preload.js'), spellcheck: false, contextIsolation: true, nodeIntegration: false, sandbox: true,
+        webSecurity: true, navigateOnDragDrop: false, safeDialogs: true, devTools: process.env.LAYR_DEBUG === '1' },
     });
     win.loadFile(path.join(__dirname, 'web', 'index.html'));
     win.on('close', e => { if (allowClose) return; e.preventDefault(); handleClose(); });
@@ -128,7 +170,11 @@ else {
     });
     win.webContents.on('unresponsive', () => crashLog('Seite reagiert nicht mehr'));
     win.webContents.on('responsive', () => crashLog('Seite reagiert wieder'));
-    win.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: 'deny' }; });
+    win.webContents.setWindowOpenHandler(({ url }) => { if (okExternal(url)) shell.openExternal(url); return { action: 'deny' }; });
+    const stayHome = (e, u) => { if (!samePage(u)) e.preventDefault(); };
+    win.webContents.on('will-navigate', stayHome);
+    win.webContents.on('will-redirect', stayHome);
+    win.webContents.on('will-frame-navigate', e => { if (!e.isMainFrame || !samePage(e.url)) e.preventDefault(); });
     win.webContents.on('before-input-event', (_e, i) => {
       if (i.type !== 'keyDown') return;
       if (i.key === 'F11') win.setFullScreen(!win.isFullScreen());
@@ -137,58 +183,70 @@ else {
   });
 }
 
-ipcMain.handle('initial-file', () => {
+handle('initial-file', () => {
   if (!initialFile) return null;
   const r = readPdf(initialFile); initialFile = null; return r;
 });
-ipcMain.on('set-file', (_e, p) => { if (p) { savedPath = null; currentFile = path.resolve(p); lastDir = path.dirname(currentFile); addRecent(currentFile); } });
-ipcMain.handle('save', async (_e, name, data, saveAs) => {
-  if (!saveAs) {
-    const t = quickTarget(name);
-    writeSafe(t, data); savedPath = t; addRecent(t); return path.basename(t);
-  }
-  for (;;) {
-    const r = await dialog.showSaveDialog(win, {
-      title: T('Speichern unter'), defaultPath: savedPath || currentFile || path.join(lastDir, name),
-      filters: [{ name: 'PDF', extensions: ['pdf'] }],
-    });
-    if (r.canceled || !r.filePath) return null;
-    let target = r.filePath;
-    if (!/\.pdf$/i.test(target)) target += '.pdf';
-    writeSafe(target, data);
-    lastDir = path.dirname(target);
-    savedPath = path.resolve(target);
-    addRecent(savedPath);
-    return path.basename(target);
-  }
+listen('set-file', (_e, p) => { if (!isPdfPath(p)) return; savedPath = null; currentFile = path.resolve(p); lastDir = path.dirname(currentFile); addRecent(currentFile); });
+handle('save', async (_e, name, data, saveAs) => {
+  if (!isPdfBytes(data)) return null;
+  const known = savedPath || currentFile, base = safeBase(name);
+  if (!saveAs && known) { writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known); }
+  // neues Dokument oder „Speichern unter“: der Ort kommt immer aus dem Dialog des Systems
+  const r = await dialog.showSaveDialog(win, { title: T('Speichern unter'), defaultPath: path.join(known ? path.dirname(known) : lastDir, base), filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+  if (r.canceled || !r.filePath) return null;
+  let target = path.resolve(r.filePath); if (!/\.pdf$/i.test(target)) target += '.pdf';
+  writeSafe(target, data); lastDir = path.dirname(target); savedPath = target; addRecent(savedPath);
+  return path.basename(target);
 });
 
 // Speichern aktualisiert die geöffnete Datei selbst (wie bei Word). Die unbeschriftete Fassung steckt als
 // Anhang in der PDF, Layr kann beim nächsten Öffnen also alles weiter bearbeiten oder wieder entfernen.
-function quickTarget(name) { return savedPath || currentFile || path.resolve(path.join(lastDir, name)); }
-// Erst in eine Hilfsdatei schreiben, dann umbenennen: so ist die Datei nie halb geschrieben
-function writeSafe(t, data) { const tmp = t + '.layr-tmp'; fs.writeFileSync(tmp, Buffer.from(data)); fs.renameSync(tmp, t); }
+// Erst in eine zufällig benannte, exklusiv angelegte Hilfsdatei schreiben (folgt keinem Symlink), dann ersetzen.
+function writeSafe(t, data, noReplace) {
+  const dir = path.dirname(t), tmp = path.join(dir, `.${path.basename(t)}.${crypto.randomBytes(8).toString('hex')}.layr-tmp`);
+  const fd = fs.openSync(tmp, 'wx', 0o600);
+  try { let off = 0; while (off < data.length) off += fs.writeSync(fd, data, off, data.length - off); fs.fsyncSync(fd); }
+  catch (e) { try { fs.closeSync(fd); } catch (x) {} try { fs.unlinkSync(tmp); } catch (x) {} throw e; }
+  fs.closeSync(fd);
+  try {
+    let mode = 0o666 & ~process.umask(); try { mode = fs.statSync(t).mode & 0o777; } catch (e) {}
+    try { fs.chmodSync(tmp, mode); } catch (e) {}
+    if (noReplace) {
+      try { fs.linkSync(tmp, t); fs.unlinkSync(tmp); return; } catch (e) { if (e.code === 'EEXIST') throw e; }
+      if (fs.existsSync(t)) { const er = new Error('exists'); er.code = 'EEXIST'; throw er; }
+    }
+    fs.renameSync(tmp, t);
+  } catch (e) { try { fs.unlinkSync(tmp); } catch (x) {} throw e; }
+}
 // Fehlersuche-Protokoll nur mit LAYR_DEBUG=1 und nur im privaten Programmordner (es enthält gedrückte Tasten)
-ipcMain.on('log', (_e, t) => { if (process.env.LAYR_DEBUG !== '1') return; try { fs.writeFileSync(path.join(app.getPath('userData'), 'debug-log.txt'), `${app.getVersion()}\n${t}`); } catch (e) {} });
-ipcMain.on('new-doc', () => { savedPath = null; currentFile = null; });
-ipcMain.handle('autosave', (_e, name, data, fresh) => {
-  let t = quickTarget(name);
-  if (fresh && !savedPath && !currentFile) { const b = t.replace(/\.pdf$/i, ''); let n = 2; while (fs.existsSync(t)) t = `${b} (${n++}).pdf`; }
-  writeSafe(t, data); savedPath = t; addRecent(t);
-  return path.basename(t);
+listen('log', (_e, t) => { if (process.env.LAYR_DEBUG !== '1') return; try { fs.writeFileSync(path.join(app.getPath('userData'), 'debug-log.txt'), `${app.getVersion()}\n${t}`); } catch (e) {} });
+listen('new-doc', () => { savedPath = null; currentFile = null; });
+handle('autosave', (_e, name, data) => {
+  if (!isPdfBytes(data)) return null;
+  const known = savedPath || currentFile;
+  if (known) { writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known); }
+  // neues Blatt: im zuletzt benutzten Ordner unter einem freien Namen anlegen, nie eine vorhandene Datei ersetzen
+  const dir = path.resolve(lastDir), b = safeBase(name).replace(/\.pdf$/i, '');
+  for (let n = 1; n < 1000; n++) {
+    const t = path.join(dir, n === 1 ? b + '.pdf' : `${b} (${n}).pdf`); if (path.dirname(t) !== dir || fs.existsSync(t)) continue;
+    try { writeSafe(t, data, true); } catch (e) { if (e.code === 'EEXIST') continue; throw e; }
+    savedPath = t; addRecent(t); return path.basename(t);
+  }
+  return null;
 });
-ipcMain.handle('recent-list', () => {
+handle('recent-list', () => {
   const r = recentLoad();
   return { on: r.on, items: r.items.map(x => ({ path: x.p, name: path.basename(x.p), dir: path.dirname(x.p), t: x.t, exists: fs.existsSync(x.p) })) };
 });
 // Öffnet nur Dateien, die wirklich in der Liste stehen
-ipcMain.handle('recent-open', (_e, p) => {
+handle('recent-open', (_e, p) => {
   const r = recentLoad(); if (typeof p !== 'string' || !r.items.some(x => x.p === p)) return null;
   try { if (!fs.statSync(p).isFile()) return null; return readPdf(p); } catch (e) { return null; }
 });
-ipcMain.on('recent-remove', (_e, p) => { const r = recentLoad(); r.items = r.items.filter(x => x.p !== p); recentSave(); });
-ipcMain.on('recent-clear', () => { const r = recentLoad(); r.items = []; recentSave(); try { app.clearRecentDocuments(); } catch (e) {} });
-ipcMain.on('recent-enable', (_e, on) => { const r = recentLoad(); r.on = !!on; if (!r.on) { r.items = []; try { app.clearRecentDocuments(); } catch (e) {} } recentSave(); });
+listen('recent-remove', (_e, p) => { const r = recentLoad(); r.items = r.items.filter(x => x.p !== p); recentSave(); });
+listen('recent-clear', () => { const r = recentLoad(); r.items = []; recentSave(); try { app.clearRecentDocuments(); } catch (e) {} });
+listen('recent-enable', (_e, on) => { const r = recentLoad(); r.on = !!on; if (!r.on) { r.items = []; try { app.clearRecentDocuments(); } catch (e) {} } recentSave(); });
 
 function askRenderer(code, ms) {
   return Promise.race([win.webContents.executeJavaScript(code).catch(() => null), new Promise(r => setTimeout(() => r(null), ms))]);
@@ -215,36 +273,42 @@ const cmpVer = (a, b) => { const x = String(a).split('.').map(n => parseInt(n, 1
 const pickAsset = assets => { const L = (assets || []).map(a => ({ n: String(a.name || ''), u: String(a.browser_download_url || '') }));
   const f = process.platform === 'win32' ? L.find(a => /setup.*\.exe$/i.test(a.n)) : (L.find(a => /\.deb$/i.test(a.n)) || L.find(a => /\.appimage$/i.test(a.n)));
   return f && f.u.startsWith(DL_PREFIX) ? f.u : null; };
-ipcMain.handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO, installLang: installLang() }));
-ipcMain.on('set-lang', (_e, l) => { uiLang = l === 'en' ? 'en' : 'de'; try { fs.writeFileSync(langFile(), uiLang); } catch (e) {} });
-ipcMain.handle('check-update', async () => {
+handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO, installLang: installLang() }));
+listen('set-lang', (_e, l) => { uiLang = l === 'en' ? 'en' : 'de'; try { fs.writeFileSync(langFile(), uiLang); } catch (e) {} });
+handle('check-update', async () => {
   try {
     const r = await net.fetch(API_LATEST, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' } });
     if (!r.ok) return { error: r.status };
-    const j = await r.json(), v = String(j.tag_name || '').replace(/^v/i, '');
+    const j = JSON.parse((await readCapped(r, 2e6)).toString('utf8')), v = String(j.tag_name || '').replace(/^v/i, '');
     if (!/^\d+\.\d+\.\d+$/.test(v)) return { error: 'keine Version' };
     lastRel = { version: v, notes: String(j.body || '').slice(0, 600), assets: (Array.isArray(j.assets) ? j.assets : []).map(a => ({ name: String(a.name || ''), url: String(a.browser_download_url || '') })) };
     return { version: v, newer: cmpVer(v, app.getVersion()) > 0, url: String(j.html_url || ''), asset: pickAsset(j.assets), name: String(j.name || ('Layr ' + v)).slice(0, 80), notes: String(j.body || '').slice(0, 600), canInstall: !!pkgType() };
   } catch (e) { return { error: String(e && e.message || e) }; }
 });
 // Nur Links auf die eigene GitHub-Seite öffnen
-ipcMain.on('open-release', (_e, u) => {
-  const ok = typeof u === 'string' && (u.startsWith(`https://github.com/${REPO}/releases/`) || u === `https://github.com/${REPO}`);
-  shell.openExternal(ok ? u : `https://github.com/${REPO}/releases/latest`);
+listen('open-release', (_e, u) => {
+  shell.openExternal(okExternal(u) && /^\/[^/]+\/[^/]+(\/releases(\/.*)?)?$/.test(new URL(u).pathname) ? u : `https://github.com/${REPO}/releases/latest`);
 });
 
 // ---------- Datei umbenennen (Klick auf den Namen oben links) ----------
-ipcMain.handle('rename-file', (_e, base) => {
-  base = String(base || '').replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\.pdf$/i, '').trim().slice(0, 200);
-  if (!base || base === '.' || base === '..') return { error: 'name' };
+handle('rename-file', (_e, base) => {
+  base = safeBase(base).replace(/\.pdf$/i, '');
+  if (!base) return { error: 'name' };
   const src = savedPath || currentFile;
   if (!src) return { ok: true, disk: false, name: base + '.pdf' };
   const target = path.join(path.dirname(src), base + '.pdf');
   if (path.resolve(target) === path.resolve(src)) return { ok: true, disk: true, name: path.basename(target) };
-  const sameFile = path.resolve(target).toLowerCase() === path.resolve(src).toLowerCase();
-  if (!sameFile && fs.existsSync(target)) return { error: 'exists' };
-  try { if (!fs.existsSync(src)) return { ok: true, disk: false, name: base + '.pdf' }; fs.renameSync(src, target); }
-  catch (e) { return { error: 'fs', msg: String(e && e.code || e) }; }
+  let ss; try { ss = fs.statSync(src, { bigint: true }); } catch (e) { return { ok: true, disk: false, name: base + '.pdf' }; }
+  let ts = null; try { ts = fs.statSync(target, { bigint: true }); } catch (e) {}
+  const same = !!ts && ts.ino === ss.ino && ts.dev === ss.dev;   // dieselbe Datei, nur andere Schreibweise (Windows)
+  if (ts && !same) return { error: 'exists' };
+  try {
+    if (same) fs.renameSync(src, target);
+    else {
+      try { fs.linkSync(src, target); fs.unlinkSync(src); }          // legt nur an, wenn das Ziel nicht existiert
+      catch (e) { if (e.code === 'EEXIST' || fs.existsSync(target)) return { error: 'exists' }; fs.renameSync(src, target); }
+    }
+  } catch (e) { return { error: 'fs', msg: String(e && e.code || e) }; }
   if (savedPath && path.resolve(savedPath) === path.resolve(src)) savedPath = target;
   if (currentFile && path.resolve(currentFile) === path.resolve(src)) currentFile = target;
   const r = recentLoad(); r.items = r.items.filter(x => x.p !== target).map(x => x.p === path.resolve(src) ? { p: target, t: Date.now() } : x); recentSave();
@@ -280,7 +344,7 @@ function deCandidates() {
   }
   return L;
 }
-ipcMain.handle('spell-dict', (_e, lang) => {
+handle('spell-dict', (_e, lang) => {
   if (lang !== 'de') return null;
   for (const [a, d, src] of deCandidates()) { const r = readDict(a, d); if (r) return { ...r, src }; }
   return null;
@@ -293,12 +357,12 @@ function untar(buf) { const out = {}; let o = 0;
     if (type === 0 || type === 48) out[name] = buf.subarray(o + 512, o + 512 + size);
     o += 512 + Math.ceil(size / 512) * 512; }
   return out; }
-ipcMain.handle('spell-download', async (_e, lang) => {
+handle('spell-download', async (_e, lang) => {
   if (lang !== 'de') return { error: 'lang' };
   try {
     const r = await net.fetch(DE_PKG.url, { headers: { 'User-Agent': 'Layr' } });
     if (!r.ok) return { error: r.status };
-    const tgz = Buffer.from(await r.arrayBuffer());
+    const tgz = await readCapped(r, 5e6);
     if (tgz.length > 5e6 || sha512(tgz) !== DE_PKG.sha512) return { error: 'hash' };
     const files = untar(zlib.gunzipSync(tgz)), aff = files['package/index.aff'], dic = files['package/index.dic'], lic = files['package/license'];
     if (!aff || !dic || sha512(aff) !== DE_PKG.aff || sha512(dic) !== DE_PKG.dic) return { error: 'hash' };
@@ -318,6 +382,13 @@ const FEED = /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(process.env.LAYR_UPD
 const API_LATEST = FEED ? `${FEED}/repos/${REPO}/releases/latest` : `https://api.github.com/repos/${REPO}/releases/latest`;
 const DL_PREFIX = FEED ? `${FEED}/${REPO}/releases/download/` : `https://github.com/${REPO}/releases/download/`;
 const UPD_DIR = () => path.join(app.getPath('userData'), 'updates');
+// Öffentlicher Schlüssel für Updates. Der passende geheime Schlüssel liegt nur bei GitHub (Actions-Secret) und beim Herausgeber.
+// latest.yml / latest-linux.yml werden beim Bauen damit signiert; ohne gültige Signatur installiert Layr nichts selbst.
+const UPDATE_PUBKEY = (FEED && process.env.LAYR_UPDATE_TESTKEY) || '-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA6qXXoD0D2lT32gq/3Z/1KEG3R5/ovdySRej+zM2LQrg=\n-----END PUBLIC KEY-----\n';
+function sigOk(text, sigText) {
+  try { const sig = Buffer.from(String(sigText).trim(), 'base64'); if (sig.length !== 64) return false;
+    return crypto.verify(null, Buffer.from(text, 'utf8'), crypto.createPublicKey(UPDATE_PUBKEY), sig); } catch (e) { return false; }
+}
 let lastRel = null, pending = null, dlBusy = false, installOnQuit = false, relaunchAfter = false;
 function pkgType() {
   if (process.platform === 'win32') return 'nsis';
@@ -339,11 +410,11 @@ function loadPending() {
   try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {}
   return null;
 }
-ipcMain.handle('upd-state', () => { if (!pending) pending = loadPending(); const t = pkgType();
+handle('upd-state', () => { if (!pending) pending = loadPending(); const t = pkgType();
   return { type: t, canInstall: !!t, pending: pending ? { version: pending.version, notes: pending.notes || '' } : null, busy: dlBusy }; });
 async function fetchText(u, max) { if (!u.startsWith(DL_PREFIX)) throw new Error('url'); const r = await net.fetch(u, { headers: { 'User-Agent': 'Layr-Update' } }); if (!r.ok) throw new Error('http ' + r.status);
-  const t = await r.text(); if (t.length > max) throw new Error('size'); return t; }
-ipcMain.handle('upd-download', async () => {
+  return (await readCapped(r, max)).toString('utf8'); }
+handle('upd-download', async () => {
   const type = pkgType(); if (!type) return { error: 'unsupported' };
   if (dlBusy) return { error: 'busy' };
   if (!lastRel) return { error: 'norelease' };
@@ -351,18 +422,22 @@ ipcMain.handle('upd-download', async () => {
   if (pending && pending.version === rel.version) return { ok: true, version: rel.version };
   const asset = rel.assets.find(a => ASSET_RX[type].test(a.name) && a.name.includes(rel.version));
   const ymlA = rel.assets.find(a => a.name === (type === 'nsis' ? 'latest.yml' : 'latest-linux.yml'));
+  const sigA = ymlA && rel.assets.find(a => a.name === ymlA.name + '.sig');
   if (!asset || !ymlA || !asset.url.startsWith(DL_PREFIX) || !ymlA.url.startsWith(DL_PREFIX)) return { error: 'asset' };
+  if (!sigA || !sigA.url.startsWith(DL_PREFIX)) return { error: 'unsigned' };
   dlBusy = true;
   const dir = UPD_DIR(), part = path.join(dir, asset.name + '.part'), file = path.join(dir, asset.name);
   try {
-    const yml = await fetchText(ymlA.url, 65536);
+    const yml = await fetchText(ymlA.url, 65536), sig = await fetchText(sigA.url, 4096);
+    if (!sigOk(yml, sig)) throw new Error('signature');
     if (!new RegExp(`^version:\\s*${rel.version.replace(/\./g, '\\.')}\\s*$`, 'm').test(yml)) throw new Error('yml');
     const want = ymlEntry(yml, asset.name); if (!want || want.size > 400e6) throw new Error('yml');
     try { fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(dir, { recursive: true, mode: 0o700 }); try { fs.chmodSync(dir, 0o700); } catch (e) {}
+    fs.writeFileSync(path.join(dir, 'release.yml'), yml, { mode: 0o600 }); fs.writeFileSync(path.join(dir, 'release.yml.sig'), sig, { mode: 0o600 });
     const r = await net.fetch(asset.url, { headers: { 'User-Agent': 'Layr-Update' } });
     if (!r.ok || !r.body) throw new Error('http ' + r.status);
-    const h = crypto.createHash('sha512'), fd = fs.openSync(part, 'w'); let got = 0, last = 0;
+    const h = crypto.createHash('sha512'), fd = fs.openSync(part, 'wx', 0o600); let got = 0, last = 0;
     try { const rd = r.body.getReader();
       for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > want.size) throw new Error('size');
         h.update(value); fs.writeSync(fd, value);
@@ -371,7 +446,7 @@ ipcMain.handle('upd-download', async () => {
     if (got !== want.size || h.digest('base64') !== want.sha512) throw new Error('hash');
     fs.renameSync(part, file);
     pending = { version: rel.version, file, type, sha512: want.sha512, notes: rel.notes };
-    fs.writeFileSync(path.join(dir, 'pending.json'), JSON.stringify(pending));
+    fs.writeFileSync(path.join(dir, 'pending.json'), JSON.stringify(pending), { mode: 0o600 });
     if (win) win.webContents.send('upd-progress', want.size, want.size);
     return { ok: true, version: rel.version };
   } catch (e) {
@@ -379,7 +454,18 @@ ipcMain.handle('upd-download', async () => {
     return { error: String(e && e.message || e) };
   } finally { dlBusy = false; }
 });
-function verifyPending() { try { return pending && fs.existsSync(pending.file) && sha512(fs.readFileSync(pending.file)) === pending.sha512; } catch (e) { return false; } }
+function pendingBytes() {
+  try {
+    if (!pending || path.dirname(pending.file) !== UPD_DIR()) return null;
+    const yml = fs.readFileSync(path.join(UPD_DIR(), 'release.yml'), 'utf8'), sig = fs.readFileSync(path.join(UPD_DIR(), 'release.yml.sig'), 'utf8');
+    if (!sigOk(yml, sig)) return null;
+    const ver = (/^version:\s*(\d+\.\d+\.\d+)\s*$/m.exec(yml) || [])[1]; if (!ver || ver !== pending.version || cmpVer(ver, app.getVersion()) <= 0) return null;
+    const want = ymlEntry(yml, path.basename(pending.file)); if (!want || !ASSET_RX[pending.type].test(path.basename(pending.file))) return null;
+    const data = fs.readFileSync(pending.file); if (data.length !== want.size || sha512(data) !== want.sha512) return null;
+    return data;
+  } catch (e) { return null; }
+}
+function verifyPending() { return !!pendingBytes(); }
 function keepLang() { try { fs.writeFileSync(langFile(), getLang()); } catch (e) {} }
 // Windows und AppImage: Installation passiert beim Beenden (auch automatisch, falls eingeschaltet)
 function installNow(relaunch) {
@@ -391,14 +477,20 @@ function installNow(relaunch) {
   }
   if (pending.type === 'appimage') {
     const target = process.env.APPIMAGE; if (!target) return false;
-    try { const tmp = target + '.layr-new'; fs.copyFileSync(pending.file, tmp); fs.chmodSync(tmp, 0o755); fs.renameSync(tmp, target); }
-    catch (e) { return false; }
+    try {
+      const real = fs.realpathSync(target); if (!fs.statSync(real).isFile()) return false;
+      const data = pendingBytes(); if (!data) return false;   // genau die geprüften Bytes schreiben
+      const tmp = path.join(path.dirname(real), `.${path.basename(real)}.${crypto.randomBytes(8).toString('hex')}.layr-new`);
+      const fd = fs.openSync(tmp, 'wx', 0o700);
+      try { let off = 0; while (off < data.length) off += fs.writeSync(fd, data, off, data.length - off); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
+      try { fs.chmodSync(tmp, 0o755); fs.renameSync(tmp, real); } catch (e) { try { fs.unlinkSync(tmp); } catch (x) {} throw e; }
+    } catch (e) { return false; }
     try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {}
     pending = null; return true;
   }
   return false;
 }
-ipcMain.handle('upd-install', async (_e, auto) => {
+handle('upd-install', async (_e, auto) => {
   if (!pending) pending = loadPending();
   if (!pending) return { error: 'nopending' };
   if (!verifyPending()) { pending = null; try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} return { error: 'hash' }; }
@@ -406,7 +498,11 @@ ipcMain.handle('upd-install', async (_e, auto) => {
   if (pending.type === 'deb') {
     // .deb braucht Administratorrechte: pkexec zeigt die Passwortabfrage von Ubuntu
     const asRoot = typeof process.getuid === 'function' && process.getuid() === 0;
-    const cmd = asRoot ? '/usr/bin/dpkg' : '/usr/bin/pkexec', args = asRoot ? ['-i', pending.file] : ['/usr/bin/dpkg', '-i', pending.file];
+    const want = ymlEntry(fs.readFileSync(path.join(UPD_DIR(), 'release.yml'), 'utf8'), path.basename(pending.file));
+    const hex = want && Buffer.from(want.sha512, 'base64').toString('hex'); if (!hex || hex.length !== 128) return { error: 'hash' };
+    const script = 'set -eu; d=$(mktemp -d); trap \'rm -rf "$d"\' EXIT; cp -- "$1" "$d/layr.deb"; echo "$2  $d/layr.deb" | sha512sum -c --status || exit 3; dpkg -i "$d/layr.deb"';
+    const sh = ['/bin/sh', '-c', script, 'layr-update', pending.file, hex];
+    const cmd = asRoot ? sh[0] : '/usr/bin/pkexec', args = asRoot ? sh.slice(1) : sh;
     if (!fs.existsSync(cmd)) return { error: 'pkexec' };
     const code = await new Promise(res => { try { const p = spawn(cmd, args, { stdio: 'ignore' }); p.on('exit', c => res(c)); p.on('error', () => res(-1)); } catch (e) { res(-1); } });
     if (code !== 0) return { error: code === 126 || code === 127 ? 'cancel' : 'dpkg', code };
@@ -421,7 +517,7 @@ ipcMain.handle('upd-install', async (_e, auto) => {
   setImmediate(() => { try { win.close(); } catch (e) {} });
   return { ok: true };
 });
-ipcMain.on('upd-auto-install', (_e, on) => { if (pending && (pending.type === 'nsis' || pending.type === 'appimage')) installOnQuit = !!on; });
+listen('upd-auto-install', (_e, on) => { if (pending && (pending.type === 'nsis' || pending.type === 'appimage')) installOnQuit = !!on; });
 app.on('will-quit', () => { if (installOnQuit && pending) installNow(relaunchAfter); });
 
 app.on('window-all-closed', () => app.quit());

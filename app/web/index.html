@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Zorwqqy0+O2YhDlV94MTR8J5cRuCyvnhql+itZ2EHsM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -743,6 +743,20 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .rc-foot{border-top:1px solid var(--line);margin-top:4px;padding:6px 4px 2px;display:flex;justify-content:flex-end}
 .rc-clear{border:0;background:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 6px;border-radius:6px}.rc-clear:hover{color:var(--danger);background:var(--hover)}
 .rc-row{display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:6px}
+/* 3.0: IT-Rechner */
+.calccard{width:min(700px,100%)}
+#calcMode{flex-wrap:wrap}
+.calc-in{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.calc-in .ip-l.wide{grid-column:1/-1}
+#calcDlg .calc-in .ip-l select{flex:none;width:100%;height:36px;border:1px solid var(--line);border-radius:var(--r);padding:0 8px;background:var(--panel);color:var(--ink);font:500 14px var(--f-ui)}
+#calcDlg .calc-in .ip-l select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.calc-in input:not(.mono){font-family:var(--f-ui)}
+.calc-in .ip-l.chk{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:36px;color:var(--ink)}
+.calc-in .ip-l.chk input{width:18px;height:18px;accent-color:var(--accent)}
+.calc-steps{border:1px solid var(--line);border-radius:var(--r);padding:8px 12px;background:color-mix(in srgb,var(--accent) 5%,var(--panel))}
+.calc-steps b{font-size:12.5px}
+.calc-steps pre{margin:6px 0 0;font:12px/1.55 var(--f-mono);white-space:pre-wrap;max-height:24vh;overflow:auto}
+.calc-note{margin:0;font-size:12px;color:var(--muted);line-height:1.45}
 /* Tabelle & Subnetzrechner */
 .panel .sec[hidden]{display:none}
 .tblrow label{width:58px}.tblrow .btn{width:30px;height:28px;padding:0;justify-content:center;font-size:16px}.tblrow .val{min-width:26px;text-align:center}
@@ -1018,6 +1032,17 @@ header,.file{min-width:0}
     <div class="ip-btns"><span></span><button class="btn" id="sigCancel">Abbrechen</button><button class="btn primary" id="sigOk" disabled>Einfügen</button></div>
   </div>
 </div>
+<div class="modal" id="calcDlg" hidden role="dialog" aria-modal="true" aria-labelledby="calcT">
+  <div class="card ipcard calccard">
+    <div class="ip-h"><h2 id="calcT">IT-Rechner</h2><button class="ib" id="calcX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="seg" id="calcMode"><button data-v="num" aria-pressed="true">Zahlensysteme</button><button data-v="data">Datenmengen</button><button data-v="rate">Übertragung</button><button data-v="ups">USV</button><button data-v="power">Strom</button></div>
+    <div class="calc-in" id="calcIn"></div>
+    <div class="ip-out" id="calcOut"></div>
+    <div class="calc-steps" id="calcSteps" hidden></div>
+    <p class="calc-note" id="calcNote" hidden></p>
+    <div class="ip-btns"><button class="btn" id="calcCopy">Kopieren</button><span></span><button class="btn primary" id="calcPlace">Als Tabelle aufs Blatt</button></div>
+  </div>
+</div>
 <div class="drawer-bg" id="studioBg" hidden></div>
 <aside class="studio" id="studio" role="dialog" aria-modal="true" aria-labelledby="stT" hidden>
   <div class="st-head"><div><h2 id="stT">Personalisieren</h2><p>Gilt nur auf diesem Rechner und ändert keine PDF.</p></div><button class="ib" id="stClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -1088,11 +1113,11 @@ header,.file{min-width:0}
   </div>
 </div>
 
-<script src="pdf.min.js"></script>
+<script src="pdfjs/pdf.min.js"></script>
 <script src="pdf-lib.min.js"></script>
 <script>
 'use strict';
-pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc='pdfjs/pdf.worker.min.mjs';
 const $=s=>document.querySelector(s);
 /* Ausblenden mit kurzer Schließen-Animation; ohne Bewegung sofort */
 function motionOff(){return document.documentElement.dataset.motion==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches}
@@ -1307,6 +1332,35 @@ const I18N_EN={
 'Neue Versionen werden im Hintergrund geladen und geprüft. Zum Installieren fragt Ubuntu nach deinem Passwort.':'New versions are downloaded and verified in the background. Ubuntu asks for your password to install them.',
 'Neue Versionen werden im Hintergrund geladen, geprüft und beim nächsten Beenden installiert.':'New versions are downloaded and verified in the background and installed the next time you quit.',
 'Updates werden ab jetzt selbst installiert.':'Updates are now installed automatically.','Updates werden nur noch angezeigt.':'Updates are only announced from now on.',
+// 3.0 IT-Rechner
+'IT-Rechner':'IT calculator','Zahlensysteme':'Number systems','Datenmengen':'Data sizes','Übertragung':'Transfer','Strom':'Power',
+'Zahlensysteme (binär, hexadezimal, dezimal) mit Rechenweg, Datenmengen (GB/GiB), Übertragungszeit, USV-Größe und Laufzeit, Stromkosten.':'Number systems (binary, hexadecimal, decimal) with working, data sizes (GB/GiB), transfer time, UPS size and runtime, electricity costs.',
+'Zahl':'Number','Eingabe als':'Input as','Dezimal':'Decimal','Binär':'Binary','Hexadezimal':'Hexadecimal','Oktal':'Octal','Automatisch (0b…, 0x…, 0o…)':'Automatic (0b…, 0x…, 0o…)',
+'Bitbreite':'Bit width','Automatisch':'Automatic','8 Bit':'8 bits','16 Bit':'16 bits','32 Bit':'32 bits','64 Bit':'64 bits','Mit Vorzeichen (Zweierkomplement)':'Signed (two’s complement)',
+'Menge':'Amount','Einheit':'Unit','Datenmenge':'Data size','Geschwindigkeit':'Speed','Protokoll-Overhead (%)':'Protocol overhead (%)','Ziel-Dauer (Minuten, optional)':'Target duration (minutes, optional)',
+'Last (Watt)':'Load (watts)','Leistungsfaktor cos φ der Geräte':'Power factor cos φ of the devices','Reserve (%)':'Headroom (%)','Leistungsfaktor der USV (W/VA)':'UPS power factor (W/VA)',
+'Batteriespannung (V)':'Battery voltage (V)','Batteriekapazität (Ah)':'Battery capacity (Ah)','Wirkungsgrad Wechselrichter (%)':'Inverter efficiency (%)','Gewünschte Laufzeit (Minuten)':'Desired runtime (minutes)',
+'Leistung (Watt)':'Power (watts)','Stunden pro Tag':'Hours per day','Tage pro Jahr':'Days per year','Preis pro kWh (€)':'Price per kWh (€)','Spannung (V)':'Voltage (V)',
+'Bitte eine Zahl eingeben.':'Please enter a number.','Binärzahlen bestehen nur aus 0 und 1.':'Binary numbers only contain 0 and 1.','Oktalzahlen bestehen nur aus den Ziffern 0 bis 7.':'Octal numbers only contain the digits 0 to 7.',
+'Bitte nur Ziffern 0 bis 9 eingeben.':'Please enter only the digits 0 to 9.','Hexadezimal erlaubt 0–9 und A–F.':'Hexadecimal allows 0–9 and A–F.','Die Zahl ist zu lang (höchstens 64 Bit).':'The number is too long (64 bits at most).',
+'Die Zahl ist größer als 64 Bit.':'The number is larger than 64 bits.','Die Zahl passt nicht in':'The number does not fit into','Mit Vorzeichen passt die Zahl nicht in':'As a signed number it does not fit into',
+'Darstellung':'Notation','Vorzeichenlos gelesen':'Read as unsigned','Gesetzte Bits':'Bits set','Wertebereich':'Range',
+'Umrechnung in':'Conversion to','(fortlaufend durch':'(keep dividing by','teilen):':'):','Rest':'remainder','Reste von unten nach oben lesen:':'Read the remainders from bottom to top:',
+'Binär → Hex: in Vierergruppen teilen:':'Binary → hex: split into groups of four:','Hex → Binär: jede Stelle wird zu 4 Bit:':'Hex → binary: each digit becomes 4 bits:',
+'Zweierkomplement:':'Two’s complement:','alle Bits umkehren:':'invert all bits:','plus 1:':'add 1:','Rechenweg':'Working','Tg.':'d',
+'Bitte eine Menge eingeben, z. B. 1,5':'Please enter an amount, e.g. 1.5',
+'1 KB = 1000 Byte (SI, Hersteller von Festplatten), 1 KiB = 1024 Byte (IEC). Windows zeigt KiB als „KB“ an – darum hat eine 1-TB-Platte dort nur rund 931 „GB“.':'1 KB = 1000 bytes (SI, used by drive makers), 1 KiB = 1024 bytes (IEC). Windows shows KiB as “KB” – that is why a 1 TB drive appears as only about 931 “GB” there.',
+'Bitte die Datenmenge eingeben.':'Please enter the data size.','Bitte die Geschwindigkeit eingeben.':'Please enter the speed.','Der Overhead muss zwischen 0 und 99 % liegen.':'The overhead must be between 0 and 99 %.',
+'Effektive Rate':'Effective rate','Dauer':'Duration','Dauer in Sekunden':'Duration in seconds','Nötig für':'Needed for',
+'Netzwerkgeschwindigkeiten werden in Bit pro Sekunde angegeben (100 Mbit/s ≈ 12,5 MB/s). Der Overhead berücksichtigt Protokolle wie TCP/IP.':'Network speeds are given in bits per second (100 Mbit/s ≈ 12.5 MB/s). The overhead accounts for protocols such as TCP/IP.',
+'Bitte die Last in Watt eingeben (Summe aller Geräte).':'Please enter the load in watts (sum of all devices).','Der Leistungsfaktor liegt zwischen 0 und 1, z. B. 0,9.':'The power factor is between 0 and 1, e.g. 0.9.',
+'Bitte eine Reserve zwischen 0 und 300 % eingeben.':'Please enter a headroom between 0 and 300 %.','Wirkleistung (Last)':'Real power (load)','Scheinleistung':'Apparent power','Mit Reserve':'With headroom',
+'Empfohlene USV-Größe':'Recommended UPS size','über':'over','mehrere USV oder Drehstrom-USV':'several UPS units or a three-phase UPS','Batterie-Energie':'Battery energy','Laufzeit bei dieser Last':'Runtime at this load',
+'Batteriestrom':'Battery current','Kapazität für':'Capacity for','bei':'at',
+'Richtwerte: Scheinleistung = Wirkleistung ÷ cos φ, Laufzeit = Spannung × Kapazität × Wirkungsgrad ÷ Last. Bei hoher Last und älteren Batterien ist die Laufzeit kürzer (Peukert-Effekt) – die Laufzeittabelle des Herstellers geht vor.':'Guide values: apparent power = real power ÷ cos φ, runtime = voltage × capacity × efficiency ÷ load. At high load and with older batteries the runtime is shorter (Peukert effect) – the manufacturer’s runtime chart takes precedence.',
+'Bitte die Leistung in Watt eingeben.':'Please enter the power in watts.','Stunden pro Tag: 0 bis 24.':'Hours per day: 0 to 24.','Tage pro Jahr: 0 bis 366.':'Days per year: 0 to 366.',
+'Verbrauch pro Tag':'Consumption per day','Verbrauch pro Jahr':'Consumption per year','Kosten pro Tag':'Cost per day','Kosten pro Monat':'Cost per month','Kosten pro Jahr':'Cost per year','Stromstärke':'Current','Abwärme':'Waste heat',
+'Monat = Jahr ÷ 12. Die Abwärme entspricht der aufgenommenen Leistung – wichtig für die Kühlung im Serverraum.':'Month = year ÷ 12. The waste heat equals the power drawn – important for cooling in the server room.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -1420,6 +1474,7 @@ const TOOLS=[
   '-',
   {id:'measure',k:'G',n:'Messen',i:I('<path d="M4 12h16M4 8v8M20 8v8"/><path d="M8 11v2M12 10v4M16 11v2"/>'),h:'Strecke ziehen, die Länge steht in cm (Originalmaßstab des PDFs).'},
   {id:'subnet',k:'I',n:'Subnetzrechner',i:I('<rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v4h11v4M6.5 12v4"/><path d="M15 5.5h6M18 2.5v6"/>'),h:'IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.',action:()=>openIpDlg()},
+  {id:'calc',k:'C',n:'IT-Rechner',i:I('<rect x="5" y="2.5" width="14" height="19" rx="2"/><rect x="8" y="5.5" width="8" height="4" rx=".6"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01" stroke-width="2.6"/>'),h:'Zahlensysteme (binär, hexadezimal, dezimal) mit Rechenweg, Datenmengen (GB/GiB), Übertragungszeit, USV-Größe und Laufzeit, Stromkosten.',action:()=>openCalcDlg()},
   {id:'ruler',k:'U',n:'Lineal ein/aus',i:I('<path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>'),h:'',toggle:true},
 ];
 const tb=$('#tools');let toolN=0;
@@ -1509,7 +1564,7 @@ function applySel(props,isRange){
     dash:['line','rect','ellipse','sym'].includes(o.type),elbow:o.type==='line',start:o.type==='line',end:o.type==='line',fill:['rect','ellipse','sym'].includes(o.type)});
   const jobs=T.map(o=>{const a=allow(o);return[o,Object.keys(props).filter(k=>a[k])]}).filter(j=>j[1].length);if(!jobs.length)return;
   if(!isRange||!ctrlHist){pushHist();if(isRange)ctrlHist=true}
-  for(const[o,ch]of jobs)for(const k of ch)o[k]=props[k];if(S.sel.o.type==='group'&&props.color)S.sel.o.color=props.color;
+  for(const[o,ch]of jobs)for(const k of ch){o[k]=props[k];if(k==='color'&&o.spans)delete o.spans}if(S.sel.o.type==='group'&&props.color)S.sel.o.color=props.color;
   redraw(S.sel.p);markDirty();
 }
 function syncControls(o){
@@ -1952,13 +2007,6 @@ function textBox(o){
   for(const l of lines)w=Math.max(w,mctx.measureText(l).width);w=wrapped?o.wrapW:Math.max(w,o.fs*.6);
   return o.orient==='v'?{w:lines.length*lh,h:w,lines,lh}:{w,h:lines.length*lh,lines,lh};
 }
-function drawText(c,o){
-  if(o===editingObj){if(!ED||ED.o!==o)return;o={...o,orient:'h'}}const b=textBox(o);c.font=tfont(o);c.textBaseline='top';c.fillStyle=o.color;const off=(b.lh-o.fs)/2;
-  const ul=(l,x,y)=>{if(!o.underline||!l)return;const w=c.measureText(l).width;c.save();c.strokeStyle=o.color;c.setLineDash([]);c.globalAlpha=1;c.lineWidth=Math.max(.6,o.fs/(o.bold?11:14));c.beginPath();c.moveTo(x,y+o.fs*.98);c.lineTo(x+w,y+o.fs*.98);c.stroke();c.restore()};
-  if(o.orient==='h')b.lines.forEach((l,i)=>{c.fillText(l,o.x,o.y+i*b.lh+off);ul(l,o.x,o.y+i*b.lh+off)});
-  else if(o.orient==='v'){c.translate(o.x,o.y+b.h);c.rotate(-Math.PI/2);b.lines.forEach((l,i)=>{c.fillText(l,0,i*b.lh+off);ul(l,0,i*b.lh+off)})}
-  else{c.textAlign='center';b.lines.forEach((l,i)=>[...l].forEach((ch,j)=>c.fillText(ch,o.x+i*b.cw+b.cw/2,o.y+j*o.fs*1.1)))}
-}
 function linePts(o){
   const{x1,y1,x2,y2}=o;let p;
   if(!o.elbow)p=[[x1,y1],[x2,y2]];
@@ -2119,7 +2167,7 @@ function layout(){
   renderAll();
 }
 function redraw(i){
-  const P=S.pages[i];if(!P||!P.ictx)return;orgRelink(P);const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);
+  const P=S.pages[i];if(!P||!P.ictx)return;orgRelink(P);if(DRAG&&redrawDrag(i))return;const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);
   const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);
   for(const o of P.objs)drawObj(c,o);
   try{drawSpell(c,i)}catch(e){}
@@ -2385,7 +2433,7 @@ function attachInk(P,i){
     const d=S.draft&&S.draft.o;
     switch(st.selDrag?'select':S.tool){
       case'select':case'text':{
-        if(!st.mode||!st.moved)return;if(!st.hist){pushHist();st.hist=true}const o=st.o;
+        if(!st.mode||!st.moved)return;if(!st.hist){pushHist();st.hist=true;dragBegin(i,st.o)}const o=st.o;
         if(st.mode==='move'){moveObj(o,x-st.lx,y-st.ly);st.lx=x;st.ly=y}
         else if(st.mode==='p1'||st.mode==='p2'){const one=st.mode==='p1';if(o.type==='line')tmpProp(o,'__drag',one?'a':'b');
           const oid2=o.link?(one?o.link.b:o.link.a):null,other=oid2?P.objs.find(q=>q.oid===oid2):null;
@@ -2396,7 +2444,7 @@ function attachInk(P,i){
         else if(st.mode==='tcol'||st.mode==='trow'){const X=st.mode==='tcol',k=st.idx,fr=X?o.cw:o.rh,len=X?o.w:o.h,pos=(X?x-o.x:y-o.y)/len;
           let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np}
         else resizeTo(o,st,x,y,e.shiftKey);
-        if(o.type==='text'&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
+        if(o.type==='text'&&st.orig&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
         redraw(i);break}
       case'pen':case'marker':{if(!d)break;if(st.qs){qsAdjust(st,x,y,e);redraw(i);break}
         const p=d.pts,l=p[p.length-1];if(Math.hypot(x-l[0],y-l[1])>.6/S.zoom){p.push([x,y]);redraw(i)}
@@ -2631,7 +2679,7 @@ function openTextEditor(i,o,isNew,at){
     area.style.width=((o.wrapW?o.wrapW:Math.max(g.b.w,o.fs*.6))*z+2)+'px';area.style.height=Math.max(1,g.b.lines.length)*lh+'px';area.style.color=o.color;
     if(eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a),pc=idxPos(o,g,st.c);
       caret.style.left=pc.x*z+'px';caret.style.top=pc.y*z+'px';caret.style.height=lh+'px';caret.hidden=l!==h;
-      caret.style.animation='none';void caret.offsetWidth;caret.style.animation='';
+      if(refresh._c!==st.c){refresh._c=st.c;caret.style.animation='none';void caret.offsetWidth;caret.style.animation=''}
       
       selL.innerHTML='';if(l!==h){const pa=idxPos(o,g,l),pb=idxPos(o,g,h);mctx.font=tfont(o);
         for(let li=pa.li;li<=pb.li;li++){const x0=li===pa.li?pa.x:0,x1=li===pb.li?pb.x:mctx.measureText(g.b.lines[li]).width+o.fs*.3;
@@ -2639,10 +2687,13 @@ function openTextEditor(i,o,isNew,at){
     {const fn=bF.firstChild;fn.textContent=fontName(o.font);const fc=FONT_MAP[o.font||''];fn.style.fontFamily=fc&&fc.css?fc.css:''}
     if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}cbar.style.background=o.color;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(o.color).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(o.color))edcin.value=o.color;
     root.classList.toggle('flip',o.y*z<46)};
-  const set=props=>{for(const k of['fs','color','bold','orient','underline','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];
+  const set=props=>{
+    // Farbe bei markiertem Text: nur für die markierten Zeichen
+    if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
+    for(const k of['fs','color','bold','orient','underline','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}if('bold' in props){S.bold=o.bold;$('#bold').checked=o.bold}if('underline' in props){S.underline=!!o.underline;$('#underl').checked=!!o.underline}if('color' in props)setColor(o.color,true);refresh();redraw(i)};
-  eng=textEngine(area,o.text,{lists:true,onChange:st=>{o.text=st.v;refresh();redraw(i)},
+  eng=textEngine(area,o.text,{lists:true,onChange:st=>{shiftSpans(o,o.text,st.v);o.text=st.v;refresh();redraw(i)},
     vert:(idx,d)=>{const p=idxPos(o,g,idx),li=p.li+d;if(li<0)return 0;if(li>=g.b.lines.length)return o.text.length;return posIdx(o,g,p.x,(li+.5)*g.b.lh)},
     edge:(idx,d)=>{const p=idxPos(o,g,idx);return g.starts[p.li]+(d<0?0:g.b.lines[p.li].length)},
     onEmptyUndo:()=>{if(o.text===startText&&JSON.stringify({...o,text:startText})===origJson){closeEditor();undo()}}});
@@ -2686,7 +2737,7 @@ function openTextEditor(i,o,isNew,at){
   root.addEventListener('pointerdown',e=>{
     const h=e.target.dataset&&e.target.dataset.h;if(!h&&e.target!==root)return;
     e.preventDefault();e.stopPropagation();root.setPointerCapture(e.pointerId);
-    const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW},w0=(o.wrapW||g.b.w)||1;
+    dragBegin(i,o);const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW},w0=(o.wrapW||g.b.w)||1;
     const mv=ev=>{const dx=(ev.clientX-sx)/z,dy=(ev.clientY-sy)/z;
       if(!h){o.x=gg.x+dx;o.y=gg.y+dy}
       else if(h==='br'){const k=Math.max(.1,(w0+dx)/w0);o.fs=clamp(Math.round(gg.fs*k*2)/2,4,200);if(gg.wrapW)o.wrapW=gg.wrapW*o.fs/gg.fs;S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}
@@ -2699,7 +2750,7 @@ function openTextEditor(i,o,isNew,at){
   if(at&&o.orient==='h'){const idx=at2idx(at[0],at[1]);if(at[2]==='word')eng.word(idx);else eng.select(idx,idx)}else eng.select(o.text.length,o.text.length);
   redraw(i);eng.focus();setTimeout(()=>{if(editorEl===root)eng.focus()},0);
   editorDone=v=>{
-    const t=v.replace(/\s+$/,'');o.text=t;
+    const t=v.replace(/\s+$/,'');o.text=t;normSpans(o);
     if(isNew){if(t.trim()){pushHist();P.objs.push(o);markDirty();setSel({p:i,o})}}
     else if(!t){H.u.push(before);H.r=[];updUndo();P.objs.splice(P.objs.indexOf(o),1);if(S.sel&&S.sel.o===o)S.sel=null;markDirty()}
     else if(JSON.stringify(o)!==origJson){H.u.push(before);H.r=[];updUndo();markDirty()}
@@ -2761,18 +2812,19 @@ addEventListener('resize',closeSymPop);
 /* ---------- Öffnen ---------- */
 async function openPdf(bytes,name,opt={}){
   closeEditor();let doc;
-  try{doc=await pdfjsLib.getDocument({data:bytes.slice()}).promise}catch(e){toast('Die Datei lässt sich nicht als PDF lesen. Ist sie beschädigt oder passwortgeschützt?');return}
+  try{doc=await pdfOpen(bytes.slice())}catch(e){toast('Die Datei lässt sich nicht als PDF lesen. Ist sie beschädigt oder passwortgeschützt?');return}
   let fromLayr=false;
-  if(!opt.objs){try{const at=await doc.getAttachments();const a=at&&at[LAYR_ORIG],j=at&&at[LAYR_DATA];
-    if(a&&j){const data=JSON.parse(new TextDecoder().decode(j.content)),ob=new Uint8Array(a.content);const d2=await pdfjsLib.getDocument({data:ob.slice()}).promise;
-      doc.destroy();doc=d2;bytes=ob;imgsLoad(data.imgs);opt={...opt,form:data.form,objs:data.objs,notes:data.notes||'',tasks:Array.isArray(data.tasks)?data.tasks:[]};fromLayr=true;dbg('Layr-Anhang geladen: '+data.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
+  if(!opt.objs){try{const ac=await pdfAttachment(doc,LAYR_ORIG),jc=ac&&await pdfAttachment(doc,LAYR_DATA);
+    if(ac&&jc&&jc.length<64e6&&ac.length<1.5e9){const data=JSON.parse(new TextDecoder().decode(jc));if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('layr-data');
+      const ob=new Uint8Array(ac);const d2=await pdfOpen(ob.slice());
+      pdfClose(doc);doc=d2;bytes=ob;imgsLoad(data.imgs);opt={...opt,form:data.form&&typeof data.form==='object'?data.form:null,objs:sanPages(data.objs,d2.numPages),notes:typeof data.notes==='string'?data.notes.slice(0,2e6):'',tasks:Array.isArray(data.tasks)?data.tasks.slice(0,5000):[]};fromLayr=true;dbg('Layr-Anhang geladen: '+opt.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
   catch(e){dbg('Anhang nicht lesbar: '+e)}}
-  if(S.doc)S.doc.destroy();S.doc=doc;S.bytes=bytes;if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
+  if(S.doc)pdfClose(S.doc);S.doc=doc;S.bytes=bytes;if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
   S.pages=[];for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});S.pages.push({w:vp.width,h:vp.height,objs:[]})}
   $('#fname').textContent=name;$('#fname').title=name+' · '+tr('Klicken zum Umbenennen (F2)');editingObj=null;
   {let nv='';if(opt.notes!=null)nv=opt.notes;else if(opt.keepHist)nv=S.notes||'';else if(!opt.isNew&&!opt.sample){try{nv=localStorage.getItem(storeKey()+':notes')||''}catch(e){}}notesSet(nv);let tv=[];if(opt.tasks!=null)tv=opt.tasks;else if(opt.keepHist)tv=S.tasks||[];else if(!opt.isNew&&!opt.sample){try{tv=JSON.parse(localStorage.getItem(storeKey()+':tasks')||'[]')}catch(e){}}tasksSet(tv);tasksMigrate()}
-  if(opt.objs)opt.objs.forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));
-  else{try{const js=localStorage.getItem(storeKey());if(js){JSON.parse(js).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));toast('Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.')}}catch(e){}}
+  if(opt.objs)sanPages(opt.objs,S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));
+  else{try{const js=localStorage.getItem(storeKey());if(js&&js.length<64e6){sanPages(JSON.parse(js),S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));toast('Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.')}}catch(e){}}
   for(const P of S.pages)for(const o of P.objs)delete o._editing;
   {const used=new Set();for(const P of S.pages)for(const o of P.objs)if(o.type==='text'&&o.font)used.add(o.font);used.forEach(k=>ensureFont(k))}
   S.dirty=false;setSaveState();if(!opt.keepHist)fitZoom(false);buildPages();if(!opt.keepHist)viewer.scrollTop=0;updPg();buildThumbs();
@@ -2798,11 +2850,11 @@ const LAYR_ORIG='layr-original.pdf',LAYR_DATA='layr-data.json';
 function outName(){return S.name.replace(/\.pdf$/i,'')+'.pdf'}
 async function buildOutput(){
   await document.fonts.ready;await imgsReady();const{PDFDocument,degrees}=PDFLib;
-  const pdf=await PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true});const pages=pdf.getPages();
+  const pdf=await PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true});const pages=pdf.getPages();const TL=txtLayerBegin(pdf);
   for(let i=0;i<S.pages.length;i++){
     const P=S.pages[i];if(!P.objs.length||!pages[i])continue;
     const sc=Math.min(4,5200/Math.max(P.w,P.h));const cv=document.createElement('canvas');cv.width=Math.round(P.w*sc);cv.height=Math.round(P.h*sc);
-    const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);for(const o of P.objs)drawObj(c,o);
+    const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);const TC=txtCapture(c,sc);for(const o of P.objs)drawObj(c,o);TC.stop();
     const png=await pdf.embedPng(await new Promise(r=>cv.toBlob(b=>b.arrayBuffer().then(r),'image/png')));
     const pg=pages[i],cb=pg.getCropBox(),rot=((pg.getRotation().angle%360)+360)%360,W=cb.width,Hh=cb.height,cx=cb.x,cy=cb.y;
     const o={width:P.w,height:P.h};
@@ -2810,8 +2862,9 @@ async function buildOutput(){
     else if(rot===180)Object.assign(o,{x:cx+W,y:cy+Hh,rotate:degrees(180)});
     else if(rot===270)Object.assign(o,{x:cx,y:cy+Hh,rotate:degrees(270)});
     else Object.assign(o,{x:cx,y:cy});
-    pg.drawImage(png,o);
+    pg.drawImage(png,o);txtLayerPage(TL,pg,TC.runs,{rot,x:o.x,y:o.y,h:P.h});
   }
+  txtLayerEnd(TL);
   if(S.pages.some(P=>P.objs.length)||notesExport().trim()){
     if(notesExport().trim())await pdf.attach(new TextEncoder().encode(notesExport()),notesFile(),{mimeType:'text/plain',description:'Layr: Notizen zu diesem Dokument'});
     await pdf.attach(S.bytes.slice(),LAYR_ORIG,{mimeType:'application/pdf',description:'Layr: unbeschriftete Fassung'});
@@ -3371,10 +3424,10 @@ async function flushAuto(){clearTimeout(autoT);if(S.dirty&&window.werkbank&&S.au
 /* ---------- PDF-Formulare ausfüllen ----------
    Formularfelder der PDF (Text, Ankreuzfelder, Optionsfelder, Auswahllisten) liegen als echte Eingabefelder über der Seite.
    Beim Speichern schreibt Layr die Werte in die Felder der PDF, so sieht jedes andere Programm sie ebenfalls. */
-const FM={fields:[],gen:0,layers:[],radio:{}};S.form={};S.formInit={};
+const FM={fields:[],gen:0,layers:[],radio:Object.create(null)};S.form=Object.create(null);S.formInit=Object.create(null);
 const fmEq=(a,b)=>a===b||(a==null&&(b===''||b===false))||(b==null&&(a===''||a===false));
 async function formsInit(saved){
-  const g=++FM.gen,doc=S.doc;FM.fields=[];FM.radio={};S.formInit={};S.form={};FM.layers.forEach(l=>l.remove());FM.layers=[];fmPill();
+  const g=++FM.gen,doc=S.doc;FM.fields=[];FM.radio=Object.create(null);S.formInit=Object.create(null);S.form=Object.create(null);FM.layers.forEach(l=>l.remove());FM.layers=[];fmPill();
   if(!doc)return;
   for(let i=0;i<S.pages.length;i++){let an,vp;
     try{const pg=await doc.getPage(i+1);an=await pg.getAnnotations({intent:'display'});vp=pg.getViewport({scale:1})}catch(e){continue}
@@ -3382,7 +3435,7 @@ async function formsInit(saved){
     for(const a of an){
       if(a.annotationType!==20||!a.fieldName||a.pushButton||(a.annotationFlags&34))continue;
       const kind=a.fieldType==='Tx'?'text':a.fieldType==='Ch'?'choice':a.fieldType==='Sig'?'sig':a.checkBox?'check':a.radioButton?'radio':null;if(!kind)continue;
-      const r=vp.convertToViewportRectangle(a.rect),x=Math.min(r[0],r[2]),y=Math.min(r[1],r[3]),w=Math.abs(r[2]-r[0]),h=Math.abs(r[3]-r[1]);if(w<3||h<3)continue;
+      const q1=vp.convertToViewportPoint(a.rect[0],a.rect[1]),q2=vp.convertToViewportPoint(a.rect[2],a.rect[3]),r=[q1[0],q1[1],q2[0],q2[1]],x=Math.min(r[0],r[2]),y=Math.min(r[1],r[3]),w=Math.abs(r[2]-r[0]),h=Math.abs(r[3]-r[1]);if(w<3||h<3)continue;
       const f={p:i,name:String(a.fieldName),kind,x,y,w,h,ro:!!a.readOnly,multi:!!a.multiLine,max:+a.maxLen||0,comb:!!a.comb,align:+a.textAlignment||0,
         fs:(a.defaultAppearanceData&&+a.defaultAppearanceData.fontSize)||0,combo:!!a.combo,multiSel:!!a.multiSelect,
         opts:(a.options||[]).map(o=>({v:String(o.exportValue??o.displayValue??''),t:String(o.displayValue??o.exportValue??'')})),
@@ -3396,8 +3449,8 @@ async function formsInit(saved){
       if(kind==='radio')(FM.radio[f.name]=FM.radio[f.name]||[]).push(f.on);
       FM.fields.push(f)}}
   if(g!==FM.gen)return;
-  S.form={...S.formInit};
-  if(saved&&typeof saved==='object')for(const[k,v]of Object.entries(saved))if(k in S.formInit&&(v===null||['string','boolean'].includes(typeof v)))S.form[k]=v;
+  S.form=Object.assign(Object.create(null),S.formInit);
+  if(saved&&typeof saved==='object')for(const[k,v]of Object.entries(saved))if(Object.prototype.hasOwnProperty.call(S.formInit,k)&&(v===null||['string','boolean'].includes(typeof v)))S.form[k]=v;
   formsRender();
   const n=new Set(FM.fields.filter(f=>f.kind!=='sig').map(f=>f.name)).size;
   if(n)setTimeout(()=>toast(LANG==='en'?`This PDF is a form with ${n} fields. Click into the blue fields to fill them in.`:`Diese PDF ist ein Formular mit ${n} Feldern. Klick in die blauen Felder, um sie auszufüllen.`),600)}
@@ -3609,7 +3662,7 @@ function drawSpell(c,i){if(!SP.on)return;const P=S.pages[i];if(!P)return;const z
 function spAt(i,x,y){const P=S.pages[i];if(!P||!SP.on)return null;const tol=3/S.zoom;
   for(let k=P.objs.length-1;k>=0;k--){const o=P.objs[k];if(o.type!=='text'&&o.type!=='table')continue;for(const q of spItems(o)){const qx=o.x+q.x,qy=o.y+q.y;if(x>=qx-tol&&x<=qx+q.w+tol&&y>=qy-tol&&y<=qy+q.h+q.h*.4+tol)return{o,q}}}return null}
 function spReplace(o,q,s){pushHist();
-  if(o.type==='text'){const t=String(o.text);o.text=t.slice(0,q.i)+s+t.slice(q.i+q.n)}
+  if(o.type==='text'){const t=String(o.text);shiftSpans(o,t,t.slice(0,q.i)+s+t.slice(q.i+q.n))}
   else{const[r,k]=q.cell,t=String(o.cells[r][k]);o.cells[r][k]=t.slice(0,q.i)+s+t.slice(q.i+q.n)}
   redrawAll();markDirty()}
 function spAdd(w){SP.user.add(w);for(const e of Object.values(SP.eng))try{e.add(w)}catch(x){}SP.cache.clear();SP.ver++;try{localStorage.setItem('pdfwerkbank:dict',JSON.stringify([...SP.user].slice(-2000)))}catch(e){}redrawAll();spNotesSoon()}
@@ -3735,6 +3788,267 @@ function updShow(r,manual){let skip='';try{skip=localStorage.getItem('pdfwerkban
         t.onchange=()=>{UPD.auto=t.checked;try{localStorage.setItem('pdfwerkbank:updAutoDl',UPD.auto?'1':'0')}catch(e){}W.updAutoInstall(UPD.auto);toast(UPD.auto?tr('Updates werden ab jetzt selbst installiert.'):tr('Updates werden nur noch angezeigt.'))}}
       if(st.pending){UPD.r={version:st.pending.version,notes:st.pending.notes};if(UPD.auto)W.updAutoInstall(true);setTimeout(()=>updRender('ready'),2500)}}).catch(()=>{})}}
 
+/* ---------- Sicherheit: PDF öffnen und gespeicherte Daten prüfen ----------
+   PDFs werden immer ohne eval geöffnet (CVE-2024-4367). Beschriftungen kommen aus dem Anhang einer PDF oder dem
+   Zwischenspeicher – eine fremde PDF kann dort beliebige Daten hineinschreiben. Darum werden nur bekannte
+   Objektarten, endliche Zahlen und begrenzte Größen übernommen; Schlüssel wie __proto__ werden verworfen. */
+const PDF_OPT=data=>({data,isEvalSupported:false,enableXfa:false,wasmUrl:'pdfjs/wasm/',useWasm:true,stopAtErrors:false});
+const pdfClose=d=>{try{if(!d)return;if(typeof d.destroy==='function')d.destroy();else if(d.loadingTask)d.loadingTask.destroy()}catch(e){}};
+const pdfOpen=data=>pdfjsLib.getDocument(PDF_OPT(data)).promise;
+async function pdfAttachment(doc,name){let at=null;try{at=await doc.getAttachments()}catch(e){return null}if(!at)return null;
+  const has=at instanceof Map?at.has(name):Object.prototype.hasOwnProperty.call(at,name);if(!has)return null;
+  if(typeof doc.getAttachmentContent==='function'){try{return await doc.getAttachmentContent(name)}catch(e){return null}}
+  const a=at[name];return a&&a.content||null}
+const BAD_KEYS=new Set(['__proto__','constructor','prototype']);
+const OBJ_TYPES=new Set(['pen','line','measure','rect','ellipse','text','sym','table','image']);
+const own=(o,k)=>o!=null&&typeof k==='string'&&Object.prototype.hasOwnProperty.call(o,k);
+function sanVal(v,depth){
+  if(typeof v==='number')return Number.isFinite(v)?Math.max(-1e7,Math.min(1e7,v)):0;
+  if(typeof v==='string')return v.length>200000?v.slice(0,200000):v;
+  if(typeof v==='boolean'||v===null)return v;
+  if(depth>4)return undefined;
+  if(Array.isArray(v))return v.slice(0,200000).map(x=>sanVal(x,depth+1)).filter(x=>x!==undefined);
+  if(typeof v==='object'){const r={};let n=0;for(const k of Object.keys(v)){if(BAD_KEYS.has(k)||++n>64)continue;const x=sanVal(v[k],depth+1);if(x!==undefined)r[k]=x}return r}
+  return undefined}
+const isNum=v=>typeof v==='number'&&Number.isFinite(v);
+const COL_RX=/^(#[0-9a-f]{3,8}|rgba?\(\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*(,\s*[\d.]+\s*)?\)|[a-z]{3,20})$/i;
+function sanObj(o){
+  if(!o||typeof o!=='object'||Array.isArray(o)||!OBJ_TYPES.has(o.type))return null;
+  const r=sanVal(o,0);if(!r||typeof r!=='object')return null;
+  if(typeof r.color!=='string'||!COL_RX.test(r.color))r.color='#1b1f24';
+  if(r.lw!=null&&!(isNum(r.lw)&&r.lw>=0&&r.lw<=200))r.lw=1;if(r.lw==null)r.lw=r.type==='text'||r.type==='image'?0:1;
+  if(r.alpha!=null&&!(isNum(r.alpha)&&r.alpha>0&&r.alpha<=1))delete r.alpha;
+  if(r.font!=null&&!own(FONT_MAP,r.font))delete r.font;
+  if(r.fs!=null&&!(isNum(r.fs)&&r.fs>=2&&r.fs<=400))r.fs=11;
+  const box=()=>isNum(r.x)&&isNum(r.y)&&isNum(r.w)&&isNum(r.h);
+  switch(r.type){
+    case'pen':if(!Array.isArray(r.pts))return null;r.pts=r.pts.filter(p=>Array.isArray(p)&&isNum(p[0])&&isNum(p[1])).map(p=>[p[0],p[1]]);return r.pts.length?r:null;
+    case'line':case'measure':if(!(isNum(r.x1)&&isNum(r.y1)&&isNum(r.x2)&&isNum(r.y2)))return null;
+      if(r.link&&typeof r.link==='object'){const L=r.link;r.link={a:typeof L.a==='string'?L.a.slice(0,40):null,b:typeof L.b==='string'?L.b.slice(0,40):null,ta:typeof L.ta==='string'?L.ta.slice(0,8):'auto',tb:typeof L.tb==='string'?L.tb.slice(0,8):'auto'}}else delete r.link;return r;
+    case'rect':case'ellipse':return box()?r:null;
+    case'text':if(!isNum(r.x)||!isNum(r.y)||typeof r.text!=='string')return null;if(!['h','v','stack'].includes(r.orient))r.orient='h';if(!isNum(r.fs))r.fs=14;
+      if(r.spans!=null){r.spans=Array.isArray(r.spans)?r.spans.filter(s=>s&&isNum(s.a)&&isNum(s.b)&&s.b>s.a&&typeof s.color==='string'&&COL_RX.test(s.color)).slice(0,2000).map(s=>({a:Math.max(0,s.a|0),b:Math.min(r.text.length,s.b|0),color:s.color})).filter(s=>s.b>s.a):[];if(!r.spans.length)delete r.spans}
+      return r;
+    case'sym':return box()&&typeof r.sym==='string'&&own(SYM,r.sym)?r:null;
+    case'image':return box()&&typeof r.img==='string'&&/^im[a-z0-9]{2,24}$/.test(r.img)?r:null;
+    case'table':{if(!box())return null;const R=r.rows|0,C=r.cols|0;if(R<1||R>200||C<1||C>60)return null;r.rows=R;r.cols=C;
+      const fr=(a,n)=>Array.isArray(a)&&a.length===n&&a.every(v=>isNum(v)&&v>0)?a:Array.from({length:n},()=>1/n);r.cw=fr(r.cw,C);r.rh=fr(r.rh,R);
+      const cells=Array.isArray(r.cells)?r.cells:[];r.cells=Array.from({length:R},(_,i)=>Array.from({length:C},(_,k)=>{const v=cells[i]&&cells[i][k];return typeof v==='string'?v.slice(0,20000):''}));return r}
+  }
+  return null}
+function sanPages(a,n){if(!Array.isArray(a))return[];let total=0;
+  return a.slice(0,n).map(p=>{if(!Array.isArray(p))return[];const out=[];for(const o of p.slice(0,20000)){const s=sanObj(o);if(!s)continue;total+=s.type==='pen'?s.pts.length:1;if(total>3e6)break;out.push(s)}return out})}
+/* ---------- Textfelder 3.0: Farbe je Zeichen, flüssiges Ziehen, kopierbarer Text im PDF ---------- */
+/* Farbbereiche: o.spans=[{a,b,color}] (Zeichenpositionen im Text, a inklusiv, b exklusiv). Ohne Bereich gilt o.color. */
+function spanRuns(o,a,b){const out=[];let p=a;const sp=(o.spans||[]).filter(s=>s.b>a&&s.a<b).sort((x,y)=>x.a-y.a);
+  for(const s of sp){const s0=Math.max(p,s.a),s1=Math.min(b,s.b);if(s0>p)out.push([p,s0,o.color]);if(s1>s0){out.push([s0,s1,s.color]);p=s1}}
+  if(p<b)out.push([p,b,o.color]);return out}
+function normSpans(o){const n=String(o.text||'').length,base=String(o.color||'').toLowerCase();
+  let sp=(o.spans||[]).map(s=>({a:Math.max(0,s.a|0),b:Math.min(n,s.b|0),color:s.color})).filter(s=>s.b>s.a&&String(s.color).toLowerCase()!==base).sort((x,y)=>x.a-y.a);
+  const out=[];for(const s of sp){const l=out[out.length-1];if(l&&l.b>=s.a&&l.color.toLowerCase()===s.color.toLowerCase())l.b=Math.max(l.b,s.b);else out.push(s)}
+  if(out.length)o.spans=out;else delete o.spans}
+function setSpanColor(o,a,b,color){if(b<=a)return;
+  const sp=(o.spans||[]).flatMap(s=>{if(s.b<=a||s.a>=b)return[s];const r=[];if(s.a<a)r.push({a:s.a,b:a,color:s.color});if(s.b>b)r.push({a:b,b:s.b,color:s.color});return r});
+  sp.push({a,b,color});o.spans=sp;normSpans(o)}
+// Text geändert (Tippen, Löschen, Einfügen): Bereiche mitschieben; Neues übernimmt die Farbe des Zeichens davor
+function shiftSpans(o,oldT,newT){oldT=String(oldT);newT=String(newT);if(!o.spans||oldT===newT){o.text=newT;return}
+  let p=0;const mx=Math.min(oldT.length,newT.length);while(p<mx&&oldT[p]===newT[p])p++;
+  let q=0;while(q<mx-p&&oldT[oldT.length-1-q]===newT[newT.length-1-q])q++;
+  const oe=oldT.length-q,d=newT.length-oldT.length,ins=newT.length-q-p;
+  const mapA=x=>x<=p?x:x>=oe?x+d:p,mapB=(x,a)=>x<p?x:x>=oe?x+d:(a<=p?p+ins:p);
+  o.spans=o.spans.map(s=>({a:mapA(s.a),b:mapB(s.b,s.a),color:s.color}));o.text=newT;normSpans(o)}
+function spanColorAt(o,i){const s=(o.spans||[]).find(s=>s.a<=i&&i<s.b);return s?s.color:o.color}
+
+function drawText(c,o){
+  if(o===editingObj){if(!ED||ED.o!==o)return;o={...o,orient:'h'}}const b=textBox(o);c.font=tfont(o);c.textBaseline='top';c.fillStyle=o.color;const off=(b.lh-o.fs)/2;
+  const ul=(l,x,y,col)=>{if(!o.underline||!l)return;const w=c.measureText(l).width;c.save();c.strokeStyle=col||o.color;c.setLineDash([]);c.globalAlpha=1;c.lineWidth=Math.max(.6,o.fs/(o.bold?11:14));c.beginPath();c.moveTo(x,y+o.fs*.98);c.lineTo(x+w,y+o.fs*.98);c.stroke();c.restore()};
+  const rich=!!(o.spans&&o.spans.length);
+  // eine Zeile in Farbabschnitten zeichnen (Position aus der Breite des Anfangs, so bleiben Abstände wie ohne Farben)
+  const line=(L,st,x,y)=>{if(!rich){c.fillStyle=o.color;c.fillText(L,x,y);ul(L,x,y);return}
+    for(const[a,e,col]of spanRuns(o,st,st+L.length)){const s=L.slice(a-st,e-st),dx=a>st?c.measureText(L.slice(0,a-st)).width:0;c.fillStyle=col;c.fillText(s,x+dx,y);ul(s,x+dx,y,col)}};
+  let n=0;const starts=b.lines.map(L=>{const s=n;n+=L.length+1;return s});
+  if(o.orient==='h')b.lines.forEach((l,i)=>line(l,starts[i],o.x,o.y+i*b.lh+off));
+  else if(o.orient==='v'){c.translate(o.x,o.y+b.h);c.rotate(-Math.PI/2);b.lines.forEach((l,i)=>line(l,starts[i],0,i*b.lh+off))}
+  else{c.textAlign='center';b.lines.forEach((l,i)=>{let k=starts[i];[...l].forEach((ch,j)=>{c.fillStyle=rich?spanColorAt(o,k):o.color;c.fillText(ch,o.x+i*b.cw+b.cw/2,o.y+j*o.fs*1.1);k+=ch.length})})}
+}
+
+/* Ziehen ohne Ruckeln: Beim Verschieben/Größe ändern wird der Rest der Seite einmal in zwei Puffer gezeichnet (darunter/darüber),
+   danach pro Bild nur noch das gezogene Objekt und die daran hängenden Verbinder. */
+var DRAG=null,dragRaf=0;
+function dragBegin(i,o){const P=S.pages[i];DRAG=null;if(!P||!P.ink||!o||P.objs.length<12)return;
+  const dyn=new Set(o.type==='group'?o.items:[o]);const ids=new Set([...dyn].map(x=>x.oid).filter(Boolean));
+  if(ids.size)for(const q of P.objs)if(q.link&&(ids.has(q.link.a)||ids.has(q.link.b)))dyn.add(q);
+  let first=P.objs.length;for(const x of dyn){const k=P.objs.indexOf(x);if(k>=0&&k<first)first=k}
+  const k=P.ink.width/(P.w*S.zoom)*S.zoom,mk=list=>{const cv=document.createElement('canvas');cv.width=P.ink.width;cv.height=P.ink.height;const c=cv.getContext('2d');c.setTransform(k,0,0,k,0,0);for(const q of list)drawObj(c,q);return cv};
+  const below=[],above=[];P.objs.forEach((q,j)=>{if(dyn.has(q))return;(j<first?below:above).push(q)});
+  DRAG={p:i,dyn,below:mk(below),above:mk(above),w:P.ink.width,h:P.ink.height,zoom:S.zoom}}
+function dragEnd(){if(!DRAG)return;const p=DRAG.p;DRAG=null;cancelAnimationFrame(dragRaf);dragRaf=requestAnimationFrame(()=>redraw(p))}
+function redrawDrag(i){const P=S.pages[i],D=DRAG;if(!D||D.p!==i||D.w!==P.ink.width||D.h!==P.ink.height||D.zoom!==S.zoom)return false;
+  const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);c.drawImage(D.below,0,0);
+  const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)if(D.dyn.has(o))drawObj(c,o);
+  c.setTransform(1,0,0,1,0,0);c.drawImage(D.above,0,0);c.setTransform(k,0,0,k,0,0);
+  if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o);
+  if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawObj(c,ED.o);
+  if(S.sel&&S.sel.p===i&&S.sel.o!==editingObj)drawSel(c,S.sel.o);return true}
+addEventListener('pointerup',dragEnd,true);addEventListener('pointercancel',dragEnd,true);
+
+/* Kopierbarer Text im gespeicherten PDF: Beschriftungen bleiben ein Bild (sieht überall gleich aus), darüber liegt der Text
+   unsichtbar an genau derselben Stelle – so lässt er sich markieren, kopieren und durchsuchen (wie bei gescannten PDFs mit Texterkennung).
+   Die Schrift dafür hat keine sichtbaren Formen; ToUnicode sorgt für die richtigen Zeichen beim Kopieren. */
+var TXT_FONT_B64='AAEAAAAKAIAAAwAgT1MvMkUAQ7AAAAEoAAAAYGNtYXAADABzAAABkAAAADRnbHlmAAAAAAAAAcwAAAABaGVhZC0FT0QAAACsAAAANmhoZWEDIgEuAAAA5AAAACRobXR4AfQAAAAAAYgAAAAGbG9jYQAAAAAAAAHEAAAABm1heHAAAwACAAABCAAAACBuYW1lstOP1wAAAdAAAABjcG9zdABOAAAAAAI0AAAAJgABAAAAAQAAUQBUP18PPPUAAwPoAAAAAOb3hzIAAAAA5veHMgAAAAAAAAAAAAAAAwACAAAAAAAAAAEAAAMg/zgAAAH0AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAEAAAACAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwH0AZAABQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAPz8/PwAAACAAIAMg/zgAAAMgAMgAAAAAAAAAAAAAAAAAAAAgAAAB9AAAAAAAAAAAAAIAAAADAAAAFAADAAEAAAAUAAQAIAAAAAQABAABAAAAIP//AAAAIP///+EAAQAAAAAAAAAAAAAAAAAAAAAAAAAEADYAAQAAAAAAAQAIAAAAAQAAAAAAAgAHAAgAAwABBAkAAQAQAA8AAwABBAkAAgAOAB9MYXlyVGV4dFJlZ3VsYXIATABhAHkAcgBUAGUAeAB0AFIAZQBnAHUAbABhAHIAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAEoAAA==';
+function txtCapture(c,sc){const runs=[],orig=c.fillText;
+  c.fillText=function(t,x,y,mw){try{t=String(t);
+    if(t.trim()&&this.globalAlpha>0){const fs=+((/([\d.]+)px/.exec(this.font)||[])[1]||0);
+      if(fs>0){const m=this.getTransform(),mt=this.measureText(t),bl=this.textBaseline;let w=mt.width;if(mw!=null&&w>mw)w=mw;
+        this.textBaseline='alphabetic';const ma=this.measureText(t);this.textBaseline=bl;
+        const al=this.textAlign,rtl=this.direction==='rtl';let ox=x;if(al==='center')ox=x-w/2;else if(al==='right'||(al==='end'&&!rtl)||(al==='start'&&rtl))ox=x-w;
+        runs.push({t,x:ox,y:y+(ma.actualBoundingBoxAscent-mt.actualBoundingBoxAscent),w,fs,m:[m.a/sc,m.b/sc,m.c/sc,m.d/sc,m.e/sc,m.f/sc]})}}}catch(e){}
+    return orig.apply(this,arguments)};
+  return{runs,stop(){c.fillText=orig}}}
+function mmul(A,B){return[A[0]*B[0]+A[2]*B[1],A[1]*B[0]+A[3]*B[1],A[0]*B[2]+A[2]*B[3],A[1]*B[2]+A[3]*B[3],A[0]*B[4]+A[2]*B[5]+A[4],A[1]*B[4]+A[3]*B[5]+A[5]]}
+function pnum(v){v=Math.round(v*1e4)/1e4;return Object.is(v,-0)?'0':String(v)}
+function txtLayerBegin(pdf){return{pdf,map:new Map(),ref:pdf.context.nextRef(),used:false}}
+// runs einer Seite als unsichtbaren Text in die PDF-Seite schreiben; place = wie das Bild auf der Seite liegt
+function txtLayerPage(L,pg,runs,place){if(!runs.length)return;const{PDFName}=PDFLib;
+  const r=(place.rot||0)*Math.PI/180,co=Math.round(Math.cos(r)),si=Math.round(Math.sin(r)),Ph=place.h;
+  const M=[co,si,si,-co,place.x-si*Ph,place.y+co*Ph];let ops='q\nBT\n3 Tr\n';
+  for(const R of runs){const cps=[...R.t];let hex='';for(const ch of cps){let id=L.map.get(ch);if(id==null){if(L.map.size>=65534)continue;id=L.map.size+1;L.map.set(ch,id)}hex+=id.toString(16).padStart(4,'0')}
+    if(!hex)continue;const tz=Math.max(1,Math.min(10000,100*R.w/(cps.length*.5*R.fs)));
+    const Tm=mmul(M,mmul(R.m,[1,0,0,-1,R.x,R.y]));ops+=`/LayrT ${pnum(R.fs)} Tf ${pnum(tz)} Tz ${Tm.map(pnum).join(' ')} Tm <${hex}> Tj\n`}
+  ops+='ET\nQ\n';const cs=L.pdf.context.flateStream(ops);pg.node.addContentStream(L.pdf.context.register(cs));pg.node.setFontDictionary(PDFName.of('LayrT'),L.ref);L.used=true}
+function txtLayerEnd(L){if(!L.used)return;const{PDFName,PDFString,PDFNumber}=PDFLib,ctx=L.pdf.context,N=L.map.size;
+  const ff=Uint8Array.from(atob(TXT_FONT_B64),ch=>ch.charCodeAt(0));
+  const ffRef=ctx.register(ctx.flateStream(ff,{Length1:ff.length}));
+  const g=new Uint8Array(2*(N+1));for(let k=1;k<=N;k++)g[2*k+1]=1;const gRef=ctx.register(ctx.flateStream(g));
+  const u16=ch=>{let h='';for(let k=0;k<ch.length;k++)h+=ch.charCodeAt(k).toString(16).padStart(4,'0');return h};
+  const ent=[...L.map].map(([ch,id])=>`<${id.toString(16).padStart(4,'0')}> <${u16(ch)}>`);let cm='/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n';
+  for(let k=0;k<ent.length;k+=100){const ch=ent.slice(k,k+100);cm+=`${ch.length} beginbfchar\n${ch.join('\n')}\nendbfchar\n`}
+  cm+='endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n';const tuRef=ctx.register(ctx.flateStream(cm));
+  const fd=ctx.register(ctx.obj({Type:'FontDescriptor',FontName:'LayrText',Flags:4,FontBBox:[0,-200,500,800],ItalicAngle:0,Ascent:800,Descent:-200,CapHeight:700,StemV:80,FontFile2:ffRef}));
+  const cid=ctx.register(ctx.obj({Type:'Font',Subtype:'CIDFontType2',BaseFont:'LayrText',CIDSystemInfo:{Registry:PDFString.of('Adobe'),Ordering:PDFString.of('Identity'),Supplement:0},FontDescriptor:fd,DW:500,CIDToGIDMap:gRef}));
+  ctx.assign(L.ref,ctx.obj({Type:'Font',Subtype:'Type0',BaseFont:'LayrText',Encoding:'Identity-H',DescendantFonts:[cid],ToUnicode:tuRef}))}
+/* ---------- IT-Rechner: Zahlensysteme, Datenmengen, Übertragung, USV, Strom ---------- */
+const CALC={mode:'num',v:{},res:null};
+try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:calc')||'{}');if(j&&typeof j==='object'){if(typeof j.mode==='string')CALC.mode=j.mode;if(j.v&&typeof j.v==='object')for(const[k,v]of Object.entries(j.v))if(typeof v==='string'&&v.length<200)CALC.v[k]=v}}catch(e){}
+const calcSave=()=>{try{localStorage.setItem('pdfwerkbank:calc',JSON.stringify({mode:CALC.mode,v:CALC.v}))}catch(e){}};
+const DATA_U=[['bit','Bit',1],['B','Byte',8],['KB','KB',8e3],['MB','MB',8e6],['GB','GB',8e9],['TB','TB',8e12],['PB','PB',8e15],
+  ['KiB','KiB',8*1024],['MiB','MiB',8*1024**2],['GiB','GiB',8*1024**3],['TiB','TiB',8*1024**4],['PiB','PiB',8*1024**5],['kbit','kbit',1e3],['Mbit','Mbit',1e6],['Gbit','Gbit',1e9],['Tbit','Tbit',1e12]];
+const RATE_U=[['bps','bit/s',1],['kbps','kbit/s',1e3],['Mbps','Mbit/s',1e6],['Gbps','Gbit/s',1e9],['KBs','KB/s',8e3],['MBs','MB/s',8e6],['GBs','GB/s',8e9],['MiBs','MiB/s',8*1024**2]];
+const UPS_SIZES=[400,500,650,750,850,1000,1200,1500,2000,2200,3000,4000,5000,6000,8000,10000,15000,20000];
+const CALC_F={
+  num:[{id:'nIn',l:'Zahl',def:'202',mono:1,wide:1},{id:'nBase',l:'Eingabe als',sel:[['10','Dezimal'],['2','Binär'],['16','Hexadezimal'],['8','Oktal'],['auto','Automatisch (0b…, 0x…, 0o…)']],def:'10'},
+    {id:'nBits',l:'Bitbreite',sel:[['auto','Automatisch'],['8','8 Bit'],['16','16 Bit'],['32','32 Bit'],['64','64 Bit']],def:'auto'},{id:'nSigned',l:'Mit Vorzeichen (Zweierkomplement)',chk:1,def:'0'}],
+  data:[{id:'dVal',l:'Menge',def:'1'},{id:'dUnit',l:'Einheit',sel:DATA_U.map(u=>[u[0],u[1]]),def:'TB'}],
+  rate:[{id:'rSize',l:'Datenmenge',def:'4,7'},{id:'rSizeU',l:'Einheit',sel:DATA_U.map(u=>[u[0],u[1]]),def:'GB'},{id:'rRate',l:'Geschwindigkeit',def:'100'},{id:'rRateU',l:'Einheit',sel:RATE_U.map(u=>[u[0],u[1]]),def:'Mbps'},
+    {id:'rOver',l:'Protokoll-Overhead (%)',def:'5'},{id:'rGoal',l:'Ziel-Dauer (Minuten, optional)',def:''}],
+  ups:[{id:'uW',l:'Last (Watt)',def:'450'},{id:'uPf',l:'Leistungsfaktor cos φ der Geräte',def:'0,9'},{id:'uRes',l:'Reserve (%)',def:'25'},{id:'uUpsPf',l:'Leistungsfaktor der USV (W/VA)',def:'0,9'},
+    {id:'uV',l:'Batteriespannung (V)',def:'24'},{id:'uAh',l:'Batteriekapazität (Ah)',def:'9'},{id:'uEff',l:'Wirkungsgrad Wechselrichter (%)',def:'90'},{id:'uGoal',l:'Gewünschte Laufzeit (Minuten)',def:'15'}],
+  power:[{id:'pW',l:'Leistung (Watt)',def:'120'},{id:'pH',l:'Stunden pro Tag',def:'24'},{id:'pD',l:'Tage pro Jahr',def:'365'},{id:'pPrice',l:'Preis pro kWh (€)',def:'0,35'},{id:'pU',l:'Spannung (V)',def:'230'}]};
+const cval=id=>{const v=CALC.v[id];if(v!=null)return v;for(const L of Object.values(CALC_F))for(const f of L)if(f.id===id)return f.def;return''};
+const cnumv=id=>{const t=String(cval(id)).trim().replace(/\s/g,'').replace(',','.');if(!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(t))return NaN;return parseFloat(t)};
+const cLoc=()=>LANG==='en'?'en':'de';
+function cFmt(n,max){if(!Number.isFinite(n))return'–';const a=Math.abs(n);if(max==null)max=a>=100?2:a>=1?3:a>=.001?6:10;
+  if(a!==0&&(a>=1e15||a<1e-6))return n.toExponential(4).replace('.',cLoc()==='de'?',':'.');return n.toLocaleString(cLoc(),{maximumFractionDigits:max})}
+function cDur(s){if(!Number.isFinite(s)||s<0)return'–';if(s<1)return cFmt(s*1000,1)+' ms';s=Math.round(s);const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),x=s%60;
+  return[d?d+' '+tr('Tg.'):'',h?h+' h':'',m?m+' min':'',(x||!(d||h||m))?x+' s':''].filter(Boolean).join(' ')}
+const cGrp=(s,n,sep=' ')=>{const out=[];for(let i=s.length;i>0;i-=n)out.unshift(s.slice(Math.max(0,i-n),i));return out.join(sep)};
+const C_SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};const cSup=n=>String(n).split('').map(c=>C_SUP[c]||c).join('');
+function calcNum(){const raw=String(cval('nIn')).trim().replace(/[\s_']/g,'');let base=cval('nBase');const signed=cval('nSigned')==='1';
+  if(!raw)return{err:'Bitte eine Zahl eingeben.'};let neg=false,t=raw;if(t[0]==='-'||t[0]==='+'){neg=t[0]==='-';t=t.slice(1)}
+  if(base==='auto'){const m=/^0([xbo])/i.exec(t);base=m?{x:'16',b:'2',o:'8'}[m[1].toLowerCase()]:'10';if(m)t=t.slice(2)}
+  else if(base==='16')t=t.replace(/^0x/i,'').replace(/h$/i,'');else if(base==='2')t=t.replace(/^0b/i,'');else if(base==='8')t=t.replace(/^0o/i,'');
+  const B=+base,RX={2:/^[01]+$/,8:/^[0-7]+$/,10:/^\d+$/,16:/^[0-9a-f]+$/i}[B];
+  if(!t||!RX.test(t))return{err:{2:'Binärzahlen bestehen nur aus 0 und 1.',8:'Oktalzahlen bestehen nur aus den Ziffern 0 bis 7.',10:'Bitte nur Ziffern 0 bis 9 eingeben.',16:'Hexadezimal erlaubt 0–9 und A–F.'}[B]};
+  if(t.length>80)return{err:'Die Zahl ist zu lang (höchstens 64 Bit).'};
+  let mag=0n;for(const ch of t.toLowerCase())mag=mag*BigInt(B)+BigInt(parseInt(ch,16));
+  let v=neg?-mag:mag,bits=cval('nBits')==='auto'?0:+cval('nBits');
+  const need=x=>{if(x>=0n){let b=1;while((1n<<BigInt(b))<=x)b++;return b}let b=1;while(-(1n<<BigInt(b-1))>x)b++;return b};
+  if(!bits){const n=v<0n||signed?need(v)+(v>=0n&&signed?1:0):need(v);bits=[8,16,32,64].find(b=>b>=n)||0;if(!bits)return{err:'Die Zahl ist größer als 64 Bit.'}}
+  const M=1n<<BigInt(bits);let u;
+  if(v<0n){if(-v>M/2n)return{err:tr('Die Zahl passt nicht in')+' '+bits+' Bit.'};u=M+v}
+  else{if(v>=M)return{err:tr('Die Zahl passt nicht in')+' '+bits+' Bit.'};u=v;if(signed&&B!==10&&u>=M/2n)v=u-M;else if(signed&&B===10&&u>=M/2n)return{err:tr('Mit Vorzeichen passt die Zahl nicht in')+' '+bits+' Bit.'}}
+  const bin=u.toString(2).padStart(bits,'0'),hex=u.toString(16).toUpperCase().padStart(bits/4,'0');
+  const rows=[['Dezimal',v.toLocaleString(cLoc())],['Binär',cGrp(bin,4)],['Hexadezimal','0x'+cGrp(hex,4,' ')],['Oktal',u.toString(8)],['Bitbreite',bits+' Bit · '+bits/8+' Byte']];
+  if(v<0n||(signed&&v!==u))rows.splice(1,0,['Vorzeichenlos gelesen',u.toLocaleString(cLoc())]);
+  const ones=[...bin].filter(c=>c==='1').length;rows.push(['Gesetzte Bits',String(ones)]);
+  if(signed||v<0n)rows.push(['Wertebereich',(-(M/2n)).toLocaleString(cLoc())+' … '+(M/2n-1n).toLocaleString(cLoc())]);else rows.push(['Wertebereich','0 … '+(M-1n).toLocaleString(cLoc())]);
+  // Rechenweg
+  const st=[];const a=v<0n?-v:v;
+  if(B!==10&&t.length<=16){const digs=[...t.toLowerCase()].map(c=>parseInt(c,16)),n=digs.length;
+    st.push((B===16?'0x':B===8?'0o':'')+t.toUpperCase()+' = '+digs.map((d,k)=>(B===16&&d>9?d+' (' +t[k].toUpperCase()+')':String(d))+'·'+B+cSup(n-1-k)).join(' + '));
+    st.push('= '+digs.map((d,k)=>(BigInt(d)*BigInt(B)**BigInt(n-1-k)).toLocaleString(cLoc())).join(' + ')+' = '+mag.toLocaleString(cLoc()))}
+  if(a<=65535n){const div=(q,b,name)=>{if(q===0n){st.push('0 → '+name+' 0');return}const res=[];let x=q;
+      st.push(tr('Umrechnung in')+' '+tr(name)+' '+tr('(fortlaufend durch')+' '+b+' '+tr('teilen):'));
+      while(x>0n){const r=x%BigInt(b),n2=x/BigInt(b);st.push('  '+x+' ÷ '+b+' = '+n2+' '+tr('Rest')+' '+(b===16?r.toString(16).toUpperCase():r));res.unshift(b===16?r.toString(16).toUpperCase():r.toString());x=n2}
+      st.push('  '+tr('Reste von unten nach oben lesen:')+' '+res.join(''))};
+    if(B===10){div(a,2,'Binär');div(a,16,'Hexadezimal')}
+    else if(B===2&&a>0n){const h=a.toString(2).padStart(Math.ceil(a.toString(2).length/4)*4,'0');st.push(tr('Binär → Hex: in Vierergruppen teilen:')+' '+cGrp(h,4)+' → '+cGrp(h,4).split(' ').map(g=>parseInt(g,2).toString(16).toUpperCase()).join(' '))}
+    else if(B===16){st.push(tr('Hex → Binär: jede Stelle wird zu 4 Bit:')+' '+[...t.toUpperCase()].map(c=>c+'='+parseInt(c,16).toString(2).padStart(4,'0')).join('  '))}}
+  if(v<0n){const pb=(-v).toString(2).padStart(bits,'0'),inv=[...pb].map(c=>c==='0'?'1':'0').join('');
+    st.push(tr('Zweierkomplement:')+' |'+v+'| = '+cGrp(pb,4)+' → '+tr('alle Bits umkehren:')+' '+cGrp(inv,4)+' → '+tr('plus 1:')+' '+cGrp(bin,4))}
+  return{head:['Darstellung','Wert'],rows,steps:st}}
+function calcData(){const v=cnumv('dVal'),u=DATA_U.find(x=>x[0]===cval('dUnit'));if(!Number.isFinite(v)||v<0||!u)return{err:'Bitte eine Menge eingeben, z. B. 1,5'};
+  const bits=v*u[2],rows=[];for(const k of['bit','B','KB','MB','GB','TB','KiB','MiB','GiB','TiB']){const w=DATA_U.find(x=>x[0]===k);rows.push([w[1],cFmt(bits/w[2])])}
+  return{head:['Einheit','Wert'],rows,note:'1 KB = 1000 Byte (SI, Hersteller von Festplatten), 1 KiB = 1024 Byte (IEC). Windows zeigt KiB als „KB“ an – darum hat eine 1-TB-Platte dort nur rund 931 „GB“.'}}
+function calcRate(){const s=cnumv('rSize'),su=DATA_U.find(x=>x[0]===cval('rSizeU')),r=cnumv('rRate'),ru=RATE_U.find(x=>x[0]===cval('rRateU')),ov=String(cval('rOver')).trim()?cnumv('rOver'):0;
+  if(!Number.isFinite(s)||s<0||!su)return{err:'Bitte die Datenmenge eingeben.'};if(!Number.isFinite(r)||r<=0||!ru)return{err:'Bitte die Geschwindigkeit eingeben.'};
+  if(!Number.isFinite(ov)||ov<0||ov>=100)return{err:'Der Overhead muss zwischen 0 und 99 % liegen.'};
+  const bits=s*su[2],eff=r*ru[2]*(1-ov/100),t=bits/eff;
+  const rows=[['Datenmenge',cFmt(bits/8e6)+' MB · '+cFmt(bits/8/1024**2)+' MiB'],['Effektive Rate',cFmt(eff/1e6)+' Mbit/s · '+cFmt(eff/8e6)+' MB/s'],['Dauer',cDur(t)],['Dauer in Sekunden',cFmt(t,1)+' s']];
+  const g=String(cval('rGoal')).trim()?cnumv('rGoal'):NaN;if(Number.isFinite(g)&&g>0){const need=bits/(g*60)/(1-ov/100);rows.push([tr('Nötig für')+' '+cFmt(g)+' min',cFmt(need/1e6)+' Mbit/s · '+cFmt(need/8e6)+' MB/s'])}
+  return{head:['Größe','Wert'],rows,note:'Netzwerkgeschwindigkeiten werden in Bit pro Sekunde angegeben (100 Mbit/s ≈ 12,5 MB/s). Der Overhead berücksichtigt Protokolle wie TCP/IP.'}}
+function calcUps(){const P=cnumv('uW'),pf=cnumv('uPf'),res=String(cval('uRes')).trim()?cnumv('uRes'):0,upf=cnumv('uUpsPf'),V=cnumv('uV'),Ah=cnumv('uAh'),eff=cnumv('uEff'),goal=String(cval('uGoal')).trim()?cnumv('uGoal'):NaN;
+  if(!Number.isFinite(P)||P<=0)return{err:'Bitte die Last in Watt eingeben (Summe aller Geräte).'};
+  if(!Number.isFinite(pf)||pf<=0||pf>1||!Number.isFinite(upf)||upf<=0||upf>1)return{err:'Der Leistungsfaktor liegt zwischen 0 und 1, z. B. 0,9.'};
+  if(!Number.isFinite(res)||res<0||res>300)return{err:'Bitte eine Reserve zwischen 0 und 300 % eingeben.'};
+  const Sva=P/pf,k=1+res/100,needVA=Math.max(Sva*k,P*k/upf),size=UPS_SIZES.find(x=>x>=needVA);
+  const rows=[['Wirkleistung (Last)',cFmt(P)+' W'],['Scheinleistung',cFmt(Sva,0)+' VA'],['Mit Reserve',cFmt(P*k,0)+' W · '+cFmt(Sva*k,0)+' VA'],
+    ['Empfohlene USV-Größe',size?cFmt(size,0)+' VA / '+cFmt(size*upf,0)+' W':tr('über')+' 20.000 VA – '+tr('mehrere USV oder Drehstrom-USV')]];
+  if(Number.isFinite(V)&&V>0&&Number.isFinite(Ah)&&Ah>0&&Number.isFinite(eff)&&eff>0&&eff<=100){const e=eff/100,Wh=V*Ah;
+    rows.push(['Batterie-Energie',cFmt(Wh,0)+' Wh'],['Laufzeit bei dieser Last',cDur(Wh*e/P*3600)],['Batteriestrom',cFmt(P/(V*e),1)+' A']);
+    if(Number.isFinite(goal)&&goal>0)rows.push([tr('Kapazität für')+' '+cFmt(goal)+' min',cFmt(P*goal/60/(V*e),1)+' Ah '+tr('bei')+' '+cFmt(V)+' V'])}
+  return{head:['Größe','Wert'],rows,note:'Richtwerte: Scheinleistung = Wirkleistung ÷ cos φ, Laufzeit = Spannung × Kapazität × Wirkungsgrad ÷ Last. Bei hoher Last und älteren Batterien ist die Laufzeit kürzer (Peukert-Effekt) – die Laufzeittabelle des Herstellers geht vor.'}}
+function calcPower(){const W=cnumv('pW'),h=cnumv('pH'),d=cnumv('pD'),pr=cnumv('pPrice'),U=cnumv('pU');
+  if(!Number.isFinite(W)||W<0)return{err:'Bitte die Leistung in Watt eingeben.'};if(!Number.isFinite(h)||h<0||h>24)return{err:'Stunden pro Tag: 0 bis 24.'};if(!Number.isFinite(d)||d<0||d>366)return{err:'Tage pro Jahr: 0 bis 366.'};
+  const day=W*h/1000,year=day*d,cur=n=>Number.isFinite(pr)?cFmt(n*pr,2)+' €':'–';
+  const rows=[['Verbrauch pro Tag',cFmt(day)+' kWh'],['Verbrauch pro Jahr',cFmt(year,1)+' kWh'],['Kosten pro Tag',cur(day)],['Kosten pro Monat',cur(year/12)],['Kosten pro Jahr',cur(year)]];
+  if(Number.isFinite(U)&&U>0)rows.push(['Stromstärke',cFmt(W/U,2)+' A '+tr('bei')+' '+cFmt(U)+' V']);rows.push(['Abwärme',cFmt(W*3.412,0)+' BTU/h · '+cFmt(W,0)+' W']);
+  return{head:['Größe','Wert'],rows,note:'Monat = Jahr ÷ 12. Die Abwärme entspricht der aufgenommenen Leistung – wichtig für die Kühlung im Serverraum.'}}
+function calcRun(){const out=$('#calcOut'),steps=$('#calcSteps'),note=$('#calcNote');
+  const r=({num:calcNum,data:calcData,rate:calcRate,ups:calcUps,power:calcPower}[CALC.mode]||calcNum)();
+  steps.textContent='';steps.hidden=true;note.textContent='';note.hidden=true;
+  if(r.err){CALC.res=null;out.textContent='';const p=document.createElement('p');p.className='ip-err';p.textContent=tr(r.err);out.appendChild(p);$('#calcPlace').disabled=true;$('#calcCopy').disabled=true;return}
+  CALC.res={head:r.head.map(tr),rows:r.rows.map(([a,b])=>[tr(a),b]),steps:r.steps||[]};
+  const tb=document.createElement('table'),th=document.createElement('thead'),trh=document.createElement('tr');for(const h of CALC.res.head){const c=document.createElement('th');c.textContent=h;trh.appendChild(c)}th.appendChild(trh);tb.appendChild(th);
+  const bd=document.createElement('tbody');for(const row of CALC.res.rows){const x=document.createElement('tr');for(const v of row){const c=document.createElement('td');c.textContent=v;x.appendChild(c)}bd.appendChild(x)}tb.appendChild(bd);
+  out.textContent='';out.appendChild(tb);
+  if(CALC.res.steps.length){const h=document.createElement('b');h.textContent=tr('Rechenweg');steps.appendChild(h);const ol=document.createElement('pre');ol.textContent=CALC.res.steps.join('\n');steps.appendChild(ol);steps.hidden=false}
+  if(r.note){note.textContent=tr(r.note);note.hidden=false}
+  $('#calcPlace').disabled=false;$('#calcCopy').disabled=false}
+function calcInputs(){const box=$('#calcIn');box.textContent='';
+  for(const f of CALC_F[CALC.mode]){const lab=document.createElement('label');lab.className='ip-l'+(f.wide?' wide':'')+(f.chk?' chk':'');
+    let inp;if(f.sel){inp=document.createElement('select');for(const[v,n]of f.sel){const o=document.createElement('option');o.value=v;o.textContent=tr(n);inp.appendChild(o)}inp.value=cval(f.id)}
+    else if(f.chk){inp=document.createElement('input');inp.type='checkbox';inp.checked=cval(f.id)==='1'}
+    else{inp=document.createElement('input');inp.value=cval(f.id);inp.spellcheck=false;inp.autocomplete='off';inp.inputMode=f.mono?'text':'decimal';if(f.mono)inp.classList.add('mono')}
+    inp.id='c_'+f.id;const sp=document.createElement('span');sp.textContent=tr(f.l);
+    if(f.chk){lab.appendChild(inp);lab.appendChild(sp)}else{lab.appendChild(sp);lab.appendChild(inp)}
+    const upd=()=>{CALC.v[f.id]=f.chk?(inp.checked?'1':'0'):inp.value;calcSave();calcRun()};inp.addEventListener(f.sel||f.chk?'change':'input',upd);box.appendChild(lab)}
+  document.querySelectorAll('#calcMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===CALC.mode))}
+function openCalcDlg(mode){if(mode)CALC.mode=mode;if(!CALC_F[CALC.mode])CALC.mode='num';const d=$('#calcDlg');showEl(d);calcInputs();calcRun();
+  setTimeout(()=>{const a=$('#calcIn input:not([type=checkbox])');if(a){a.focus();a.select()}},60)}
+function closeCalcDlg(){animHide($('#calcDlg'))}
+function calcPlace(){if(!CALC.res||!S.pages.length)return;const i=curPage(),P=S.pages[i],R=CALC.res,rows=R.rows.length+1;
+  const t=newTable(0,0,rows,2);t.cells=[R.head.slice(),...R.rows.map(r=>r.slice())];t.fs=10;t.head=true;t.w=Math.min(P.w-60,CALC.mode==='num'?380:340);t.h=rows*20;t.cw=[.4,.6];
+  const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();t.x=(P.w-t.w)/2;t.y=Math.min(Math.max(40,(vr.top-pr.top)/S.zoom+40),Math.max(40,P.h-t.h-30));
+  pushHist();P.objs.push(t);closeCalcDlg();setTool('select');setSel({p:i,o:t});redraw(i);markDirty();toast(tr('Ergebnis als Tabelle eingefügt.'))}
+{const d=$('#calcDlg');$('#calcX').onclick=closeCalcDlg;
+  d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeCalcDlg()}else if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='checkbox'){e.preventDefault();calcPlace()}});
+  d.addEventListener('pointerdown',e=>{if(e.target===d)closeCalcDlg()});
+  document.querySelectorAll('#calcMode button').forEach(b=>b.addEventListener('click',()=>{CALC.mode=b.dataset.v;calcSave();calcInputs();calcRun()}));
+  $('#calcPlace').onclick=calcPlace;
+  $('#calcCopy').onclick=async()=>{if(!CALC.res)return;let t=[CALC.res.head,...CALC.res.rows].map(r=>r.join('\t')).join('\n');if(CALC.res.steps.length)t+='\n\n'+tr('Rechenweg')+'\n'+CALC.res.steps.join('\n');
+    try{await navigator.clipboard.writeText(t)}catch(e){}toast(tr('Ergebnis kopiert.'))}}
+
 // Personalisieren-Fenster öffnen/schließen
 const studio=$('#studio'),studioBg=$('#studioBg');
 const studioIsOpen=()=>!studio.hidden&&!studio._ah;
@@ -3831,6 +4145,7 @@ addEventListener('keydown',e=>{
   else if(S.sel&&e.key.startsWith('Arrow')){e.preventDefault();pushHist();const d=e.shiftKey?10:1;moveObj(S.sel.o,k==='arrowleft'?-d:k==='arrowright'?d:0,k==='arrowup'?-d:k==='arrowdown'?d:0);redraw(S.sel.p);markDirty()}
   else if(k==='n'&&!e.altKey&&!e.shiftKey)notesOpen();
   else if(k==='i'&&!e.altKey&&!e.shiftKey)openIpDlg();
+  else if(k==='c'&&!e.altKey&&!e.shiftKey)openCalcDlg();
   else if(k==='b'&&!e.altKey&&!e.shiftKey)pickImage();
   else if(k==='w'&&!e.altKey&&!e.shiftKey)openSigDlg();
   else if(k==='f3'){e.preventDefault();if(FD.open)findStep(e.shiftKey?-1:1);else openFind()}

@@ -1,8 +1,8 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron');
 contextBridge.exposeInMainWorld('werkbank', {
-  setFile: f => { try { ipcRenderer.send('set-file', webUtils.getPathForFile(f)); } catch (e) {} },
-  save: (name, data, saveAs) => ipcRenderer.invoke('save', name, data, !!saveAs),
-  autoSave: (name, data, fresh) => ipcRenderer.invoke('autosave', name, data, !!fresh),
+  setFile: f => { try { if (f instanceof File) ipcRenderer.send('set-file', webUtils.getPathForFile(f)); } catch (e) {} },
+  save: (name, data, saveAs) => ipcRenderer.invoke('save', String(name || ''), data instanceof Uint8Array ? data : null, !!saveAs),
+  autoSave: (name, data, fresh) => ipcRenderer.invoke('autosave', String(name || ''), data instanceof Uint8Array ? data : null, !!fresh),
   newDoc: () => ipcRenderer.send('new-doc'),
   log: t => ipcRenderer.send('log', String(t).slice(0, 60000)),
   initial: () => ipcRenderer.invoke('initial-file'),

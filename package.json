@@ -1,6 +1,6 @@
 {
   "name": "layr",
-  "version": "2.9.0",
+  "version": "3.0.0",
   "description": "Layr – annotate, draw and take notes on PDFs",
   "main": "app/main.js",
   "author": {
@@ -9,8 +9,8 @@
   "license": "UNLICENSED",
   "productName": "Layr",
   "devDependencies": {
-    "electron": "33.2.1",
-    "electron-builder": "26.0.12"
+    "electron": "44.7.2",
+    "electron-builder": "26.15.3"
   },
   "build": {
     "appId": "io.github.fxwfcvwqny-source.layr",
@@ -101,6 +101,16 @@
         "--provides",
         "pdf-werkbank"
       ]
+    },
+    "electronFuses": {
+      "runAsNode": false,
+      "enableCookieEncryption": true,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true,
+      "loadBrowserProcessSpecificV8Snapshot": false,
+      "grantFileProtocolExtraPrivileges": true
     }
   },
   "homepage": "https://github.com/fxwfcvwqny-source/Layr",

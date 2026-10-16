@@ -1,5 +1,8 @@
-# Baut Layr für Windows und Linux, sobald ein Versions-Tag (z. B. v2.5.0) hochgeladen wird,
+# Baut Layr für Windows und Linux, sobald ein Versions-Tag (z. B. v3.0.0) hochgeladen wird,
 # und legt die Dateien in einen Release-ENTWURF. Veröffentlicht wird erst per Klick auf GitHub.
+# Zum Schluss werden latest.yml / latest-linux.yml signiert (Secret LAYR_UPDATE_KEY). Ohne gültige
+# Signatur installiert Layr Updates nicht selbst, sondern öffnet nur die Download-Seite.
+# Vor dem Hochladen startet ein Rauchtest das gebaute Programm und prüft die Kernfunktionen.
 name: Release
 
 on:
@@ -7,20 +10,33 @@ on:
     tags: ['v*']
   workflow_dispatch:
 
+# Grundsätzlich nur lesen; Schreibrechte bekommen nur die Schritte, die in den Entwurf hochladen
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
-          node-version: 20
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
       - name: GitHub-Abhängigkeiten über HTTPS laden
         run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
       - run: npm ci --no-audit --no-fund
+      - name: Rauchtest (Programm starten und Kernfunktionen prüfen)
+        run: |
+          npx electron-builder --win --x64 --dir --publish never
+          node build/smoke-test.mjs dist/win-unpacked/Layr.exe
       - name: Windows-Installer bauen und in den Entwurf laden
         run: npx electron-builder --win --x64 --publish always
         env:
@@ -29,15 +45,42 @@ jobs:
   linux:
     needs: windows
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
-          node-version: 20
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
       - name: GitHub-Abhängigkeiten über HTTPS laden
         run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
       - run: npm ci --no-audit --no-fund
+      - name: Rauchtest (Programm starten und Kernfunktionen prüfen)
+        run: |
+          command -v xvfb-run >/dev/null || (sudo apt-get update && sudo apt-get install -y xvfb)
+          npx electron-builder --linux dir --x64 --publish never
+          xvfb-run -a node build/smoke-test.mjs dist/linux-unpacked/layr
       - name: AppImage und .deb bauen und in den Entwurf laden
         run: npx electron-builder --linux AppImage deb --x64 --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sign:
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+      - name: Update-Beschreibungen signieren
+        run: node build/sign-update.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LAYR_UPDATE_KEY: ${{ secrets.LAYR_UPDATE_KEY }}
