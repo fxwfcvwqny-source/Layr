@@ -28,4 +28,13 @@ contextBridge.exposeInMainWorld('werkbank', {
   updTerminal: () => ipcRenderer.invoke('upd-terminal'),
   updAutoInstall: on => ipcRenderer.send('upd-auto-install', !!on),
   onUpdProgress: cb => ipcRenderer.on('upd-progress', (_e, got, total) => cb(+got || 0, +total || 0)),
+  asrState: () => ipcRenderer.invoke('asr-state'),
+  asrInstall: () => ipcRenderer.invoke('asr-install'),
+  asrCancel: () => ipcRenderer.send('asr-cancel'),
+  asrRemove: () => ipcRenderer.invoke('asr-remove'),
+  asrProbe: () => ipcRenderer.invoke('asr-probe'),
+  asrStart: () => ipcRenderer.invoke('asr-start'),
+  asrStop: () => ipcRenderer.send('asr-stop'),
+  asrDecode: s => (s instanceof Float32Array ? ipcRenderer.invoke('asr-decode', s) : Promise.resolve({ error: 'samples' })),
+  onAsrProgress: cb => ipcRenderer.on('asr-progress', (_e, phase, got, total) => cb(String(phase), +got || 0, +total || 0)),
 });

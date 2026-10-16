@@ -1,13 +1,11 @@
-# Baut Layr für Windows und Linux, sobald ein Versions-Tag (z. B. v3.0.0) hochgeladen wird,
-# und legt die Dateien in einen Release-ENTWURF. Veröffentlicht wird erst per Klick auf GitHub.
+# Baut Layr für Windows und Linux (von Hand gestartet) und legt die Dateien in einen Release-ENTWURF. Veröffentlicht wird erst per Klick auf GitHub.
 # Zum Schluss werden latest.yml / latest-linux.yml signiert (Secret LAYR_UPDATE_KEY). Ohne gültige
 # Signatur installiert Layr Updates nicht selbst, sondern öffnet nur die Download-Seite.
 # Vor dem Hochladen startet ein Rauchtest das gebaute Programm und prüft die Kernfunktionen.
 name: Release
 
+# Nur von Hand starten. Das Veröffentlichen des Entwurfs legt den Tag an; das löst keinen zweiten Bau mehr aus.
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
 
 # Grundsätzlich nur lesen; Schreibrechte bekommen nur die Schritte, die in den Entwurf hochladen

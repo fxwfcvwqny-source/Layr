@@ -1,6 +1,6 @@
 {
   "name": "layr",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Layr – annotate, draw and take notes on PDFs",
   "main": "app/main.js",
   "author": {
@@ -8,6 +8,9 @@
   },
   "license": "UNLICENSED",
   "productName": "Layr",
+  "dependencies": {
+    "sherpa-onnx-node": "1.13.8"
+  },
   "devDependencies": {
     "electron": "44.7.2",
     "electron-builder": "26.15.3"
@@ -111,7 +114,12 @@
       "onlyLoadAppFromAsar": true,
       "loadBrowserProcessSpecificV8Snapshot": false,
       "grantFileProtocolExtraPrivileges": true
-    }
+    },
+    "npmRebuild": false,
+    "asarUnpack": [
+      "node_modules/sherpa-onnx-linux-x64/**",
+      "node_modules/sherpa-onnx-win-x64/**"
+    ]
   },
   "homepage": "https://github.com/fxwfcvwqny-source/Layr",
   "repository": {

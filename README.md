@@ -10,6 +10,7 @@
 
 ## Features
 
+- **Dictation (offline)** – click the microphone (or press Ctrl+Shift+D) and speak into a text box, a table cell or the notes; punctuation included. German, English and 23 more European languages are recognized automatically. Uses NVIDIA's Parakeet v3 model, which runs entirely on your computer – nothing you say is uploaded. The model (about 490 MB) is only downloaded after you agree, the first time you use dictation (desktop app)
 - **Tabs** – open several PDFs at once, each in its own tab; switch with a click or Ctrl+Tab, close with × or Ctrl+W. Opening a file that is already open just switches to its tab
 - **Write on any PDF** – text boxes with 16 fonts (Arial, Times New Roman, Calibri, Roboto, handwriting …), bold, underline, bullet and numbered lists, automatic capital letters at the start of a sentence (Ctrl+Z undoes it, can be turned off); colour the whole box or just single letters and words. In the saved PDF your text can be selected, copied and searched in any PDF viewer
 - **Pen and highlighter with shape recognition** – draw freehand, hold at the end and the stroke snaps into a straight line, circle, rectangle or triangle

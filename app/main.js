@@ -1,5 +1,5 @@
 // Layr – Desktop-App (Electron) für Linux und Windows, früher PDF-Werkbank
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell, net, session } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, net, session, utilityProcess } = require('electron');
 const { pathToFileURL } = require('url');
 const crypto = require('crypto');
 const zlib = require('zlib');
@@ -143,8 +143,15 @@ else {
   app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
     // Berechtigungen: nur Text in die Zwischenablage schreiben (Kopieren-Knöpfe); keine Downloads aus der Seite
-    session.defaultSession.setPermissionRequestHandler((_wc, perm, cb) => cb(perm === 'clipboard-sanitized-write'));
-    session.defaultSession.setPermissionCheckHandler((_wc, perm) => perm === 'clipboard-sanitized-write');
+    // Mikrofon: nur für die eigene Seite, nur Ton (keine Kamera, kein Bildschirm) und nur während eines Diktats
+    session.defaultSession.setPermissionRequestHandler((wc, perm, cb, details) => {
+      if (perm === 'clipboard-sanitized-write') return cb(true);
+      const d = details || {};
+      cb(perm === 'media' && micArmed && !!win && !win.isDestroyed() && wc === win.webContents && samePage(d.requestingUrl) &&
+        Array.isArray(d.mediaTypes) && d.mediaTypes.length > 0 && d.mediaTypes.every(t => t === 'audio'));
+    });
+    session.defaultSession.setPermissionCheckHandler((wc, perm, _origin, details) => perm === 'clipboard-sanitized-write' ||
+      (perm === 'media' && micArmed && !!win && !win.isDestroyed() && wc === win.webContents && !!details && details.mediaType === 'audio'));
     session.defaultSession.on('will-download', e => e.preventDefault());
     // Die Rechtschreibprüfung macht Layr selbst (Hunspell, lokal). Chromiums eigene Prüfung bleibt aus und lädt nichts von Google.
     try { session.defaultSession.setSpellCheckerEnabled(false); session.defaultSession.setSpellCheckerLanguages([]); session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://127.0.0.1:9/'); } catch (e) {}
@@ -586,4 +593,123 @@ handle('upd-terminal', async () => {
 listen('upd-auto-install', (_e, on) => { if (pending && (pending.type === 'nsis' || pending.type === 'appimage')) installOnQuit = !!on; });
 app.on('will-quit', () => { if (installOnQuit && pending) installNow(relaunchAfter); });
 
+
+// ---------- Diktieren (3.3) ----------
+// Spracherkennung NVIDIA Parakeet TDT 0.6B v3 (CC BY 4.0) über sherpa-onnx (Apache-2.0). Läuft komplett auf diesem Rechner.
+// Das Modellpaket kommt nur nach ausdrücklicher Zustimmung von der GitHub-Seite des sherpa-onnx-Projekts und wird gegen feste
+// Prüfsummen geprüft (Paket und jede einzelne Datei), bevor Layr es benutzt.
+const ASR_TEST = /^http:\/\/(127\.0\.0\.1|localhost):\d+\/[\w./-]+$/.test(process.env.LAYR_ASR_URL || '') ? process.env.LAYR_ASR_URL : null;
+const ASR_PKG = {
+  url: ASR_TEST || 'https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2',
+  size: 487170055, sha256: '5793d0fd397c5778d2cf2126994d58e9d56b1be7c04d13c7a15bb1b4eafb16bf',
+  dir: 'sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8',
+  files: {
+    'encoder.int8.onnx': [652184281, 'acfc2b4456377e15d04f0243af540b7fe7c992f8d898d751cf134c3a55fd2247'],
+    'decoder.int8.onnx': [11845275, '179e50c43d1a9de79c8a24149a2f9bac6eb5981823f2a2ed88d655b24248db4e'],
+    'joiner.int8.onnx': [6355277, '3164c13fc2821009440d20fcb5fdc78bff28b4db2f8d0f0b329101719c0948b3'],
+    'tokens.txt': [93939, 'd58544679ea4bc6ac563d1f545eb7d474bd6cfa467f0a6e2c1dc1c7d37e3c35d'],
+  },
+};
+const ASR_ROOT = () => path.join(app.getPath('userData'), 'models');
+const ASR_DIR = () => path.join(ASR_ROOT(), 'parakeet-tdt-0.6b-v3');
+const ASR_UNPACKED = Object.values(ASR_PKG.files).reduce((a, f) => a + f[0], 0);
+let micArmed = false, asrJob = null, asrW = null, asrReady = null, asrIdle = 0, asrSeq = 0;
+const asrPend = new Map();
+const asrSend = (...a) => { try { if (win && !win.isDestroyed()) win.webContents.send('asr-progress', ...a); } catch (e) {} };
+function asrInstalled() {
+  try { return Object.entries(ASR_PKG.files).every(([f, [size]]) => fs.statSync(path.join(ASR_DIR(), f)).size === size); } catch (e) { return false; }
+}
+const sha256File = f => new Promise((res, rej) => { const h = crypto.createHash('sha256'); fs.createReadStream(f).on('data', d => h.update(d)).on('error', rej).on('end', () => res(h.digest('hex'))); });
+function tarPath() {
+  const c = process.platform === 'win32' ? [path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'tar.exe')] : ['/usr/bin/tar', '/bin/tar'];
+  return c.find(p => { try { return fs.statSync(p).isFile(); } catch (e) { return false; } }) || null;
+}
+function freeBytes(dir) { try { const s = fs.statfsSync(dir); return s.bavail * s.bsize; } catch (e) { return Infinity; } }
+handle('asr-state', () => ({ installed: asrInstalled(), busy: !!asrJob, download: ASR_PKG.size, unpacked: ASR_UNPACKED, loaded: !!(asrW && asrReady) }));
+handle('asr-install', async () => {
+  if (asrJob) return { error: 'busy' };
+  if (asrInstalled()) return { ok: true };
+  const job = asrJob = { ac: new AbortController(), child: null, canceled: false };
+  const root = ASR_ROOT(), part = path.join(root, '.parakeet.download'); let tmp = null;
+  try {
+    fs.mkdirSync(root, { recursive: true, mode: 0o700 }); try { fs.chmodSync(root, 0o700); } catch (e) {}
+    if (freeBytes(root) < ASR_PKG.size + ASR_UNPACKED + 100e6) return { error: 'space', need: ASR_PKG.size + ASR_UNPACKED };
+    const tar = tarPath(); if (!tar) return { error: 'tar' };
+    try { fs.rmSync(part, { force: true }); } catch (e) {}
+    // 1) Laden und dabei die Prüfsumme bilden
+    const r = await net.fetch(ASR_PKG.url, { headers: { 'User-Agent': 'Layr' }, signal: job.ac.signal });
+    if (!r.ok || !r.body) throw new Error('http ' + r.status);
+    const h = crypto.createHash('sha256'), fd = fs.openSync(part, 'wx', 0o600); let got = 0, last = 0;
+    try { const rd = r.body.getReader();
+      for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > ASR_PKG.size) throw new Error('size');
+        h.update(value); fs.writeSync(fd, value);
+        if (Date.now() - last > 200) { last = Date.now(); asrSend('dl', got, ASR_PKG.size); } }
+    } finally { fs.closeSync(fd); }
+    if (got !== ASR_PKG.size || h.digest('hex') !== ASR_PKG.sha256) throw new Error('hash');
+    // 2) Entpacken (nur die vier benötigten Dateien) in einen privaten Hilfsordner
+    asrSend('unpack', 0, ASR_UNPACKED);
+    tmp = fs.mkdtempSync(path.join(root, '.unpack-')); try { fs.chmodSync(tmp, 0o700); } catch (e) {}
+    const members = Object.keys(ASR_PKG.files).map(f => ASR_PKG.dir + '/' + f);
+    const enc = path.join(tmp, ASR_PKG.dir, 'encoder.int8.onnx');
+    const tick = setInterval(() => { let n = 0; for (const f of Object.keys(ASR_PKG.files)) { try { n += fs.statSync(path.join(tmp, ASR_PKG.dir, f)).size; } catch (e) {} } asrSend('unpack', n, ASR_UNPACKED); }, 400);
+    let errText = '';
+    const code = await new Promise(res => { try {
+      const c = job.child = spawn(tar, ['-xjf', part, '-C', tmp, ...members], { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true });
+      c.stderr.on('data', d => { if (errText.length < 2000) errText += d; }); c.on('exit', x => res(x)); c.on('error', () => res(-1)); } catch (e) { res(-1); } });
+    clearInterval(tick); job.child = null;
+    if (job.canceled) throw new Error('canceled');
+    if (code !== 0) throw new Error(/bzip2/i.test(errText) ? 'bzip2' : 'unpack');
+    // 3) Jede Datei prüfen, dann an ihren Platz
+    asrSend('check', 0, 1);
+    for (const [f, [size, sum]] of Object.entries(ASR_PKG.files)) {
+      const p = path.join(tmp, ASR_PKG.dir, f), st = fs.lstatSync(p);
+      if (!st.isFile() || st.size !== size || (await sha256File(p)) !== sum) throw new Error('hash');
+    }
+    try { fs.rmSync(ASR_DIR(), { recursive: true, force: true }); } catch (e) {}
+    fs.renameSync(path.join(tmp, ASR_PKG.dir), ASR_DIR());
+    asrSend('done', 1, 1);
+    return { ok: true };
+  } catch (e) {
+    const m = job.canceled ? 'canceled' : String((e && e.message) || e);
+    return { error: /abort/i.test(m) ? 'canceled' : m };
+  } finally {
+    try { fs.rmSync(part, { force: true }); } catch (e) {}
+    if (tmp) { try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (e) {} }
+    if (asrJob === job) asrJob = null;
+  }
+});
+listen('asr-cancel', () => { const j = asrJob; if (!j) return; j.canceled = true; try { j.ac.abort(); } catch (e) {} try { if (j.child) j.child.kill(); } catch (e) {} });
+handle('asr-remove', () => { asrKill(); if (asrJob) return { error: 'busy' }; try { fs.rmSync(ASR_DIR(), { recursive: true, force: true }); return { ok: true }; } catch (e) { return { error: 'rm' }; } });
+// Hilfsprozess: wird erst beim Diktieren gestartet und nach 5 Minuten ohne Diktat wieder beendet (gibt ca. 1 GB Speicher frei)
+function asrKill() { micArmed = false; const w = asrW; asrW = null; asrReady = null; clearTimeout(asrIdle);
+  for (const [, p] of asrPend) p.rej(new Error('stopped')); asrPend.clear(); if (w) { try { w.kill(); } catch (e) {} } }
+function asrTouch() { clearTimeout(asrIdle); asrIdle = setTimeout(() => { if (!micArmed) asrKill(); }, 5 * 60e3); }
+function asrWorker() {
+  if (asrW) return asrW;
+  const w = asrW = utilityProcess.fork(path.join(__dirname, 'asr-worker.js'), [], { serviceName: 'Layr Diktat', stdio: 'ignore' });
+  w.on('message', m => { if (!m || typeof m !== 'object' || typeof m.key !== 'string') return;
+    const p = asrPend.get(m.key); if (!p) return; asrPend.delete(m.key); m.t === 'err' ? p.rej(new Error(m.msg || 'asr')) : p.res(m); });
+  w.on('exit', () => { if (asrW === w) { asrW = null; asrReady = null; micArmed = false; for (const [, p] of asrPend) p.rej(new Error('exit')); asrPend.clear(); } });
+  return w;
+}
+function asrCall(key, msg, ms) { const w = asrWorker(); return new Promise((res, rej) => {
+  const t = setTimeout(() => { if (asrPend.get(key)) { asrPend.delete(key); rej(new Error('timeout')); } }, ms);
+  asrPend.set(key, { res: v => { clearTimeout(t); res(v); }, rej: e => { clearTimeout(t); rej(e); } }); w.postMessage({ ...msg, key }); }); }
+handle('asr-probe', async () => { try { const r = await asrCall('_probe', { t: 'probe' }, 30000); asrTouch(); return { ok: true, version: r.version, ort: r.ort }; } catch (e) { return { error: String(e.message || e) }; } });
+handle('asr-start', async () => {
+  if (!asrInstalled()) return { error: 'missing' };
+  try {
+    if (!asrReady) { const threads = Math.max(1, Math.min(8, (require('os').availableParallelism ? require('os').availableParallelism() : require('os').cpus().length) - 1));
+      asrReady = asrCall('_load', { t: 'load', dir: ASR_DIR(), threads }, 120000); }
+    await asrReady; micArmed = true; asrTouch(); return { ok: true };
+  } catch (e) { asrKill(); return { error: String(e.message || e) }; }
+});
+listen('asr-stop', () => { micArmed = false; asrTouch(); });
+handle('asr-decode', async (_e, samples) => {
+  if (!(samples instanceof Float32Array) || samples.length < 1600 || samples.length > 16000 * 40) return { error: 'samples' };
+  if (!asrW || !asrReady) return { error: 'notready' };
+  try { await asrReady; const id = 'd' + (++asrSeq); const r = await asrCall(id, { t: 'dec', id, samples }, 120000); asrTouch(); return { text: String(r.text || '').slice(0, 20000) }; }
+  catch (e) { return { error: String(e.message || e) }; }
+});
+app.on('will-quit', () => asrKill());
 app.on('window-all-closed', () => app.quit());

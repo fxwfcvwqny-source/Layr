@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-PYlOkuI+mHcy3DSUpA5DuEkbOVHm52f2LbtQVnOglMg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-LGWHS2JGjU//EBLGVFx3vB5yuHX4gSRIJa49fLnLt7o=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -777,6 +777,28 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .tblbar button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 :root[data-sheet="night"] .page .tblbar{filter:none}
 .sym.symtbl svg{width:60px;height:40px;padding:5px 0;color:#2b3440}
+/* 3.3: Diktieren */
+#bMic.rec{background:var(--danger,#c2412d);color:#fff;animation:lyr-mic 1.6s ease-out infinite}
+#bMic.load svg{animation:lyr-mic-load 1s ease-in-out infinite}
+@keyframes lyr-mic{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--danger,#c2412d) 55%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+@keyframes lyr-mic-load{50%{opacity:.35}}
+.dict{position:fixed;z-index:95;left:16px;bottom:calc(52px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px;padding:7px 7px 7px 14px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:999px;box-shadow:0 12px 34px rgba(10,16,22,.22)}
+.dict[hidden]{display:none}
+.dict-lv{display:flex;gap:3px;align-items:center;height:22px}
+.dict-lv i{display:block;width:4px;height:22px;border-radius:2px;background:var(--muted);transform:scaleY(.18);transition:transform .08s linear}
+.dict.on .dict-lv i{background:var(--danger,#c2412d)}
+.dict-t{font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dict .btn{height:30px;border-radius:999px}
+.dict .btn[hidden]{display:none}
+#asrDlg .asrcard{width:min(520px,100%)}
+.asr-b{display:flex;flex-direction:column;gap:12px}
+.asr-b p{margin:0;line-height:1.5}
+.asr-facts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.45}
+.asr-err{color:var(--danger,#c2412d);font-size:13px}
+.asr-btns{justify-content:flex-end}
+#asrSec .upd-i svg{width:18px;height:18px}
+#asrSec .ab-row .hint{display:block}
+@media (prefers-reduced-motion:reduce){#bMic.rec,#bMic.load svg{animation:none}}
 /* 3.0: IT-Rechner */
 .calccard{width:min(700px,100%)}
 #calcMode{flex-wrap:wrap}
@@ -895,6 +917,7 @@ header,.file{min-width:0}
       <button class="ib" id="bThumbs" aria-pressed="false" title="Seitenvorschau ein/aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="3" y="15" width="7" height="6" rx="1"/><rect x="14" y="15" width="7" height="6" rx="1"/></svg></button>
       <button class="ib" id="bTglTools" aria-pressed="true" title="Werkzeugleiste ein/aus (Tab blendet alle Leisten aus)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M6.5 6.5h0M9.5 6.5h0M12.5 6.5h0" stroke-linecap="round" stroke-width="2.4"/></svg></button>
       <button class="ib hide-sm" id="bTglSide" aria-pressed="true" title="Seitenleiste ein/aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></button>
+      <button class="ib" id="bMic" aria-pressed="false" title="Diktieren (Strg+Umschalt+D)" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></button>
       <button class="ib" id="bNotes" aria-pressed="false" title="Notizen (N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7z"/><path d="M7 3v18M4.5 7.5h4M4.5 12h4M4.5 16.5h4M11.5 8h4.5M11.5 12h4.5"/></svg></button>
       <button class="ib hide-sm" id="bInfo" title="Layr &amp; Updates" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/><path d="M12 8v4l2.5 1.5"/></svg><span class="upd-dot" aria-hidden="true"></span></button>
       <button class="ib hide-sm" id="bDesign" title="Personalisieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 9.7C22 5.5 17.5 2 12 2z"/></svg></button>
@@ -1090,8 +1113,34 @@ header,.file{min-width:0}
       <p class="hint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
       <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
       <p class="hint">Die Liste liegt nur auf diesem Rechner und enthält nur Dateinamen und Ordner.</p></div></section>
+    <section id="asrSec" hidden><div class="ab-row"><span class="upd-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span><div><b>Diktieren</b><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div></section>
   </div>
 </div>
+<div class="modal" id="asrDlg" hidden role="dialog" aria-modal="true" aria-labelledby="asrT">
+  <div class="card asrcard">
+    <div class="ip-h"><h2 id="asrT">Diktieren einrichten</h2><button class="ib" id="asrX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="asrAsk" class="asr-b">
+      <p>Zum Diktieren braucht Layr einmalig ein Spracherkennungs-Modell: <b>NVIDIA Parakeet TDT 0.6B v3</b></p>
+      <p><b>Soll es jetzt installiert werden?</b></p>
+      <ul class="asr-facts">
+        <li><b>Download:</b> <span id="asrSz">487 MB</span> <span class="hint">·</span> <span>auf dem Rechner danach</span> <span id="asrSz2">670 MB</span></li>
+        <li><b>Läuft offline:</b> Deine Sprache wird nur auf diesem Rechner erkannt und nie hochgeladen.</li>
+        <li><b>Sprachen:</b> Deutsch, Englisch und 23 weitere europäische Sprachen, automatisch erkannt, mit Satzzeichen.</li>
+        <li><b>Herkunft:</b> GitHub-Seite des Projekts sherpa-onnx; Layr prüft jede Datei gegen eine feste Prüfsumme.</li>
+      </ul>
+      <p class="hint">Modell: NVIDIA, Lizenz CC BY 4.0. Später entfernbar unter „Layr &amp; Updates“.</p>
+      <p class="asr-err" id="asrErr" role="alert" hidden></p>
+      <div class="ab-btns asr-btns"><button class="btn" id="asrNo">Nicht jetzt</button><button class="btn primary" id="asrYes">Herunterladen und installieren</button></div>
+    </div>
+    <div id="asrRun" class="asr-b" hidden>
+      <p id="asrPh">Lädt das Sprachmodell herunter …</p>
+      <div class="upd-prog"><i id="asrBar"></i></div><div class="upd-n" id="asrN"></div>
+      <p class="hint">Du kannst dieses Fenster schließen und weiterarbeiten; die Einrichtung läuft weiter.</p>
+      <div class="ab-btns asr-btns"><button class="btn" id="asrCancel">Abbrechen</button></div>
+    </div>
+  </div>
+</div>
+<div class="dict" id="dictBar" role="status" aria-live="polite" hidden><span class="dict-lv" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="dict-t" id="dictT"></span><button class="btn" id="dictStop">Beenden</button></div>
 <div class="drawer-bg" id="studioBg" hidden></div>
 <aside class="studio" id="studio" role="dialog" aria-modal="true" aria-labelledby="stT" hidden>
   <div class="st-head"><div><h2 id="stT">Personalisieren</h2><p>Gilt nur auf diesem Rechner und ändert keine PDF.</p></div><button class="ib" id="stClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -1425,6 +1474,33 @@ const I18N_EN={
 'Tabelle':'Table','Zeilen':'Rows','Spalten':'Columns','Zeile':'Row','Spalte':'Column','Zeile entfernen':'Remove row','Zeile hinzufügen':'Add row','Spalte entfernen':'Remove column','Spalte hinzufügen':'Add column',
 'Kopfzeile':'Header','Kopfzeile hervorheben ein/aus':'Highlight header row on/off','Gleich breit':'Even widths','Spalten gleich breit':'Even column widths',
 'Tabelle aufziehen. Danach in eine Zelle klicken zum Schreiben.':'Drag out a table. Then click a cell to type.',
+// 3.3
+'Diktieren (Strg+Umschalt+D)':'Dictate (Ctrl+Shift+D)','Diktat beenden (Strg+Umschalt+D)':'Stop dictation (Ctrl+Shift+D)','Diktieren':'Dictation','Einrichten':'Set up','Sprachmodell entfernen':'Remove speech model',
+'Diktieren einrichten':'Set up dictation','Beenden':'Stop','Nicht jetzt':'Not now','Herunterladen und installieren':'Download and install','Abbrechen':'Cancel',
+'Zum Diktieren braucht Layr einmalig ein Spracherkennungs-Modell:':'For dictation Layr needs a speech recognition model once:','Soll es jetzt installiert werden?':'Install it now?',
+'Download:':'Download:','auf dem Rechner danach':'on disk afterwards','Läuft offline:':'Works offline:','Deine Sprache wird nur auf diesem Rechner erkannt und nie hochgeladen.':'Your speech is recognized only on this computer and never uploaded.',
+'Sprachen:':'Languages:','Deutsch, Englisch und 23 weitere europäische Sprachen, automatisch erkannt, mit Satzzeichen.':'English, German and 23 more European languages, detected automatically, with punctuation.',
+'Herkunft:':'Source:','GitHub-Seite des Projekts sherpa-onnx; Layr prüft jede Datei gegen eine feste Prüfsumme.':'GitHub page of the sherpa-onnx project; Layr checks every file against a fixed checksum.',
+'Modell: NVIDIA, Lizenz CC BY 4.0. Später entfernbar unter „Layr & Updates“.':'Model: NVIDIA, licence CC BY 4.0. Can be removed later under “Layr & updates”.',
+'Du kannst dieses Fenster schließen und weiterarbeiten; die Einrichtung läuft weiter.':'You can close this window and keep working; the setup continues.',
+'Lädt das Sprachmodell herunter …':'Downloading the speech model …','Entpackt (kann eine Minute dauern) …':'Unpacking (may take a minute) …','Prüft die Dateien …':'Checking the files …','Fertig.':'Done.',
+'Sprachmodell wird geladen …':'Loading speech model …','Hört zu … einfach sprechen':'Listening … just speak','Hört zu … erkennt gerade':'Listening … recognizing','Erkennt den Rest …':'Recognizing the rest …',
+'Erst in ein Textfeld, eine Tabellenzelle oder die Notizen klicken, dann diktieren.':'Click into a text box, a table cell or the notes first, then dictate.',
+'Die Spracherkennung ließ sich nicht starten.':'Speech recognition could not be started.',
+'Layr darf das Mikrofon nicht benutzen. Bitte in den Datenschutz-Einstellungen des Systems erlauben.':'Layr may not use the microphone. Please allow it in the system privacy settings.',
+'Kein Mikrofon gefunden.':'No microphone found.','Das Mikrofon ließ sich nicht öffnen.':'The microphone could not be opened.',
+'Zwei Minuten nichts gehört. Diktat beendet.':'Nothing heard for two minutes. Dictation stopped.','Dieser Teil ließ sich nicht erkennen.':'This part could not be recognized.',
+'Das Textfeld ist schon zu. Erkannt wurde: ':'The text box is already closed. Recognized: ',
+'Nicht genug freier Speicherplatz. Benötigt werden etwa ':'Not enough free disk space. About this much is needed: ',
+'Zum Entpacken fehlt das Programm „tar“.':'The program “tar” is missing for unpacking.',
+'Zum Entpacken fehlt das Programm „bzip2“. Im Terminal installieren: sudo apt install bzip2':'The program “bzip2” is missing for unpacking. Install it in a terminal: sudo apt install bzip2',
+'Die geladene Datei stimmt nicht mit der erwarteten Prüfsumme überein und wurde gelöscht. Bitte später noch einmal versuchen.':'The downloaded file does not match the expected checksum and was deleted. Please try again later.',
+'Die Einrichtung läuft schon.':'Setup is already running.','Das Entpacken hat nicht geklappt.':'Unpacking failed.',
+'Der Download hat nicht geklappt. Bitte die Internetverbindung prüfen.':'The download failed. Please check the internet connection.',
+'Diktieren ist eingerichtet. Einfach sprechen – Strg+Umschalt+D beendet.':'Dictation is set up. Just speak – Ctrl+Shift+D stops.',
+'Sprachmodell NVIDIA Parakeet v3 ist eingerichtet (belegt ':'Speech model NVIDIA Parakeet v3 is set up (uses ','). Erkannt wird nur auf diesem Rechner.':'). Recognition runs only on this computer.',
+'Wird gerade eingerichtet …':'Being set up …','Noch nicht eingerichtet. Einmaliger Download: ':'Not set up yet. One-time download: ',
+'Noch einmal klicken, um das Sprachmodell zu entfernen.':'Click again to remove the speech model.','Sprachmodell entfernt.':'Speech model removed.','Entfernen hat nicht geklappt.':'Removing failed.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -4283,6 +4359,124 @@ function tblHintSet(o,mode,k,x,y){const X=mode==='tcol',fr=X?o.cw:o.rh,len=X?o.w
 function symTableBtn(grid,after){const b=document.createElement('button');b.type='button';b.className='sym symtbl';b.title=tr('Tabelle');b.setAttribute('aria-pressed',S.tool==='table'?'true':'false');
   b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 10h18M3 14.5h18M9 5v14M15 5v14"/></svg>';
   const s=document.createElement('span');s.textContent=tr('Tabelle');b.appendChild(s);b.onclick=()=>{setTool('table');after&&after();toast(tr('Tabelle aufziehen. Danach in eine Zelle klicken zum Schreiben.'))};grid.appendChild(b)}
+
+/* ---------- 3.3: Diktieren (NVIDIA Parakeet v3, läuft lokal) ----------
+   Ton aus dem Mikrofon wird in Sprechpausen in Stücke geteilt, auf diesem Rechner erkannt und an der Schreibmarke eingefügt.
+   Ziele: offenes Textfeld, Tabellenzelle, Beschriftung oder die Notizen. Nichts davon geht ins Internet. */
+const DICT={on:false,busy:false,tgt:null,stream:null,ctx:null,node:null,seg:null,pre:[],nf:.004,sil:0,voiced:0,quiet:0,lv:0,q:Promise.resolve(),pending:0,after:false,raf:0};
+const asrOK=()=>!!(window.werkbank&&werkbank.asrState);
+const asrMB=b=>Math.round(b/1e6).toLocaleString(LANG==='en'?'en-US':'de-DE')+' MB';
+function dictTarget(){
+  if(editorEl&&ED&&ED.eng){const p=ED.p!=null?ED.p:S.pages.findIndex(P=>P.el&&P.el.contains(editorEl));let o=ED.o||null,cell=null;
+    if(!o&&p>=0){const t=S.pages[p].objs.find(q=>q.type==='table'&&q.__ec);if(t){o=t;cell=t.__ec.slice()}else if(editingObj)o=editingObj}
+    return{k:'eng',eng:ED.eng,o,cell,page:p}}
+  const nt=document.getElementById('ntText');if(nt&&notesIsOpen())return{k:'notes',el:nt};
+  return null}
+const dictJoin=(prev,t)=>(prev&&!/\s$/.test(prev)&&!/^[.,!?;:)\]»“”]/.test(t)?' ':'')+t;
+// Editor schon zu: an das Ende des Feldes anhängen, das diktiert wurde
+function dictFallback(T,text){const o=T.o,P=S.pages[T.page];if(!o||!P||!P.objs.includes(o))return false;
+  if(o.type==='text'){pushHist();o.text=(o.text||'')+dictJoin(o.text||'',text)}
+  else if(o.type==='table'&&T.cell){const[r,c]=T.cell;if(!o.cells[r]||c>=o.cols)return false;pushHist();const v=o.cells[r][c]||'';o.cells[r][c]=v+dictJoin(v,text)}
+  else if(typeof o.label==='string'){pushHist();o.label=o.label+dictJoin(o.label,text)}
+  else return false;
+  markDirty();redraw(T.page);return true}
+function dictInsert(T,text){text=String(text||'').replace(/\s+/g,' ').trim();if(!text||!T)return;
+  if(T.k==='eng'){
+    if(editorEl&&ED&&ED.eng===T.eng){const st=T.eng.st,before=st.v.slice(0,Math.min(st.c,st.a));let t=text;
+      if(needCap(before)){const u=capOf(t[0]);if(u)t=u+t.slice(1)}T.eng.put(dictJoin(before,t));return}
+    if(!dictFallback(T,text))toast(tr('Das Textfeld ist schon zu. Erkannt wurde: ')+text.slice(0,160));return}
+  const nt=T.el,open=notesIsOpen()&&document.activeElement===nt,a=open?nt.selectionStart:nt.value.length,t=dictJoin(nt.value.slice(0,a),text);
+  if(open)document.execCommand('insertText',false,t);else{nt.setRangeText(t,a,a,'end');nt.dispatchEvent(new Event('input',{bubbles:true}))}}
+function dictFeed(x){if(!DICT.on||!(x instanceof Float32Array))return;let e=0;for(let i=0;i<x.length;i++)e+=x[i]*x[i];const rms=Math.sqrt(e/x.length);DICT.lv=rms;
+  const sp=rms>Math.max(.01,DICT.nf*3);
+  if(!DICT.seg){if(!sp){DICT.nf=Math.min(.05,DICT.nf*.95+rms*.05);DICT.pre.push(x);if(DICT.pre.length>3)DICT.pre.shift();
+      if(++DICT.quiet>1200)dictStop(tr('Zwei Minuten nichts gehört. Diktat beendet.'));return}
+    DICT.seg=[...DICT.pre,x];DICT.pre=[];DICT.sil=0;DICT.voiced=1;DICT.quiet=0;return}
+  DICT.seg.push(x);if(sp){DICT.sil=0;DICT.voiced++}else DICT.sil++;
+  if(DICT.sil>=7||DICT.seg.length>=250)dictFlush()}
+function dictFlush(){const seg=DICT.seg,voiced=DICT.voiced;DICT.seg=null;DICT.voiced=0;DICT.sil=0;if(!seg||voiced<3)return;
+  let n=0;for(const b of seg)n+=b.length;const s=new Float32Array(n);let o=0;for(const b of seg){s.set(b,o);o+=b.length}
+  const T=DICT.tgt;DICT.pending++;dictUI();
+  DICT.q=DICT.q.then(async()=>{let r=null;try{r=await werkbank.asrDecode(s)}catch(e){}DICT.pending--;
+    try{if(r&&r.text)dictInsert(T,r.text);else if(r&&r.error)toast(tr('Dieser Teil ließ sich nicht erkennen.'))}finally{dictUI()}})}
+function dictCleanup(){try{DICT.node&&(DICT.node.port.onmessage=null,DICT.node.disconnect())}catch(e){}try{DICT.stream&&DICT.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+  try{DICT.ctx&&DICT.ctx.close()}catch(e){}DICT.node=DICT.stream=DICT.ctx=null}
+function dictStop(msg){if(!DICT.on&&!DICT.busy)return;const was=DICT.on;DICT.on=false;DICT.busy=false;if(was&&DICT.seg)dictFlush();dictCleanup();
+  try{werkbank.asrStop()}catch(e){}dictUI();if(msg)toast(msg)}
+async function dictStart(){
+  if(!asrOK()||DICT.on||DICT.busy)return;
+  if(!dictTarget()){toast(tr('Erst in ein Textfeld, eine Tabellenzelle oder die Notizen klicken, dann diktieren.'));return}
+  let st=null;try{st=await werkbank.asrState()}catch(e){}
+  if(!st||!st.installed){asrDlgOpen(true);return}
+  DICT.busy=true;dictUI();
+  const r=await werkbank.asrStart();
+  if(!DICT.busy){try{werkbank.asrStop()}catch(e){}return}          // zwischendurch abgebrochen
+  if(!r||!r.ok){DICT.busy=false;dictUI();toast(tr('Die Spracherkennung ließ sich nicht starten.')+(r&&r.error?' ('+String(r.error).slice(0,80)+')':''));return}
+  try{DICT.stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
+    DICT.ctx=new AudioContext({sampleRate:16000});await DICT.ctx.audioWorklet.addModule('dictate-worklet.js');
+    const src=DICT.ctx.createMediaStreamSource(DICT.stream);DICT.node=new AudioWorkletNode(DICT.ctx,'layr-dictate',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});
+    DICT.node.port.onmessage=e=>dictFeed(e.data);src.connect(DICT.node);DICT.node.connect(DICT.ctx.destination);if(DICT.ctx.state!=='running')await DICT.ctx.resume()}
+  catch(e){dictCleanup();try{werkbank.asrStop()}catch(x){}const was=DICT.busy;DICT.busy=false;dictUI();if(!was)return;
+    toast(e&&e.name==='NotAllowedError'?tr('Layr darf das Mikrofon nicht benutzen. Bitte in den Datenschutz-Einstellungen des Systems erlauben.'):e&&(e.name==='NotFoundError'||e.name==='NotReadableError'||e.name==='OverconstrainedError')?tr('Kein Mikrofon gefunden.'):tr('Das Mikrofon ließ sich nicht öffnen.'));return}
+  if(!DICT.busy){dictCleanup();try{werkbank.asrStop()}catch(e){}dictUI();return}
+  const T=dictTarget();if(!T){DICT.busy=false;dictCleanup();try{werkbank.asrStop()}catch(e){}dictUI();toast(tr('Erst in ein Textfeld, eine Tabellenzelle oder die Notizen klicken, dann diktieren.'));return}
+  Object.assign(DICT,{tgt:T,on:true,busy:false,seg:null,pre:[],sil:0,voiced:0,quiet:0,nf:.004,lv:0});dictUI();dictMeter()}
+function dictToggle(){if(DICT.on||DICT.busy)dictStop();else dictStart()}
+function dictMeter(){cancelAnimationFrame(DICT.raf);const bars=document.querySelectorAll('#dictBar .dict-lv i');
+  const step=()=>{if(!DICT.on){bars.forEach(b=>b.style.transform='');return}
+    const v=Math.min(1,Math.sqrt(DICT.lv)*3.2);bars.forEach((b,k)=>{const w=[.55,.85,1,.8,.6][k]||1;b.style.transform=`scaleY(${(.18+.82*Math.min(1,v*w*(.85+.3*Math.random()))).toFixed(3)})`});
+    if(DICT.tgt&&DICT.tgt.k==='notes'&&!notesIsOpen())dictStop();DICT.raf=requestAnimationFrame(step)};DICT.raf=requestAnimationFrame(step)}
+function dictUI(){const b=document.getElementById('bMic'),bar=document.getElementById('dictBar');if(!b||!bar)return;
+  const on=DICT.on,load=DICT.busy,pend=DICT.pending>0;b.classList.toggle('rec',on);b.classList.toggle('load',load);b.setAttribute('aria-pressed',on?'true':'false');
+  b.title=on?tr('Diktat beenden (Strg+Umschalt+D)'):tr('Diktieren (Strg+Umschalt+D)');
+  if(on||load||pend){if(bar.hidden)showEl(bar)}else if(!bar.hidden&&!bar._ah)animHide(bar);
+  bar.classList.toggle('on',on);
+  $('#dictT').textContent=load?tr('Sprachmodell wird geladen …'):on?(pend?tr('Hört zu … erkennt gerade'):tr('Hört zu … einfach sprechen')):pend?tr('Erkennt den Rest …'):'';
+  $('#dictStop').hidden=!(on||load)}
+// Wechsel von Textfeld/Tab beendet das Diktat (der zuletzt gesprochene Satz wird noch eingefügt)
+{const ce=closeEditor;closeEditor=function(...a){if((DICT.on||DICT.busy)&&DICT.tgt&&DICT.tgt.k==='eng'&&editorEl)dictStop();return ce.apply(this,a)}}
+{const tq=tabQuiet;tabQuiet=async function(){if(DICT.on||DICT.busy)dictStop();try{await DICT.q}catch(e){}return tq()}}
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&!e.altKey&&(e.key==='d'||e.key==='D')&&asrOK()){e.preventDefault();e.stopImmediatePropagation();dictToggle()}},true);
+{const b=document.getElementById('bMic');if(b){b.hidden=!asrOK();b.addEventListener('mousedown',e=>e.preventDefault());b.onclick=()=>dictToggle()}
+ const s=document.getElementById('dictStop');if(s){s.addEventListener('mousedown',e=>e.preventDefault());s.onclick=()=>dictStop()}}
+
+/* Einrichten: erst fragen, dann laden (nur nach Klick auf „Herunterladen und einrichten“) */
+let asrBusy=false,asrDelArm=0;
+function asrErrText(r){const e=String(r&&r.error||'');
+  return e==='space'?tr('Nicht genug freier Speicherplatz. Benötigt werden etwa ')+asrMB(r.need||1.2e9)+'.'
+    :e==='tar'?tr('Zum Entpacken fehlt das Programm „tar“.')
+    :e==='bzip2'?tr('Zum Entpacken fehlt das Programm „bzip2“. Im Terminal installieren: sudo apt install bzip2')
+    :e==='hash'||e==='size'?tr('Die geladene Datei stimmt nicht mit der erwarteten Prüfsumme überein und wurde gelöscht. Bitte später noch einmal versuchen.')
+    :e==='busy'?tr('Die Einrichtung läuft schon.')
+    :e==='unpack'?tr('Das Entpacken hat nicht geklappt.')
+    :tr('Der Download hat nicht geklappt. Bitte die Internetverbindung prüfen.')}
+function asrDlgOpen(v,auto){const d=document.getElementById('asrDlg');if(!d)return;
+  if(v){DICT.after=auto!==false;$('#asrAsk').hidden=asrBusy;$('#asrRun').hidden=!asrBusy;$('#asrErr').hidden=true;
+    werkbank.asrState().then(st=>{if(st){$('#asrSz').textContent=asrMB(st.download);$('#asrSz2').textContent=asrMB(st.unpacked)}}).catch(()=>{});
+    showEl(d);setTimeout(()=>(asrBusy?$('#asrCancel'):$('#asrYes')).focus(),0)}
+  else animHide(d)}
+function asrProg(ph,got,total){const p=total>0?Math.max(0,Math.min(1,got/total)):0;$('#asrBar').style.width=(ph==='check'?100:p*100).toFixed(1)+'%';
+  $('#asrPh').textContent=ph==='dl'?tr('Lädt das Sprachmodell herunter …'):ph==='unpack'?tr('Entpackt (kann eine Minute dauern) …'):ph==='check'?tr('Prüft die Dateien …'):tr('Fertig.');
+  $('#asrN').textContent=ph==='dl'||ph==='unpack'?asrMB(got)+' / '+asrMB(total):''}
+async function asrInstall(){if(asrBusy)return;asrBusy=true;$('#asrAsk').hidden=true;$('#asrRun').hidden=false;$('#asrErr').hidden=true;asrProg('dl',0,1);
+  let r=null;try{r=await werkbank.asrInstall()}catch(e){r={error:'ipc'}}asrBusy=false;asrSecUpd();
+  if(r&&r.ok){const d=$('#asrDlg'),vis=!d.hidden&&!d._ah;asrDlgOpen(false);toast(tr('Diktieren ist eingerichtet. Einfach sprechen – Strg+Umschalt+D beendet.'));if(vis&&DICT.after&&dictTarget())dictStart();return}
+  $('#asrRun').hidden=true;$('#asrAsk').hidden=false;
+  if(r&&r.error==='canceled')return;$('#asrErr').textContent=asrErrText(r);$('#asrErr').hidden=false}
+async function asrSecUpd(){const sec=document.getElementById('asrSec');if(!sec)return;sec.hidden=!asrOK();if(sec.hidden)return;
+  let st=null;try{st=await werkbank.asrState()}catch(e){}if(!st)return;
+  $('#asrInfo').textContent=st.installed?tr('Sprachmodell NVIDIA Parakeet v3 ist eingerichtet (belegt ')+asrMB(st.unpacked)+tr('). Erkannt wird nur auf diesem Rechner.')
+    :st.busy?tr('Wird gerade eingerichtet …'):tr('Noch nicht eingerichtet. Einmaliger Download: ')+asrMB(st.download)+'.';
+  $('#asrSet').hidden=st.installed;$('#asrDel').hidden=!st.installed;$('#asrSet').disabled=!!st.busy}
+if(asrOK()){
+  werkbank.onAsrProgress((ph,got,total)=>{if(asrBusy)asrProg(ph,got,total)});
+  const d=$('#asrDlg');$('#asrX').onclick=()=>asrDlgOpen(false);$('#asrNo').onclick=()=>asrDlgOpen(false);$('#asrYes').onclick=asrInstall;
+  $('#asrCancel').onclick=()=>{try{werkbank.asrCancel()}catch(e){}};
+  d.addEventListener('pointerdown',e=>{if(e.target===d&&!asrBusy)asrDlgOpen(false)});d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();asrDlgOpen(false)}});
+  $('#asrSet').onclick=()=>{abOpen(false);asrDlgOpen(true,false)};
+  $('#asrDel').onclick=async()=>{if(Date.now()-asrDelArm>4000){asrDelArm=Date.now();toast(tr('Noch einmal klicken, um das Sprachmodell zu entfernen.'));return}asrDelArm=0;
+    dictStop();const r=await werkbank.asrRemove();toast(r&&r.ok?tr('Sprachmodell entfernt.'):tr('Entfernen hat nicht geklappt.'));asrSecUpd()};
+  $('#bInfo').addEventListener('click',()=>setTimeout(asrSecUpd,0));asrSecUpd()}
 
 // Personalisieren-Fenster öffnen/schließen
 const studio=$('#studio'),studioBg=$('#studioBg');

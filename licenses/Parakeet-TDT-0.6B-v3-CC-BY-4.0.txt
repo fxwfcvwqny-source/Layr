@@ -1,0 +1,14 @@
+NVIDIA Parakeet TDT 0.6B v3 – speech recognition model used by Layr's dictation feature
+
+The model is NOT part of Layr's installers or of this repository. Layr downloads it only when the
+user agrees, from the sherpa-onnx project's GitHub release "asr-models":
+  sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2
+  (SHA-256 5793d0fd397c5778d2cf2126994d58e9d56b1be7c04d13c7a15bb1b4eafb16bf)
+
+Original model: nvidia/parakeet-tdt-0.6b-v3, © NVIDIA Corporation
+  https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+  https://creativecommons.org/licenses/by/4.0/
+
+Changes: the sherpa-onnx project (k2-fsa) exported the model to ONNX and quantized it to int8.
+Layr uses these files unchanged.
