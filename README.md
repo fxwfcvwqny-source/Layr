@@ -29,6 +29,7 @@
 - **Signatures** – draw, type or scan your signature and place it anywhere or into a signature field; Layr can remember it on your device (a visible signature like on paper, not a certificate-based digital signature)
 - **Spell checking (German and English)** – misspelled words in text boxes, tables and notes get a red wavy line, right-click for suggestions or to add a word to your dictionary (manage your words under *Settings → Writing & spelling*); works offline with the real Hunspell engine
 - **Your own keyboard shortcuts** – change or remove any shortcut under *Settings → Keyboard shortcuts*, e.g. F9 for dictation or a single key for your favourite tool
+- **Print (Ctrl+P)** – print the whole document, the current page or a selection like 1-3, 5, with your annotations, form entries and signatures exactly as they will be saved; each page keeps its own size and orientation, and your notes can be added as a last page
 - **Search (Ctrl+F)** – find words in the PDF text and in your own annotations, with every match highlighted
 - **Pages and documents** – rotate, sort, duplicate and delete pages in a page overview (drag to reorder), add blank, lined, grid or dotted pages, merge several PDFs
 - **Rename files** – click the file name at the top left (or press F2) to rename the PDF right where it is

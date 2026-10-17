@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-iQ4EDBPrEOlLfrddF9xURA40SpILcuKwi0MUoJ6qJZQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ICbhaUo6IvvtE8BNUxatyQlDmE7EH6VoWDCe+La8Pms=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -880,6 +880,26 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .hmb[aria-expanded="true"]{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent)}
 :root[data-motion="off"] .ctx.hm,:root[data-motion="off"] .ctx.hm *{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){.ctx.hm,.ctx.hm *{animation:none!important}}
+/* 3.4: Drucken */
+#prDlg .prcard{width:min(440px,100%);gap:14px}
+.pr-row{display:flex;align-items:center;gap:12px}
+.pr-l{width:62px;flex:none;font-size:13px;color:var(--muted)}
+.pr-row .seg{flex:1}
+#prRange{height:34px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--panel);color:var(--ink);margin-left:74px}
+#prRange.bad{border-color:var(--danger,#c2412d)}
+#lpRoot{display:none}
+@media print{
+  @page{margin:0}
+  html.printing,html.printing body{background:#fff!important;margin:0!important;padding:0!important;height:auto!important;min-height:0!important;overflow:visible!important;display:block!important}
+  html.printing body>*:not(#lpRoot){display:none!important}
+  html.printing #lpRoot{display:block!important}
+  #lpRoot .lp-pg{position:relative;overflow:hidden;break-after:page;page-break-after:always;margin:0;padding:0}
+  #lpRoot .lp-pg img{display:block;width:100%;height:100%}
+  #lpRoot .lp-notes{break-before:page;font:11pt/1.55 "IBM Plex Sans",Arial,sans-serif;color:#111}
+  #lpRoot .lp-notes h1{font-size:15pt;margin:0 0 14pt}
+  #lpRoot .lp-nt{white-space:pre-wrap}
+  #lpRoot>:last-child{break-after:auto;page-break-after:auto}
+}
 /* 3.0: IT-Rechner */
 .calccard{width:min(700px,100%)}
 #calcMode{flex-wrap:wrap}
@@ -1245,6 +1265,18 @@ header,.file{min-width:0}
     <input type="search" id="kbQ" placeholder="Aktion suchen" autocomplete="off" spellcheck="false">
     <div class="kb-list" id="kbList"></div>
     <div class="ab-btns asr-btns"><button class="btn" id="kbReset" type="button">Alle zurücksetzen</button></div>
+  </div>
+</div>
+<div class="modal" id="prDlg" hidden role="dialog" aria-modal="true" aria-labelledby="prT">
+  <div class="card prcard">
+    <div class="ip-h"><h2 id="prT">Drucken</h2><button class="ib" id="prX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="pr-row"><span class="pr-l">Seiten</span><div class="seg" id="prWhich"><button type="button" data-v="all">Alle</button><button type="button" data-v="cur">Aktuelle Seite</button><button type="button" data-v="sel">Auswahl</button></div></div>
+    <input type="text" id="prRange" placeholder="z. B. 1-3, 5" autocomplete="off" spellcheck="false" hidden>
+    <label class="tgl"><input type="checkbox" id="prMarks" role="switch" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
+    <label class="tgl" id="prNotesRow"><input type="checkbox" id="prNotes" role="switch"><span class="knob"></span><span class="tl">Notizen als letzte Seite</span></label>
+    <div class="pr-row"><span class="pr-l">Qualität</span><div class="seg" id="prQ"><button type="button" data-v="150">Schnell</button><button type="button" data-v="200">Normal</button><button type="button" data-v="300">Fein</button></div></div>
+    <p class="hint" id="prInfo"></p>
+    <div class="ab-btns asr-btns"><button class="btn" id="prNo" type="button">Abbrechen</button><button class="btn primary" id="prGo" type="button">Drucken</button></div>
   </div>
 </div>
 <div class="drawer-bg" id="studioBg" hidden></div>
@@ -1631,6 +1663,12 @@ const I18N_EN={
 'Schreiben & Rechtschreibung':'Writing & spelling','Wörterbuch, Großschreibung, Diktieren':'Dictionary, capitalization, dictation','Tastenkürzel':'Keyboard shortcuts',
 'Eigene Tasten festlegen':'Set your own keys','Layr & Updates':'Layr & updates','Version und Updates':'Version and updates','Eine neue Version ist da':'A new version is available','Neu':'New',
 'Datei':'File','Ansicht':'View','Einstellungen':'Settings','Rechtschreibung & Diktieren':'Spelling & dictation','Tastenkürzel ändern':'Change keyboard shortcuts','Aktion suchen':'Search action',
+// 3.4
+'Drucken':'Print','Mit Beschriftungen und Formularen':'With annotations and forms','Seiten':'Pages','Alle':'All','Aktuelle Seite':'Current page','Auswahl':'Selection','z. B. 1-3, 5':'e.g. 1-3, 5',
+'Mit Beschriftungen, Formularen und Unterschriften':'With annotations, forms and signatures','Notizen als letzte Seite':'Notes as the last page','Qualität':'Quality','Schnell':'Fast','Normal':'Normal','Fein':'Fine',
+'Bitte Seiten angeben, z. B. 1-3, 5.':'Please enter pages, e.g. 1-3, 5.','1 Seite wird gedruckt.':'1 page will be printed.',' Seiten werden gedruckt.':' pages will be printed.',
+'Erst eine PDF öffnen.':'Open a PDF first.','Bereitet vor …':'Preparing …','Seite ':'Page ','Notizen':'Notes',
+'Falls kein Druckfenster erschienen ist: PDF speichern und von dort drucken.':'If no print window appeared: save the PDF and print it from there.','Drucken hat nicht geklappt: ':'Printing failed: ',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -4930,6 +4968,7 @@ const KB_DEF=[
   {id:'find',g:'Allgemein',n:'Suchen',def:'Ctrl+F',run:()=>openFind(),native:true,text:true},
   {id:'save',g:'Allgemein',n:'Speichern',def:'Ctrl+S',run:()=>save(false),native:true,text:true},
   {id:'saveAs',g:'Allgemein',n:'Speichern unter',def:'Ctrl+Shift+S',run:()=>save(true),native:true,text:true},
+  {id:'print',g:'Allgemein',n:'Drucken',def:'Ctrl+P',run:()=>prOpen(),text:true},
   {id:'open',g:'Allgemein',n:'PDF öffnen',def:'Ctrl+O',run:()=>fileIn.click(),native:true},
   {id:'recent',g:'Allgemein',n:'Zuletzt geöffnet',def:'Ctrl+Shift+O',run:()=>openRecent(),native:true,when:()=>!!(window.werkbank&&werkbank.recent)},
   {id:'newDoc',g:'Allgemein',n:'Neues Blatt oder leere Seiten',def:'Ctrl+Alt+N',run:()=>openNewDlg(),native:true},
@@ -5032,7 +5071,8 @@ const HM_IC={
   design:'<circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 9.7C22 5.5 17.5 2 12 2z"/>',
   writing:'<path d="M3 17 6.5 7 10 17M4.3 13.5h4.4"/><path d="m13 13 3 3 6-7"/>',
   keys:'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7.5 14h9"/>',
-  upd:'<path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>'};
+  upd:'<path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>',
+  print:'<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/>'};
 const hmSvg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HM_IC[k]||''}</svg>`;
 function hmKbd(c){const w=document.createElement('span');w.className='hm-k';for(const p of kbShow(c).split(/\+(?!$)/)){const k=document.createElement('kbd');k.textContent=p;w.appendChild(k)}return w}
 function hmOpen(btn,items,title){if(!ctx.hidden&&!ctx._ah&&ctx._owner===btn){closeMenu();return}if(ctx._owner===btn&&Date.now()-(ctx._closedAt||0)<350)return;
@@ -5065,7 +5105,8 @@ $('#bFileMenu').onclick=()=>hmOpen($('#bFileMenu'),[
   {ic:'merge',t:'PDFs zusammenführen',d:'Mehrere Dateien zu einer',run:()=>$('#bMerge').click()},
   {ic:'pages',t:'Seiten ordnen',d:'Drehen, sortieren, löschen',run:()=>$('#bPages').click()},
   {sep:1},
-  {ic:'saveas',t:'Speichern unter',d:'Als neue Datei',k:kbOf('saveAs'),run:()=>save(true)}],'Datei');
+  {ic:'saveas',t:'Speichern unter',d:'Als neue Datei',k:kbOf('saveAs'),run:()=>save(true)},
+  {ic:'print',t:'Drucken',d:'Mit Beschriftungen und Formularen',k:kbOf('print'),run:()=>prOpen()}],'Datei');
 $('#bViewMenu').onclick=()=>hmOpen($('#bViewMenu'),[
   {ic:'thumbs',t:'Seitenvorschau',get:()=>hmPressed('bThumbs'),k:kbOf('thumbs'),run:()=>$('#bThumbs').click()},
   {ic:'toolbar',t:'Werkzeugleiste',get:()=>hmPressed('bTglTools'),run:()=>$('#bTglTools').click()},
@@ -5083,6 +5124,63 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
 {const i=$('#bInfo'),g=$('#bSetMenu');const upd=()=>g.classList.toggle('has-upd',i.classList.contains('has-upd'));new MutationObserver(upd).observe(i,{attributes:true,attributeFilter:['class']});upd()}
 // „Zuletzt geöffnet“ öffnet sich unter dem Datei-Menü, weil der alte Knopf nicht mehr zu sehen ist
 kbLabels();
+
+/* ---------- 3.4: Drucken ----------
+   Gedruckt wird genau das, was beim Speichern in der PDF landet (Beschriftungen, Formulare, Unterschriften) –
+   die Seiten werden dafür in Druckauflösung gezeichnet und an das Druckfenster des Systems übergeben. */
+const PR={busy:false,urls:[],which:'all',marks:true,notes:false,dpi:200};
+try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:print')||'{}');if(typeof j.marks==='boolean')PR.marks=j.marks;if(typeof j.notes==='boolean')PR.notes=j.notes;if([150,200,300].includes(j.dpi))PR.dpi=j.dpi}catch(e){}
+const prSave=()=>{try{localStorage.setItem('pdfwerkbank:print',JSON.stringify({marks:PR.marks,notes:PR.notes,dpi:PR.dpi}))}catch(e){}};
+// „1-3, 5, 8-“ → [0,1,2,4,7,…]
+function prParse(str,n){const out=new Set();const parts=String(str||'').split(/[,;\s]+/).filter(Boolean);if(!parts.length)return null;
+  for(const p of parts){const m=/^(\d+)(?:\s*[-–]\s*(\d*))?$/.exec(p);if(!m)return null;let a=+m[1],b=m[2]===undefined?a:m[2]===''?n:+m[2];if(a>b)[a,b]=[b,a];
+    for(let k=Math.max(1,a);k<=Math.min(n,b);k++)out.add(k-1)}
+  return out.size?[...out].sort((x,y)=>x-y):null}
+const prNotesText=()=>{const n=String(S.notes||'').trim(),t=(S.tasks||[]).map(x=>(x.d?'☑ ':'☐ ')+x.t).join('\n');return[n,t].filter(Boolean).join('\n\n')};
+function prPages(){const n=S.pages.length;if(PR.which==='cur')return[curPage()];if(PR.which==='sel')return prParse($('#prRange').value,n);return S.pages.map((_,i)=>i)}
+function prUI(){const d=$('#prDlg');if(!d)return;
+  d.querySelectorAll('#prWhich button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===PR.which?'true':'false'));
+  d.querySelectorAll('#prQ button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===PR.dpi?'true':'false'));
+  $('#prRange').hidden=PR.which!=='sel';$('#prMarks').checked=PR.marks;$('#prNotes').checked=PR.notes;$('#prNotesRow').hidden=!prNotesText();
+  const P=prPages(),cnt=(P?P.length:0)+(PR.notes&&prNotesText()?1:0);
+  $('#prInfo').textContent=!P?tr('Bitte Seiten angeben, z. B. 1-3, 5.'):cnt===1?tr('1 Seite wird gedruckt.'):cnt+tr(' Seiten werden gedruckt.');
+  $('#prGo').disabled=!P||PR.busy;$('#prRange').classList.toggle('bad',PR.which==='sel'&&!P&&!!$('#prRange').value.trim())}
+function prOpen(){if(!S.doc||!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}if(PR.busy)return;closeEditor();
+  $('#prGo').textContent=tr('Drucken');prUI();showEl($('#prDlg'));setTimeout(()=>$('#prGo').focus(),0)}
+function prClose(){if(PR.busy)return;animHide($('#prDlg'))}
+function prCleanup(){document.documentElement.classList.remove('printing');const r=document.getElementById('lpRoot');if(r)r.textContent='';const st=document.getElementById('lpStyle');if(st)st.textContent='';
+  for(const u of PR.urls)URL.revokeObjectURL(u);PR.urls=[]}
+async function prRun(){const P=prPages();if(!P||PR.busy)return;PR.busy=true;prUI();const go=$('#prGo');
+  let doc=S.doc,own=false;
+  try{
+    if(PR.marks){go.textContent=tr('Bereitet vor …');const out=await buildOutput();doc=await pdfOpen(out.slice());own=true}
+    let root=document.getElementById('lpRoot');if(!root){root=document.createElement('div');root.id='lpRoot';root.setAttribute('aria-hidden','true');document.body.appendChild(root)}
+    let st=document.getElementById('lpStyle');if(!st){st=document.createElement('style');st.id='lpStyle';document.head.appendChild(st)}
+    prCleanup();let css='';const imgs=[];
+    for(let n=0;n<P.length;n++){go.textContent=tr('Seite ')+(n+1)+' / '+P.length+' …';
+      const pg=await doc.getPage(P[n]+1),v1=pg.getViewport({scale:1}),sc=Math.min(PR.dpi/72,6000/Math.max(v1.width,v1.height)),vp=pg.getViewport({scale:sc});
+      const cv=document.createElement('canvas');cv.width=Math.ceil(vp.width);cv.height=Math.ceil(vp.height);const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,cv.width,cv.height);
+      await pg.render({canvasContext:c,viewport:vp,intent:'print',annotationMode:pdfjsLib.AnnotationMode.ENABLE}).promise;
+      const blob=await new Promise(r=>cv.toBlob(r,'image/png'));cv.width=cv.height=0;const url=URL.createObjectURL(blob);PR.urls.push(url);
+      const w=+v1.width.toFixed(2),h=+v1.height.toFixed(2);css+=`@page lp${n}{size:${w}pt ${h}pt;margin:0}`;
+      const d=document.createElement('div');d.className='lp-pg';d.style.page='lp'+n;d.style.width=w+'pt';d.style.height=h+'pt';const im=new Image();im.alt='';im.src=url;d.appendChild(im);root.appendChild(d);imgs.push(im)}
+    if(PR.notes&&prNotesText()){css+='@page lpn{size:595.28pt 841.89pt;margin:56pt 60pt}';const d=document.createElement('div');d.className='lp-notes';d.style.page='lpn';
+      const h=document.createElement('h1');h.textContent=tr('Notizen')+' – '+String(S.name||'').replace(/\.pdf$/i,'');const pre=document.createElement('div');pre.className='lp-nt';pre.textContent=prNotesText();d.append(h,pre);root.appendChild(d)}
+    // erste Seite: dieselbe Seitengröße schon für body, sonst entsteht vorne eine leere Seite in Standardgröße
+    css+=`@page{size:auto;margin:0}html.printing body,html.printing #lpRoot{page:${P.length?'lp0':'lpn'}}`;st.textContent=css;await Promise.all(imgs.map(im=>im.decode().catch(()=>{})));
+    PR.busy=false;go.textContent=tr('Drucken');animHide($('#prDlg'));await new Promise(r=>setTimeout(r,60));
+    document.documentElement.classList.add('printing');
+    const inFrame=window.self!==window.top;window.print();
+    if(inFrame)setTimeout(()=>toast(tr('Falls kein Druckfenster erschienen ist: PDF speichern und von dort drucken.')),400);
+  }catch(e){console.error(e);toast(tr('Drucken hat nicht geklappt: ')+(e&&e.message||e));PR.busy=false;go.textContent=tr('Drucken');prUI();prCleanup()}
+  finally{if(own)pdfClose(doc)}}
+// Nach dem Druckfenster aufräumen
+addEventListener('afterprint',()=>{if(document.documentElement.classList.contains('printing'))setTimeout(prCleanup,300)});
+{const d=$('#prDlg');$('#prX').onclick=prClose;$('#prNo').onclick=prClose;$('#prGo').onclick=prRun;
+  d.addEventListener('pointerdown',e=>{if(e.target===d)prClose()});d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();prClose()}else if(e.key==='Enter'&&e.target.id==='prRange'){e.preventDefault();prRun()}});
+  d.querySelectorAll('#prWhich button').forEach(b=>b.onclick=()=>{PR.which=b.dataset.v;prUI();if(PR.which==='sel')setTimeout(()=>$('#prRange').focus(),0)});
+  d.querySelectorAll('#prQ button').forEach(b=>b.onclick=()=>{PR.dpi=+b.dataset.v;prSave();prUI()});
+  $('#prRange').addEventListener('input',prUI);$('#prMarks').onchange=e=>{PR.marks=e.target.checked;prSave()};$('#prNotes').onchange=e=>{PR.notes=e.target.checked;prSave();prUI()}}
 
 if(window.werkbank)werkbank.onOpen((name,bytes,ticket)=>{(async()=>{for(let n=0;tabBusy&&n<600;n++)await tabSleep(25);
   await tabGate(()=>tabOpenWith(async()=>{if(ticket&&werkbank.tabClaim){const r=await werkbank.tabClaim(ticket);if(r&&r.dup)return r}return tabLoad(new Uint8Array(bytes),name)}))})()});
