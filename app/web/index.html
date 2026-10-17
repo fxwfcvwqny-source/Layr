@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+2lGA0pTs6XrXPIMZOLUmmQB3VjLxRzaLTfvSZDkrJ0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-iQ4EDBPrEOlLfrddF9xURA40SpILcuKwi0MUoJ6qJZQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1167,7 +1167,7 @@ header,.file{min-width:0}
     <div class="sig-input" id="sigTypeIn" hidden><input id="sigName" placeholder="Vor- und Nachname" autocomplete="off" spellcheck="false"></div>
     <div class="sig-input" id="sigImgIn" hidden><button class="btn" id="sigPick">Bild wählen …</button><span class="hint">Foto oder Scan auf weißem Papier. Der Hintergrund wird durchsichtig.</span><input type="file" id="sigFile" accept="image/*" hidden></div>
     <div class="sig-pad"><canvas id="sigPad" class="drawing"></canvas><span class="sig-x" aria-hidden="true">×</span><span class="sig-hint" id="sigHint">Hier mit Maus, Stift oder Finger unterschreiben</span></div>
-    <div class="sig-row"><div class="sig-colors" id="sigColors"><button type="button" data-c="#1b1f24" aria-pressed="true" title="Schwarz" style="--c:#1b1f24"></button><button type="button" data-c="#1f35b5" aria-pressed="false" title="Blau (Kugelschreiber)" style="--c:#1f35b5"></button></div><span></span><button class="btn" id="sigClear">Neu zeichnen</button></div>
+    <div class="sig-row"><div class="sig-colors" id="sigColors"><button type="button" data-c="#1b1f24" aria-pressed="true" title="Schwarz" style="--c:#1b1f24"></button><button type="button" data-c="#1a2c96" aria-pressed="false" title="Blau (Kugelschreiber)" style="--c:#1a2c96"></button></div><span></span><button class="btn" id="sigClear">Neu zeichnen</button></div>
     <label class="chk"><input type="checkbox" id="sigKeep" checked> Unterschrift auf diesem Gerät merken</label>
     <p class="hint">Das ist eine sichtbare Unterschrift wie auf Papier, keine digitale Signatur mit Zertifikat.</p>
     <div class="ip-btns"><span></span><button class="btn" id="sigCancel">Abbrechen</button><button class="btn primary" id="sigOk" disabled>Einfügen</button></div>
@@ -3818,7 +3818,7 @@ function sigSeg(c,a,b,w){c.lineWidth=w;c.beginPath();c.moveTo(a[0],a[1]);c.lineT
 function sigStroke(c,s){if(!s.length)return;c.lineCap='round';c.lineJoin='round';c.strokeStyle=SG.color;c.fillStyle=SG.color;
   if(s.length===1){c.beginPath();c.arc(s[0][0],s[0][1],s[0][2]/2,0,7);c.fill();return}
   for(let i=1;i<s.length;i++){const p0=s[i-1],p1=s[i];const m0=i>1?[(s[i-2][0]+p0[0])/2,(s[i-2][1]+p0[1])/2]:p0,m1=[(p0[0]+p1[0])/2,(p0[1]+p1[1])/2];
-    const w=(p0[2]+p1[2])/2;c.globalAlpha=Math.min(1,.66+.13*w+.12*sigInk(i+s.length));c.lineWidth=w*.9;c.beginPath();c.moveTo(m0[0],m0[1]);c.quadraticCurveTo(p0[0],p0[1],m1[0],m1[1]);c.stroke()}
+    const w=(p0[2]+p1[2])/2;c.globalAlpha=Math.min(1,.72+.12*w+.1*sigInk(i+s.length));c.lineWidth=w*.9;c.beginPath();c.moveTo(m0[0],m0[1]);c.quadraticCurveTo(p0[0],p0[1],m1[0],m1[1]);c.stroke()}
   c.globalAlpha=1;
   const L=s[s.length-1],M=[(s[s.length-2][0]+L[0])/2,(s[s.length-2][1]+L[1])/2];sigSeg(c,M,L,L[2])}
 function sigRedraw(){const c=sigPad.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,sigPad.width,sigPad.height);c.setTransform(SG.k,0,0,SG.k,0,0);
