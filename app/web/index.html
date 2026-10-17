@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-CqMsJWND1ptjVgkv/kkvi7H1dEKVd985Tn8ADiPPKBc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-N4+n1wYsX/m3NUibp/SEBPS6cAN/ziE+6TedlGaz2FI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3173,28 +3173,94 @@ addEventListener('drop',e=>{e.preventDefault();dragN=0;$('#drop').hidden=true;if
    Die gespeicherte PDF zeigt die Beschriftungen für jedes Programm. Zusätzlich stecken die unbeschriftete Fassung
    und die Beschriftungen als Anhang darin: Öffnet man die Datei wieder in Layr, ist alles weiter bearbeitbar. */
 const LAYR_ORIG='layr-original.pdf',LAYR_DATA='layr-data.json';
+/* ---------- 3.4.2: Speichern ohne Ruckeln ----------
+   Pro Seite werden nur die Pixel mit Beschriftungen (zugeschnitten) eingebettet und vom Browser selbst – im Hintergrund –
+   komprimiert, statt eine seitengroße PNG im Hauptprogramm zu entpacken und wieder zu packen. Unveränderte Seiten werden
+   aus dem Zwischenspeicher übernommen, und zwischen den Seiten bekommt die Oberfläche Luft. */
+const OVC=new Map();
+const ovFontsVer=()=>{let n=0;try{document.fonts.forEach(f=>{if(f.status==='loaded')n++})}catch(e){}return n};
+const ovYield=()=>new Promise(r=>setTimeout(r,0));
+async function ovZ(u8){const st=new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate'));return new Uint8Array(await new Response(st).arrayBuffer())}
+async function ovRender(P){
+  const sc=Math.min(4,5200/Math.max(P.w,P.h)),key=P.w+'x'+P.h+'@'+sc+'|'+ovFontsVer()+'|'+JSON.stringify(P.objs);
+  const hit=OVC.get(key);if(hit){OVC.delete(key);OVC.set(key,hit);return hit}
+  const cv=document.createElement('canvas');cv.width=Math.round(P.w*sc);cv.height=Math.round(P.h*sc);
+  const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);const TC=txtCapture(c,sc);for(const o of P.objs)drawObj(c,o);TC.stop();
+  const W=cv.width,H=cv.height;
+  // grob vorab: in kleiner Auflösung zeichnen, um nur den Bereich mit Beschriftungen auslesen zu müssen
+  let R=[0,0,W,H];
+  {const q=.5,pw=Math.ceil(P.w*q),ph=Math.ceil(P.h*q),pc=document.createElement('canvas');pc.width=pw;pc.height=ph;const x=pc.getContext('2d',{willReadFrequently:true});x.setTransform(q,0,0,q,0,0);
+    try{for(const o of P.objs)drawObj(x,o);const pp=new Uint32Array(x.getImageData(0,0,pw,ph).data.buffer);let a=pw,b=ph,e=-1,f=-1;
+      for(let y=0;y<ph;y++)for(let X=0;X<pw;X++)if(pp[y*pw+X]>>>24){if(X<a)a=X;if(X>e)e=X;if(y<b)b=y;if(y>f)f=y}
+      if(e<0)R=null;else{const m=6;R=[Math.max(0,Math.floor((a/q-m)*W/P.w)),Math.max(0,Math.floor((b/q-m)*H/P.h)),0,0];R[2]=Math.min(W,Math.ceil(((e+1)/q+m)*W/P.w))-R[0];R[3]=Math.min(H,Math.ceil(((f+1)/q+m)*H/P.h))-R[1]}}
+    catch(err){R=[0,0,W,H]}pc.width=pc.height=0}
+  let r={empty:true,runs:TC.runs};
+  if(R){let g=await ovRead(c,R,W,H);
+    // Sicherheitsnetz: ragt etwas über den Ausschnitt hinaus, doch die ganze Seite auslesen
+    if(g&&g.out)g=await ovRead(c,[0,0,W,H],W,H);
+    if(g){const[zr,za]=await Promise.all([ovZ(g.rgb),g.opaque?null:ovZ(g.al)]);r={x0:g.x0,y0:g.y0,w:g.w,h:g.h,sx:W/P.w,sy:H/P.h,zr,za,runs:TC.runs}}}
+  cv.width=cv.height=0;
+  OVC.set(key,r);while(OVC.size>300)OVC.delete(OVC.keys().next().value);return r}
+/* Ausschnitt in Streifen auslesen (zwischendurch reagiert die Oberfläche), Rahmen um die sichtbaren Pixel bestimmen,
+   dann Farbe und Deckkraft getrennt herausschreiben */
+async function ovRead(c,[rx,ry,rw,rh],W,H){
+  const ST=Math.max(16,Math.floor(300000/rw)),strips=[];let x0=rw,y0=-1,x1=-1,y1=-1,out=false,t=performance.now();
+  const brk=async()=>{if(performance.now()-t>12){await ovYield();t=performance.now()}};
+  for(let sy=0;sy<rh;sy+=ST){const hh=Math.min(ST,rh-sy),px=new Uint32Array(c.getImageData(rx,ry+sy,rw,hh).data.buffer);strips.push(px);
+    for(let y=0;y<hh;y++){const row=y*rw;let a=-1,b=-1;for(let x=0;x<rw;x++)if(px[row+x]>>>24){a=x;break}if(a<0)continue;for(let x=rw-1;x>=a;x--)if(px[row+x]>>>24){b=x;break}
+      const Y=sy+y;if(y0<0)y0=Y;y1=Y;if(a<x0)x0=a;if(b>x1)x1=b;
+      if((a===0&&rx>0)||(b===rw-1&&rx+rw<W)||(Y===0&&ry>0)||(Y===rh-1&&ry+rh<H))out=true}
+    await brk()}
+  if(out)return{out:true};if(y0<0)return null;
+  const w=x1-x0+1,h=y1-y0+1,rgb=new Uint8Array(w*h*3),al=new Uint8Array(w*h);let k=0,j=0,opaque=true;
+  for(let Y=y0;Y<=y1;Y++){const px=strips[Math.floor(Y/ST)],row=(Y%ST)*rw;
+    for(let x=x0;x<=x1;x++){const v=px[row+x];rgb[k++]=v&255;rgb[k++]=(v>>>8)&255;rgb[k++]=(v>>>16)&255;const A=v>>>24;al[j++]=A;if(A!==255)opaque=false}
+    if((Y&31)===0)await brk()}
+  return{x0:x0+rx,y0:y0+ry,w,h,rgb,al,opaque}}
+function ovEmbed(pdf,pg,P,r,place){const{PDFRawStream,pushGraphicsState,popGraphicsState,translate,rotateDegrees,scale,drawObject}=PDFLib,ctx=pdf.context;
+  const D=(o,z)=>PDFRawStream.of(ctx.obj({Type:'XObject',Subtype:'Image',Width:r.w,Height:r.h,BitsPerComponent:8,Filter:'FlateDecode',Length:z.length,...o}),z);
+  const sm=r.za?ctx.register(D({ColorSpace:'DeviceGray'},r.za)):null;
+  const im=ctx.register(D(sm?{ColorSpace:'DeviceRGB',SMask:sm}:{ColorSpace:'DeviceRGB'},r.zr));
+  const name=pg.node.newXObject('LayrIm',im),w=r.w/r.sx,h=r.h/r.sy,lx=r.x0/r.sx,ly=P.h-(r.y0+r.h)/r.sy;
+  pg.pushOperators(pushGraphicsState(),translate(place.x,place.y),rotateDegrees(place.rot),translate(lx,ly),scale(w,h),drawObject(name),popGraphicsState())}
+// Läuft gerade eine Eingabe (Zeichnen, Ziehen)? Dann wartet das automatische Speichern kurz.
+// Höchstens 15 s, falls das Loslassen der Maustaste einmal nicht ankommt (z. B. über einem Systemfenster).
+let ovPtrT=0;const ovBusyPtr=()=>ovPtrT&&performance.now()-ovPtrT<15000;
+addEventListener('pointerdown',()=>{ovPtrT=performance.now()},true);
+for(const ev of['pointerup','pointercancel'])addEventListener(ev,()=>{ovPtrT=0},true);
+addEventListener('pointermove',e=>{if(ovPtrT&&e.buttons===0)ovPtrT=0},{capture:true,passive:true});addEventListener('blur',()=>{ovPtrT=0});
+// Anhänge (unbeschriftete Fassung, Beschriftungen, Notizen) ebenfalls im Hintergrund packen; die Originaldatei nur einmal
+const OVZ=new WeakMap();
+function ovCtx(pdf){if(pdf.__ovZ)return pdf.__ovZ;const m=new Map(),ctx=pdf.context,orig=ctx.flateStream;
+  ctx.flateStream=function(c,d){const z=m.get(c);return z?this.stream(z,Object.assign({},d||{},{Filter:'FlateDecode'})):orig.call(this,c,d)};return pdf.__ovZ=m}
+async function ovAttach(pdf,u8,name,opt,key){
+  if(OV_OK){try{let z=key&&OVZ.get(key);if(!z){z=await ovZ(u8);if(key)OVZ.set(key,z)}ovCtx(pdf).set(u8,z)}catch(e){}}
+  return pdf.attach(u8,name,opt)}
+const OV_OK=typeof CompressionStream==='function'&&!!(PDFLib.PDFRawStream&&PDFLib.drawObject&&PDFLib.rotateDegrees);
 function outName(){return S.name.replace(/\.pdf$/i,'')+'.pdf'}
 async function buildOutput(){
   await document.fonts.ready;await imgsReady();const{PDFDocument,degrees}=PDFLib;
   const pdf=await PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true});const pages=pdf.getPages();const TL=txtLayerBegin(pdf);
   for(let i=0;i<S.pages.length;i++){
     const P=S.pages[i];if(!P.objs.length||!pages[i])continue;
-    const sc=Math.min(4,5200/Math.max(P.w,P.h));const cv=document.createElement('canvas');cv.width=Math.round(P.w*sc);cv.height=Math.round(P.h*sc);
-    const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);const TC=txtCapture(c,sc);for(const o of P.objs)drawObj(c,o);TC.stop();
-    const png=await pdf.embedPng(await new Promise(r=>cv.toBlob(b=>b.arrayBuffer().then(r),'image/png')));
+    if(OV_OK)await ovYield();
     const pg=pages[i],cb=pg.getCropBox(),rot=((pg.getRotation().angle%360)+360)%360,W=cb.width,Hh=cb.height,cx=cb.x,cy=cb.y;
     const o={width:P.w,height:P.h};
     if(rot===90)Object.assign(o,{x:cx+W,y:cy,rotate:degrees(90)});
     else if(rot===180)Object.assign(o,{x:cx+W,y:cy+Hh,rotate:degrees(180)});
     else if(rot===270)Object.assign(o,{x:cx,y:cy+Hh,rotate:degrees(270)});
     else Object.assign(o,{x:cx,y:cy});
+    if(OV_OK){const r=await ovRender(P);if(!r.empty)ovEmbed(pdf,pg,P,r,{x:o.x,y:o.y,rot});txtLayerPage(TL,pg,r.runs,{rot,x:o.x,y:o.y,h:P.h});continue}
+    const sc=Math.min(4,5200/Math.max(P.w,P.h));const cv=document.createElement('canvas');cv.width=Math.round(P.w*sc);cv.height=Math.round(P.h*sc);
+    const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);const TC=txtCapture(c,sc);for(const o of P.objs)drawObj(c,o);TC.stop();
+    const png=await pdf.embedPng(await new Promise(r=>cv.toBlob(b=>b.arrayBuffer().then(r),'image/png')));
     pg.drawImage(png,o);txtLayerPage(TL,pg,TC.runs,{rot,x:o.x,y:o.y,h:P.h});
   }
   txtLayerEnd(TL);
   if(S.pages.some(P=>P.objs.length)||notesExport().trim()){
-    if(notesExport().trim())await pdf.attach(new TextEncoder().encode(notesExport()),notesFile(),{mimeType:'text/plain',description:'Layr: Notizen zu diesem Dokument'});
-    await pdf.attach(S.bytes.slice(),LAYR_ORIG,{mimeType:'application/pdf',description:'Layr: unbeschriftete Fassung'});
-    await pdf.attach(new TextEncoder().encode(JSON.stringify({v:1,objs:JSON.parse(snapshot()),notes:S.notes||'',tasks:S.tasks||[],imgs:imgsUsed(),...(FM.fields.length?{form:S.form}:{})})),LAYR_DATA,{mimeType:'application/json',description:'Layr: Beschriftungen'});
+    if(notesExport().trim())await ovAttach(pdf,new TextEncoder().encode(notesExport()),notesFile(),{mimeType:'text/plain',description:'Layr: Notizen zu diesem Dokument'});
+    await ovAttach(pdf,S.bytes.slice(),LAYR_ORIG,{mimeType:'application/pdf',description:'Layr: unbeschriftete Fassung'},S.bytes);
+    await ovAttach(pdf,new TextEncoder().encode(JSON.stringify({v:1,objs:JSON.parse(snapshot()),notes:S.notes||'',tasks:S.tasks||[],imgs:imgsUsed(),...(FM.fields.length?{form:S.form}:{})})),LAYR_DATA,{mimeType:'application/json',description:'Layr: Beschriftungen'});
   }
   return pdfSave(pdf,await formFill(pdf));
 }
@@ -3231,7 +3297,7 @@ function setSaveState(text){{const ns=document.getElementById('ntState');if(ns){
 function scheduleAutoSave(){if(!window.werkbank||!S.autoSave||S.sample||!S.bytes)return;clearTimeout(autoT);autoT=setTimeout(autoSaveNow,2500)}
 async function autoSaveNow(){
   if(!window.werkbank||!S.bytes||S.sample)return false;if(!S.dirty)return true;
-  if(editorEl||autoBusy){scheduleAutoSave();return false}
+  if(editorEl||autoBusy||ovBusyPtr()||DRAG){scheduleAutoSave();return false}
   autoBusy=true;setSaveState('Speichert …');
   try{const rev=S.rev,out=await buildOutput(),r=await werkbank.autoSave(outName(),out,S.isNew);
     if(r){S.savedName=r;if(S.rev===rev)S.dirty=false}setSaveState();return!!r}
