@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2d7c4+i7gxFQsebXgBv6oIUahQ8SnBCi4x6/fG/9e+c=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+2lGA0pTs6XrXPIMZOLUmmQB3VjLxRzaLTfvSZDkrJ0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1167,7 +1167,7 @@ header,.file{min-width:0}
     <div class="sig-input" id="sigTypeIn" hidden><input id="sigName" placeholder="Vor- und Nachname" autocomplete="off" spellcheck="false"></div>
     <div class="sig-input" id="sigImgIn" hidden><button class="btn" id="sigPick">Bild wählen …</button><span class="hint">Foto oder Scan auf weißem Papier. Der Hintergrund wird durchsichtig.</span><input type="file" id="sigFile" accept="image/*" hidden></div>
     <div class="sig-pad"><canvas id="sigPad" class="drawing"></canvas><span class="sig-x" aria-hidden="true">×</span><span class="sig-hint" id="sigHint">Hier mit Maus, Stift oder Finger unterschreiben</span></div>
-    <div class="sig-row"><div class="sig-colors" id="sigColors"><button type="button" data-c="#1b1f24" aria-pressed="true" title="Schwarz" style="--c:#1b1f24"></button><button type="button" data-c="#1d3f9e" aria-pressed="false" title="Blau (Kugelschreiber)" style="--c:#1d3f9e"></button></div><span></span><button class="btn" id="sigClear">Neu zeichnen</button></div>
+    <div class="sig-row"><div class="sig-colors" id="sigColors"><button type="button" data-c="#1b1f24" aria-pressed="true" title="Schwarz" style="--c:#1b1f24"></button><button type="button" data-c="#1f35b5" aria-pressed="false" title="Blau (Kugelschreiber)" style="--c:#1f35b5"></button></div><span></span><button class="btn" id="sigClear">Neu zeichnen</button></div>
     <label class="chk"><input type="checkbox" id="sigKeep" checked> Unterschrift auf diesem Gerät merken</label>
     <p class="hint">Das ist eine sichtbare Unterschrift wie auf Papier, keine digitale Signatur mit Zertifikat.</p>
     <div class="ip-btns"><span></span><button class="btn" id="sigCancel">Abbrechen</button><button class="btn primary" id="sigOk" disabled>Einfügen</button></div>
@@ -1790,7 +1790,10 @@ const MARKER_DEF='#ffd60a';
 const COLORS=[['#1b1f24','Schwarz'],['#d62828','Rot'],['#1d4ed8','Blau'],['#15803d','Grün'],['#ea7a0b','Orange'],['#7c3aed','Lila'],['#ffd60a','Gelb'],['#38bdf8','Hellblau']];
 const swr=$('#swatches');
 for(const [c,n] of COLORS){const b=document.createElement('button');b.className='sw';b.style.background=c;b.title=n;b.dataset.c=c;b.onclick=()=>setColor(c);swr.appendChild(b)}
-const cin=document.createElement('input');cin.type='color';cin.id='customColor';cin.title='Eigene Farbe';cin.oninput=()=>setColor(cin.value);swr.appendChild(cin);
+// Farbwähler schicken beim Ziehen sehr viele Ereignisse: nur das letzte pro Bild verarbeiten
+function rafLast(fn){let raf=0,arg;return v=>{arg=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;fn(arg)})}}
+const cin=document.createElement('input');cin.type='color';cin.id='customColor';cin.title='Eigene Farbe';
+{const live=rafLast(c=>{S.color=c;document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));applySel({color:c},true)});cin.addEventListener('input',()=>live(cin.value));cin.addEventListener('change',()=>{ctrlHist=false;setColor(cin.value,true)})}swr.appendChild(cin);
 function setColor(c,quiet){S.color=c;document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));cin.value=/^#[0-9a-f]{6}$/i.test(c)?c:'#000000';if(!quiet)applySel({color:c})}
 
 let ctrlHist=false;
@@ -3003,7 +3006,7 @@ function openTextEditor(i,o,isNew,at){
   const palOpen=v=>{if(v)showEl(pal);else animHide(pal);bC.setAttribute('aria-expanded',v)};
   bC.onclick=()=>{const open=!pal.hidden&&!pal._ah;palOpen(!open);if(open)eng.focus()};
   pal.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=()=>{set({color:b.dataset.c});palOpen(false);eng.focus()}});
-  edcin.addEventListener('input',()=>set({color:edcin.value}));edcin.addEventListener('change',()=>{palOpen(false);eng.focus()});
+  {const live=rafLast(c=>set({color:c}));edcin.addEventListener('input',()=>live(edcin.value))}edcin.addEventListener('change',()=>{palOpen(false);eng.focus()});
   root.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pal.hidden){e.preventDefault();e.stopImmediatePropagation();palOpen(false);eng.focus()}},true);
   fsIn.addEventListener('input',()=>{if(+fsIn.value>=4)set({fs:+fsIn.value})});
   fsIn.addEventListener('wheel',e=>{e.preventDefault();set({fs:o.fs+(e.deltaY<0?1:-1)})},{passive:false});
@@ -3239,9 +3242,9 @@ function applyDesign(save){const r=document.documentElement;
   if(save){r.classList.add('theme-anim');clearTimeout(applyDesign.t);applyDesign.t=setTimeout(()=>r.classList.remove('theme-anim'),420);try{localStorage.setItem('pdfwerkbank:design',JSON.stringify(design))}catch(e){}if(S.pages)redrawAll()}}
 for(const [k,n,c] of ACCENTS){const b=document.createElement('button');b.className='acc';b.dataset.v=k;b.title=n;b.setAttribute('aria-label',n);b.style.setProperty('--c',c);b.onclick=()=>{design.accent=k;applyDesign(true)};$('#dAccent').appendChild(b)}
 {const b=document.createElement('button');b.className='acc custom';b.dataset.v='custom';b.title='Eigene Farbe';b.setAttribute('aria-label','Eigene Farbe');b.onclick=()=>{if(!design.accentC)$('#dAccC').click();else{design.accent='custom';applyDesign(true)}};$('#dAccent').appendChild(b)}
-$('#dBarC').addEventListener('input',e=>{design.barsC=e.target.value;design.bars='custom';applyDesign(true)});
+{const live=rafLast(v=>{design.barsC=v;design.bars='custom';applyDesign(false)});$('#dBarC').addEventListener('input',e=>live(e.target.value));$('#dBarC').addEventListener('change',()=>applyDesign(true))}
 $('#dBars [data-v=custom]').addEventListener('click',()=>{if(!design.barsC)$('#dBarC').click()},true);
-$('#dAccC').addEventListener('input',e=>{design.accentC=e.target.value;design.accent='custom';$('#dAccent .custom').style.setProperty('--c',design.accentC);applyDesign(true)});
+{const live=rafLast(v=>{design.accentC=v;design.accent='custom';$('#dAccent .custom').style.setProperty('--c',v);applyDesign(false)});$('#dAccC').addEventListener('input',e=>live(e.target.value));$('#dAccC').addEventListener('change',()=>applyDesign(true))}
 if(design.accentC)$('#dAccent .custom').style.setProperty('--c',design.accentC);
 for(const [id,k] of DKEYS)$('#'+id).querySelectorAll('button').forEach(b=>b.onclick=()=>{design[k]=b.dataset.v;applyDesign(true)});
 $('#dReset').onclick=()=>{design={...DDEF};applyDesign(true);toast('Alles wieder auf Standard.')};
@@ -3249,8 +3252,8 @@ $('#dReset').onclick=()=>{design={...DDEF};applyDesign(true);toast('Alles wieder
   const demo=()=>toast(TM[tn++%TM.length]);$('#dToastTest').onclick=demo;
   for(const id of ['dToast','dToastPos','dToastDur'])$('#'+id).addEventListener('click',e=>{if(e.target.closest('button'))setTimeout(()=>{if(!(id==='dToast'&&design.toast==='custom'&&!design.toastC))toast('So sehen deine Meldungen jetzt aus.')},40)});
   $('#dToast [data-v=custom]').addEventListener('click',()=>{if(!design.toastC)$('#dToastC').click()},true);
-  $('#dToastC').addEventListener('input',e=>{design.toastC=e.target.value;design.toast='custom';applyDesign(true)});
-  $('#dToastC').addEventListener('change',()=>toast('So sehen deine Meldungen jetzt aus.'))}
+  {const live=rafLast(v=>{design.toastC=v;design.toast='custom';applyDesign(false)});$('#dToastC').addEventListener('input',e=>live(e.target.value))}
+  $('#dToastC').addEventListener('change',()=>{applyDesign(true);toast('So sehen deine Meldungen jetzt aus.')})}
 // Notizen-Bereich
 function notesUpd(){const v=S.notes||'',n=(v.trim().match(/\S+/g)||[]).length,T=S.tasks||[],open=T.filter(t=>!t.d).length,c=document.getElementById('ntCount'),b=document.getElementById('bNotes');
   if(c)c.textContent=(n===1?'1 Wort':n+' Wörter')+(T.length?' · '+(open?open+' Aufgabe'+(open===1?'':'n')+' offen':'alle Aufgaben erledigt'):'');
@@ -3809,11 +3812,14 @@ function sigRenderSaved(){const box=$('#sigSaved'),L=sigList();box.innerHTML='';
     x.onclick=()=>{const M=sigList();M.splice(k,1);sigSaveList(M);sigRenderSaved();const n=$('#sigSaved .sig-use')||$('#sigMode button[aria-pressed="true"]');n&&n.focus()};b.append(use,x);box.appendChild(b)})}
 function sigSize(){const w=sigPad.clientWidth,h=sigPad.clientHeight;if(!w||!h)return;const k=Math.min(3,(devicePixelRatio||1)*2);if(sigPad.width===Math.round(w*k)&&sigPad.height===Math.round(h*k)&&SG.k===k)return;sigPad.width=Math.round(w*k);sigPad.height=Math.round(h*k);SG.k=k;sigRedraw()}
 try{new ResizeObserver(()=>{if(!sigDlg.hidden)sigSize()}).observe(sigPad)}catch(e){}
+// gleichbleibendes „Zufallsmuster“ für die Tinte (gleiche Unterschrift sieht beim Neuzeichnen gleich aus)
+function sigInk(n){const x=Math.sin(n*12.9898)*43758.5453;return x-Math.floor(x)}
 function sigSeg(c,a,b,w){c.lineWidth=w;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
 function sigStroke(c,s){if(!s.length)return;c.lineCap='round';c.lineJoin='round';c.strokeStyle=SG.color;c.fillStyle=SG.color;
   if(s.length===1){c.beginPath();c.arc(s[0][0],s[0][1],s[0][2]/2,0,7);c.fill();return}
   for(let i=1;i<s.length;i++){const p0=s[i-1],p1=s[i];const m0=i>1?[(s[i-2][0]+p0[0])/2,(s[i-2][1]+p0[1])/2]:p0,m1=[(p0[0]+p1[0])/2,(p0[1]+p1[1])/2];
-    c.lineWidth=(p0[2]+p1[2])/2;c.beginPath();c.moveTo(m0[0],m0[1]);c.quadraticCurveTo(p0[0],p0[1],m1[0],m1[1]);c.stroke()}
+    const w=(p0[2]+p1[2])/2;c.globalAlpha=Math.min(1,.66+.13*w+.12*sigInk(i+s.length));c.lineWidth=w*.9;c.beginPath();c.moveTo(m0[0],m0[1]);c.quadraticCurveTo(p0[0],p0[1],m1[0],m1[1]);c.stroke()}
+  c.globalAlpha=1;
   const L=s[s.length-1],M=[(s[s.length-2][0]+L[0])/2,(s[s.length-2][1]+L[1])/2];sigSeg(c,M,L,L[2])}
 function sigRedraw(){const c=sigPad.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,sigPad.width,sigPad.height);c.setTransform(SG.k,0,0,SG.k,0,0);
   if(SG.mode==='draw'){for(const s of SG.strokes)sigStroke(c,s);if(SG.cur)sigStroke(c,SG.cur)}
