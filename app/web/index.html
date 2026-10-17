@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-W6aUR4kl5OmcDWX8rcncT6sYX1uswrKkHsDO2SxAN6w=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2d7c4+i7gxFQsebXgBv6oIUahQ8SnBCi4x6/fG/9e+c=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -843,6 +843,43 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .kb-x{width:28px;height:28px}
 .kb-x svg{width:15px;height:15px}
 .kb-x[hidden]{visibility:hidden;display:inline-grid}
+/* 3.3.2: Menüs in der Kopfleiste */
+.ctx.hm{min-width:292px;max-width:calc(100vw - 16px);padding:6px;gap:1px;border-radius:14px;border:1px solid color-mix(in srgb,var(--ink) 10%,transparent);
+  background:color-mix(in srgb,var(--panel) 96%,transparent);box-shadow:0 1px 2px rgba(10,16,22,.06),0 10px 24px rgba(10,16,22,.10),0 24px 60px rgba(10,16,22,.14);
+  -webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px)}
+.ctx.hm:not([hidden]){animation:hm-in .24s cubic-bezier(.2,.9,.25,1.12);transform-origin:var(--hm-ox,85%) -6px}
+.ctx.hm.closing{animation:hm-out .15s cubic-bezier(.4,0,1,1) forwards;transform-origin:var(--hm-ox,85%) -6px}
+@keyframes hm-in{from{opacity:0;transform:translateY(-6px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes hm-out{to{opacity:0;transform:translateY(-4px) scale(.97)}}
+.ctx.hm .hm-h{padding:6px 10px 6px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);animation:hm-it .26s cubic-bezier(.2,.8,.3,1) both}
+.ctx.hm hr{margin:5px 8px;border-top-color:color-mix(in srgb,var(--ink) 8%,transparent);animation:hm-fade .3s ease both;animation-delay:calc(var(--i,0)*24ms + 40ms)}
+.ctx.hm button.hm-i{display:flex;align-items:center;gap:12px;padding:7px 10px 7px 8px;border-radius:9px;min-height:38px;color:var(--ink);
+  transition:background .14s,color .14s;animation:hm-it .3s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--i,0)*24ms + 30ms)}
+@keyframes hm-it{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+@keyframes hm-fade{from{opacity:0}}
+.ctx.hm button.hm-i:hover,.ctx.hm button.hm-i:focus-visible{background:color-mix(in srgb,var(--accent) 10%,transparent);outline:none}
+.ctx.hm button.hm-i:focus-visible{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 55%,transparent)}
+.ctx.hm .hm-ic{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:8px;background:color-mix(in srgb,var(--ink) 5%,transparent);color:var(--muted);
+  transition:background .16s,color .16s,transform .2s cubic-bezier(.2,.9,.3,1.4)}
+.ctx.hm .hm-ic svg{width:17px;height:17px}
+.ctx.hm button.hm-i:hover .hm-ic,.ctx.hm button.hm-i:focus-visible .hm-ic{background:var(--accent);color:var(--on-accent,#fff);transform:scale(1.06)}
+.ctx.hm .hm-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ctx.hm .hm-l{font-size:13.5px;font-weight:500;white-space:nowrap}
+.ctx.hm .hm-d{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctx.hm .hm-k{display:flex;gap:3px;flex:none}
+.ctx.hm .hm-k kbd{min-width:20px;height:20px;padding:0 5px;display:inline-grid;place-items:center;border-radius:5px;font:500 10.5px/1 var(--f-mono);color:var(--muted);
+  background:color-mix(in srgb,var(--ink) 4%,var(--panel));border:1px solid color-mix(in srgb,var(--ink) 11%,transparent);border-bottom-width:2px}
+.ctx.hm .hm-badge{flex:none;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;background:var(--accent);color:var(--on-accent,#fff)}
+.ctx.hm .hm-sw{position:relative;flex:none;width:30px;height:18px;border-radius:99px;background:color-mix(in srgb,var(--ink) 16%,transparent);transition:background .2s}
+.ctx.hm .hm-sw::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .22s cubic-bezier(.3,1.4,.5,1)}
+.ctx.hm [aria-checked="true"] .hm-sw{background:var(--accent)}
+.ctx.hm [aria-checked="true"] .hm-sw::after{transform:translateX(12px)}
+.ctx.hm [aria-checked="true"] .hm-ic{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.hmb .hm-c{transition:transform .22s cubic-bezier(.2,.9,.3,1.2)}
+.hmb[aria-expanded="true"] .hm-c{transform:rotate(180deg)}
+.hmb[aria-expanded="true"]{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent)}
+:root[data-motion="off"] .ctx.hm,:root[data-motion="off"] .ctx.hm *{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion:reduce){.ctx.hm,.ctx.hm *{animation:none!important}}
 /* 3.0: IT-Rechner */
 .calccard{width:min(700px,100%)}
 #calcMode{flex-wrap:wrap}
@@ -1018,7 +1055,7 @@ header,.file{min-width:0}
       <div class="row"><label for="fontBtn">Schrift</label><button type="button" class="fontbtn" id="fontBtn" aria-haspopup="listbox" aria-expanded="false"><span id="fontBtnN">Standard</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
       <div class="row"><label for="fs">Größe</label><input type="range" id="fs" min="6" max="60" step="1" value="14"><span class="val" id="fsV">14 pt</span></div>
       <div class="row"><label class="chk"><input type="checkbox" id="bold"> Fett</label><label class="chk"><input type="checkbox" id="underl"> Unterstrichen</label></div>
-      <button class="btn sp-more" id="spMore" type="button">Rechtschreibung, Schreiben &amp; Diktieren …</button>
+      <button class="btn sp-more" id="spMore" type="button">Rechtschreibung &amp; Diktieren</button>
     </div>
     <div class="sec">
       <h3>Linien &amp; Pfeile</h3>
@@ -1197,7 +1234,7 @@ header,.file{min-width:0}
         <div class="wr-wl" id="wrWords"></div><p class="hint" id="wrNone">Noch keine. Rechtsklick auf ein rot unterstrichenes Wort → „Zum Wörterbuch hinzufügen“.</p></div>
     </section>
     <section class="wr-s"><h3>Schreiben</h3><div class="seg" id="dAutoCap"><button data-v="on">Satzanfang groß</button><button data-v="off">Aus</button></div><p class="hint">Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.</p></section>
-    <section class="wr-s" id="asrSec" hidden><h3>Diktieren</h3><div class="ab-row"><span class="upd-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span><div><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div><p class="hint" id="wrDictKey"></p><button class="btn" id="wrKeys" type="button" style="align-self:flex-start">Tastenkürzel ändern …</button></section>
+    <section class="wr-s" id="asrSec" hidden><h3>Diktieren</h3><div class="ab-row"><span class="upd-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span><div><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div><p class="hint" id="wrDictKey"></p><button class="btn" id="wrKeys" type="button" style="align-self:flex-start">Tastenkürzel ändern</button></section>
     </div>
   </div>
 </div>
@@ -1205,7 +1242,7 @@ header,.file{min-width:0}
   <div class="card ipcard kbcard">
     <div class="ip-h"><h2 id="kbT">Tastenkürzel</h2><button class="ib" id="kbX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <p class="hint">Auf ein Kürzel klicken und die neue Taste oder Tastenkombination drücken, z. B. F9 fürs Diktieren. Esc bricht ab, Entf entfernt das Kürzel.</p>
-    <input type="search" id="kbQ" placeholder="Aktion suchen …" autocomplete="off" spellcheck="false">
+    <input type="search" id="kbQ" placeholder="Aktion suchen" autocomplete="off" spellcheck="false">
     <div class="kb-list" id="kbList"></div>
     <div class="ab-btns asr-btns"><button class="btn" id="kbReset" type="button">Alle zurücksetzen</button></div>
   </div>
@@ -1587,6 +1624,13 @@ const I18N_EN={
 'Neues Blatt oder leere Seiten':'New sheet or blank pages','Rückgängig':'Undo','Wiederholen':'Redo','Seitenvorschau ein/aus':'Page thumbnails on/off','Nächster Tab':'Next tab','Vorheriger Tab':'Previous tab','Tab schließen':'Close tab',
 'Für Deutsch fehlt ein Wörterbuch. Hier kann es geladen werden.':'The German dictionary is missing. You can download it here.','Diktat beenden':'Stop dictation','Diktieren':'Dictation','Notizen':'Notes','Diktieren ist eingerichtet. Einfach sprechen.':'Dictation is set up. Just speak.',
 'Modell: NVIDIA, Lizenz CC BY 4.0. Später entfernbar unter Einstellungen → Schreiben & Rechtschreibung.':'Model: NVIDIA, licence CC BY 4.0. Can be removed later under Settings → Writing & spelling.',
+// 3.3.2
+'PDF öffnen':'Open PDF','Zuletzt geöffnet':'Recently opened','Deine letzten Dateien':'Your last files','Neues Blatt':'New sheet','Oder leere Seiten einfügen':'Or insert blank pages',
+'PDFs zusammenführen':'Merge PDFs','Mehrere Dateien zu einer':'Several files into one','Seiten ordnen':'Organize pages','Drehen, sortieren, löschen':'Rotate, sort, delete',
+'Speichern unter':'Save as','Als neue Datei':'As a new file','Design anpassen':'Customize design','Farben, Leisten, hell oder dunkel':'Colours, bars, light or dark',
+'Schreiben & Rechtschreibung':'Writing & spelling','Wörterbuch, Großschreibung, Diktieren':'Dictionary, capitalization, dictation','Tastenkürzel':'Keyboard shortcuts',
+'Eigene Tasten festlegen':'Set your own keys','Layr & Updates':'Layr & updates','Version und Updates':'Version and updates','Eine neue Version ist da':'A new version is available','Neu':'New',
+'Datei':'File','Ansicht':'View','Einstellungen':'Settings','Rechtschreibung & Diktieren':'Spelling & dictation','Tastenkürzel ändern':'Change keyboard shortcuts','Aktion suchen':'Search action',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -4965,43 +5009,70 @@ function wrOpen(v){const d=$('#wrDlg');if(v){if(typeof studioIsOpen==='function'
   if(m&&g){m.classList.toggle('warn',!g.hidden);m.title=g.hidden?'':tr('Für Deutsch fehlt ein Wörterbuch. Hier kann es geladen werden.')}return r};try{spUI()}catch(e){}}
 /* Menüs in der Kopfleiste: Datei, Ansicht, Einstellungen (statt vieler einzelner Symbole) */
 {const cm=closeMenu;closeMenu=function(){ctx._closedAt=Date.now();return cm()}}
-function hmOpen(btn,items){if(!ctx.hidden&&!ctx._ah&&ctx._owner===btn){closeMenu();return}if(ctx._owner===btn&&Date.now()-(ctx._closedAt||0)<350)return;
-  ctx.innerHTML='';ctx.classList.add('hm');ctx._owner=btn;
-  for(const it of items){if(!it||it.hidden)continue;if(it.sep){ctx.appendChild(document.createElement('hr'));continue}
-    const b=document.createElement('button');b.type='button';b.setAttribute('role',it.check!==undefined?'menuitemcheckbox':'menuitem');if(it.check!==undefined)b.setAttribute('aria-checked',it.check?'true':'false');
-    const l=document.createElement('span');l.className='hm-l';l.textContent=(it.check!==undefined?(it.check?'✓ ':' '):'')+tr(it.t);b.appendChild(l);
-    if(it.dot){const d=document.createElement('i');d.className='hm-dot';b.appendChild(d)}
-    if(it.k){const k=document.createElement('kbd');k.textContent=kbShow(it.k);b.appendChild(k)}
-    b.onclick=()=>{closeMenu();it.run()};ctx.appendChild(b)}
-  showEl(ctx);btn.setAttribute('aria-expanded','true');const r=btn.getBoundingClientRect(),w=ctx.offsetWidth;
-  ctx.style.left=clamp(r.right-w,8,innerWidth-w-8)+'px';ctx.style.top=(r.bottom+6)+'px';
-  const f=ctx.querySelector('button');f&&f.focus()}
+const HM_IC={
+  open:'<path d="M3 8V6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2"/><path d="M3.6 19.2 6 11.4A2 2 0 0 1 7.9 10H21l-2.5 8.6a2 2 0 0 1-1.9 1.4H5a2 2 0 0 1-2-2V8"/>',
+  recent:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',
+  newdoc:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15h6"/>',
+  merge:'<path d="M12 3 21 8l-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+  pages:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="9" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/><rect x="14" y="15" width="7" height="6" rx="1.5"/>',
+  saveas:'<path d="M5 3h11l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 1-2z"/><path d="M8 3v5h7V3M8 21v-6h8v6"/>',
+  thumbs:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8.5 4v16"/>',
+  toolbar:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/>',
+  sidebar:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15.5 4v16"/>',
+  ruler:'<path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/>',
+  zin:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/>',
+  zout:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M8 11h6"/>',
+  fit:'<path d="M4 12h16M4 12l3-3M4 12l3 3M20 12l-3-3M20 12l-3 3"/><path d="M4 5v2M20 5v2M4 17v2M20 17v2"/>',
+  design:'<circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 9.7C22 5.5 17.5 2 12 2z"/>',
+  writing:'<path d="M3 17 6.5 7 10 17M4.3 13.5h4.4"/><path d="m13 13 3 3 6-7"/>',
+  keys:'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7.5 14h9"/>',
+  upd:'<path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>'};
+const hmSvg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HM_IC[k]||''}</svg>`;
+function hmKbd(c){const w=document.createElement('span');w.className='hm-k';for(const p of kbShow(c).split(/\+(?!$)/)){const k=document.createElement('kbd');k.textContent=p;w.appendChild(k)}return w}
+function hmOpen(btn,items,title){if(!ctx.hidden&&!ctx._ah&&ctx._owner===btn){closeMenu();return}if(ctx._owner===btn&&Date.now()-(ctx._closedAt||0)<350)return;
+  ctx.innerHTML='';ctx.classList.remove('closing');ctx.classList.add('hm');ctx._owner=btn;let n=0;
+  if(title){const h=document.createElement('div');h.className='hm-h';h.textContent=tr(title);ctx.appendChild(h)}
+  for(const it of items){if(!it||it.hidden)continue;if(it.sep){const s=document.createElement('hr');s.style.setProperty('--i',n);ctx.appendChild(s);continue}
+    const b=document.createElement('button');b.type='button';b.className='hm-i';b.style.setProperty('--i',n++);
+    const chk=typeof it.get==='function';b.setAttribute('role',chk?'menuitemcheckbox':'menuitem');
+    b.insertAdjacentHTML('beforeend','<span class="hm-ic">'+hmSvg(it.ic)+'</span>');
+    const tx=document.createElement('span');tx.className='hm-tx';const l=document.createElement('span');l.className='hm-l';l.textContent=tr(it.t);tx.appendChild(l);
+    if(it.d){const d=document.createElement('span');d.className='hm-d';d.textContent=tr(it.d);tx.appendChild(d)}b.appendChild(tx);
+    if(it.badge){const g=document.createElement('span');g.className='hm-badge';g.textContent=tr(it.badge);b.appendChild(g)}
+    if(it.k)b.appendChild(hmKbd(it.k));
+    if(chk){const sw=document.createElement('span');sw.className='hm-sw';sw.setAttribute('aria-hidden','true');b.appendChild(sw);b.setAttribute('aria-checked',it.get()?'true':'false')}
+    b.onclick=()=>{if(chk){it.run();setTimeout(()=>b.setAttribute('aria-checked',it.get()?'true':'false'),0);return}closeMenu();it.run()};ctx.appendChild(b)}
+  showEl(ctx);btn.setAttribute('aria-expanded','true');const r=btn.getBoundingClientRect(),w=ctx.offsetWidth,left=clamp(r.right-w,8,innerWidth-w-8);
+  ctx.style.left=left+'px';ctx.style.top=(r.bottom+8)+'px';ctx.style.setProperty('--hm-ox',Math.round(r.left+r.width/2-left)+'px');
+  const f=ctx.querySelector('button');f&&f.focus({preventScroll:true})}
 ctx.addEventListener('keydown',e=>{if(!ctx.classList.contains('hm'))return;const B=[...ctx.querySelectorAll('button')];const i=B.indexOf(document.activeElement);
-  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=B[(i+(e.key==='ArrowDown'?1:-1)+B.length)%B.length];n&&n.focus()}else if(e.key==='Tab'){e.preventDefault();closeMenu()}});
-new MutationObserver(()=>{if((ctx.hidden||ctx._ah)&&ctx.classList.contains('hm')){ctx.classList.remove('hm');for(const b of document.querySelectorAll('.hmb[aria-expanded="true"]'))b.setAttribute('aria-expanded','false')}}).observe(ctx,{attributes:true,attributeFilter:['hidden','class']});
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const nb=B[(i+(e.key==='ArrowDown'?1:-1)+B.length)%B.length];nb&&nb.focus()}
+  else if(e.key==='Home'||e.key==='End'){e.preventDefault();const nb=e.key==='Home'?B[0]:B[B.length-1];nb&&nb.focus()}else if(e.key==='Tab'){e.preventDefault();closeMenu()}});
+new MutationObserver(()=>{if((ctx.hidden||ctx._ah)&&ctx.classList.contains('hm')){for(const b of document.querySelectorAll('.hmb[aria-expanded="true"]'))b.setAttribute('aria-expanded','false');
+  if(ctx.hidden)ctx.classList.remove('hm')}}).observe(ctx,{attributes:true,attributeFilter:['hidden','class']});
 const hmPressed=id=>{const b=document.getElementById(id);return!!b&&b.getAttribute('aria-pressed')==='true'};
 $('#bFileMenu').onclick=()=>hmOpen($('#bFileMenu'),[
-  {t:'PDF öffnen …',k:kbOf('open'),run:()=>fileIn.click()},
-  {t:'Zuletzt geöffnet …',k:kbOf('recent'),hidden:$('#bRecent').hidden,run:()=>openRecent()},
-  {t:'Neues Blatt oder leere Seiten …',k:kbOf('newDoc'),run:()=>$('#bNew').click()},
+  {ic:'open',t:'PDF öffnen',k:kbOf('open'),run:()=>fileIn.click()},
+  {ic:'recent',t:'Zuletzt geöffnet',d:'Deine letzten Dateien',k:kbOf('recent'),hidden:$('#bRecent').hidden,run:()=>openRecent()},
+  {ic:'newdoc',t:'Neues Blatt',d:'Oder leere Seiten einfügen',k:kbOf('newDoc'),run:()=>$('#bNew').click()},
   {sep:1},
-  {t:'Mehrere PDFs zusammenführen …',run:()=>$('#bMerge').click()},
-  {t:'Seiten ordnen (drehen, sortieren, löschen) …',run:()=>$('#bPages').click()},
+  {ic:'merge',t:'PDFs zusammenführen',d:'Mehrere Dateien zu einer',run:()=>$('#bMerge').click()},
+  {ic:'pages',t:'Seiten ordnen',d:'Drehen, sortieren, löschen',run:()=>$('#bPages').click()},
   {sep:1},
-  {t:'Speichern unter …',k:kbOf('saveAs'),run:()=>save(true)}]);
+  {ic:'saveas',t:'Speichern unter',d:'Als neue Datei',k:kbOf('saveAs'),run:()=>save(true)}],'Datei');
 $('#bViewMenu').onclick=()=>hmOpen($('#bViewMenu'),[
-  {t:'Seitenvorschau',check:hmPressed('bThumbs'),k:kbOf('thumbs'),run:()=>$('#bThumbs').click()},
-  {t:'Werkzeugleiste',check:hmPressed('bTglTools'),run:()=>$('#bTglTools').click()},
-  {t:'Seitenleiste',check:hmPressed('bTglSide'),hidden:innerWidth<=860,run:()=>$('#bTglSide').click()},
-  {t:'Lineal',check:!!(typeof rulerOn!=='undefined'&&rulerOn),k:kbOf('tool:ruler'),run:()=>toggleRuler()},
+  {ic:'thumbs',t:'Seitenvorschau',get:()=>hmPressed('bThumbs'),k:kbOf('thumbs'),run:()=>$('#bThumbs').click()},
+  {ic:'toolbar',t:'Werkzeugleiste',get:()=>hmPressed('bTglTools'),run:()=>$('#bTglTools').click()},
+  {ic:'sidebar',t:'Seitenleiste',get:()=>hmPressed('bTglSide'),hidden:innerWidth<=860,run:()=>$('#bTglSide').click()},
+  {ic:'ruler',t:'Lineal',get:()=>!!(typeof rulerOn!=='undefined'&&rulerOn),k:kbOf('tool:ruler'),run:()=>toggleRuler()},
   {sep:1},
-  {t:'Vergrößern',k:kbOf('zoomIn'),run:()=>zoomTo(S.zoom*1.2)},{t:'Verkleinern',k:kbOf('zoomOut'),run:()=>zoomTo(S.zoom/1.2)},{t:'An Breite anpassen',k:kbOf('fit'),run:()=>fitZoom()}]);
-$('#bSetMenu').onclick=()=>hmOpen($('#bSetMenu'),[
-  {t:'Design anpassen …',run:()=>$('#bDesign').click()},
-  {t:'Schreiben & Rechtschreibung …',run:()=>wrOpen(true)},
-  {t:'Tastenkürzel …',run:()=>kbOpen(true)},
+  {ic:'zin',t:'Vergrößern',k:kbOf('zoomIn'),run:()=>zoomTo(S.zoom*1.2)},{ic:'zout',t:'Verkleinern',k:kbOf('zoomOut'),run:()=>zoomTo(S.zoom/1.2)},{ic:'fit',t:'An Breite anpassen',k:kbOf('fit'),run:()=>fitZoom()}],'Ansicht');
+$('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');hmOpen($('#bSetMenu'),[
+  {ic:'design',t:'Design anpassen',d:'Farben, Leisten, hell oder dunkel',run:()=>$('#bDesign').click()},
+  {ic:'writing',t:'Schreiben & Rechtschreibung',d:'Wörterbuch, Großschreibung, Diktieren',run:()=>wrOpen(true)},
+  {ic:'keys',t:'Tastenkürzel',d:'Eigene Tasten festlegen',run:()=>kbOpen(true)},
   {sep:1,hidden:$('#bInfo').hidden},
-  {t:$('#bInfo').classList.contains('has-upd')?'Layr & Updates (Update da)':'Layr & Updates …',dot:$('#bInfo').classList.contains('has-upd'),hidden:$('#bInfo').hidden,run:()=>$('#bInfo').click()}]);
+  {ic:'upd',t:'Layr & Updates',d:up?'Eine neue Version ist da':'Version und Updates',badge:up?'Neu':'',hidden:$('#bInfo').hidden,run:()=>$('#bInfo').click()}],'Einstellungen')};
 // Update-Punkt vom alten Knopf auf das Zahnrad übertragen
 {const i=$('#bInfo'),g=$('#bSetMenu');const upd=()=>g.classList.toggle('has-upd',i.classList.contains('has-upd'));new MutationObserver(upd).observe(i,{attributes:true,attributeFilter:['class']});upd()}
 // „Zuletzt geöffnet“ öffnet sich unter dem Datei-Menü, weil der alte Knopf nicht mehr zu sehen ist
