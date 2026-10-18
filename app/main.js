@@ -51,7 +51,8 @@ async function readCapped(r, max) {
 const DLG_EN = { 'Ohne Speichern schließen': 'Close without saving', 'Abbrechen': 'Cancel', 'Es gibt ungespeicherte Beschriftungen.': 'There are unsaved annotations.',
   'Sie bleiben im Zwischenspeicher und kommen beim nächsten Öffnen derselben Datei wieder.': 'They stay in the cache and come back the next time you open the same file.',
   'Speichern unter': 'Save as', 'Speichern': 'Save', 'Nicht speichern': "Don't save", 'Änderungen speichern?': 'Save changes?',
-  'Deine Beschriftungen sind noch nicht in der PDF gespeichert.': 'Your annotations are not saved in the PDF yet.' };
+  'Deine Beschriftungen sind noch nicht in der PDF gespeichert.': 'Your annotations are not saved in the PDF yet.',
+  'Exportieren': 'Export', 'PNG-Bild': 'PNG image', 'JPEG-Bild': 'JPEG image', 'ZIP-Archiv': 'ZIP archive', 'CSV-Tabelle': 'CSV table' };
 const installLang = () => { try { const v = fs.readFileSync(path.join(process.resourcesPath, 'install-language.txt'), 'utf8').replace(/\0/g, '').trim(); return v === '1031' ? 'de' : v === '1033' ? 'en' : null; } catch (e) { return null; } };
 let uiLang = null;
 const langFile = () => path.join(app.getPath('userData'), 'lang.txt');
@@ -231,6 +232,33 @@ handle('save', async (_e, name, data, saveAs) => {
   return path.basename(target);
 });
 
+// 3.5: Exportieren (Bilder, ZIP, kleinere PDF-Kopie). Ändert nie die geöffnete Datei; der Ort kommt immer aus dem Dialog des Systems.
+// Nur bekannte Dateiarten anhand der ersten Bytes, die Endung passt immer dazu.
+const EXPORT_KINDS = { pdf: ['PDF', 'pdf'], png: ['PNG-Bild', 'png'], jpg: ['JPEG-Bild', 'jpg'], zip: ['ZIP-Archiv', 'zip'], csv: ['CSV-Tabelle', 'csv'] };
+const exportKind = (d, name) => {
+  if (!(d instanceof Uint8Array) || d.length < 8 || d.length > 2e9) return null;
+  // Text (Lernkarten als CSV): nur mit passender Endung, ohne Nullbytes, gültiges UTF-8
+  if (/\.csv$/i.test(String(name || ''))) { if (d.length > 5e7 || d.includes(0)) return null; try { new TextDecoder('utf-8', { fatal: true }).decode(d); } catch (e) { return null; } return 'csv'; }
+  if (isPdfBytes(d)) return 'pdf';
+  if (d[0] === 0x89 && d[1] === 0x50 && d[2] === 0x4e && d[3] === 0x47 && d[4] === 0x0d && d[5] === 0x0a && d[6] === 0x1a && d[7] === 0x0a) return 'png';
+  if (d[0] === 0xff && d[1] === 0xd8 && d[2] === 0xff) return 'jpg';
+  if (d[0] === 0x50 && d[1] === 0x4b && d[2] === 0x03 && d[3] === 0x04) return 'zip';
+  return null;
+};
+handle('export', async (_e, name, data) => {
+  const kind = exportKind(data, name); if (!kind) return null;
+  const [label, ext] = EXPORT_KINDS[kind];
+  let b = path.basename(String(name || '').replace(/\\/g, '/')).replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/^[.\s]+/, '').trim().slice(0, 200);
+  b = b.replace(/\.(pdf|png|jpe?g|zip|csv)$/i, ''); if (!b) b = 'Export';
+  const r = await dialog.showSaveDialog(win, { title: T('Exportieren'), defaultPath: path.join(lastDir, b + '.' + ext), filters: [{ name: T(label), extensions: [ext] }], properties: ['showOverwriteConfirmation', 'createDirectory'] });
+  if (r.canceled || !r.filePath) return null;
+  let target = path.resolve(r.filePath); if (path.extname(target).toLowerCase() !== '.' + ext && !(ext === 'jpg' && /\.jpe?g$/i.test(target))) target += '.' + ext;
+  // nie eine geöffnete Datei überschreiben (auch nicht die eines anderen Tabs)
+  const open = [savedPath, currentFile, ...[...DOCS.values()].flatMap(d => [d.c, d.s])].filter(Boolean).map(p => path.resolve(p));
+  if (open.includes(target)) return null;
+  writeSafe(target, data); lastDir = path.dirname(target);
+  return path.basename(target);
+});
 // Speichern aktualisiert die geöffnete Datei selbst (wie bei Word). Die unbeschriftete Fassung steckt als
 // Anhang in der PDF, Layr kann beim nächsten Öffnen also alles weiter bearbeiten oder wieder entfernen.
 // Erst in eine zufällig benannte, exklusiv angelegte Hilfsdatei schreiben (folgt keinem Symlink), dann ersetzen.

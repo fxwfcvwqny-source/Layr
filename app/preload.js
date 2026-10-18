@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('werkbank', {
   tabClose: id => ipcRenderer.send('tab-close', String(id || '')),
   tabClaim: t => ipcRenderer.invoke('tab-claim', String(t || '')),
   save: (name, data, saveAs) => ipcRenderer.invoke('save', String(name || ''), data instanceof Uint8Array ? data : null, !!saveAs),
+  exportFile: (name, data) => ipcRenderer.invoke('export', String(name || ''), data instanceof Uint8Array ? data : null),
   autoSave: (name, data, fresh) => ipcRenderer.invoke('autosave', String(name || ''), data instanceof Uint8Array ? data : null, !!fresh),
   newDoc: () => ipcRenderer.send('new-doc'),
   log: t => ipcRenderer.send('log', String(t).slice(0, 60000)),
