@@ -22,11 +22,12 @@
 - **Network diagrams** – templates for a small office, a company with DMZ, VLANs, a home network and a school network, all with IP addresses
 - **IT calculator** – convert between binary, hexadecimal, decimal and octal with the working shown step by step (two's complement, 8–64 bit), data sizes (GB vs. GiB), transfer times, UPS sizing and battery runtime, power consumption, costs and waste heat; put any result on the page as a table
 - **Subnet calculator** – network, broadcast, host range and mask for any IPv4 address, split a network into subnets or plan with VLSM; IPv6 networks and subnets and EUI-64 from a MAC address; then put the result on the page as a table
-- **Rack planner** – plan a 19-inch rack with patch panels, switches, servers, UPS … in rack units and place it on the page; double-click it to change it later
+- **Rack planner** – plan a 19-inch rack with patch panels, switches, servers, UPS … in rack units and place it on the page; double-click it to change it later. A patch list connects patch panel ports with switch ports (also automatically), shows the cables in the rack and can be placed next to it as a table
 - **Code blocks** – insert code with syntax colours (Bash, PowerShell, Python, Cisco IOS, SQL, JavaScript …), light or dark, with line numbers
 - **Big symbol library** – general shapes, UML, flowcharts (PAP), Nassi-Shneiderman, ER models, 40+ network symbols, topologies and IT-security symbols
-- **Notes and to-dos per document** – a notes panel with checkable tasks, stored *inside* the PDF
+- **Notes and to-dos per document** – a notes panel with checkable tasks, stored *inside* the PDF; save notes, tasks, highlights and text boxes as a Markdown file
 - **Stays editable** – save over the original file; reopen it in Layr and every annotation can still be moved or removed
+- **Create your own form fields** – drag out text fields, multi-line fields, checkboxes and drop-downs (form field tool, F); when saving they become real PDF form fields that any program can fill in
 - **Fill in PDF forms** – text fields, checkboxes, radio buttons and drop-downs become real input fields; the values are saved into the PDF's own form fields, so every other PDF program sees them
 - **Signatures** – draw, type or scan your signature and place it anywhere or into a signature field; Layr can remember it on your device and can add place and date underneath (a visible signature like on paper, not a certificate-based digital signature)
 - **Spell checking (German and English)** – misspelled words in text boxes, tables and notes get a red wavy line, right-click for suggestions or to add a word to your dictionary (manage your words under *Settings → Writing & spelling*); works offline with the real Hunspell engine
@@ -37,12 +38,17 @@
 - **Highlighter snaps to text** – a highlighter stroke over the text of a PDF becomes a clean highlight exactly over the words
 - **Page numbers, header, footer and watermark** – on every page (*File → Page numbers & header*), with placeholders for file name, date and page; numbers stay correct when you reorder pages
 - **Export** – save pages as PNG or JPG (several pages as one ZIP file) or save a smaller copy of the PDF for email (*File*)
-- **Flashcards** – every highlight becomes a card with a gap, add your own cards, learn with three boxes and export them for Anki (CSV)
+- **Flashcards** – every highlight becomes a card with a gap, add your own cards and learn with a review schedule (a card you know comes back after 1, 3, 7, 14, 30 and 60 days). Type the answer if you like – small typos and umlauts don't count as wrong. Statistics for the last 14 days, a hint when cards are due (also from other files) and export for Anki (CSV)
+- **Diagrams from text** – a few lines become a mind map, a chart (columns, bars, line, pie – also from a table), a logic circuit with truth table and simplified formula (DIN/IEC or ANSI symbols) or a Nassi-Shneiderman structogram from pseudocode (tool D); double-click to edit
+- **Align and distribute** – line up selected objects at their edges or centres, spread them evenly, or centre a single object on the page
 - **Presentation mode (F5)** – full screen, page by page, with a laser pointer
 - **Tablet mode, guides and grid** – only the pen draws while fingers scroll, and the pen's eraser button erases; objects snap to edges and centres while you move them, with an optional 5 mm grid (*View*)
 - **Print (Ctrl+P)** – print the whole document, the current page or a selection like 1-3, 5, with your annotations, form entries and signatures exactly as they will be saved; each page keeps its own size and orientation, and your notes can be added as a last page
+- **Password-protected PDFs** – open PDFs protected with a password (RC4 and AES up to 256 bit) and save them protected again; protect any PDF with a password or remove the protection (*File → Password protection*)
+- **Compare two PDFs** – see side by side what changed between two versions: removed text in red, new text in green, with a list of all changes (*File → Compare PDFs*)
+- **Split view and night mode** – show another part of the document, another tab or another file next to the one you're working on; show pages dark at night without changing the file (*View*)
 - **Search (Ctrl+F)** – find words in the PDF text and in your own annotations, with every match highlighted
-- **Pages and documents** – rotate, sort, duplicate and delete pages in a page overview (drag to reorder), add blank, lined, grid or dotted pages, merge several PDFs
+- **Pages and documents** – rotate, sort, duplicate and delete pages in a page overview (drag to reorder), add blank, lined, grid or dotted pages, merge several PDFs, extract pages as a new PDF or split a file into parts (*File → Extract pages*), turn photos of sheets into a PDF that is straightened and cleaned up, and improve scanned pages (contrast, black and white)
 - **Rename files** – click the file name at the top left (or press F2) to rename the PDF right where it is
 - **Recently opened** – reopen your last files with one click (desktop app; the list stays on your computer and can be turned off)
 - **Make it yours** – light and dark themes, accent colours, desk and sheet colours, toolbar styles, notification styles, animations on or off
@@ -70,6 +76,8 @@ Download the file for your system from the [latest release](https://github.com/f
 - Spell checking runs completely offline. Electron's built-in spell checker, which would download dictionaries from a Google server, is switched off. Only if you click *Download German dictionary* does Layr fetch that one file from the public npm registry (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
 - Remembered signatures and your personal dictionary stay on your computer.
 - Text recognition (OCR) runs completely on your computer: the recognition engine and the German and English language data are part of the app, nothing is uploaded.
+- For password-protected PDFs, Layr keeps nothing in its local cache: annotations and notes only end up in the encrypted file. Passwords are never stored.
+- The "due today" hint for flashcards only keeps file names and numbers of cards in Layr's settings on your computer.
 - Crash reports are only written locally to Layr's own settings folder and are never uploaded.
 - The "Recently opened" list only stores file paths in Layr's settings folder on your computer. You can clear it or turn it off under *Settings → Layr & updates*.
 
@@ -77,7 +85,8 @@ Download the file for your system from the [latest release](https://github.com/f
 
 - PDFs are rendered with an up-to-date [PDF.js](https://github.com/mozilla/pdf.js) without any `eval`, and the desktop app runs under a strict Content Security Policy: no code from PDFs, no external scripts, no connections from the page to other servers.
 - The page has no access to Node.js or your files. It can only ask the main process for a small set of actions (open, save, rename …), and the main process only answers its own page. Saving only writes to the open file, to a place you picked in the system's save dialog or – when a new sheet is saved automatically – to a new file in your last-used folder that never replaces an existing one.
-- Exporting (images, ZIP, flashcards as CSV, a smaller copy) always asks the system's save dialog where to save, only writes these file types and never replaces the open file.
+- Exporting (images, ZIP, flashcards as CSV, notes as Markdown, extracted pages, a smaller copy) always asks the system's save dialog where to save, only writes these file types and never replaces the open file.
+- Password protection uses the PDF standard's AES-256 encryption (revision 6) with a fresh random key every time you save; it is computed on your device with the browser's WebCrypto.
 - Redaction removes the marked content from the file itself: the affected pages are stored again as images, and the hidden original copy inside the PDF is replaced too. After saving, undo can't bring it back.
 - Links and navigation are locked: only https links to this repository are opened in your browser.
 - Files are written through a temporary file that is created exclusively (no symlink tricks) and keeps the original file permissions; renaming never overwrites another file.
