@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tvz+kczD+iz1MtJtrfP80jCJUybvnNUfRiDhnFZvA7E=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-z59ZLJVO1iIrFEM7yf1AECk2l03K3RXpXrRgVhibWeU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1169,6 +1169,23 @@ th .dg-gi{font-weight:600;width:calc(100% - 26px)}
 .dg-tn{width:44px;height:24px;border:1px solid transparent;border-radius:5px;text-align:center;background:transparent;color:var(--ink);font:600 12.5px var(--f-mono)}.dg-tn:focus{border-color:var(--accent);outline:none;background:var(--panel)}
 .dg-tv{width:34px;height:24px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--muted);font:600 12.5px var(--f-mono);cursor:pointer}
 .dg-tv.v1{background:color-mix(in srgb,var(--accent) 18%,var(--panel));border-color:var(--accent);color:var(--ink)}.dg-tv.v2{border-style:dashed;color:var(--ink)}
+.calc-lg{display:flex;flex-direction:column;gap:10px}.calc-lg[hidden]{display:none}
+.lg-gates{display:flex;flex-wrap:wrap;gap:4px;align-items:center}.lg-l{font-size:12px;color:var(--muted);margin-right:2px}
+.lg-g{height:28px;padding:0 10px;font:600 12px var(--f-mono)}
+.lg-sws{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:var(--r);background:color-mix(in srgb,var(--ink) 3%,var(--panel))}
+.lg-sw,.lg-lamp{display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:7px;align-items:center;min-width:64px;height:48px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:600 13px var(--f-mono)}
+.lg-sw{cursor:pointer}.lg-sw:hover{border-color:var(--accent)}
+.lg-sw i{grid-row:1/3;width:14px;height:26px;border-radius:7px;background:color-mix(in srgb,var(--ink) 18%,transparent);position:relative;transition:background .15s}
+.lg-sw i::after{content:"";position:absolute;left:2px;right:2px;bottom:2px;height:10px;border-radius:5px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:bottom .15s}
+.lg-sw.on i{background:var(--accent)}.lg-sw.on i::after{bottom:14px}
+.lg-sw span,.lg-lamp span{font-size:11px;color:var(--muted)}
+.lg-ar{font-size:18px;color:var(--muted)}
+.lg-lamp i{grid-row:1/3;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--ink) 15%,transparent);border:2px solid color-mix(in srgb,var(--ink) 25%,transparent);transition:background .2s,box-shadow .2s}
+.lg-lamp.v1 i{background:radial-gradient(circle at 40% 35%,#fff7c2,#ffd60a 55%,#e8a10c);border-color:#d99a00;box-shadow:0 0 14px 3px rgba(255,200,0,.55)}
+.lg-lamp.v2 i{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--ink) 15%,transparent) 0 3px,transparent 3px 6px)}
+.lg-draw{margin-left:auto;height:30px}
+#calcOut tr.hit td{background:color-mix(in srgb,var(--accent) 16%,var(--panel));font-weight:700}
+@media (prefers-reduced-motion:reduce){.lg-sw i,.lg-sw i::after,.lg-lamp i{transition:none}}
 /* 3.0: IT-Rechner */
 .calccard{width:min(700px,100%)}
 #calcMode{flex-wrap:wrap}
@@ -1472,8 +1489,9 @@ header,.file{min-width:0}
 <div class="modal" id="calcDlg" hidden role="dialog" aria-modal="true" aria-labelledby="calcT">
   <div class="card ipcard calccard">
     <div class="ip-h"><h2 id="calcT">IT-Rechner</h2><button class="ib" id="calcX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <div class="seg" id="calcMode"><button data-v="num" aria-pressed="true">Zahlensysteme</button><button data-v="data">Datenmengen</button><button data-v="rate">Übertragung</button><button data-v="ups">USV</button><button data-v="power">Strom</button></div>
+    <div class="seg" id="calcMode"><button data-v="num" aria-pressed="true">Zahlensysteme</button><button data-v="data">Datenmengen</button><button data-v="rate">Übertragung</button><button data-v="ups">USV</button><button data-v="power">Strom</button><button data-v="logic">Logik</button></div>
     <div class="calc-in" id="calcIn"></div>
+    <div class="calc-lg" id="calcLg" hidden></div>
     <div class="ip-out" id="calcOut"></div>
     <div class="calc-steps" id="calcSteps" hidden></div>
     <p class="calc-note" id="calcNote" hidden></p>
@@ -2338,6 +2356,10 @@ const I18N_EN={
 'Rechts daneben':'On the right','Unten daneben':'Below','Zum Ansehen und Vergleichen':'To view and compare','Rechte Spalte schließen':'Close the right column',
 'Die rechte Datei links bearbeiten':'Edit the right-hand file on the left','Links kommt der Tab daneben':'The neighbouring tab moves to the left',
 'Baukasten':'Builder',
+'Logik':'Logic','Ausdruck':'Expression','Bitte einen Ausdruck eingeben, z. B. Y = A XOR B':'Please enter an expression, e.g. Y = A XOR B',
+'Der Ausdruck braucht mindestens einen Eingang (z. B. A).':'The expression needs at least one input (e.g. A).',
+'Im Rechner höchstens 6 Eingänge – für mehr das Werkzeug „Diagramm aus Text“ nehmen.':'At most 6 inputs in the calculator – use the “Diagram from text” tool for more.',
+'Schalter oben anklicken: Die passende Zeile wird markiert, die Lampe zeigt den Ausgang. Reihenfolge: zuerst UND, dann XOR, dann ODER – im Zweifel Klammern setzen.':'Click the switches above: the matching row is highlighted and the lamp shows the output. Order: AND first, then XOR, then OR – use brackets when in doubt.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -5554,10 +5576,10 @@ function calcPower(){const W=cnumv('pW'),h=cnumv('pH'),d=cnumv('pD'),pr=cnumv('p
   if(Number.isFinite(U)&&U>0)rows.push(['Stromstärke',cFmt(W/U,2)+' A '+tr('bei')+' '+cFmt(U)+' V']);rows.push(['Abwärme',cFmt(W*3.412,0)+' BTU/h · '+cFmt(W,0)+' W']);
   return{head:['Größe','Wert'],rows,note:'Monat = Jahr ÷ 12. Die Abwärme entspricht der aufgenommenen Leistung – wichtig für die Kühlung im Serverraum.'}}
 function calcRun(){const out=$('#calcOut'),steps=$('#calcSteps'),note=$('#calcNote');
-  const r=({num:calcNum,data:calcData,rate:calcRate,ups:calcUps,power:calcPower}[CALC.mode]||calcNum)();
+  const r=({num:calcNum,data:calcData,rate:calcRate,ups:calcUps,power:calcPower,logic:()=>calcLogic()}[CALC.mode]||calcNum)();
   steps.textContent='';steps.hidden=true;note.textContent='';note.hidden=true;
   if(r.err){CALC.res=null;out.textContent='';const p=document.createElement('p');p.className='ip-err';p.textContent=tr(r.err);out.appendChild(p);$('#calcPlace').disabled=true;$('#calcCopy').disabled=true;return}
-  CALC.res={head:r.head.map(tr),rows:r.rows.map(([a,b])=>[tr(a),b]),steps:r.steps||[]};
+  CALC.res={head:r.head.map(tr),rows:r.rows.map(([a,...b])=>[tr(a),...b]),steps:r.steps||[]};
   const tb=document.createElement('table'),th=document.createElement('thead'),trh=document.createElement('tr');for(const h of CALC.res.head){const c=document.createElement('th');c.textContent=h;trh.appendChild(c)}th.appendChild(trh);tb.appendChild(th);
   const bd=document.createElement('tbody');for(const row of CALC.res.rows){const x=document.createElement('tr');for(const v of row){const c=document.createElement('td');c.textContent=v;x.appendChild(c)}bd.appendChild(x)}tb.appendChild(bd);
   out.textContent='';out.appendChild(tb);
@@ -7940,6 +7962,73 @@ function dgBLogic(box,src){let R=null;try{R=lgRead(src)}catch(e){}if(!R||!src.tr
 segBind('dgMode',m=>dgMode(m));
 $('#dgEx').addEventListener('click',()=>{if(DG_MODE==='build')dgBuild();else dgHelp()});
 {const o=dgOpen;dgOpen=function(...a){o(...a);if(DG&&$('#dgDlg').dataset.mode==='build')setTimeout(()=>{const el=$('#dgB').querySelector('.dg-in:not(:disabled),.dg-gi,.dg-tv');el&&el.focus()},60)}}
+/* ---------- 3.7.1: Suche findet auch Kopf- und Fußzeile, Seitenzahlen, Wasserzeichen, Formulareinträge ----------
+   und die Texte in Codeblöcken, Diagrammen, Gruppen, Rack-Plänen und eigenen Formularfeldern. */
+{const base=annText;annText=function(o){const t=base(o);if(t)return t;if(!o)return'';
+  switch(o.type){case'code':return String(o.text||'');case'dia':return String(o.src||'');
+    case'group':return(o.items||[]).map(x=>annText(x)).filter(Boolean).join(' ');
+    case'rack':return[o.title||'',o.name||'',...(o.dev||[]).map(d=>d&&d.name||'')].filter(Boolean).join(' ');
+    case'field':return[o.name||'',typeof o.v==='string'?o.v:''].filter(Boolean).join(' ');default:return''}}}
+// Text der Kopf-/Fußzeile so, wie er auf Seite i steht ({n}, {N}, {datei}, {datum} ersetzt)
+function decoTextAt(o,i){if(o.kind==='wm')return String(o.text||'').trim();if(o.kind==='num'&&o.skipFirst&&i===0)return'';
+  return decoFill(o.text,i,S.pages.length,o.kind==='num'?(o.start??1):1).trim()}
+// Lage wie in drawDeco
+function decoBox(o,i,t){const P=S.pages[i],m=Math.max(18,Math.min(36,Math.min(P.w,P.h)*.05));
+  if(o.kind==='wm'){const w=Math.min(P.w*.9,Math.hypot(P.w,P.h)*(o.size==='s'?.4:o.size==='m'?.55:.7)*.7);return{x:(P.w-w)/2,y:P.h/2-w*.35,w,h:w*.7}}
+  const fs=o.fs||10;mctx.font=`${fs}px ${FONT}`;const w=mctx.measureText(t).width,x=o.al==='r'?P.w-m-w:o.al==='c'?P.w/2-w/2:m,base=o.pos==='t'?m+fs*.8:P.h-m+fs*.2;
+  return{x,y:base-fs*.9,w,h:fs*1.2}}
+{const base=findCompute;findCompute=function(idx,q){const hits=base(idx,q);if(!q)return hits;const extra=[];
+    S.pages.forEach((P,i)=>{for(const o of P.objs){if(o.type!=='deco')continue;const t=decoTextAt(o,i);if(t&&fNorm(t).includes(q)){const b=decoBox(o,i,t);extra.push({p:i,kind:'obj',o,y:b.y,x:b.x,b})}}});
+    // Einträge in echten Formularfeldern der PDF
+    for(const f of FM.fields){if(f.kind!=='text'&&f.kind!=='choice')continue;const v=S.form&&S.form[f.name];if(typeof v!=='string'||!v)continue;
+      const shown=f.kind==='choice'?((f.opts||[]).find(x=>x.v===v)||{t:v}).t:v;if(!fNorm(v+' '+shown).includes(q))continue;
+      extra.push({p:f.p,kind:'form',y:f.y,x:f.x,b:{x:f.x,y:f.y,w:f.w,h:f.h}})}
+    if(!extra.length)return hits;
+    return hits.concat(extra).sort((a,b)=>a.p-b.p||(Math.abs(a.y-b.y)>4?a.y-b.y:a.x-b.x))}}
+/* ---------- 3.7.1: Logik-Rechner im IT-Rechner ----------
+   Ausdruck (Y = A XOR B, auch UND/ODER/NICHT, & | ! ^ ·) → Wahrheitstabelle, Minterme, vereinfachte Formel.
+   Gatter-Knöpfe setzen ein Beispiel, Schalter für jeden Eingang zeigen den Ausgang als Lampe und markieren die Zeile. */
+CALC_F.logic=[{id:'lExpr',l:'Ausdruck',def:'Y = A XOR B',mono:1,wide:1}];
+const LGC={sw:{}};
+function calcLogic(){const src=String(cval('lExpr')).trim();if(!src)return{err:'Bitte einen Ausdruck eingeben, z. B. Y = A XOR B'};
+  const f=lgFriendly(src);if(f)return{err:f};let R;try{R=lgRead(src)}catch(e){return{err:String(e&&e.message||e)}}
+  const n=R.vars.length;if(!n)return{err:'Der Ausdruck braucht mindestens einen Eingang (z. B. A).'};if(n>6)return{err:'Im Rechner höchstens 6 Eingänge – für mehr das Werkzeug „Diagramm aus Text“ nehmen.'};
+  const rows=[];for(let i=0;i<1<<n;i++){const r=R.vars.map((_,k)=>String((i>>(n-1-k))&1));r.push(R.on.includes(i)?'1':R.dc.includes(i)?'X':'0');rows.push(r)}
+  const terms=lgTerms(n,R.vars,lgQmc(n,R.on,R.dc)),txt=nota=>lgFormula(terms,nota).map(p=>p.over?[...p.t].map(c=>c+'̅').join(''):p.t).join('');
+  const steps=[(LANG==='en'?'Output 1 in rows (minterms): ':'Ausgang 1 in den Zeilen (Minterme): ')+(R.on.length?'m('+R.on.join(', ')+')':'–')+(R.dc.length?' + d('+R.dc.join(', ')+')':''),
+    (LANG==='en'?'Simplified: ':'Vereinfacht: ')+R.out+' = '+txt('tech'),(LANG==='en'?'Same in logic notation: ':'Dasselbe in Logik-Schreibweise: ')+R.out+' = '+txt('logic')];
+  const ones=R.on.length;steps.push((LANG==='en'?'Output is 1 in ':'Ausgang ist 1 in ')+ones+(LANG==='en'?' of ':' von ')+(1<<n)+(LANG==='en'?' rows':' Zeilen'));
+  return{head:[...R.vars,R.out],rows,steps,note:'Schalter oben anklicken: Die passende Zeile wird markiert, die Lampe zeigt den Ausgang. Reihenfolge: zuerst UND, dann XOR, dann ODER – im Zweifel Klammern setzen.',lg:R}}
+// Gatter-Beispiele
+const LGC_GATES=[['and','UND','AND','A UND B','A AND B'],['or','ODER','OR','A ODER B','A OR B'],['xor','XOR','XOR','A XOR B','A XOR B'],['nand','NAND','NAND','A NAND B','A NAND B'],
+  ['nor','NOR','NOR','A NOR B','A NOR B'],['xnor','XNOR','XNOR','A XNOR B','A XNOR B'],['not','NICHT','NOT','NICHT A','NOT A']];
+function calcLgUI(){const box=$('#calcLg');if(!box)return;const on=CALC.mode==='logic';box.hidden=!on;if(!on)return;box.textContent='';
+  const g=document.createElement('div');g.className='lg-gates';const gl=document.createElement('span');gl.className='lg-l';gl.textContent=LANG==='en'?'Gate:':'Gatter:';g.appendChild(gl);
+  for(const[k,de,en,xd,xe]of LGC_GATES){const b=document.createElement('button');b.type='button';b.className='btn lg-g';b.textContent=LANG==='en'?en:de;b.dataset.g=k;
+    b.title=(LANG==='en'?'Example: Y = ':'Beispiel: Y = ')+(LANG==='en'?xe:xd);b.onclick=()=>{CALC.v.lExpr='Y = '+(LANG==='en'?xe:xd);const i=$('#c_lExpr');if(i)i.value=CALC.v.lExpr;calcSave();calcRun()};g.appendChild(b)}
+  box.appendChild(g);
+  let R=null;try{if(!lgFriendly(String(cval('lExpr'))))R=lgRead(String(cval('lExpr')).trim())}catch(e){}
+  if(!R||!R.vars.length||R.vars.length>6)return;
+  const n=R.vars.length;let idx=0;R.vars.forEach((v,k)=>{if(LGC.sw[v])idx|=1<<(n-1-k)});
+  const s=document.createElement('div');s.className='lg-sws';
+  R.vars.forEach((v,k)=>{const b=document.createElement('button');b.type='button';b.className='lg-sw'+(LGC.sw[v]?' on':'');b.setAttribute('aria-pressed',String(!!LGC.sw[v]));
+    b.setAttribute('aria-label',(LANG==='en'?'Input ':'Eingang ')+v+': '+(LGC.sw[v]?1:0));b.innerHTML='<i></i><b></b><span></span>';b.querySelector('b').textContent=v;b.querySelector('span').textContent=LGC.sw[v]?'1':'0';
+    b.onclick=()=>{LGC.sw[v]=!LGC.sw[v];calcLgUI()};s.appendChild(b)});
+  const ar=document.createElement('span');ar.className='lg-ar';ar.textContent='→';s.appendChild(ar);
+  const val=R.on.includes(idx)?1:R.dc.includes(idx)?2:0,l=document.createElement('div');l.className='lg-lamp v'+val;l.setAttribute('role','status');
+  l.setAttribute('aria-label',(LANG==='en'?'Output ':'Ausgang ')+R.out+': '+['0','1','X'][val]);l.innerHTML='<i></i><b></b><span></span>';l.querySelector('b').textContent=R.out;l.querySelector('span').textContent=['0','1','X'][val];s.appendChild(l);
+  const dr=document.createElement('button');dr.type='button';dr.className='btn lg-draw';dr.textContent=LANG==='en'?'Draw as circuit':'Als Schaltung zeichnen';
+  dr.onclick=()=>{if(!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}const src=String(cval('lExpr')).trim();closeCalcDlg();setTimeout(()=>{dgOpen(null,'logic');if(DG_MODE==='build')dgMode('text');$('#dgSrc').value=src;dgPrev();dgHelp()},120)};
+  s.appendChild(dr);box.appendChild(s);
+  // passende Zeile markieren
+  const rows=$('#calcOut').querySelectorAll('tbody tr');rows.forEach((r,i)=>r.classList.toggle('hit',i===idx));const hr=rows[idx];if(hr&&hr.scrollIntoView)hr.scrollIntoView({block:'nearest'})}
+{const o=calcRun;calcRun=function(){o();try{calcLgUI()}catch(e){console.error(e)}}}
+// Wahrheitstabelle mit allen Spalten aufs Blatt
+{const o=calcPlace;calcPlace=function(){if(CALC.mode!=='logic'){o();return}if(!CALC.res||!S.pages.length)return;const i=curPage(),P=S.pages[i],R=CALC.res,rows=R.rows.length+1,cols=R.head.length;
+  const t=newTable(0,0,rows,cols);t.cells=[R.head.slice(),...R.rows.map(r=>r.slice())];t.fs=10;t.head=true;t.w=Math.min(P.w-60,cols*46);t.h=rows*18;
+  const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();t.x=(P.w-t.w)/2;t.y=Math.min(Math.max(40,(vr.top-pr.top)/S.zoom+40),Math.max(40,P.h-t.h-30));
+  pushHist();P.objs.push(t);closeCalcDlg();setTool('select');setSel({p:i,o:t});redraw(i);markDirty();toast(tr('Ergebnis als Tabelle eingefügt.'))}}
+$('#calcPlace').onclick=()=>calcPlace();
 /* ---------- 3.6: Patchliste im Rack-Planer ----------
    Geräte mit Anschlüssen (Ports) bekommen eine feste Kennung; Verbindungen {a,ap,b,bp,t,c} werden im Rack gespeichert.
    „Automatisch zuordnen“ verbindet Patchpanel-Ports der Reihe nach mit freien Switch-Ports, „Als Tabelle aufs Blatt“ setzt die Liste daneben. */
@@ -8171,6 +8260,7 @@ const FN_SYN={'Passwortschutz':'passwort kennwort verschlüsseln sperren schütz
   'Formularfeld':'formular feld ausfüllen textfeld checkbox kästchen dropdown form','Diagramm aus Text':'mindmap chart diagramm logik schaltung struktogramm nassi wahrheitstabelle',
   'Schwärzen':'redact zensieren unkenntlich entfernen anonymisieren','Rack-Planer':'rack schrank serverschrank patchpanel patchliste','Codeblock':'code quellcode syntax programm',
   'Unterschrift':'signatur unterschreiben signature','Notizen ein/aus':'notizen notes aufgaben todo','Hilfslinien':'raster ausrichten snap guides','Design anpassen':'farbe theme dunkel hell aussehen'};
+FN_SYN['IT-Rechner']=(FN_SYN['IT-Rechner']||'')+' rechner logik logikrechner gatter xor and or nand nor schaltung wahrheitstabelle binär hex zahlensystem subnetz';
 const fnNorm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/ß/g,'ss');
 // alle Befehle einsammeln: Menüs (über hmOpen abgefangen), Werkzeuge, Tastenkürzel-Aktionen
 function fnCollect(){const out=[],seen=new Set(),add=it=>{const key=fnNorm(it.t);if(!it.t||seen.has(key)||typeof it.run!=='function')return;seen.add(key);out.push(it)};
