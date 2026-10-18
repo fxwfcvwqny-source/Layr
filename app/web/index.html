@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uHVmoI2Cmx4Eu+7vvqLPomEV1fLA4p/IosiTuvGQjm4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tvz+kczD+iz1MtJtrfP80jCJUybvnNUfRiDhnFZvA7E=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1082,12 +1082,12 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 #rkDlg[data-tab=pl] .rk-prev{width:150px}
 html.night .page,html.night .pc-pg,html.night .th canvas,html.night .pg-t canvas{filter:invert(.88) hue-rotate(180deg)}
 html.night .page{background:#fff}
-#wrap.split #viewer{right:50%}
-.spv{position:absolute;top:0;bottom:0;right:0;width:50%;display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--desk);z-index:2}
+#wrap.split #viewer{right:var(--spv-w,50%)}
+.spv{position:absolute;top:0;bottom:0;right:0;width:var(--spv-w,50%);display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--desk);z-index:2}
 .spv-h{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
 .spv-h select{flex:1;min-width:0;height:30px;border:1px solid var(--line);border-radius:7px;padding:0 6px;background:var(--panel);color:var(--ink);font-size:12.5px}
 .spv-sync{margin:0;white-space:nowrap}.spv-b{flex:1;min-height:0}
-@media (max-width:860px){#wrap.split #viewer{right:0;bottom:45%}.spv{top:55%;width:auto;left:0;border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:860px){.spv-div{display:none}#wrap.split #viewer{right:0;bottom:45%}.spv{top:55%;width:auto;left:0;border-left:0;border-top:1px solid var(--line)}}
 @media print{.spv{display:none!important}}
 .lk-m.due{color:var(--accent);font-weight:600}
 .lk-chart{width:100%;height:56px;display:block}
@@ -1096,6 +1096,79 @@ html.night .page{background:#fff}
 .lk-card.good .lk-back{border-color:#2b9a66;box-shadow:0 0 0 2px rgba(43,154,102,.25)}.lk-card.bad .lk-back{border-color:#e5484d;box-shadow:0 0 0 2px rgba(229,72,77,.25)}
 .lk-res{text-align:center;margin:0;min-height:1.2em;font-size:13.5px;font-weight:500}.lk-res.good{color:#1e8449}.lk-res.bad{color:#c62828}
 .lk-type{display:flex;gap:8px}.lk-type input{flex:1;min-width:0;height:38px;border:1px solid var(--line);border-radius:9px;padding:0 12px;background:var(--panel);color:var(--ink);font-size:15px}
+#app.mode-field:not(.mode-select):not(.mode-text) .formlayer .fm{pointer-events:auto;opacity:.95;cursor:pointer;outline:2px dashed rgba(48,104,214,.55);outline-offset:1px}
+.fn-tg{margin:0 2px 0 6px}.fn-tg .tl{font-size:12px}
+.fn-res{position:absolute;top:calc(100% + 6px);right:0;width:min(420px,calc(100vw - 40px));max-height:min(60vh,460px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 36px rgba(10,16,22,.2);padding:6px;display:flex;flex-direction:column;gap:2px}
+.fn-h{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:4px 8px 2px}
+.fn-i{display:flex;align-items:center;gap:10px;text-align:left;border:0;background:transparent;border-radius:8px;padding:7px 8px;color:var(--ink);cursor:pointer;font:inherit}
+.fn-i.sel{background:var(--accent-soft)}.fn-ic{width:20px;height:20px;flex:none;color:var(--muted);display:grid;place-items:center}.fn-ic svg{width:18px;height:18px}
+.fn-tx{display:flex;flex-direction:column;min-width:0;flex:1}.fn-tx b{font-weight:500;font-size:13.5px}.fn-tx span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fn-i kbd{font:500 11px var(--f-mono);color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:0 5px;line-height:18px}
+.fn-on{font-size:11px;color:var(--muted)}
+.prs-l[aria-pressed="true"]{color:#ff5a5a;filter:drop-shadow(0 0 4px rgba(255,60,60,.8))}
+.prs-lc i{display:block;width:12px;height:12px;margin:auto;border-radius:50%;background:var(--lc,#ff2e2e);box-shadow:0 0 0 2px rgba(255,255,255,.85),0 0 8px var(--lc,#ff2e2e)}
+.prs:not(.laser) .prs-lc{display:none}
+.spv-swap{height:30px;padding:0 10px;gap:6px;font-size:12.5px;white-space:nowrap}.spv-swap svg{width:15px;height:15px}
+.spv-div{position:absolute;left:-5px;top:0;bottom:0;width:9px;cursor:col-resize;z-index:3;touch-action:none}
+.spv-div::after{content:"";position:absolute;left:4px;top:0;bottom:0;width:1px;background:transparent;transition:background .15s,width .15s,left .15s}
+.spv-div:hover::after,.spv-div.on::after{left:3px;width:3px;background:var(--accent)}
+#bSplit[aria-pressed="true"]{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.tabbar .tab.drag{opacity:.45}
+.tabbar.dragging .tab{cursor:grabbing}
+.tabbar .tab.side{box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--accent) 55%,transparent)}
+.tabbar .tside{flex:none;display:grid;place-items:center;width:14px;height:14px;margin-left:-4px;color:var(--accent)}.tabbar .tside svg{width:14px;height:14px}
+.tab-ghost{position:fixed;left:0;top:0;z-index:400;pointer-events:none;max-width:220px;padding:6px 12px;border-radius:8px;background:var(--panel);color:var(--ink);border:1px solid var(--line);
+  box-shadow:0 8px 24px rgba(0,0,0,.22);font:600 12.5px var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.snap-ov{position:fixed;z-index:390;pointer-events:none;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.snap-ov.v{grid-template-columns:none;grid-template-rows:1fr 1fr}
+.snap-z{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px dashed color-mix(in srgb,var(--ink) 22%,transparent);border-radius:14px;color:var(--muted);font-size:12.5px;transition:opacity .15s}
+.snap-z b{font-size:14px;color:var(--ink)}.snap-z.off{opacity:0}
+.snap-pv{position:absolute;top:12px;bottom:12px;left:12px;width:calc(50% - 18px);border-radius:14px;background:color-mix(in srgb,var(--accent) 22%,transparent);border:2px solid var(--accent);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent);opacity:0;transition:left .16s ease,top .16s ease,opacity .12s}
+.snap-ov[data-z="left"] .snap-pv{opacity:1}.snap-ov[data-z="right"] .snap-pv{opacity:1;left:calc(50% + 6px)}
+.snap-ov.v .snap-pv{left:12px;right:12px;width:auto;top:12px;bottom:auto;height:calc(50% - 18px)}.snap-ov.v[data-z="right"] .snap-pv{left:12px;top:calc(50% + 6px)}
+@media (prefers-reduced-motion:reduce){.snap-pv{transition:none}}
+.dg-mrow{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+#dgDlg[data-mode=build] #dgSrc,#dgDlg[data-mode=build] .dg-chips,#dgDlg[data-mode=build] .dg-ctx,#dgDlg[data-mode=build] .dg-warn,#dgDlg[data-mode=build] #dgHint{display:none}
+#dgDlg:not([data-mode=build]) .dg-b{display:none}
+.dg-chips{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 2px;align-items:center}
+.dg-cl{font-size:11.5px;color:var(--muted);margin-right:2px}
+.dg-chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:99px;padding:3px 9px;font:500 12px var(--f-ui);cursor:pointer;line-height:1.3;transition:opacity .15s,background .15s,border-color .15s}
+.dg-chip:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.dg-chip.go{border-color:color-mix(in srgb,var(--accent) 60%,var(--line));background:color-mix(in srgb,var(--accent) 10%,var(--panel))}.dg-chip.dim{opacity:.4}
+.dg-ctx{margin:6px 0 0;padding:6px 9px;border-radius:7px;background:color-mix(in srgb,var(--accent) 7%,var(--panel));border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line));font-size:12px;line-height:1.45;color:var(--ink);min-height:1.45em}
+.dg-ctx:empty{display:none}
+.dg-warn{margin:6px 0 0;padding:6px 9px;border-radius:7px;background:color-mix(in srgb,#e8a10c 12%,var(--panel));border:1px solid color-mix(in srgb,#e8a10c 40%,var(--line));font-size:12px;line-height:1.45}
+.dg-warn[hidden]{display:none}
+#dgErr{white-space:pre-line}
+.dg-b{display:flex;flex-direction:column;gap:6px;min-height:0}
+.dg-btb{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.dg-bb{height:28px;padding:0 10px;font-size:12.5px}
+.dg-rows{display:flex;flex-direction:column;gap:3px;max-height:300px;overflow:auto;padding:4px;border:1px solid var(--line);border-radius:8px;background:color-mix(in srgb,var(--ink) 2%,var(--panel))}
+.dg-row{position:relative;display:flex;align-items:center;gap:4px;padding-left:calc(var(--d) * 20px)}
+.dg-guide{position:absolute;left:0;top:-2px;bottom:-2px;width:calc(var(--d) * 20px);background:repeating-linear-gradient(90deg,transparent 0 9px,color-mix(in srgb,var(--ink) 14%,transparent) 9px 10px,transparent 10px 20px);pointer-events:none}
+.dg-row.root .dg-in{font-weight:700}
+.dg-in{flex:1;min-width:0;height:28px;border:1px solid var(--line);border-radius:6px;padding:0 8px;background:var(--panel);color:var(--ink);font-size:12.5px}
+.dg-in:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:0;border-color:var(--accent)}
+.dg-in:disabled{background:transparent;border-style:dashed;color:var(--muted)}
+.dg-kind-s{flex:none;width:112px;height:28px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);font-size:12px;font-weight:600}
+.dg-acts{display:flex;gap:0;opacity:.35;transition:opacity .15s}.dg-row:hover .dg-acts,.dg-row:focus-within .dg-acts{opacity:1}
+.dg-bi{width:24px;height:24px;flex:none}.dg-bi svg{width:14px;height:14px}
+.dg-bh{margin:2px 0 0}
+.dg-grid-w{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.dg-grid{border-collapse:collapse;width:100%}.dg-grid th,.dg-grid td{padding:2px;border-bottom:1px solid var(--line)}
+.dg-grid th{background:color-mix(in srgb,var(--ink) 4%,var(--panel));position:sticky;top:0;z-index:1}.dg-grid th>div{display:flex}
+.dg-grid th .dg-bi{vertical-align:middle}
+.dg-gi{width:100%;min-width:70px;box-sizing:border-box;height:26px;border:1px solid transparent;border-radius:5px;padding:0 6px;background:transparent;color:var(--ink);font-size:12.5px}
+th .dg-gi{font-weight:600;width:calc(100% - 26px)}
+.dg-gi:focus{border-color:var(--accent);background:var(--panel);outline:none}.dg-gi.num{text-align:right;font-family:var(--f-mono)}.dg-gi.bad{border-color:var(--danger,#c2412d);background:color-mix(in srgb,var(--danger,#c2412d) 8%,transparent)}
+.dg-n{min-width:16px;text-align:center}
+.dg-tt-w{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:8px;align-self:flex-start}
+.dg-tt{border-collapse:collapse;font:12.5px var(--f-mono)}.dg-tt th,.dg-tt td{padding:2px 10px;text-align:center;border-bottom:1px solid var(--line)}
+.dg-tt th{background:color-mix(in srgb,var(--ink) 4%,var(--panel));position:sticky;top:0}.dg-tt .out{border-left:2px solid var(--line)}
+.dg-tn{width:44px;height:24px;border:1px solid transparent;border-radius:5px;text-align:center;background:transparent;color:var(--ink);font:600 12.5px var(--f-mono)}.dg-tn:focus{border-color:var(--accent);outline:none;background:var(--panel)}
+.dg-tv{width:34px;height:24px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--muted);font:600 12.5px var(--f-mono);cursor:pointer}
+.dg-tv.v1{background:color-mix(in srgb,var(--accent) 18%,var(--panel));border-color:var(--accent);color:var(--ink)}.dg-tv.v2{border-style:dashed;color:var(--ink)}
 /* 3.0: IT-Rechner */
 .calccard{width:min(700px,100%)}
 #calcMode{flex-wrap:wrap}
@@ -1203,6 +1276,7 @@ header,.file{min-width:0}
       <button class="ib zoomv hide-sm" id="bFit" title="An Breite anpassen" style="width:auto;padding:0 4px">100 %</button>
       <button class="ib hide-sm" id="bZoomIn" title="Vergrößern (Strg++)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M11 8v6M20 20l-4-4"/></svg></button>
       <button class="ib hide-sm" id="bFind" aria-pressed="false" title="Suchen (Strg+F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></button>
+      <button class="ib hide-sm" id="bSplit" aria-pressed="false" aria-haspopup="menu" title="Geteilte Ansicht: zwei Dateien oder Stellen nebeneinander"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg></button>
       <span class="sep"></span>
       <button class="btn hmb" id="bFileMenu" aria-haspopup="menu" aria-expanded="false" title="Datei: öffnen, neu, zusammenführen, Seiten ordnen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="hide-sm bl">Datei</span><svg class="hm-c" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="btn hdr-moved" id="bNew" title="Neues Blatt oder leere Seiten hinzufügen (Strg+Alt+N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M12 10v6M9 13h6"/></svg><span class="hide-sm bl">Neu</span></button>
@@ -1235,11 +1309,12 @@ header,.file{min-width:0}
     <div id="viewer"><div id="pages"></div></div>
     <div class="findbar" id="findBar" role="search" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg>
-      <input id="findIn" type="text" placeholder="Im Dokument suchen" aria-label="Im Dokument suchen" spellcheck="false" autocomplete="off">
+      <input id="findIn" type="text" placeholder="Suchen: Dokument oder Funktion" aria-label="Im Dokument oder nach Funktionen suchen" spellcheck="false" autocomplete="off">
       <span class="fcount" id="findCnt" aria-live="polite"></span><span class="fsep"></span>
       <button class="ib" id="findPrev" title="Vorheriger Treffer (Umschalt+Enter)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button>
       <button class="ib" id="findNext" title="Nächster Treffer (Enter)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
       <button class="ib" id="findAnn" aria-pressed="true" title="Auch in Beschriftungen suchen (Texte, Symbole, Tabellen)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg></button>
+      <label class="tgl fn-tg" title="Auch Funktionen von Layr finden (Menüs, Werkzeuge)"><input type="checkbox" id="findFn" role="switch" checked><span class="knob"></span><span class="tl">Funktionen</span></label>
       <button class="ib" id="findX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="ruler" hidden><canvas id="rulerCv"></canvas><div class="rot" id="rulerRot" title="Lineal drehen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></svg></div><div class="len" id="rulerLen" title="Länge ändern">↔</div><span class="ang" id="rulerAng">0°</span></div>
@@ -1675,7 +1750,12 @@ header,.file{min-width:0}
     <div class="seg dg-kind" id="dgKind"><button type="button" data-v="mind">Mindmap</button><button type="button" data-v="chart">Diagramm</button><button type="button" data-v="logic">Logikschaltung</button><button type="button" data-v="nsd">Struktogramm</button></div>
     <div class="dg-main">
       <div class="dg-l">
+        <div class="dg-mrow"><div class="seg" id="dgMode" role="group" aria-label="Eingabe"><button type="button" data-v="text">Text</button><button type="button" data-v="build">Baukasten</button></div></div>
         <textarea id="dgSrc" class="dg-src" spellcheck="false" autocomplete="off" data-noi18n></textarea>
+        <div class="dg-chips" id="dgChips" data-noi18n></div>
+        <p class="dg-ctx" id="dgCtx" aria-live="polite" data-noi18n></p>
+        <p class="dg-warn" id="dgWarn" hidden data-noi18n></p>
+        <div class="dg-b" id="dgB" data-noi18n></div>
         <p class="hint" id="dgHint"></p>
         <div class="dg-opts">
           <div class="pr-row dg-o dg-chart"><span class="pr-l">Art</span><div class="seg" id="dgCt"><button type="button" data-v="col">Säulen</button><button type="button" data-v="bar">Balken</button><button type="button" data-v="line">Linie</button><button type="button" data-v="pie">Kreisdiagramm</button></div></div>
@@ -2168,7 +2248,7 @@ const I18N_EN={
 'Fertig!':'Done!',' gewusst, ':' known, ',' noch einmal üben.':' to practise again.','Bitte Frage und Antwort eingeben.':'Please enter a question and an answer.','-Lernkarten':'-flashcards',
 'Hilfslinien':'Guides','Beim Verschieben an Kanten einrasten':'Snap to edges while moving','Raster (5 mm)':'Grid (5 mm)','Punkte anzeigen und daran ausrichten':'Show dots and snap to them',
 'Tablet-Modus':'Tablet mode','Nur der Stift zeichnet, Finger scrollen':'Only the pen draws, fingers scroll','Präsentation':'Presentation','Vorherige Seite':'Previous page','Nächste Seite':'Next page','Laserpointer':'Laser pointer','Beenden (Esc)':'End (Esc)',
-'← → blättern · L Laserpointer · B schwarz · W weiß · Esc beenden':'← → turn pages · L laser pointer · B black · W white · Esc end',
+'← → blättern · L Laserpointer · C Laserfarbe · B schwarz · W weiß · Esc beenden':'← → turn pages · L laser pointer · C laser colour · B black · W white · Esc end',
 'Passwort eingeben':'Enter password','ist mit einem Passwort geschützt.':'is protected with a password.','Passwort anzeigen':'Show password','Das Passwort stimmt nicht.':'The password is wrong.',
 'Passwortschutz':'Password protection','Datei mit Passwort verschlüsseln':'Encrypt the file with a password','Passwortgeschützt':'Password-protected',
 'Geöffnet mit dem Besitzerpasswort: Beim Speichern schützt dieses Passwort die Datei.':'Opened with the owner password: when saving, this password protects the file.',
@@ -2244,6 +2324,20 @@ const I18N_EN={
 'Richtig!':'Correct!','Richtig – mit kleinem Tippfehler.':'Correct – with a small typo.','Leider falsch. Deine Antwort: ':'Not quite. Your answer: ','Stufe ':'Level ','Lernstand zurückgesetzt.':'Progress reset.',
 '1 Lernkarte':'1 flashcard',' Lernkarten':' flashcards',' heute fällig – Taste Z zum Lernen.':' due today – press Z to study.',
 'Bitte mindestens 8 Zeichen.':'Please use at least 8 characters.',
+'Felder bearbeiten':'Edit fields','1 ausfüllbares Feld in der Datei':'1 fillable field in the file',' ausfüllbare Felder in der Datei':' fillable fields in the file',
+'Diese Felder lassen sich nicht umwandeln.':'These fields cannot be converted.',
+' ist wieder bearbeitbar: verschieben, Größe ändern, Doppelklick für Name und Art. Rückgängig mit Strg+Z.':' can be edited again: move, resize, double-click for name and type. Undo with Ctrl+Z.',
+'Auch Funktionen von Layr finden (Menüs, Werkzeuge)':'Also find Layr features (menus, tools)','Funktionen':'Features','Suchen: Dokument oder Funktion':'Search: document or feature',
+'Im Dokument oder nach Funktionen suchen':'Search the document or for features','an':'on','aus':'off',
+'Laserfarbe':'Laser colour','Pink':'Pink',
+'Geteilte Ansicht: zwei Dateien oder Stellen nebeneinander':'Split view: two files or places side by side','Eine andere Stelle derselben Datei':'Another place in the same file',
+'Geöffneter Tab':'Open tab','Eine PDF zum Vergleichen öffnen':'Open a PDF to compare','Rechts daneben anzeigen':'Show on the right',
+'Tauschen: die rechte Datei links bearbeiten':'Swap: edit the right-hand file on the left','In einem Tab öffnen und links bearbeiten':'Open in a tab and edit on the left',
+'Rechts daneben zu sehen':'Shown on the right','Tipp: Einen Tab nach rechts ziehen – dann siehst du zwei Dateien nebeneinander.':'Tip: drag a tab to the right to see two files side by side.',
+'Tauschen':'Swap','Breite ändern (Doppelklick: halbe-halbe)':'Resize (double-click: half and half)','Hier bearbeiten':'Edit here','Zu diesem Tab wechseln':'Switch to this tab',
+'Rechts daneben':'On the right','Unten daneben':'Below','Zum Ansehen und Vergleichen':'To view and compare','Rechte Spalte schließen':'Close the right column',
+'Die rechte Datei links bearbeiten':'Edit the right-hand file on the left','Links kommt der Tab daneben':'The neighbouring tab moves to the left',
+'Baukasten':'Builder',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -2290,6 +2384,7 @@ const I18N_RX=[
   [/^(\d+) Aufgaben? offen$/,(m,n)=>n+' to-do'+(n==='1'?'':'s')+' open'],
   [/^alle Aufgaben erledigt$/,'all to-dos done'],
   [/^Gruppe$/,'Group'],
+  [/^Laserfarbe: (.+)$/,(m,c)=>'Laser colour: '+tr(c)],
   [/^(.+) \(geöffnet, mit Beschriftungen\)$/,'$1 (open, with annotations)'],
   [/^(.+) \(([A-Z0-9+]{1,3})\)$/,(m,a,k)=>{const t=I18N_EN[a];return t?t+' ('+k+')':m}],
   [/^(.+) \((\d+)\)$/,(m,a,n)=>{const t=I18N_EN[a];return t?t+' ('+n+')':m}],
@@ -3226,11 +3321,6 @@ async function ffBuild(pdf,doc,lists){if(!lists.some(l=>l&&l.length))return 0;co
       catch(e){console.warn('Formularfeld',name,e)}}}
   return n}
 function ffCount(){let n=0;for(const P of S.pages)for(const o of P.objs)if(o.type==='field')n++;return n}
-function ffBar(){let b=document.getElementById('ffBar');const n=S.pages&&S.pages.length?ffCount():0,show=n&&(S.tool==='field'||(S.sel&&S.sel.o&&S.sel.o.type==='field'));
-  if(!show){if(b&&!b.hidden)animHide(b);return}
-  if(!b){b=document.createElement('div');b.id='ffBar';b.className='rd-bar ff-bar';b.setAttribute('role','status');b.hidden=true;
-    b.innerHTML='<span class="rd-n"></span><button type="button" class="btn primary" id="ffGo">Ausfüllbar machen</button>';document.body.appendChild(b);$('#ffGo').onclick=()=>ffFinalize()}
-  b.querySelector('.rd-n').textContent=(n===1?tr('1 eigenes Formularfeld'):n+tr(' eigene Formularfelder'))+tr(' · beim Speichern echte PDF-Felder');if(b.hidden)showEl(b)}
 // Felder fest in die Datei einbauen: danach füllt man sie wie jedes Formular aus (blaue Felder)
 async function ffFinalize(){const lists=S.pages.map(P=>P.objs.filter(o=>o.type==='field'));if(!lists.some(l=>l.length))return;closeEditor();setSel(null);
   try{const pdf=await PDFLib.PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true}),n=await ffBuild(pdf,S.doc,lists);const out=await pdf.save();
@@ -3646,12 +3736,14 @@ function attachInk(P,i){
     const snap=['pen','marker','line','arrow','measure'].includes(S.tool)?rulerSnapStart(e.clientX,e.clientY):null;
     const sp=snap?snapPt(snap,e.clientX,e.clientY):[e.clientX,e.clientY];
     const [x,y]=toPt(...sp);const tol=6/S.zoom;st={x,y,snap,moved:false};
-    if(S.sel&&S.sel.p===i&&['symbol','rect','ellipse'].includes(S.tool)){
+    if(S.sel&&S.sel.p===i&&(['symbol','rect','ellipse'].includes(S.tool)||(S.tool==='field'&&S.sel.o.type==='field'))){
       const k=handleAt(S.sel.o,x,y,tol);
       if(k){st.selDrag=1;st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);return}
       if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,tol)){st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
     }
     // Form-Werkzeuge: Klick auf eine vorhandene Beschriftung wählt sie aus und verschiebt sie (Alt: trotzdem neu zeichnen)
+    if(!e.altKey&&S.tool==='field'){const o=[...P.objs].reverse().find(o=>o.type==='field'&&hit(o,x,y,tol));
+      if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
     if(!e.altKey&&['rect','ellipse','table','symbol'].includes(S.tool)){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
       if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
     switch(S.tool){
@@ -4573,6 +4665,7 @@ function findCount(){const el=$('#findCnt');if(!el)return;const n=FD.hits.length
   $('#findPrev').disabled=$('#findNext').disabled=n<1}
 async function runFind(keep){
   const q=fNorm($('#findIn').value);FD.q=q;
+  if(!S.doc){FD.hits=[];FD.cur=-1;findCount();return}
   if(!q){FD.hits=[];FD.cur=-1;findCount();redrawAll();return}
   findCount();const idx=await findIndex();if(fNorm($('#findIn').value)!==q||!FD.open)return;
   const old=FD.hits[FD.cur];FD.hits=findCompute(idx,q);
@@ -4582,9 +4675,9 @@ async function runFind(keep){
   findCount();redrawAll();if(FD.cur>=0&&!keep)findShow(FD.cur)}
 function findSoon(keep){clearTimeout(FD.T);FD.T=setTimeout(()=>runFind(keep),keep?260:130)}
 function findStep(d){if(!FD.hits.length){if(FD.open)runFind();return}FD.cur=(FD.cur+d+FD.hits.length)%FD.hits.length;findCount();redrawAll();findShow(FD.cur)}
-function openFind(){if(!S.doc)return;closeEditor();const b=$('#findBar');if(!FD.open){FD.open=true;showEl(b);$('#bFind').setAttribute('aria-pressed','true')}
-  const inp=$('#findIn');setTimeout(()=>{inp.focus();inp.select()},20);findIndex();if(inp.value.trim())runFind()}
-function closeFind(){if(!FD.open)return;FD.open=false;clearTimeout(FD.T);animHide($('#findBar'));$('#bFind').setAttribute('aria-pressed','false');FD.hits=[];FD.cur=-1;redrawAll()}
+function openFind(){if(!S.doc&&!FN.on)return;closeEditor();const b=$('#findBar');if(!FD.open){FD.open=true;showEl(b);$('#bFind').setAttribute('aria-pressed','true')}
+  const inp=$('#findIn');setTimeout(()=>{inp.focus();inp.select()},20);if(S.doc)findIndex();if(inp.value.trim()){if(S.doc)runFind();fnRender()}}
+function closeFind(){if(!FD.open)return;FD.open=false;try{fnBox().hidden=true}catch(e){}clearTimeout(FD.T);animHide($('#findBar'));$('#bFind').setAttribute('aria-pressed','false');FD.hits=[];FD.cur=-1;redrawAll()}
 {const inp=$('#findIn');
   inp.addEventListener('input',()=>findSoon(false));
   inp.addEventListener('keydown',e=>{const k=e.key;
@@ -4872,7 +4965,7 @@ function formsRender(){FM.layers.forEach(l=>l.remove());FM.layers=[];
   S.pages.forEach((P,i)=>{const L=FM.fields.filter(f=>f.p===i);if(!L.length||!P.el)return;const lay=document.createElement('div');lay.className='formlayer';
     // schreibgeschützte Felder malt pdf.js selbst ins Seitenbild
     for(const f of L)if(!f.ro)lay.appendChild(fmEl(f));P.el.appendChild(lay);FM.layers.push(lay)});
-  formsLayout();fmPill()}
+  formsLayout();fmPill();try{ffBar()}catch(e){}}
 function formsLayout(){const z=S.zoom;
   for(const el of document.querySelectorAll('.fm')){const f=el._f,st=el.style;st.left=f.x*z+'px';st.top=f.y*z+'px';st.width=f.w*z+'px';st.height=f.h*z+'px';
     if(f.kind==='text'||f.kind==='choice'){const fs=f.multi?(f.fs>0&&f.fs<=14?f.fs:10):(f.fs>0?Math.min(f.fs,f.h*.78):Math.max(7,Math.min(12,f.h*.62)));st.fontSize=fs*z+'px';if(el.classList.contains('comb'))st.letterSpacing=(f.w/f.max-fs*.6)*z+'px'}
@@ -5570,7 +5663,7 @@ function tabClose(t){if(!t)return;return tabGate(async()=>{
 function tabRender(force){const bar=document.getElementById('tabBar');if(!bar)return;
   const info=TABS.map(t=>[t.id,(t===TAB?S.name:t.snap&&t.snap.name)||'',tabDirty(t),t===TAB]);const sig=JSON.stringify(info);if(!force&&sig===tabSig)return;tabSig=sig;
   bar.hidden=TABS.length<2;bar.textContent='';
-  for(const[id,name,dirty,act]of info){const t=TABS.find(x=>x.id===id);const b=document.createElement('div');b.className='tab'+(act?' on':'');b.setAttribute('role','tab');b.setAttribute('aria-selected',act?'true':'false');b.tabIndex=act?0:-1;b.title=name;
+  for(const[id,name,dirty,act]of info){const t=TABS.find(x=>x.id===id);const b=document.createElement('div');b.className='tab'+(act?' on':'');b.dataset.id=id;b.setAttribute('role','tab');b.setAttribute('aria-selected',act?'true':'false');b.tabIndex=act?0:-1;b.title=name;
     const n=document.createElement('span');n.className='tn';n.textContent=name.replace(/\.pdf$/i,'');b.appendChild(n);
     if(dirty){const d=document.createElement('i');d.className='td';d.title=tr('Nicht gespeichert');b.appendChild(d)}
     const x=document.createElement('button');x.type='button';x.className='tx';x.title=tr('Tab schließen (Strg+W)');x.setAttribute('aria-label',tr('Tab schließen (Strg+W)'));
@@ -6196,6 +6289,7 @@ const HM_IC={
   scanfix:'<path d="M5 4h10l4 4v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 13l2 2 4-4"/>',
   compare:'<rect x="3" y="4" width="7.5" height="16" rx="1.5"/><rect x="13.5" y="4" width="7.5" height="16" rx="1.5"/><path d="M5.5 9h2.5M16 9h2.5M5.5 13h2.5M16 13h2.5"/>',
   splitv:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>',
+  swap:'<path d="M4 8h15l-4-4M20 16H5l4 4"/>',close:'<path d="M6 6l12 12M18 6 6 18"/>',
   moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
   tools:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
   undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
@@ -6726,13 +6820,15 @@ async function lkOnOpen(){try{if(!S.cards||!S.doc||crNoStore())return;const D=lk
    L Laserpointer an/aus, B schwarzes Bild, W weißes Bild. */
 var PRS={on:false,i:0,laser:true,blank:'',trail:[],raf:0,gen:0,cache:new Map(),hudT:0};
 function prsEl(){let el=document.getElementById('prsView');if(el)return el;el=document.createElement('div');el.id='prsView';el.className='prs';el.hidden=true;el.setAttribute('role','dialog');el.setAttribute('aria-label','Präsentation');
-  el.innerHTML='<canvas class="prs-pg"></canvas><canvas class="prs-laser"></canvas><div class="prs-hud"><button type="button" class="prs-b" data-a="prev" aria-label="Vorherige Seite">‹</button><span class="prs-n"></span><button type="button" class="prs-b" data-a="next" aria-label="Nächste Seite">›</button><button type="button" class="prs-b prs-l" data-a="laser" aria-label="Laserpointer">●</button><button type="button" class="prs-b" data-a="exit" aria-label="Beenden (Esc)">✕</button></div><div class="prs-help">← → blättern · L Laserpointer · B schwarz · W weiß · Esc beenden</div>';
+  el.innerHTML='<canvas class="prs-pg"></canvas><canvas class="prs-laser"></canvas><div class="prs-hud"><button type="button" class="prs-b" data-a="prev" aria-label="Vorherige Seite">‹</button><span class="prs-n"></span><button type="button" class="prs-b" data-a="next" aria-label="Nächste Seite">›</button><button type="button" class="prs-b prs-l" data-a="laser" aria-label="Laserpointer (L)" title="Laserpointer (L)"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".45"/></svg></button><button type="button" class="prs-b prs-lc" data-a="lc" aria-label="Laserfarbe"><i></i></button><button type="button" class="prs-b" data-a="exit" aria-label="Beenden (Esc)">✕</button></div><div class="prs-help">← → blättern · L Laserpointer · C Laserfarbe · B schwarz · W weiß · Esc beenden</div>';
   document.body.appendChild(el);
-  el.querySelector('.prs-hud').addEventListener('click',e=>{const a=e.target.closest('[data-a]');if(!a)return;e.stopPropagation();const k=a.dataset.a;if(k==='prev')prsGo(PRS.i-1);else if(k==='next')prsGo(PRS.i+1);else if(k==='laser'){PRS.laser=!PRS.laser;prsHud()}else prsExit()});
+  el.querySelector('.prs-hud').addEventListener('click',e=>{const a=e.target.closest('[data-a]');if(!a)return;e.stopPropagation();const k=a.dataset.a;if(k==='prev')prsGo(PRS.i-1);else if(k==='next')prsGo(PRS.i+1);else if(k==='laser'){PRS.laser=!PRS.laser;PRS.lp.in=PRS.laser&&false;prsHud();prsLaserKick()}else if(k==='lc')prsLaserColor(1);else prsExit()});
   el.addEventListener('click',e=>{if(e.target.closest('.prs-hud'))return;prsGo(PRS.i+1)});
   el.addEventListener('contextmenu',e=>{e.preventDefault();prsGo(PRS.i-1)});
-  el.addEventListener('pointermove',e=>{prsHud(true);if(!PRS.laser)return;PRS.trail.push([e.clientX,e.clientY,performance.now()]);if(!PRS.raf)PRS.raf=requestAnimationFrame(prsLaser)});
-  el.addEventListener('pointerleave',()=>{PRS.trail=[]});
+  el.addEventListener('pointermove',e=>{prsHud(true);prsLaserMove(e)});
+  el.addEventListener('pointerdown',e=>prsLaserMove(e));
+  el.addEventListener('pointerleave',()=>{PRS.lp.in=false;prsLaserKick()});
+  prsLaserColor(0);
   return el}
 async function prsRender(i){const P=S.pages[i];if(!P)return null;const W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1),k=Math.min(W/P.w,H/P.h),key=i+'@'+Math.round(k*1000)+'|'+S.rev;
   if(PRS.cache.has(key))return PRS.cache.get(key);const cv=document.createElement('canvas');cv.width=Math.round(P.w*k*dpr);cv.height=Math.round(P.h*k*dpr);const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,cv.width,cv.height);
@@ -6745,22 +6841,61 @@ async function prsShow(){const el=prsEl(),g=++PRS.gen,cvs=el.querySelector('.prs
 function prsHud(show){const el=prsEl();el.querySelector('.prs-n').textContent=(PRS.i+1)+' / '+S.pages.length;el.querySelector('.prs-l').setAttribute('aria-pressed',String(PRS.laser));el.classList.toggle('laser',PRS.laser);
   if(show){el.classList.add('hud');clearTimeout(PRS.hudT);PRS.hudT=setTimeout(()=>el.classList.remove('hud'),2200)}}
 function prsGo(i){if(!PRS.on)return;i=Math.max(0,Math.min(S.pages.length-1,i));PRS.blank='';if(i===PRS.i&&prsEl().querySelector('.prs-pg').style.opacity==='1'){prsHud(true);return}PRS.i=i;prsShow()}
-function prsLaser(){PRS.raf=0;const el=prsEl(),cv=el.querySelector('.prs-laser'),dpr=Math.min(2,devicePixelRatio||1);if(cv.width!==innerWidth*dpr){cv.width=innerWidth*dpr;cv.height=innerHeight*dpr}
-  const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,innerWidth,innerHeight);const now=performance.now();PRS.trail=PRS.trail.filter(p=>now-p[2]<260);
-  if(!PRS.laser||!PRS.trail.length)return;c.lineCap='round';c.lineJoin='round';
-  for(let k=1;k<PRS.trail.length;k++){const a=PRS.trail[k-1],b=PRS.trail[k],t=1-(now-b[2])/260;c.strokeStyle=`rgba(255,40,40,${.5*t})`;c.lineWidth=10*t+2;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
-  const p=PRS.trail[PRS.trail.length-1];const gr=c.createRadialGradient(p[0],p[1],0,p[0],p[1],16);gr.addColorStop(0,'rgba(255,60,60,1)');gr.addColorStop(.35,'rgba(255,30,30,.85)');gr.addColorStop(1,'rgba(255,0,0,0)');
-  c.fillStyle=gr;c.beginPath();c.arc(p[0],p[1],16,0,7);c.fill();if(PRS.trail.length>1||now-p[2]<260)PRS.raf=requestAnimationFrame(prsLaser)}
+// 3.7: Laserpointer – leuchtender Punkt (weißer Kern, farbiger Schein), weich nachgeführt, mit auslaufendem Schweif.
+// Der Punkt bleibt stehen, solange die Maus über der Folie ist; über der Leiste unten verschwindet er.
+const PRS_LC=[{n:'Rot',c:[255,46,46]},{n:'Grün',c:[40,240,90]},{n:'Blau',c:[70,150,255]},{n:'Pink',c:[255,60,200]}];
+PRS.lc=0;try{const v=+localStorage.getItem('pdfwerkbank:laserColor');if(v>=0&&v<PRS_LC.length)PRS.lc=v}catch(e){}
+PRS.lp={x:0,y:0,in:false};PRS.dp=null;PRS.la=0;PRS.lt=0;
+const PRS_TL=340;   // so lange (ms) läuft der Schweif aus
+function prsLaserMove(e){const over=!!(e.target.closest&&e.target.closest('.prs-hud'));PRS.lp.x=e.clientX;PRS.lp.y=e.clientY;PRS.lp.in=!over&&PRS.laser;prsLaserKick()}
+function prsLaserKick(){if(!PRS.raf&&PRS.on)PRS.raf=requestAnimationFrame(prsLaser)}
+function prsLaserColor(step){if(step){PRS.lc=(PRS.lc+step+PRS_LC.length)%PRS_LC.length;try{localStorage.setItem('pdfwerkbank:laserColor',String(PRS.lc))}catch(e){}}
+  const b=prsEl().querySelector('.prs-lc');if(b){const[r,g,bl]=PRS_LC[PRS.lc].c;b.style.setProperty('--lc',`rgb(${r},${g},${bl})`);b.setAttribute('aria-label',tr('Laserfarbe')+': '+tr(PRS_LC[PRS.lc].n));b.title=b.getAttribute('aria-label')}
+  prsLaserKick()}
+function prsLaser(){PRS.raf=0;const el=prsEl(),cv=el.querySelector('.prs-laser'),dpr=Math.min(2,devicePixelRatio||1),W=innerWidth,H=innerHeight;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+  const c=cv.getContext('2d'),now=performance.now(),dt=Math.min(64,PRS.lt?now-PRS.lt:16);PRS.lt=now;
+  c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.filter='none';c.clearRect(0,0,cv.width,cv.height);c.setTransform(dpr,0,0,dpr,0,0);
+  const show=PRS.on&&PRS.laser&&PRS.lp.in;
+  // ein- und ausblenden statt hart an/aus
+  PRS.la=Math.max(0,Math.min(1,PRS.la+(show?1:-1)*dt/120));
+  if(!PRS.dp||(!show&&PRS.la===0))PRS.dp={x:PRS.lp.x,y:PRS.lp.y};
+  // weich nachführen (unabhängig von der Bildrate), ohne spürbar hinterherzuhinken
+  const k=1-Math.exp(-dt/18),d=PRS.dp;d.x+=(PRS.lp.x-d.x)*k;d.y+=(PRS.lp.y-d.y)*k;
+  const T=PRS.trail,last=T[T.length-1];
+  if(show&&(!last||Math.hypot(d.x-last[0],d.y-last[1])>.6))T.push([d.x,d.y,now]);
+  while(T.length&&now-T[0][2]>PRS_TL)T.shift();
+  if(PRS.la>0){const[r,g,b]=PRS_LC[PRS.lc].c,A=PRS.la,col=a=>`rgba(${r},${g},${b},${a*A})`;
+    c.globalCompositeOperation='lighter';
+    // Schweif: spitz zulaufendes Band, Breite und Helligkeit nehmen mit dem Alter ab
+    if(T.length>2){const pts=T.concat([[d.x,d.y,now]]),n=pts.length,L=[],R=[],Wd=[],Al=[];
+      for(let i=0;i<n;i++){const a=pts[Math.max(0,i-1)],b2=pts[Math.min(n-1,i+1)];let nx=-(b2[1]-a[1]),ny=b2[0]-a[0];const l=Math.hypot(nx,ny)||1;nx/=l;ny/=l;
+        const f=1-Math.min(1,(now-pts[i][2])/PRS_TL),w=5.2*Math.pow(f,1.4);Wd.push(w);Al.push(Math.pow(f,1.6));L.push([pts[i][0]+nx*w,pts[i][1]+ny*w]);R.push([pts[i][0]-nx*w,pts[i][1]-ny*w])}
+      const band=(sc,al,cf=col)=>{const q=(P,p)=>[p[0]+(P[0]-p[0])*sc,p[1]+(P[1]-p[1])*sc];
+        for(let i=1;i<n;i++){const a=(Al[i-1]+Al[i])/2*al;if(a<.01)continue;const l0=q(L[i-1],pts[i-1]),l1=q(L[i],pts[i]),r1=q(R[i],pts[i]),r0=q(R[i-1],pts[i-1]);
+          c.fillStyle=cf(a);c.beginPath();c.moveTo(l0[0],l0[1]);c.lineTo(l1[0],l1[1]);c.lineTo(r1[0],r1[1]);c.lineTo(r0[0],r0[1]);c.closePath();c.fill()}};
+      c.filter='blur(6px)';band(2.2,.55);c.filter='blur(1.5px)';band(1,.7);c.filter='none';
+      // heller Kern im Schweif
+      band(.42,.6,a=>`rgba(255,${200+(g>>3)},${200+(b>>3)},${a*A})`);}
+    // Punkt: weiter Schein, Leuchten, weißer Kern – mit ganz leichtem Flimmern wie ein echter Laser
+    const fl=1+.05*Math.sin(now/37)+.03*Math.sin(now/13),x=d.x,y=d.y;
+    let gr=c.createRadialGradient(x,y,0,x,y,30*fl);gr.addColorStop(0,col(.32));gr.addColorStop(.45,col(.12));gr.addColorStop(1,col(0));c.fillStyle=gr;c.beginPath();c.arc(x,y,30*fl,0,7);c.fill();
+    gr=c.createRadialGradient(x,y,0,x,y,11*fl);gr.addColorStop(0,col(1));gr.addColorStop(.5,col(.75));gr.addColorStop(1,col(0));c.fillStyle=gr;c.beginPath();c.arc(x,y,11*fl,0,7);c.fill();
+    c.globalCompositeOperation='source-over';
+    gr=c.createRadialGradient(x,y,0,x,y,4.4);gr.addColorStop(0,`rgba(255,255,255,${A})`);gr.addColorStop(.6,`rgba(255,${235+(g>>4)},${235+(b>>4)},${.95*A})`);gr.addColorStop(1,col(0));c.fillStyle=gr;c.beginPath();c.arc(x,y,4.4,0,7);c.fill()}
+  // weiterzeichnen, solange sich etwas bewegt oder der Punkt sichtbar ist (Flimmern); sonst ruht die Schleife
+  const moving=Math.hypot(PRS.lp.x-d.x,PRS.lp.y-d.y)>.3||T.length>0;
+  if(PRS.on&&(moving||PRS.la>0&&PRS.la<1||show))PRS.raf=requestAnimationFrame(prsLaser);else PRS.lt=0}
 function prsKey(e){if(!PRS.on)return;const k=e.key;let used=true;
   if(['ArrowRight','ArrowDown','PageDown',' ','Enter','n'].includes(k))prsGo(PRS.i+1);else if(['ArrowLeft','ArrowUp','PageUp','Backspace','p'].includes(k))prsGo(PRS.i-1);
-  else if(k==='Home')prsGo(0);else if(k==='End')prsGo(S.pages.length-1);else if(k==='Escape')prsExit();else if(k==='l'||k==='L'){PRS.laser=!PRS.laser;prsHud(true)}
+  else if(k==='Home')prsGo(0);else if(k==='End')prsGo(S.pages.length-1);else if(k==='Escape')prsExit();else if(k==='l'||k==='L'){PRS.laser=!PRS.laser;PRS.lp.in=PRS.laser;prsHud(true);prsLaserKick()}else if(k==='c'||k==='C')prsLaserColor(e.shiftKey?-1:1)
   else if(k==='b'||k==='B'||k==='.'){PRS.blank=PRS.blank==='b'?'':'b';prsShow()}else if(k==='w'||k==='W'){PRS.blank=PRS.blank==='w'?'':'w';prsShow()}else used=false;
   if(used){e.preventDefault();e.stopImmediatePropagation()}}
 async function prsStart(from){if(!S.doc||!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}closeEditor();setSel(null);tipHide&&tipHide();
   PRS.on=true;PRS.i=from??curPage();PRS.blank='';PRS.cache.clear();const el=prsEl();el.hidden=false;el.classList.add('hud');
   try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen()}catch(e){}
   await prsShow();el.focus&&el.focus()}
-function prsExit(){if(!PRS.on)return;PRS.on=false;PRS.gen++;const el=prsEl();el.hidden=true;PRS.trail=[];try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}const i=PRS.i,go=()=>{const P=S.pages[i];if(P&&P.el)viewer.scrollTop+=P.el.getBoundingClientRect().top-viewer.getBoundingClientRect().top-20};go();setTimeout(go,300)}
+function prsExit(){if(!PRS.on)return;PRS.on=false;PRS.gen++;const el=prsEl();el.hidden=true;PRS.trail=[];PRS.la=0;PRS.lp.in=false;PRS.dp=null;try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}const i=PRS.i,go=()=>{const P=S.pages[i];if(P&&P.el)viewer.scrollTop+=P.el.getBoundingClientRect().top-viewer.getBoundingClientRect().top-20};go();setTimeout(go,300)}
 addEventListener('keydown',prsKey,true);
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&PRS.on)prsExit()});
 addEventListener('resize',()=>{if(PRS.on){PRS.cache.clear();prsShow()}});
@@ -7485,7 +7620,7 @@ function dgKind(k){if(DG.kind!==k)DG.src[DG.kind]=$('#dgSrc').value;DG.kind=k;$(
 const dgCur=()=>({kind:DG.kind,src:$('#dgSrc').value.slice(0,20000),opt:{...DG.opt[DG.kind],title:$('#dgTitle').value.slice(0,200)}});
 let dgT=0;function dgPrev(){clearTimeout(dgT);dgT=setTimeout(()=>{const cv=$('#dgPrev'),dpr=Math.min(2,devicePixelRatio||1),W=cv.clientWidth||420,H=cv.clientHeight||320;cv.width=W*dpr;cv.height=H*dpr;
   const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#fff';c.fillRect(0,0,W,H);const d=dgCur();if(!d.src.trim())d.src=$('#dgSrc').placeholder;
-  const o={type:'dia',...d,x:8,y:8,w:W-16,h:H-16};let err='';try{const L=dgLayout(o);err=L.err||''}catch(e){err=String(e.message||e)}drawDia(c,o);$('#dgErr').textContent=err?tr('Fehler: ')+err:'';$('#dgOk').disabled=!!err||!$('#dgSrc').value.trim()},60)}
+  const o={type:'dia',...d,x:8,y:8,w:W-16,h:H-16};let err='';try{const L=dgLayout(o);err=L.err||''}catch(e){err=String(e.message||e)}if(err)dgPrevWait(c,W,H);else drawDia(c,o);$('#dgErr').textContent=err?dgErrText(err):'';$('#dgOk').disabled=!!err||!$('#dgSrc').value.trim()},60)}
 function dgPlace(){const d=dgCur();if(!d.src.trim())return;let L;try{L=dgLayout({type:'dia',...d})}catch(e){return}if(L.err)return;
   try{localStorage.setItem('pdfwerkbank:dia',JSON.stringify({kind:d.kind,opt:Object.fromEntries(DG_KINDS.map(k=>[k,{...DG.opt[k],title:undefined}]))}))}catch(e){}
   const fit=(P,o,keep)=>{const k=Math.min(1.2,(P.w-60)/L.w,(P.h-80)/L.h);if(keep){const s=Math.min(o.w/L.w,o.h/L.h);o.w=L.w*s;o.h=L.h*s}else{o.w=L.w*k;o.h=L.h*k}};
@@ -7502,6 +7637,309 @@ function dgPlace(){const d=dgCur();if(!d.src.trim())return;let L;try{L=dgLayout(
   d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();cl()}else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();if(!$('#dgOk').disabled)dgPlace()}
     else if(e.key==='Tab'&&e.target.id==='dgSrc'&&!e.shiftKey){e.preventDefault();const t=e.target,a=t.selectionStart;t.setRangeText(DG.kind==='chart'?'\t':'  ',a,t.selectionEnd,'end');dgPrev()}})}
 TB_DESC.dia='Mindmap, Diagramm, Logik, Struktogramm';
+/* ---------- 3.7: Diagramm aus Text – Schreibhilfe und Baukasten ----------
+   Text: Bausteine zum Einfügen, eine Zeile „was steht hier, was kann als Nächstes kommen“, Enter behält die Einrückung,
+   Tab/Umschalt+Tab rücken ein und aus, Tab ergänzt Schlüsselwörter, verständliche Fehler mit Stelle.
+   Baukasten: dasselbe ohne Schreibweise – Gliederung (Mindmap, Struktogramm), Tabelle (Diagramm), Wahrheitstabelle (Logik).
+   Der Baukasten schreibt immer den Text; gespeichert wird wie bisher nur der Text. */
+const DGL=(de,en)=>LANG==='en'?en:de;
+let DG_MODE='text';try{if(localStorage.getItem('pdfwerkbank:diaMode')==='build')DG_MODE='build'}catch(e){}
+const dgSrcEl=()=>$('#dgSrc');
+function dgSetSrc(v,keepHelp){const t=dgSrcEl();t.value=v;dgPrev();if(!keepHelp)dgHelp()}
+// Zeile unter dem Cursor
+function dgLineAt(t,pos){const v=t.value,a=v.lastIndexOf('\n',pos-1)+1,e=v.indexOf('\n',pos),b=e<0?v.length:e;return{a,b,s:v.slice(a,b),n:v.slice(0,a).split('\n').length-1}}
+const dgInd=s=>s.replace(/\t/g,'    ').match(/^ */)[0].length;
+// Ebenen wie beim Einlesen: weiter eingerückt = eine Ebene tiefer
+function dgLevels(lines,rootFixed){const out=[],st=[];lines.forEach((l,k)=>{if(!l.trim()){out.push(null);return}const i=dgInd(l);
+    if(rootFixed&&!st.length){st.push(-1);out.push(0);return}while(st.length>(rootFixed?1:0)&&st[st.length-1]>=i)st.pop();st.push(i);out.push(st.length-1)});return out}
+function dgInsert(text,selFrom,selLen){const t=dgSrcEl();t.focus();const a=t.selectionStart,b=t.selectionEnd;t.setRangeText(text,a,b,'end');
+  if(selFrom!=null){t.selectionStart=a+selFrom;t.selectionEnd=a+selFrom+(selLen||0)}dgPrev();dgHelp()}
+// neue Zeile(n) nach der Cursor-Zeile; Platzhalter "⟨…⟩" wird markiert
+function dgAddLines(block,indent){const t=dgSrcEl(),L=dgLineAt(t,t.selectionStart),pad=' '.repeat(indent),txt=block.split('\n').map(l=>pad+l).join('\n');
+  const atEnd=!t.value.trim();const ins=atEnd?txt:'\n'+txt,pos=atEnd?0:L.b;t.focus();t.setRangeText(ins,atEnd?0:pos,atEnd?t.value.length:pos,'end');
+  const st=(atEnd?0:pos),m=/⟨([^⟩]*)⟩/.exec(ins);if(m){const v=t.value;t.value=v.slice(0,st+m.index)+m[1]+v.slice(st+m.index+m[0].length);
+    // restliche Markierungen entfernen
+    t.value=t.value.replace(/[⟨⟩]/g,'');t.selectionStart=st+m.index;t.selectionEnd=st+m.index+m[1].length}else{t.value=t.value.replace(/[⟨⟩]/g,'')}
+  dgPrev();dgHelp()}
+function dgShift(d){const t=dgSrcEl(),v=t.value;let a=v.lastIndexOf('\n',t.selectionStart-1)+1,e=v.indexOf('\n',Math.max(t.selectionStart,t.selectionEnd-1));if(e<0)e=v.length;
+  const lines=v.slice(a,e).split('\n').map(l=>d>0?'  '+l:l.replace(/^( {1,2}|\t)/,''));const nv=lines.join('\n'),s0=t.selectionStart,first=v.slice(a,e).split('\n')[0];
+  t.setRangeText(nv,a,e,'select');const diff=lines[0].length-first.length;if(nv.indexOf('\n')<0){t.selectionStart=t.selectionEnd=Math.max(a,s0+diff)}dgPrev();dgHelp()}
+
+/* ===== Logik: Zeichen mit Stelle, „was kann als Nächstes kommen“ ===== */
+function lgHelpTok(s){const t=[];let i=0;const map={'&':'and','*':'and','·':'and','∧':'and','⋅':'and','|':'or','+':'or','∨':'or','!':'not','~':'not','¬':'not','^':'xor','⊕':'xor','(':'(',')':')',"'":'post','’':'post'};
+  while(i<s.length){const ch=s[i];if(/\s/.test(ch)){i++;continue}const m=/^[A-Za-zÄÖÜäöü_][A-Za-z0-9ÄÖÜäöü_]*/.exec(s.slice(i));
+    if(m){const w=m[0],K=LG_KW[w.toUpperCase()],a=i;i+=w.length;let neg=false;while(s[i]==='̅'||s[i]==='̄'){neg=true;i++}if(K&&!neg)t.push({k:K,v:w,a,b:i});else{t.push({k:'id',v:w,a,b:i});if(neg)t.push({k:'post',v:'̅',a:i-1,b:i})}continue}
+    if(ch==='0'||ch==='1'){t.push({k:'c',v:ch,a:i,b:i+1});i++;continue}
+    if(s.startsWith('&&',i)||s.startsWith('||',i)){t.push({k:map[ch],v:ch+ch,a:i,b:i+2});i+=2;continue}
+    if(map[ch]){t.push({k:map[ch],v:ch,a:i,b:i+1});i++;continue}
+    t.push({k:'bad',v:ch,a:i,b:i+1});i++}
+  return t}
+const LG_BIN=new Set(['and','or','xor','nand','nor','xnor']);
+const lgWord=k=>({and:DGL('UND','AND'),or:DGL('ODER','OR'),xor:'XOR',nand:'NAND',nor:'NOR',xnor:'XNOR',not:DGL('NICHT','NOT')})[k]||k;
+// Ausdruck prüfen: {err:{msg,a},want:'operand'|'op',depth,vars}
+function lgCheck(s,upto){const T=lgHelpTok(s);let want='operand',depth=0,prev=null;const vars=new Set();
+  for(const x of T){if(upto!=null&&x.a>=upto)break;
+    const shown=x.v,after=prev?DGL(' nach „'+prev.v+'“',' after “'+prev.v+'”'):'';
+    if(x.k==='bad')return{err:{a:x.a,msg:DGL('„'+shown+'“ kenne ich nicht. Erlaubt: Buchstaben als Variablen, UND, ODER, NICHT, XOR, ( ) und & | ! ^ · + ¬ \'','I don’t know “'+shown+'”. Allowed: letters as variables, AND, OR, NOT, XOR, ( ) and & | ! ^ · + ¬ \'')},want,depth,vars};
+    if(want==='operand'){if(x.k==='id'||x.k==='c'){want='op';if(x.k==='id')vars.add(x.v)}else if(x.k==='not'){}else if(x.k==='('){depth++}
+      else return{err:{a:x.a,msg:LG_BIN.has(x.k)?DGL('Vor „'+shown+'“ fehlt eine Variable'+(prev?' (nach „'+prev.v+'“)':'')+'.','A variable is missing before “'+shown+'”'+(prev?' (after “'+prev.v+'”)':'')+'.'):x.k===')'?DGL('„)“ kommt zu früh – erst eine Variable'+after+'.','“)” comes too early – first a variable'+after+'.'):DGL('„'+shown+'“ passt hier nicht'+after+'.','“'+shown+'” doesn’t fit here'+after+'.')},want,depth,vars}}
+    else{if(LG_BIN.has(x.k))want='operand';else if(x.k==='post'){}else if(x.k===')'){if(--depth<0)return{err:{a:x.a,msg:DGL('Eine „)“ zu viel – dazu gibt es keine „(“.','One “)” too many – there is no matching “(”.')},want,depth:0,vars}}
+      else if(x.k==='id'||x.k==='c'){if(x.k==='id')vars.add(x.v)}else if(x.k==='not'||x.k==='('){want='operand';if(x.k==='(')depth++}}
+    prev=x}
+  return{want,depth,vars,n:T.length}}
+// Ausdruck nach „Y =“ und dessen Anfang im Text
+function lgSplit(src){const m=/^\s*([A-Za-zÄÖÜäöü_][\wÄÖÜäöü]*)\s*(?:\(([^)]*)\))?\s*=\s*/.exec(src);return m?{off:m[0].length,rest:src.slice(m[0].length),out:m[1]}:{off:0,rest:src,out:null}}
+const lgIsTable=rest=>/^(?:Σ|∑)?\s*m\s*\(/i.test(rest.trim())||/^[01xX\-\s,;|]+$/.test(rest.trim())&&rest.replace(/[\s,;|]/g,'').length>=2;
+function lgFriendly(src){const S0=lgSplit(src);if(lgIsTable(S0.rest))return'';const r=lgCheck(S0.rest);
+  if(r.err){const a=r.err.a,txt=S0.rest;return r.err.msg+'\n'+DGL('Stelle: ','At: ')+'…'+txt.slice(Math.max(0,a-14),a)+' ▸'+txt.slice(a,a+8)}
+  if(!r.n)return'';if(r.want==='operand'){const T=lgHelpTok(S0.rest),last=T[T.length-1];return DGL('Nach „'+last.v+'“ fehlt noch eine Variable (z. B. C) oder NICHT …','After “'+last.v+'” a variable is still missing (e.g. C) or NOT …')}
+  if(r.depth>0)return r.depth===1?DGL('Es fehlt noch eine schließende Klammer „)“.','A closing bracket “)” is still missing.'):DGL('Es fehlen noch '+r.depth+' schließende Klammern „)“.',r.depth+' closing brackets “)” are still missing.');
+  return''}
+
+/* ===== Struktogramm: Schlüsselwörter ===== */
+const NS_KW=()=>LANG==='en'?{if:'IF',else:'ELSE',while:'WHILE',for:'FOR',rep:'REPEAT',until:'UNTIL',sw:'CASE',call:'CALL',brk:'BREAK',inp:'Input:',out:'Output:'}
+  :{if:'WENN',else:'SONST',while:'SOLANGE',for:'FÜR',rep:'WIEDERHOLE',until:'BIS',sw:'FALL',call:'AUFRUF',brk:'ABBRUCH',inp:'Eingabe:',out:'Ausgabe:'};
+const NS_BLOCK=new Set(['if','else','while','for','rep','sw','case']);
+// eine Zeile einordnen (prevK: Art der letzten Zeile auf gleicher Ebene, parentK: Art der Elternzeile)
+function nsKind(t,prevK,parentK){let m;t=t.trim();
+  if(parentK==='sw'&&(m=/^([^:]+):\s*(.*)$/.exec(t))&&!NS_RX.if.test(t))return{k:'case',t:m[1].trim(),rest:m[2]};
+  if((m=NS_RX.if.exec(t)))return{k:'if',t:m[1]};if(NS_RX.else.test(t))return{k:'else',t:''};
+  if(prevK==='rep'&&(m=NS_RX.until.exec(t)))return{k:'until',t:m[1]};
+  if((m=NS_RX.while.exec(t)))return{k:'while',t:m[1]};if((m=NS_RX.for.exec(t)))return{k:'for',t:m[1]};
+  if(NS_RX.rep.test(t))return{k:'rep',t:''};if((m=NS_RX.until.exec(t)))return{k:'until',t:m[1]};
+  if((m=NS_RX.sw.exec(t)))return{k:'sw',t:m[1]};if((m=NS_RX.call.exec(t)))return{k:'call',t:m[1]};if((m=NS_RX.brk.exec(t)))return{k:'brk',t:m[1]||''};
+  return{k:'s',t}}
+function nsRows(src){const lines=String(src||'').split('\n').filter(l=>l.trim()&&!NS_RX.end.test(l.trim())),lv=dgLevels(lines,false),rows=[],lastAt=[];
+  lines.forEach((l,k)=>{let d=lv[k];if(rows.length)d=Math.min(d,rows[rows.length-1].d+1);else d=0;const parent=[...rows].reverse().find(r=>r.d===d-1);
+    const K=nsKind(l,lastAt[d],parent&&parent.k);if(K.t==='…')K.t='';lastAt[d]=K.k;lastAt.length=d+1;rows.push({d,k:K.k,t:K.t});if(K.k==='case'&&K.rest)rows.push({d:d+1,k:'s',t:K.rest})});
+  return rows}
+function nsText(rows){const K=NS_KW();return rows.filter(r=>r.k!=='s'||String(r.t).trim()).map(r=>{const p='  '.repeat(r.d),t=String(r.t||'').trim()||(['if','while','for','until','sw','call'].includes(r.k)?'…':'');
+    switch(r.k){case'if':return p+K.if+' '+t;case'else':return p+K.else;case'while':return p+K.while+' '+t;case'for':return p+K.for+' '+t;case'rep':return p+K.rep;
+      case'until':return p+K.until+' '+t;case'sw':return p+K.sw+' '+t;case'case':return p+(t||'?')+':';case'call':return p+K.call+' '+t;case'brk':return(p+K.brk+' '+t).trimEnd();default:return p+t}}).join('\n')}
+// Hinweise für den ganzen Text (nicht blockierend)
+function nsWarn(src){const lines=String(src).split('\n'),R=[];let rowsK=[];const ent=lines.map((l,n)=>({n,l})).filter(x=>x.l.trim()&&!NS_RX.end.test(x.l.trim()));
+  const lv=dgLevels(ent.map(x=>x.l),false);const lastAt=[];
+  ent.forEach((x,k)=>{const d=lv[k],K=nsKind(x.l,lastAt[d],null);lastAt[d]=K.k;lastAt.length=d+1;rowsK.push({n:x.n,d,k:K.k,t:K.t})});
+  rowsK.forEach((r,k)=>{const nx=rowsK[k+1],has=nx&&nx.d>r.d,kw=NS_KW();
+    if(r.k==='else'){let sib=null;for(let q=k-1;q>=0;q--){if(rowsK[q].d<r.d)break;if(rowsK[q].d===r.d){sib=rowsK[q];break}}
+      if(!sib||sib.k!=='if')R.push({n:r.n,m:DGL(kw.else+' in Zeile '+(r.n+1)+' hat kein '+kw.if+' darüber auf gleicher Höhe.',kw.else+' in line '+(r.n+1)+' has no '+kw.if+' above it at the same indent.')})}
+    if(['if','while','for','rep','sw'].includes(r.k)&&!has)R.push({n:r.n,m:DGL(({if:kw.if,while:kw.while,for:kw.for,rep:kw.rep,sw:kw.sw})[r.k]+' in Zeile '+(r.n+1)+': darunter fehlt der eingerückte Inhalt (Tab).',({if:kw.if,while:kw.while,for:kw.for,rep:kw.rep,sw:kw.sw})[r.k]+' in line '+(r.n+1)+': the indented content below is missing (Tab).')});
+    if(['if','while','for','sw'].includes(r.k)&&!String(r.t).trim())R.push({n:r.n,m:DGL('Zeile '+(r.n+1)+': hier fehlt noch die Bedingung.','Line '+(r.n+1)+': the condition is still missing.')})});
+  return R}
+/* ===== Diagramm: Tabelle ===== */
+function chSplitRow(l){return l.includes('\t')?l.split('\t'):l.includes(';')?l.split(';'):l.split(/\s*,\s*|\s{2,}/)}
+function chGrid(src){const rows=String(src||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>chSplitRow(l).map(x=>x.trim()));
+  if(!rows.length)return{head:[DGL('Beschriftung','Label'),DGL('Werte','Values')],rows:[['',''],['','']]};
+  const hasHead=rows[0].slice(1).some(x=>dgNum(x)===null)||rows.length>1&&rows[0].slice(1).every(x=>dgNum(x)===null);
+  const nc=Math.max(2,...rows.map(r=>r.length));const pad=r=>{r=r.slice(0,nc);while(r.length<nc)r.push('');return r};
+  const head=hasHead?pad(rows[0]):pad([DGL('Beschriftung','Label'),...Array.from({length:nc-1},(_,k)=>k?DGL('Reihe ','Series ')+(k+1):DGL('Werte','Values'))]);
+  return{head,rows:(hasHead?rows.slice(1):rows).map(pad)}}
+// streng: nur Ziffern, Tausenderpunkte/Komma, Vorzeichen, % € $ (dgNum selbst ist großzügig: „12a“ → 12)
+const chIsNum=x=>{x=String(x||'').trim();return!!x&&dgNum(x)!==null&&/^[-+−]?\s*[\d\s.,']+\s*[%€$]?$/.test(x)};
+const chCell=v=>String(v==null?'':v).replace(/[\t\n\r]+/g,' ').trim();
+function chText(G){return[G.head,...G.rows.filter(r=>r.some(x=>chCell(x)))].map(r=>r.map(chCell).join('\t')).join('\n')}
+function chWarn(src){const G=chGrid(src),R=[];const lines=String(src).split('\n');let ln=0;const first=lines.findIndex(l=>l.trim());
+  G.rows.forEach((r,k)=>{r.slice(1).forEach((x,j)=>{if(x&&!chIsNum(x)&&R.length<3)R.push({m:DGL('„'+x+'“ in „'+(r[0]||'?')+'“ ist keine Zahl – z. B. 1200, 1.200,50 oder 12 %.','“'+x+'” in “'+(r[0]||'?')+'” is not a number – e.g. 1200, 1,200.50 or 12 %.')})})});
+  if(lines.some(l=>l.trim()&&!/[\t;,]|\s{2,}/.test(l.trim())))R.push({m:DGL('Eine Zeile hat nur ein Feld: Beschriftung und Zahl mit Tab, ; oder , trennen.','A line has only one field: separate label and number with Tab, ; or ,.')});
+  return R}
+
+/* ===== Hilfe-Zeile, Bausteine ===== */
+function dgChipsDef(k){const K=NS_KW();
+  if(k==='mind')return[{t:DGL('+ Ast','+ Branch'),h:DGL('Neue Zeile auf gleicher Ebene','New line at the same level'),run:()=>{const t=dgSrcEl(),L=dgLineAt(t,t.selectionStart);dgAddLines('⟨'+DGL('Neuer Ast','New branch')+'⟩',L.s.trim()&&L.n>0?dgInd(L.s):2)}},
+    {t:DGL('+ Unterpunkt','+ Sub-item'),h:DGL('Eine Ebene tiefer','One level deeper'),run:()=>{const t=dgSrcEl(),L=dgLineAt(t,t.selectionStart);dgAddLines('⟨'+DGL('Unterpunkt','Sub-item')+'⟩',(L.s.trim()?dgInd(L.s):0)+2)}},
+    {t:DGL('← Ebene höher','← Level up'),h:'Umschalt+Tab',run:()=>dgShift(-1)},{t:DGL('Ebene tiefer →','Level down →'),h:'Tab',run:()=>dgShift(1)}];
+  if(k==='chart')return[{t:DGL('+ Zeile','+ Row'),h:DGL('Neue Beschriftung mit Wert','New label with value'),run:()=>{const G=chGrid(dgSrcEl().value);const nc=G.head.length;dgSetSrc(chText(G)+'\n'+DGL('Neu','New')+'\t0'+'\t0'.repeat(nc-2));const t=dgSrcEl(),v=t.value,a=v.lastIndexOf('\n')+1;t.focus();t.selectionStart=a;t.selectionEnd=a+DGL('Neu','New').length}},
+    {t:DGL('+ Datenreihe','+ Series'),h:DGL('Neue Spalte mit Zahlen','New column of numbers'),run:()=>{const G=chGrid(dgSrcEl().value);G.head.push(DGL('Reihe ','Series ')+G.head.length);G.rows.forEach(r=>r.push('0'));dgSetSrc(chText(G))}},
+    {t:DGL('Tab einfügen','Insert Tab'),h:DGL('Trennt die Spalten','Separates the columns'),run:()=>dgInsert('\t')}];
+  if(k==='logic'){const w=x=>({t:lgWord(x),key:x,run:()=>dgInsert(' '+lgWord(x)+' ')});
+    return[{t:'Y =',key:'assign',run:()=>{const t=dgSrcEl();if(!lgSplit(t.value).out){t.value='Y = '+t.value.trimStart();t.selectionStart=t.selectionEnd=t.value.length;dgPrev();dgHelp()}}},
+      ...['A','B','C','D'].map(v=>({t:v,key:'id',run:()=>dgInsert(v)})),w('and'),w('or'),{t:lgWord('not'),key:'not',run:()=>dgInsert(lgWord('not')+' ')},w('xor'),w('nand'),w('nor'),
+      {t:'(',key:'(',run:()=>dgInsert('(')},{t:')',key:')',run:()=>dgInsert(')')},
+      {t:DGL('Wahrheitstabelle','Truth table'),key:'tt',h:DGL('Im Baukasten anklicken','Click it together in the builder'),run:()=>dgMode('build')}]}
+  return[{t:DGL('Anweisung','Statement'),run:()=>dgNsAdd('⟨'+DGL('Anweisung','Statement')+'⟩')},{t:K.inp,run:()=>dgNsAdd(K.inp+' ⟨'+DGL('Zahl n','number n')+'⟩')},{t:K.out,run:()=>dgNsAdd(K.out+' ⟨'+DGL('Ergebnis','result')+'⟩')},
+    {t:K.if+' … '+K.else,run:()=>dgNsAdd(K.if+' ⟨'+DGL('Bedingung','condition')+'⟩\n  '+DGL('Anweisung','statement')+'\n'+K.else+'\n  '+DGL('Anweisung','statement'))},
+    {t:K.while,run:()=>dgNsAdd(K.while+' ⟨'+DGL('Bedingung','condition')+'⟩\n  '+DGL('Anweisung','statement'))},{t:K.for,run:()=>dgNsAdd(K.for+' ⟨i = 1 '+DGL('BIS','TO')+' 10⟩\n  '+DGL('Anweisung','statement'))},
+    {t:K.rep+' … '+K.until,run:()=>dgNsAdd(K.rep+'\n  ⟨'+DGL('Anweisung','statement')+'⟩\n'+K.until+' '+DGL('Bedingung','condition'))},
+    {t:K.sw,run:()=>dgNsAdd(K.sw+' ⟨'+DGL('Wert','value')+'⟩\n  1: '+DGL('Anweisung','statement')+'\n  2: '+DGL('Anweisung','statement'))},{t:K.call,run:()=>dgNsAdd(K.call+' ⟨'+DGL('Name','name')+'⟩')},{t:K.brk,run:()=>dgNsAdd(K.brk)}]}
+// Struktogramm-Block nach der Cursor-Zeile, bei einer Kopfzeile ohne Inhalt eingerückt darunter
+function dgNsAdd(block){const t=dgSrcEl(),L=dgLineAt(t,t.selectionStart);let ind=L.s.trim()?dgInd(L.s):0;
+  if(L.s.trim()){const K=nsKind(L.s,null,null);const nx=t.value.slice(L.b+1).split('\n')[0]||'';if(NS_BLOCK.has(K.k)&&!(nx.trim()&&dgInd(nx)>ind))ind+=2}
+  if(!L.s.trim()&&L.n>0){t.focus();t.setRangeText('',L.a,L.b,'end')}dgAddLines(block,ind)}
+let dgSuggest=null;
+function dgHelp(){const box=$('#dgCtx'),chips=$('#dgChips'),warn=$('#dgWarn');if(!box||!DG)return;const k=DG.kind,t=dgSrcEl(),src=t.value,pos=t.selectionStart;dgSuggest=null;
+  // Bausteine
+  if(chips.dataset.k!==k+LANG){chips.dataset.k=k+LANG;chips.textContent='';const lab=document.createElement('span');lab.className='dg-cl';lab.textContent=DGL('Bausteine:','Building blocks:');chips.appendChild(lab);
+    for(const c of dgChipsDef(k)){const b=document.createElement('button');b.type='button';b.className='dg-chip';b.textContent=c.t;if(c.h)b.title=c.h;if(c.key)b.dataset.key=c.key;
+      b.addEventListener('mousedown',e=>e.preventDefault());b.onclick=()=>c.run();chips.appendChild(b)}}
+  const L=dgLineAt(t,pos),ln=L.n+1;let msg='',w=[];
+  if(k==='mind'){const lines=src.split('\n'),lv=dgLevels(lines,true),d=lv[L.n];
+    if(!src.trim())msg=DGL('Schreib in die erste Zeile das Thema. Dann Enter und mit Tab eingerückt die Äste.','Write the topic in the first line. Then Enter and indent the branches with Tab.');
+    else if(d==null)msg=DGL('Leere Zeile. Gleich weit eingerückt wie der Ast darüber = weiterer Ast; mit Tab weiter eingerückt = Unterpunkt.','Empty line. Same indent as the branch above = another branch; indented further with Tab = sub-item.');
+    else if(d===0)msg=DGL('Zeile '+ln+': das Thema in der Mitte. Nächste Zeile mit Tab einrücken – das wird ein Ast.','Line '+ln+': the topic in the middle. Indent the next line with Tab – that becomes a branch.');
+    else{let p=L.n-1;while(p>=0&&!(lv[p]!=null&&lv[p]<d))p--;const par=p>=0?lines[p].trim():'';
+      msg=DGL('Zeile '+ln+': '+(d===1?'Hauptast':'Unterpunkt (Ebene '+d+')')+' unter „'+par+'“. Enter: nächster auf gleicher Ebene · Tab: tiefer · Umschalt+Tab: höher.','Line '+ln+': '+(d===1?'main branch':'sub-item (level '+d+')')+' under “'+par+'”. Enter: next at the same level · Tab: deeper · Shift+Tab: up.')}}
+  else if(k==='chart'){const G=chGrid(src),lines=src.split('\n');const nonEmpty=lines.map((l,i)=>l.trim()?i:-1).filter(i=>i>=0),idx=nonEmpty.indexOf(L.n);
+    const hasHead=src.trim()&&(()=>{const r0=chSplitRow(lines[nonEmpty[0]].trim()).map(x=>x.trim());return r0.slice(1).some(x=>dgNum(x)===null)||nonEmpty.length>1&&r0.slice(1).every(x=>dgNum(x)===null)})();
+    if(!src.trim())msg=DGL('Je Zeile: Beschriftung, Tab, Zahl – z. B. „Jan⇥1200“. Mehrere Zahlen = mehrere Datenreihen. Aus Excel einfügen geht auch.','Per line: label, Tab, number – e.g. “Jan⇥1200”. Several numbers = several series. Pasting from Excel works too.');
+    else if(idx<0)msg=DGL('Leere Zeile – wird übersprungen.','Empty line – skipped.');
+    else if(idx===0&&hasHead)msg=DGL('Zeile '+ln+': Überschriften. „'+(G.head[0]||'–')+'“ steht über den Beschriftungen, '+G.head.slice(1).map(x=>'„'+x+'“').join(', ')+' sind die Datenreihen.','Line '+ln+': headings. “'+(G.head[0]||'–')+'” is above the labels, '+G.head.slice(1).map(x=>'“'+x+'”').join(', ')+' are the series.');
+    else{const cells=chSplitRow(L.s.trim()).map(x=>x.trim());const vals=cells.slice(1).map((x,j)=>(x&&!chIsNum(x)?'„'+x+'“ ✗':x||'–')+(G.head[j+1]?' ('+G.head[j+1]+')':''));
+      msg=cells.length<2?DGL('Zeile '+ln+': „'+cells[0]+'“ – jetzt Tab und die Zahl.','Line '+ln+': “'+cells[0]+'” – now Tab and the number.'):DGL('Zeile '+ln+': „'+cells[0]+'“ = '+vals.join(' · '),'Line '+ln+': “'+cells[0]+'” = '+vals.join(' · '))}
+    w=chWarn(src)}
+  else if(k==='logic'){const S0=lgSplit(src);
+    if(!src.trim())msg=DGL('Zum Beispiel: Y = A UND B ODER NICHT C. Bausteine anklicken oder tippen.','For example: Y = A AND B OR NOT C. Click the building blocks or type.');
+    else if(lgIsTable(S0.rest))msg=DGL('Wahrheitstabelle als Zahlen: m(…) sind die Zeilen mit Ergebnis 1 (Zeile 0 = alle Eingänge 0). Bequemer im Baukasten.','Truth table as numbers: m(…) are the rows with result 1 (row 0 = all inputs 0). Easier in the builder.');
+    else if(pos<S0.off)msg=DGL('Links vom „=“ steht der Name des Ausgangs (z. B. Y).','Left of “=” is the name of the output (e.g. Y).');
+    else{const bw=/([A-Za-zÄÖÜäöü]{2,})$/.exec(src.slice(0,pos));let cut=pos;if(bw&&!/[A-Za-zÄÖÜäöü]/.test(src[pos]||'')){const wd=bw[1].toUpperCase();if(Object.keys(LG_KW).some(x=>x.startsWith(wd)&&x!==wd))cut=pos-bw[1].length}
+      const r=lgCheck(S0.rest,cut-S0.off);const vs=[...r.vars];
+      if(r.err)msg=r.err.msg;else{const nxt=r.want==='operand'?DGL('eine Variable (A, B …), NICHT oder (','a variable (A, B …), NOT or ('):DGL('UND, ODER, XOR, NAND, NOR'+(r.depth?', )':'')+' – oder fertig','AND, OR, XOR, NAND, NOR'+(r.depth?', )':'')+' – or done');
+        msg=DGL('Als Nächstes: ','Next: ')+nxt+(vs.length?DGL(' · Variablen: ',' · variables: ')+vs.join(', '):'')+(r.depth?DGL(' · offene Klammern: ',' · open brackets: ')+r.depth:'')}
+      for(const b of chips.querySelectorAll('.dg-chip[data-key]')){const kk=b.dataset.key;const okOp=r.want==='operand'?(kk==='id'||kk==='not'||kk==='('):(LG_BIN.has(kk)||kk===')'&&r.depth>0||kk==='id'||kk==='not'||kk==='(');
+        b.classList.toggle('dim',!!r.err||!okOp&&!['assign','tt'].includes(kk));b.classList.toggle('go',!r.err&&(r.want==='operand'?['id','not','('].includes(kk):LG_BIN.has(kk)))}}
+    // Wort-Ergänzung für UND/ODER/NICHT/NAND/NOR/XOR
+    const before=src.slice(0,pos),m=/([A-Za-zÄÖÜäöü]{2,})$/.exec(before);if(m&&!/[A-Za-zÄÖÜäöü]/.test(src[pos]||'')){const wd=m[1].toUpperCase(),cand=Object.keys(LG_KW).filter(x=>x.startsWith(wd)&&x!==wd&&(LANG==='en'?!/[ÄÖÜ]|UND|ODER|NICHT/.test(x):!/^(AND|OR|NOT)$/.test(x)));
+      if(cand.length===1){dgSuggest={a:pos-m[1].length,b:pos,v:cand[0]+' '};msg=DGL('Tab ergänzt „'+cand[0]+'“ · ','Tab completes “'+cand[0]+'” · ')+msg}}
+    }
+  else{const kw=NS_KW(),lines=src.split('\n');
+    if(!src.trim())msg=DGL('Eine Anweisung pro Zeile. Schlüsselwörter am Zeilenanfang: '+[kw.if,kw.else,kw.while,kw.for,kw.rep,kw.until,kw.sw,kw.call].join(', ')+'. Inhalt darunter mit Tab einrücken.','One statement per line. Keywords at the start: '+[kw.if,kw.else,kw.while,kw.for,kw.rep,kw.until,kw.sw,kw.call].join(', ')+'. Indent the content below with Tab.');
+    else if(!L.s.trim())msg=DGL('Leere Zeile. Bausteine oben einfügen oder tippen – z. B. „'+kw.if+' x > 0“.','Empty line. Insert a building block or type – e.g. “'+kw.if+' x > 0”.');
+    else{let prevK=null;for(let p=L.n-1;p>=0;p--){if(!lines[p].trim())continue;const d0=dgInd(lines[p]);if(d0===dgInd(L.s)){prevK=nsKind(lines[p],null,null).k;break}if(d0<dgInd(L.s))break}
+      const K=nsKind(L.s,prevK,null);
+      msg=DGL('Zeile '+ln+': ','Line '+ln+': ')+({if:DGL('Verzweigung. Darunter eingerückt der Ja-Zweig, dann „'+kw.else+'“ auf gleicher Höhe und eingerückt der Nein-Zweig.','Branch. Indented below: the yes branch, then “'+kw.else+'” at the same level and the no branch indented.'),
+        else:DGL('Nein-Zweig – darunter eingerückt, was sonst passiert.','No branch – indented below, what happens otherwise.'),while:DGL('Schleife mit Bedingung vorne – die eingerückten Zeilen darunter wiederholen sich.','Loop with condition at the top – the indented lines below repeat.'),
+        for:DGL('Zählschleife – die eingerückten Zeilen darunter wiederholen sich.','Counting loop – the indented lines below repeat.'),rep:DGL('Schleife mit Bedingung hinten – darunter eingerückt der Inhalt, danach „'+kw.until+' …“ auf gleicher Höhe.','Loop with condition at the end – content indented below, then “'+kw.until+' …” at the same level.'),
+        until:DGL('Ende der Wiederhole-Schleife mit Abbruchbedingung.','End of the repeat loop with its stop condition.'),sw:DGL('Fallauswahl – darunter eingerückt je Fall „Wert: Anweisung“.','Case selection – indented below one “value: statement” per case.'),
+        case:DGL('Ein Fall der Auswahl.','One case of the selection.'),call:DGL('Aufruf eines Unterprogramms.','Call of a subroutine.'),brk:DGL('Abbruch – verlässt die Schleife.','Break – leaves the loop.'),
+        s:DGL('Anweisung. Enter: nächste Zeile auf gleicher Höhe.','Statement. Enter: next line at the same level.')})[K.k];
+      // Schlüsselwort ergänzen
+      const tt=L.s.trim();if(/^[A-Za-zÄÖÜäöü]{2,}$/.test(tt)&&pos===L.b){const all=[kw.if,kw.else,kw.while,kw.for,kw.rep,kw.until,kw.sw,kw.call,kw.brk];const c=all.filter(x=>x.toUpperCase().startsWith(tt.toUpperCase())&&x.toUpperCase()!==tt.toUpperCase());
+        if(c.length===1){dgSuggest={a:L.b-tt.length,b:L.b,v:c[0]+(['SONST','ELSE','WIEDERHOLE','REPEAT','ABBRUCH','BREAK'].includes(c[0])?'':' ')};msg=DGL('Tab ergänzt „'+c[0]+'“ · ','Tab completes “'+c[0]+'” · ')+msg}}}
+    w=nsWarn(src)}
+  box.textContent=msg;warn.textContent=w.length?'⚠ '+w[0].m+(w.length>1?DGL(' (+'+(w.length-1)+' weitere)',' (+'+(w.length-1)+' more)'):''):'';warn.hidden=!w.length}
+// solange der Text unvollständig ist: ruhiger Hinweis statt Fehlerbild
+function dgPrevWait(c,W,H){c.fillStyle='#868e96';c.font=dgFont(13);c.textAlign='center';c.fillText(DGL('Die Vorschau erscheint, sobald es vollständig ist.','The preview appears once it is complete.'),W/2,H/2);c.textAlign='left'}
+// freundlichere Fehlermeldung unter der Vorschau
+function dgErrText(err){try{if(DG&&DG.kind==='logic'){const f=lgFriendly(dgSrcEl().value);if(f)return f}}catch(e){}return tr('Fehler: ')+err}
+// Tastatur im Textfeld: Enter behält die Einrückung, Tab/Umschalt+Tab, Tab ergänzt
+dgSrcEl().addEventListener('keydown',e=>{if(!DG||e.isComposing)return;const t=e.target,k=DG.kind;
+  if(e.key==='Tab'&&!e.ctrlKey&&!e.altKey){if(dgSuggest&&!e.shiftKey){e.preventDefault();e.stopPropagation();const s=dgSuggest;t.setRangeText(s.v,s.a,s.b,'end');dgPrev();dgHelp();return}
+    if(k==='mind'||k==='nsd'){const multi=t.value.slice(t.selectionStart,t.selectionEnd).includes('\n');if(e.shiftKey||multi){e.preventDefault();e.stopPropagation();dgShift(e.shiftKey?-1:1)}}return}
+  if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&(k==='mind'||k==='nsd')){const L=dgLineAt(t,t.selectionStart);let ind=dgInd(L.s);
+    if(k==='nsd'&&L.s.trim()&&NS_BLOCK.has(nsKind(L.s,null,null).k)&&t.selectionStart===L.b)ind+=2;
+    if(k==='mind'&&L.n===0&&L.s.trim()&&t.selectionStart===L.b)ind=Math.max(ind,2);
+    e.preventDefault();e.stopPropagation();t.setRangeText('\n'+' '.repeat(ind),t.selectionStart,t.selectionEnd,'end');dgPrev();dgHelp()}});
+for(const ev of['input','click','keyup','focus'])dgSrcEl().addEventListener(ev,()=>{if(DG)dgHelp()});
+
+/* ===== Baukasten ===== */
+function dgMode(m){DG_MODE=m==='build'?'build':'text';try{localStorage.setItem('pdfwerkbank:diaMode',DG_MODE)}catch(e){}segSet('dgMode',DG_MODE);$('#dgDlg').dataset.mode=DG_MODE;
+  if(DG_MODE==='build')dgBuild();else{dgHelp();dgSrcEl().focus()}}
+const dgBState={};
+function dgBuild(focus){const box=$('#dgB'),k=DG.kind,src=dgSrcEl().value;box.textContent='';box.dataset.k=k;
+  if(k==='mind'||k==='nsd')dgBOutline(box,k,src,focus);else if(k==='chart')dgBChart(box,src,focus);else dgBLogic(box,src)}
+function dgBtn(txt,title,fn,cls){const b=document.createElement('button');b.type='button';b.className='btn dg-bb'+(cls?' '+cls:'');b.textContent=txt;if(title){b.title=title;b.setAttribute('aria-label',title)}b.onclick=fn;return b}
+function dgIco(svg,title,fn){const b=document.createElement('button');b.type='button';b.className='ib dg-bi';b.title=title;b.setAttribute('aria-label',title);b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+svg+'</svg>';b.tabIndex=-1;b.onclick=fn;return b}
+// --- Gliederung (Mindmap, Struktogramm)
+function dgBOutline(box,k,src,focus){const mind=k==='mind';
+  let rows=mind?(()=>{const lines=src.split('\n').filter(l=>l.trim()),lv=dgLevels(lines,true);return lines.map((l,i)=>({d:i?Math.max(1,lv[i]):0,t:l.trim().replace(/^[-*•+]\s+/,'')}))})():nsRows(src);
+  if(!rows.length)rows=mind?[{d:0,t:''},{d:1,t:''}]:[{d:0,k:'s',t:''}];
+  if(mind)rows.forEach((r,i)=>{if(i&&r.d<1)r.d=1;if(i)r.d=Math.min(r.d,rows[i-1].d+1)});
+  const sync=()=>{const txt=mind?rows.filter(r=>r.t.trim()).map(r=>'  '.repeat(r.d)+r.t.trim()).join('\n'):nsText(rows);dgSrcEl().value=txt;dgPrev()};
+  const tb=document.createElement('div');tb.className='dg-btb';const K=NS_KW();
+  const addAt=(i,list)=>{rows.splice(i,0,...list);render(i);sync()};
+  const cur=()=>{const a=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('.dg-row');return a?+a.dataset.i:rows.length-1};
+  const after=(i)=>{let j=i+1;while(j<rows.length&&rows[j].d>rows[i].d)j++;return j};
+  // Einfügestelle: nach dem Block der aktuellen Zeile; bei einer leeren Kopfzeile eingerückt darunter
+  const place=()=>{const i=cur(),r=rows[i];if(!r)return{at:rows.length,d:mind?1:0};const head=!mind&&NS_BLOCK.has(r.k)&&!(rows[i+1]&&rows[i+1].d>r.d);if(head)return{at:i+1,d:r.d+1};if(mind&&i===0)return{at:rows.length,d:1};return{at:after(i),d:r.d}};
+  if(mind){tb.append(dgBtn(DGL('+ Ast','+ Branch'),DGL('Neuer Ast auf gleicher Ebene','New branch at the same level'),()=>{const p=place();addAt(p.at,[{d:p.d,t:''}])}),
+      dgBtn(DGL('+ Unterpunkt','+ Sub-item'),DGL('Unter der aktuellen Zeile','Below the current line'),()=>{const i=cur();addAt(after(i),[{d:rows[i].d+1,t:''}])}))}
+  else{const P=(list)=>()=>{const p=place();addAt(p.at,list.map(x=>({...x,d:x.d+p.d})))};
+    tb.append(dgBtn(DGL('Anweisung','Statement'),'',P([{d:0,k:'s',t:''}])),dgBtn(K.inp,'',P([{d:0,k:'s',t:K.inp+' '}])),dgBtn(K.out,'',P([{d:0,k:'s',t:K.out+' '}])),
+      dgBtn(K.if+' … '+K.else,'',P([{d:0,k:'if',t:''},{d:1,k:'s',t:''},{d:0,k:'else',t:''},{d:1,k:'s',t:''}])),dgBtn(K.while,'',P([{d:0,k:'while',t:''},{d:1,k:'s',t:''}])),
+      dgBtn(K.for,'',P([{d:0,k:'for',t:''},{d:1,k:'s',t:''}])),dgBtn(K.rep+' … '+K.until,'',P([{d:0,k:'rep',t:''},{d:1,k:'s',t:''},{d:0,k:'until',t:''}])),
+      dgBtn(K.sw,'',P([{d:0,k:'sw',t:''},{d:1,k:'case',t:'1'},{d:2,k:'s',t:''},{d:1,k:'case',t:'2'},{d:2,k:'s',t:''}])),dgBtn(K.call,'',P([{d:0,k:'call',t:''}])))}
+  const list=document.createElement('div');list.className='dg-rows';list.setAttribute('role','tree');box.append(tb,list);
+  const KN=mind?null:[['s',DGL('Anweisung','Statement')],['if',K.if],['else',K.else],['while',K.while],['for',K.for],['rep',K.rep],['until',K.until],['sw',K.sw],['case',DGL('Fall','Case')],['call',K.call],['brk',K.brk]];
+  const PH=r=>mind?(r.d===0?DGL('Thema (Mitte)','Topic (centre)'):r.d===1?DGL('Hauptast','Main branch'):DGL('Unterpunkt','Sub-item')):({s:DGL('Anweisung, z. B. summe = 0','Statement, e.g. sum = 0'),if:DGL('Bedingung, z. B. x > 0','Condition, e.g. x > 0'),while:DGL('Bedingung','Condition'),for:DGL('z. B. i = 1 BIS 10','e.g. i = 1 TO 10'),until:DGL('Abbruchbedingung','Stop condition'),sw:DGL('Wert, z. B. note','Value, e.g. grade'),case:DGL('Wert, z. B. 1','Value, e.g. 1'),call:DGL('Name des Unterprogramms','Name of the subroutine'),brk:DGL('(optional)','(optional)')})[r.k]||'';
+  const canIn=i=>i>0&&rows[i].d<=rows[i-1].d&&!(mind&&i===0);const canOut=i=>mind?(i>0&&rows[i].d>1):rows[i].d>0;
+  const shiftBlock=(i,dd)=>{const j=after(i);for(let q=i;q<j;q++)rows[q].d+=dd};
+  const move=(i,dir)=>{const d=rows[i].d,j=after(i);if(mind&&i===0)return i;
+    if(dir<0){let p=i-1;while(p>=0&&rows[p].d>d)p--;if(p<0||rows[p].d!==d||mind&&p===0)return i;const blk=rows.splice(i,j-i);rows.splice(p,0,...blk);return p}
+    if(j>=rows.length||rows[j].d!==d)return i;const k2=after(j),blk=rows.splice(i,j-i);rows.splice(k2-(j-i),0,...blk);return k2-(j-i)};
+  const del=i=>{if(mind&&i===0&&rows.length>1&&!rows[0].t)return;if(rows.length===1){rows[0].t='';return}const d=rows[i].d,j=after(i);for(let q=i+1;q<j;q++)rows[q].d=Math.max(mind?1:0,rows[q].d-1);rows.splice(i,1)};
+  function render(fi){list.textContent='';rows.forEach((r,i)=>{const row=document.createElement('div');row.className='dg-row'+(i===0&&mind?' root':'');row.dataset.i=i;row.style.setProperty('--d',r.d);row.setAttribute('role','treeitem');row.setAttribute('aria-level',r.d+1);
+      const g=document.createElement('span');g.className='dg-guide';row.appendChild(g);
+      if(!mind){const s=document.createElement('select');s.className='dg-kind-s';s.setAttribute('aria-label',DGL('Art','Kind'));for(const[v,l]of KN){const o=document.createElement('option');o.value=v;o.textContent=l;s.appendChild(o)}s.value=r.k;
+        s.onchange=()=>{r.k=s.value;render(i);sync()};row.appendChild(s)}
+      const inp=document.createElement('input');inp.type='text';inp.className='dg-in';inp.value=r.t;inp.placeholder=PH(r);inp.maxLength=300;inp.setAttribute('data-noi18n','');inp.spellcheck=true;
+      if(!mind&&(r.k==='else'||r.k==='rep')){inp.disabled=true;inp.value='';inp.placeholder=r.k==='else'?DGL('— Nein-Zweig darunter —','— no branch below —'):DGL('— Inhalt darunter —','— content below —')}
+      inp.oninput=()=>{r.t=inp.value;sync()};
+      inp.onkeydown=e=>{if(e.isComposing)return;const k=e.key;
+        if(k==='Enter'){e.preventDefault();e.stopPropagation();if(e.ctrlKey||e.metaKey){if(!$('#dgOk').disabled)dgPlace();return}
+          const head=!mind&&NS_BLOCK.has(r.k)&&!(rows[i+1]&&rows[i+1].d>r.d),nd=head?r.d+1:(mind&&i===0?1:r.d),at=head?i+1:(mind&&i===0?rows.length:after(i));rows.splice(at,0,mind?{d:nd,t:''}:{d:nd,k:'s',t:''});render(at);sync()}
+        else if(k==='Tab'&&!e.ctrlKey&&!e.altKey){e.preventDefault();e.stopPropagation();if(e.shiftKey?canOut(i):canIn(i)){shiftBlock(i,e.shiftKey?-1:1);render(i);sync()}}
+        else if(k==='Backspace'&&!inp.value&&!(mind&&i===0)&&rows.length>1&&inp.selectionStart===0){e.preventDefault();del(i);render(Math.max(0,i-1));sync()}
+        else if((k==='ArrowUp'||k==='ArrowDown')&&e.altKey){e.preventDefault();const n=move(i,k==='ArrowUp'?-1:1);render(n);sync()}
+        else if(k==='ArrowUp'||k==='ArrowDown'){e.preventDefault();const n=i+(k==='ArrowUp'?-1:1);const el=list.querySelector(`.dg-row[data-i="${n}"] .dg-in:not(:disabled), .dg-row[data-i="${n}"] select`);el&&el.focus()}};
+      row.appendChild(inp);
+      const ac=document.createElement('span');ac.className='dg-acts';
+      ac.append(dgIco('<path d="M15 6l-6 6 6 6"/>',DGL('Eine Ebene höher (Umschalt+Tab)','One level up (Shift+Tab)'),()=>{if(canOut(i)){shiftBlock(i,-1);render(i);sync()}}),
+        dgIco('<path d="M9 6l6 6-6 6"/>',DGL('Eine Ebene tiefer (Tab)','One level down (Tab)'),()=>{if(canIn(i)){shiftBlock(i,1);render(i);sync()}}),
+        dgIco('<path d="M12 19V5M6 11l6-6 6 6"/>',DGL('Nach oben (Alt+↑)','Move up (Alt+↑)'),()=>{const n=move(i,-1);render(n);sync()}),
+        dgIco('<path d="M12 5v14M6 13l6 6 6-6"/>',DGL('Nach unten (Alt+↓)','Move down (Alt+↓)'),()=>{const n=move(i,1);render(n);sync()}),
+        dgIco('<path d="M6 6l12 12M18 6 6 18"/>',DGL('Zeile löschen','Delete line'),()=>{del(i);render(Math.max(0,Math.min(i,rows.length-1)));sync()}));
+      row.appendChild(ac);list.appendChild(row)});
+    if(fi!=null){const el=list.querySelector(`.dg-row[data-i="${fi}"] .dg-in:not(:disabled)`)||list.querySelector(`.dg-row[data-i="${fi}"] select`);el&&el.focus()}}
+  render(focus);
+  const h=document.createElement('p');h.className='hint dg-bh';h.textContent=mind?DGL('Enter: neue Zeile · Tab / Umschalt+Tab: tiefer / höher · Alt+↑↓: verschieben (mit Unterpunkten)','Enter: new line · Tab / Shift+Tab: deeper / up · Alt+↑↓: move (with sub-items)')
+    :DGL('Art links wählen, rechts beschriften. Enter: neue Zeile (nach WENN/Schleife eingerückt) · Tab / Umschalt+Tab: tiefer / höher · Alt+↑↓: verschieben','Pick the kind on the left, label it on the right. Enter: new line (indented after IF/loops) · Tab / Shift+Tab: deeper / up · Alt+↑↓: move');box.appendChild(h)}
+// --- Tabelle (Diagramm)
+function dgBChart(box,src,focus){const G=chGrid(src);const sync=()=>{dgSrcEl().value=chText(G);dgPrev()};
+  const tb=document.createElement('div');tb.className='dg-btb';box.appendChild(tb);
+  const wrap=document.createElement('div');wrap.className='dg-grid-w';box.appendChild(wrap);
+  tb.append(dgBtn(DGL('+ Zeile','+ Row'),DGL('Neue Beschriftung','New label'),()=>{G.rows.push(G.head.map(()=>''));render([G.rows.length,0])}),
+    dgBtn(DGL('+ Datenreihe','+ Series'),DGL('Neue Spalte mit Zahlen','New column of numbers'),()=>{G.head.push(DGL('Reihe ','Series ')+G.head.length);G.rows.forEach(r=>r.push(''));render([0,G.head.length-1]);sync()}));
+  function render(fc){wrap.textContent='';const tbl=document.createElement('table');tbl.className='dg-grid';
+    const mk=(v,ri,ci,num)=>{const td=document.createElement(ri===0?'th':'td'),inp=document.createElement('input');inp.type='text';inp.value=v;inp.className='dg-gi'+(num?' num':'');inp.setAttribute('data-noi18n','');inp.maxLength=120;
+      if(num)inp.inputMode='decimal';inp.dataset.r=ri;inp.dataset.c=ci;inp.placeholder=ri===0?(ci===0?DGL('z. B. Monat','e.g. Month'):DGL('Name der Reihe','Series name')):(ci===0?DGL('Beschriftung','Label'):'0');
+      inp.oninput=()=>{if(ri===0)G.head[ci]=inp.value;else G.rows[ri-1][ci]=inp.value;inp.classList.toggle('bad',num&&!!inp.value.trim()&&!chIsNum(inp.value));sync()};
+      if(num&&inp.value.trim()&&!chIsNum(inp.value))inp.classList.add('bad');
+      inp.onkeydown=e=>{if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();e.stopPropagation();if(ri===G.rows.length){G.rows.push(G.head.map(()=>''));render([ri+1,0])}else{const n=wrap.querySelector(`.dg-gi[data-r="${ri+1}"][data-c="${ci}"]`);n&&n.focus()}}
+        else if(e.key==='Tab')e.stopPropagation()};
+      td.appendChild(inp);return td};
+    const hr=document.createElement('tr');G.head.forEach((v,ci)=>{const th=mk(v,0,ci,false);if(ci>0&&G.head.length>2)th.appendChild(dgIco('<path d="M6 6l12 12M18 6 6 18"/>',DGL('Datenreihe löschen','Delete series'),()=>{G.head.splice(ci,1);G.rows.forEach(r=>r.splice(ci,1));render();sync()}));hr.appendChild(th)});
+    hr.appendChild(document.createElement('th'));tbl.appendChild(hr);
+    G.rows.forEach((r,k)=>{const tr_=document.createElement('tr');r.forEach((v,ci)=>tr_.appendChild(mk(v,k+1,ci,ci>0)));const td=document.createElement('td');
+      td.appendChild(dgIco('<path d="M6 6l12 12M18 6 6 18"/>',DGL('Zeile löschen','Delete row'),()=>{G.rows.splice(k,1);if(!G.rows.length)G.rows.push(G.head.map(()=>''));render();sync()}));tr_.appendChild(td);tbl.appendChild(tr_)});
+    wrap.appendChild(tbl);if(fc){const el=wrap.querySelector(`.dg-gi[data-r="${fc[0]}"][data-c="${fc[1]}"]`);el&&el.focus()}}
+  render(focus?[1,0]:null);sync();
+  const h=document.createElement('p');h.className='hint dg-bh';h.textContent=DGL('Erste Zeile: Überschriften (Name der Datenreihe). Darunter je Zeile eine Beschriftung und die Zahlen. Enter: nächste Zeile.','First row: headings (series names). Below, one label and its numbers per row. Enter: next row.');box.appendChild(h)}
+// --- Wahrheitstabelle (Logik)
+function dgBLogic(box,src){let R=null;try{R=lgRead(src)}catch(e){}if(!R||!src.trim()||R.vars.length>5||R.vars.length<1)R={out:(R&&R.out)||'Y',vars:['A','B','C'],on:[],dc:[]};
+  const M={out:R.out||'Y',vars:R.vars.slice(),v:[]};const N=()=>1<<M.vars.length;for(let i=0;i<N();i++)M.v[i]=R.on.includes(i)?1:R.dc.includes(i)?2:0;
+  const sync=()=>{const on=[],dc=[];for(let i=0;i<N();i++){if(M.v[i]===1)on.push(i);else if(M.v[i]===2)dc.push(i)}dgSrcEl().value=M.out+'('+M.vars.join(',')+') = m('+on.join(',')+')'+(dc.length?' + d('+dc.join(',')+')':'');dgPrev()};
+  const tb=document.createElement('div');tb.className='dg-btb dg-lg';box.appendChild(tb);const body=document.createElement('div');body.className='dg-tt-w';box.appendChild(body);
+  const okName=(s,self)=>/^[A-Za-zÄÖÜäöü_][A-Za-z0-9ÄÖÜäöü_]{0,7}$/.test(s)&&!LG_KW[s.toUpperCase()]&&![M.out,...M.vars].some(x=>x!==self&&x===s);
+  function render(){tb.textContent='';body.textContent='';
+    const lab=document.createElement('span');lab.className='dg-cl';lab.textContent=DGL('Eingänge:','Inputs:');tb.appendChild(lab);
+    tb.append(dgBtn('−',DGL('Einen Eingang weniger','One input fewer'),()=>{if(M.vars.length<=1)return;const n=M.vars.length-1,nv=[];for(let i=0;i<1<<n;i++)nv[i]=M.v[i<<1];M.vars.pop();M.v=nv;render();sync()}));
+    const n=document.createElement('b');n.className='dg-n';n.textContent=M.vars.length;tb.appendChild(n);
+    tb.append(dgBtn('+',DGL('Einen Eingang mehr','One input more'),()=>{if(M.vars.length>=5)return;const nm=[...'ABCDEFGH'].find(x=>okName(x))||'E';const nv=[];for(let i=0;i<N();i++){nv[i*2]=M.v[i];nv[i*2+1]=M.v[i]}M.vars.push(nm);M.v=nv;render();sync()}));
+    tb.append(dgBtn(DGL('Alles 0','All 0'),'',()=>{M.v=M.v.map(()=>0);render();sync()}),dgBtn(DGL('Umkehren','Invert'),DGL('0 und 1 tauschen','Swap 0 and 1'),()=>{M.v=M.v.map(x=>x===2?2:1-x);render();sync()}));
+    const t=document.createElement('table');t.className='dg-tt';const hr=document.createElement('tr');
+    const nameIn=(v,set,self)=>{const th=document.createElement('th'),i=document.createElement('input');i.type='text';i.value=v;i.maxLength=8;i.className='dg-tn';i.setAttribute('data-noi18n','');i.setAttribute('aria-label',DGL('Name','Name'));
+      i.onchange=()=>{const s=i.value.trim();if(okName(s,self)){set(s);sync()}else{i.value=self;toast(DGL('Name: Buchstaben (und Ziffern), nicht doppelt und kein UND/ODER.','Name: letters (and digits), unique and not AND/OR.'))}};i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();i.blur()}};th.appendChild(i);return th};
+    M.vars.forEach((v,k)=>hr.appendChild(nameIn(v,s=>{M.vars[k]=s},v)));const o=nameIn(M.out,s=>{M.out=s},M.out);o.classList.add('out');hr.appendChild(o);t.appendChild(hr);
+    for(let i=0;i<N();i++){const r=document.createElement('tr');for(let k=0;k<M.vars.length;k++){const td=document.createElement('td');td.textContent=(i>>(M.vars.length-1-k))&1;r.appendChild(td)}
+      const td=document.createElement('td');td.className='out';const b=document.createElement('button');b.type='button';b.className='dg-tv v'+M.v[i];b.textContent=['0','1','X'][M.v[i]];
+      b.title=DGL('Klicken: 0 → 1 → X (egal) → 0','Click: 0 → 1 → X (don’t care) → 0');b.setAttribute('aria-label',DGL('Zeile ','Row ')+i+': '+['0','1','X'][M.v[i]]);
+      b.onclick=()=>{M.v[i]=(M.v[i]+1)%3;b.className='dg-tv v'+M.v[i];b.textContent=['0','1','X'][M.v[i]];b.setAttribute('aria-label',DGL('Zeile ','Row ')+i+': '+b.textContent);sync()};td.appendChild(b);r.appendChild(td);t.appendChild(r)}
+    body.appendChild(t)}
+  render();sync();
+  const h=document.createElement('p');h.className='hint dg-bh';h.textContent=DGL('Ergebnis je Zeile anklicken: 0 → 1 → X (egal). Die Schaltung und die vereinfachte Formel entstehen daraus. Namen oben lassen sich ändern.','Click the result of each row: 0 → 1 → X (don’t care). The circuit and the simplified formula are built from it. The names at the top can be changed.');box.appendChild(h)}
+{const o=dgKind;dgKind=function(k){o(k);$('#dgDlg').dataset.mode=DG_MODE;segSet('dgMode',DG_MODE);$('#dgChips').dataset.k='';if(DG_MODE==='build')dgBuild();else dgHelp()}}
+segBind('dgMode',m=>dgMode(m));
+$('#dgEx').addEventListener('click',()=>{if(DG_MODE==='build')dgBuild();else dgHelp()});
+{const o=dgOpen;dgOpen=function(...a){o(...a);if(DG&&$('#dgDlg').dataset.mode==='build')setTimeout(()=>{const el=$('#dgB').querySelector('.dg-in:not(:disabled),.dg-gi,.dg-tv');el&&el.focus()},60)}}
 /* ---------- 3.6: Patchliste im Rack-Planer ----------
    Geräte mit Anschlüssen (Ports) bekommen eine feste Kennung; Verbindungen {a,ap,b,bp,t,c} werden im Rack gespeichert.
    „Automatisch zuordnen“ verbindet Patchpanel-Ports der Reihe nach mit freien Switch-Ports, „Als Tabelle aufs Blatt“ setzt die Liste daneben. */
@@ -7598,6 +8036,181 @@ function spvOpen(on){if(on&&(!S.doc||!S.pages.length)){toast(tr('Erst eine PDF �
 function spvDocChanged(){if(!SPV.on)return;if(SPV.src==='self'){if(!SPV.pc||SPV.pc.doc!==S.doc)spvShow('self');else{SPV.pc.objs=S.pages.map(P=>P.objs);clearTimeout(SPV.t);SPV.t=setTimeout(()=>SPV.pc&&pcRefresh(SPV.pc),800)}}else spvOpts()}
 
 $('#ntMd').onclick=()=>notesMd();
+/* ---------- 3.7: Geteilte Ansicht leichter finden ----------
+   Knopf oben neben der Suche, Tab nach rechts ziehen und andocken (wie ein Fenster am Bildschirmrand), Rechtsklick-Menü am Tab,
+   Tauschen (die rechte Datei links bearbeiten), Breite der Spalten ziehen. Die rechte Spalte bleibt zum Ansehen. */
+const spvNarrow=()=>matchMedia('(max-width:860px)').matches;
+let SPV_W=50;try{const v=+localStorage.getItem('pdfwerkbank:splitW');if(v>=20&&v<=80)SPV_W=v}catch(e){}
+function spvWidth(w,keep){SPV_W=Math.max(20,Math.min(80,Math.round(w*10)/10));$('#wrap').style.setProperty('--spv-w',SPV_W+'%');if(keep)try{localStorage.setItem('pdfwerkbank:splitW',String(SPV_W))}catch(e){}}
+spvWidth(SPV_W);
+function spvOpenSrc(v){if(!S.doc||!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}SPV.src=v;if(!SPV.on)spvOpen(true);else spvShow(v)}
+// Knopf oben: Auswahl, was rechts daneben erscheinen soll
+function spvMenu(btn){if(SPV.on){spvOpen(false);return}if(!S.doc||!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}
+  const items=[{ic:'splitv',t:'Dieses Dokument',d:'Eine andere Stelle derselben Datei',run:()=>spvOpenSrc('self')}];
+  for(const t of TABS)if(t!==TAB&&t.snap&&t.snap.bytes)items.push({ic:'pages',t:String(t.snap.name||'').replace(/\.pdf$/i,''),d:'Geöffneter Tab',run:()=>spvOpenSrc('tab:'+t.id)});
+  items.push({sep:true},{ic:'open',t:'Andere Datei wählen',d:'Eine PDF zum Vergleichen öffnen',run:()=>{spvOpenSrc('self');$('#spvIn').click()}});
+  hmOpen(btn,items,'Rechts daneben anzeigen')}
+// gezogener Tab rechts angedockt. Ist es der aktive Tab, kommt links der Tab daneben – wie beim Andocken eines Fensters.
+async function spvSnapRight(t){if(!t)return;if(t!==TAB){spvOpenSrc('tab:'+t.id);return}
+  const k=TABS.indexOf(t),ok=x=>x&&x!==t&&x.snap,n=ok(TABS[k-1])?TABS[k-1]:ok(TABS[k+1])?TABS[k+1]:TABS.find(ok);
+  if(!n){spvOpenSrc('self');return}await tabSwitch(n);if(TAB===n)spvOpenSrc('tab:'+t.id)}
+// Tauschen: was rechts zu sehen ist, links bearbeiten
+async function spvSwap(){const cur=TAB;
+  if(SPV.src.startsWith('tab:')){const t=TABS.find(x=>'tab:'+x.id===SPV.src);if(!t||!cur)return;await tabSwitch(t)}
+  else if(SPV.src.startsWith('file:')&&SPV.file){const f=SPV.file;await loadFile(f);if(TAB!==cur&&cur&&cur.snap){SPV.file=null;SPV.src='tab:'+cur.id;await spvShow(SPV.src)}}
+  spvUI()}
+function spvUI(){const b=document.getElementById('bSplit');if(b)b.setAttribute('aria-pressed',String(SPV.on));
+  const sw=document.getElementById('spvSwap');if(sw){const tab=SPV.src.startsWith('tab:'),file=SPV.src.startsWith('file:')&&!!SPV.file;sw.hidden=!(SPV.on&&(tab||file));
+    sw.title=tr(tab?'Tauschen: die rechte Datei links bearbeiten':'In einem Tab öffnen und links bearbeiten')}
+  tabMark()}
+function tabMark(){const bar=document.getElementById('tabBar');if(!bar)return;for(const el of bar.querySelectorAll('.tab')){const side=SPV.on&&SPV.src==='tab:'+el.dataset.id;el.classList.toggle('side',side);
+    let i=el.querySelector('.tside');if(side&&!i){i=document.createElement('span');i.className='tside';i.title=tr('Rechts daneben zu sehen');i.innerHTML=hmSvg('splitv');el.insertBefore(i,el.firstChild)}else if(!side&&i)i.remove()}
+  // einmaliger Tipp, sobald zwei Dateien offen sind
+  if(TABS.length>=2&&!spvMark.tip){spvMark.tip=true;let seen=false;try{seen=localStorage.getItem('pdfwerkbank:tipSplit')==='1';localStorage.setItem('pdfwerkbank:tipSplit','1')}catch(e){}
+    if(!seen)setTimeout(()=>toast(tr('Tipp: Einen Tab nach rechts ziehen – dann siehst du zwei Dateien nebeneinander.')),1600)}}
+const spvMark={tip:false};
+{const o=spvOpen;spvOpen=function(on){o(on);spvUI()}}
+// wird der Tab, der rechts zu sehen ist, links geöffnet, wandert der bisherige nach rechts (nie zweimal dieselbe Datei)
+{const o=tabSwitch_;tabSwitch_=async function(t){const prev=TAB;await o(t);if(SPV.on&&TAB===t&&t!==prev&&SPV.src==='tab:'+t.id&&prev&&prev.snap&&TABS.includes(prev)){SPV.src='tab:'+prev.id;await spvShow(SPV.src);spvUI()}}}
+{const o=spvOpts;spvOpts=function(){o();spvUI()}}
+{const o=tabRender;tabRender=function(f){o(f);tabMark()}}
+{const o=spvEl;spvEl=function(){const had=!!document.getElementById('spvPane'),el=o();if(!had)spvEnhance(el);return el}}
+function spvEnhance(el){const h=el.querySelector('.spv-h'),x=h.querySelector('#spvX');
+  const sw=document.createElement('button');sw.type='button';sw.className='btn spv-swap';sw.id='spvSwap';sw.hidden=true;
+  sw.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15l-4-4M20 16H5l4 4"/></svg><span>'+tr('Tauschen')+'</span>';
+  sw.onclick=()=>spvSwap();h.insertBefore(sw,x);
+  // die gewählte Datei merken, damit „Tauschen“ sie in einem Tab öffnen kann (vor dem bisherigen Handler, der die Auswahl leert)
+  el.querySelector('#spvIn').addEventListener('change',e=>{SPV.file=e.target.files[0]||null},true);
+  // Trennlinie: Breite ziehen, Doppelklick halbiert
+  const dv=document.createElement('div');dv.className='spv-div';dv.title=tr('Breite ändern (Doppelklick: halbe-halbe)');dv.setAttribute('role','separator');dv.setAttribute('aria-orientation','vertical');el.appendChild(dv);
+  dv.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();dv.setPointerCapture(e.pointerId);const r=$('#wrap').getBoundingClientRect();dv.classList.add('on');
+    const mv=ev=>spvWidth((r.right-ev.clientX)/r.width*100),up=()=>{dv.classList.remove('on');dv.removeEventListener('pointermove',mv);dv.removeEventListener('pointerup',up);dv.removeEventListener('pointercancel',up);spvWidth(SPV_W,true);try{onResize()}catch(e){}};
+    dv.addEventListener('pointermove',mv);dv.addEventListener('pointerup',up);dv.addEventListener('pointercancel',up)});
+  dv.addEventListener('dblclick',()=>{spvWidth(50,true);try{onResize()}catch(e){}})}
+$('#bSplit').onclick=e=>spvMenu(e.currentTarget);
+// Tabs ziehen: in der Leiste umsortieren, auf die Fläche gezogen andocken (links: hier bearbeiten, rechts: daneben ansehen)
+{const bar=$('#tabBar');let D=null,ov=null,ghost=null,justDragged=0;
+  // überall unterhalb der Tab-Leiste zählt (auch über der Seitenleiste): die nähere Hälfte
+  const zone=e=>{const r=$('#wrap').getBoundingClientRect();if(e.clientY<r.top-4)return'';
+    return spvNarrow()?(e.clientY>r.top+r.height/2?'right':'left'):(e.clientX>r.left+r.width/2?'right':'left')};
+  function start(){D.on=true;bar.classList.add('dragging');const el=bar.querySelector(`.tab[data-id="${D.t.id}"]`);el&&el.classList.add('drag');
+    ghost=document.createElement('div');ghost.className='tab-ghost';ghost.textContent=String((D.t===TAB?S.name:D.t.snap&&D.t.snap.name)||'').replace(/\.pdf$/i,'');document.body.appendChild(ghost);
+    ov=document.createElement('div');ov.className='snap-ov';ov.hidden=true;const r=$('#wrap').getBoundingClientRect();Object.assign(ov.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
+    if(spvNarrow())ov.classList.add('v');
+    const L=document.createElement('div');L.className='snap-z l';L.innerHTML='<b></b><span></span>';L.querySelector('b').textContent=tr('Hier bearbeiten');L.querySelector('span').textContent=tr('Zu diesem Tab wechseln');
+    const R=document.createElement('div');R.className='snap-z r';R.innerHTML='<b></b><span></span>';R.querySelector('b').textContent=tr(spvNarrow()?'Unten daneben':'Rechts daneben');R.querySelector('span').textContent=tr('Zum Ansehen und Vergleichen');
+    const pv=document.createElement('div');pv.className='snap-pv';ov.append(L,R,pv);if(D.t===TAB)L.classList.add('off');document.body.appendChild(ov)}
+  function stop(){bar.classList.remove('dragging');bar.querySelectorAll('.tab.drag').forEach(x=>x.classList.remove('drag'));ghost&&ghost.remove();ov&&ov.remove();ghost=ov=null}
+  bar.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('.tx'))return;const el=e.target.closest('.tab');const t=el&&TABS.find(x=>x.id===el.dataset.id);if(!t)return;D={t,x:e.clientX,y:e.clientY,id:e.pointerId,on:false,z:''}});
+  addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;if(!D.on){if(Math.hypot(e.clientX-D.x,e.clientY-D.y)<7)return;start()}
+    e.preventDefault();ghost.style.transform=`translate(${e.clientX+12}px,${e.clientY+10}px)`;const br=bar.getBoundingClientRect();
+    if(e.clientY<br.bottom+6){ov.hidden=true;D.z='';
+      // umsortieren: Platz des Tabs unter dem Zeiger einnehmen
+      const over=document.elementsFromPoint(e.clientX,Math.min(br.bottom-4,Math.max(br.top+4,e.clientY))).find(x=>x.classList&&x.classList.contains('tab'));
+      if(over&&over.dataset.id!==D.t.id){const a=TABS.indexOf(D.t),b=TABS.findIndex(x=>x.id===over.dataset.id);if(a>=0&&b>=0){TABS.splice(a,1);TABS.splice(b,0,D.t);tabRender(true);const n=bar.querySelector(`.tab[data-id="${D.t.id}"]`);n&&n.classList.add('drag')}}
+      return}
+    ov.hidden=false;const z=zone(e);D.z=z==='left'&&D.t===TAB?'':z;ov.dataset.z=D.z},true);
+  const end=e=>{if(!D)return;const d=D;D=null;if(!d.on)return;justDragged=Date.now();stop();
+    if(d.z==='right')spvSnapRight(d.t);else if(d.z==='left'&&d.t!==TAB)tabSwitch(d.t)};
+  addEventListener('pointerup',end,true);addEventListener('pointercancel',()=>{if(D&&D.on)stop();D=null},true);
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&D&&D.on){e.preventDefault();e.stopImmediatePropagation();D=null;stop()}},true);
+  bar.addEventListener('click',e=>{if(Date.now()-justDragged<300){e.stopPropagation();e.preventDefault()}},true);
+  // Rechtsklick am Tab
+  bar.addEventListener('contextmenu',e=>{const el=e.target.closest('.tab');const t=el&&TABS.find(x=>x.id===el.dataset.id);if(!t)return;e.preventDefault();
+    const shown=SPV.on&&SPV.src==='tab:'+t.id;
+    hmOpen(el,[t!==TAB?{ic:'open',t:'Hier bearbeiten',d:'Zu diesem Tab wechseln',run:()=>tabSwitch(t)}:null,
+      shown?{ic:'splitv',t:'Rechte Spalte schließen',run:()=>spvOpen(false)}:{ic:'splitv',t:'Rechts daneben anzeigen',d:t===TAB?'Links kommt der Tab daneben':'Zum Ansehen und Vergleichen',run:()=>spvSnapRight(t)},
+      shown?{ic:'swap',t:'Tauschen',d:'Die rechte Datei links bearbeiten',run:()=>spvSwap()}:null,
+      {sep:true},{ic:'close',t:'Tab schließen',k:kbOf('tabClose'),run:()=>tabClose(t)}].filter(Boolean))})}
+/* ---------- 3.7: Formularfelder bleiben bearbeitbar ----------
+   Mit dem Werkzeug „Formularfeld“ wählt ein Klick auf ein eigenes Feld es aus (verschieben, Größe, Entf löscht).
+   Ausfüllbare Felder in der Datei (auch nach „Ausfüllbar machen“ oder aus der PDF selbst) lassen sich wieder in
+   bearbeitbare Felder zurückverwandeln: Werkzeug F, dann Klick auf ein blaues Feld oder „Felder bearbeiten“. */
+const FF_CONV=f=>!f.ro&&(f.kind==='text'||f.kind==='check'||f.kind==='choice');
+const ffRealCount=()=>new Set(FM.fields.filter(FF_CONV).map(f=>f.name)).size;
+function ffBar(){let b=document.getElementById('ffBar');const has=S.pages&&S.pages.length,n=has?ffCount():0,r=has?ffRealCount():0,
+    show=has&&(S.tool==='field'?(n||r):(n&&S.sel&&S.sel.o&&S.sel.o.type==='field'));
+  if(!show){if(b&&!b.hidden)animHide(b);return}
+  if(!b){b=document.createElement('div');b.id='ffBar';b.className='rd-bar ff-bar';b.setAttribute('role','status');b.hidden=true;
+    b.innerHTML='<span class="rd-n"></span><button type="button" class="btn" id="ffEdit">Felder bearbeiten</button><button type="button" class="btn primary" id="ffGo">Ausfüllbar machen</button>';document.body.appendChild(b);
+    $('#ffGo').onclick=()=>ffFinalize();$('#ffEdit').onclick=()=>ffUnbake()}
+  const parts=[];if(n)parts.push(n===1?tr('1 eigenes Formularfeld'):n+tr(' eigene Formularfelder'));if(r)parts.push(r===1?tr('1 ausfüllbares Feld in der Datei'):r+tr(' ausfüllbare Felder in der Datei'));
+  b.querySelector('.rd-n').textContent=parts.join(' · ');$('#ffGo').hidden=!n;$('#ffEdit').hidden=!(r&&S.tool==='field');if(b.hidden)showEl(b)}
+// Ausfüllbare Felder der Datei → eigene, bearbeitbare Felder (Rückgängig mit Strg+Z)
+async function ffUnbake(){const conv=FM.fields.filter(FF_CONV);if(!conv.length||!S.bytes)return;closeEditor();setSel(null);
+  try{const pdf=await PDFLib.PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true}),form=pdf.getForm(),names=[...new Set(conv.map(f=>f.name))],done=new Set();
+    for(const nm of names){let f=null;try{f=form.getField(nm)}catch(e){}if(!f)continue;
+      const ok=f instanceof PDFLib.PDFTextField||f instanceof PDFLib.PDFCheckBox||f instanceof PDFLib.PDFDropdown||f instanceof PDFLib.PDFOptionList;if(!ok)continue;
+      try{form.removeField(f);done.add(nm)}catch(e){console.warn('Feld',nm,e)}}
+    if(!done.size){toast(tr('Diese Felder lassen sich nicht umwandeln.'));return}
+    const objs=S.pages.map(P=>JSON.parse(JSON.stringify(P.objs,(k,v)=>k==='_editing'?undefined:v))),seen=new Set();
+    for(const f of conv){if(!done.has(f.name)||!objs[f.p])continue;const k=f.kind==='text'?(f.multi?'multi':'text'):f.kind,v=S.form[f.name];
+      // Kästchen mit mehreren Widgets: jedes wird ein eigenes Feld (Name bekommt eine Nummer)
+      let name=f.name;if(seen.has(name)){let i=2;while(seen.has(name+' '+i))i++;name=name+' '+i}seen.add(name);
+      objs[f.p].push({type:'field',kind:k,name,x:f.x,y:f.y,w:f.w,h:f.h,color:'#3068d6',lw:0,v:k==='check'?(v===true):(typeof v==='string'?v:''),opts:k==='choice'?f.opts.map(o=>o.t||o.v).filter(Boolean).slice(0,60):[]})}
+    const form0=Object.assign(Object.create(null),S.form);for(const nm of done)delete form0[nm];
+    H.u.push(docSnap());H.r=[];await openPdf(await pdf.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,form:form0,keepHist:true});
+    updUndo();markDirty();if(S.tool!=='field')setTool('field');ffBar();
+    toast((done.size===1?tr('1 Feld'):done.size+tr(' Felder'))+tr(' ist wieder bearbeitbar: verschieben, Größe ändern, Doppelklick für Name und Art. Rückgängig mit Strg+Z.'))}
+  catch(e){console.error(e);toast(tr('Das hat nicht geklappt: ')+(e&&e.message||e))}}
+// Werkzeug „Formularfeld“: Klick auf ein blaues (ausfüllbares) Feld wandelt die Felder um, statt hineinzuschreiben
+addEventListener('pointerdown',e=>{if(S.tool!=='field'||e.button!==0)return;const el=e.target&&e.target.closest&&e.target.closest('.formlayer .fm');if(!el||!el._f||!FF_CONV(el._f))return;
+  e.preventDefault();e.stopPropagation();ffUnbake()},true);
+
+/* ---------- 3.7: Funktionen suchen ----------
+   In der normalen Suche (Strg+F) findet der Schalter „Funktionen“ auch Befehle: Menüpunkte, Werkzeuge und Tastenkürzel-Aktionen.
+   Pfeiltasten wählen, Enter führt aus. Gesucht wird auf Deutsch und Englisch, mit ein paar gängigen anderen Wörtern. */
+const FN={on:true,list:null,sel:0,res:[]};
+try{FN.on=localStorage.getItem('pdfwerkbank:findFn')!=='0'}catch(e){}
+const FN_SYN={'Passwortschutz':'passwort kennwort verschlüsseln sperren schützen password encrypt lock','Seiten herauslösen':'teilen aufteilen extrahieren split extract trennen',
+  'PDFs zusammenführen':'zusammenfügen verbinden kombinieren merge combine','Text erkennen':'ocr scan texterkennung durchsuchbar','Bilder zu PDF':'foto kamera scan bild umwandeln jpg png',
+  'Scan verbessern':'gerade schief kontrast schwarzweiß aufhellen','PDFs vergleichen':'unterschied diff änderungen versionen compare','Lernkarten':'karteikarten anki flashcards lernen vokabeln',
+  'Präsentieren':'präsentation vollbild beamer laser presentation','Drucken':'printer ausdrucken print','Als Bild speichern':'export png jpg bild screenshot',
+  'Kleinere Kopie speichern':'komprimieren verkleinern größe email compress','Seitenzahlen & Kopfzeile':'seitennummer fußzeile wasserzeichen kopfzeile watermark',
+  'Geteilte Ansicht':'nebeneinander zwei seiten split splitscreen spalte','Nachtmodus für Seiten':'dunkel nacht dark mode invertieren',
+  'Formularfeld':'formular feld ausfüllen textfeld checkbox kästchen dropdown form','Diagramm aus Text':'mindmap chart diagramm logik schaltung struktogramm nassi wahrheitstabelle',
+  'Schwärzen':'redact zensieren unkenntlich entfernen anonymisieren','Rack-Planer':'rack schrank serverschrank patchpanel patchliste','Codeblock':'code quellcode syntax programm',
+  'Unterschrift':'signatur unterschreiben signature','Notizen ein/aus':'notizen notes aufgaben todo','Hilfslinien':'raster ausrichten snap guides','Design anpassen':'farbe theme dunkel hell aussehen'};
+const fnNorm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/ß/g,'ss');
+// alle Befehle einsammeln: Menüs (über hmOpen abgefangen), Werkzeuge, Tastenkürzel-Aktionen
+function fnCollect(){const out=[],seen=new Set(),add=it=>{const key=fnNorm(it.t);if(!it.t||seen.has(key)||typeof it.run!=='function')return;seen.add(key);out.push(it)};
+  const real=hmOpen;let got=null;
+  try{hmOpen=(btn,items,title)=>{got={items,title}};
+    for(const id of['bFileMenu','bViewMenu','bSetMenu']){const b=document.getElementById(id);if(!b||!b.onclick)continue;got=null;try{b.onclick()}catch(e){}
+      if(got)for(const it of got.items)if(it&&!it.sep&&!it.hidden&&it.t)add({t:it.t,d:it.d||'',g:got.title||'',ic:it.ic,svg:it.svg,k:it.k,get:it.get,run:it.run})}}
+  finally{hmOpen=real}
+  for(const t of TOOLS)if(t&&t.id&&t.n)add({t:t.n,d:(typeof TB_DESC!=='undefined'&&TB_DESC[t.id])||t.h||'',g:'Werkzeuge',svg:t.i,k:typeof kbOf==='function'?kbOf('tool:'+t.id):t.k,run:()=>tbRunTool(t)});
+  for(const a of KB_DEF)if(a&&a.n&&!a.id.startsWith('tool:')&&(!a.when||a.when()))add({t:a.n,d:'',g:a.g||'',k:typeof kbOf==='function'?kbOf(a.id):'',run:a.run});
+  return out}
+function fnFind(q){q=fnNorm(q).trim();if(!q)return[];const words=q.split(/\s+/);const L=FN.list||(FN.list=fnCollect()),res=[];
+  for(const it of L){const T=fnNorm(it.t+' '+tr(it.t)),D=fnNorm(it.d+' '+tr(it.d||'')+' '+(FN_SYN[it.t]||'')),hay=T+' '+D;
+    if(!words.every(w=>hay.includes(w)))continue;let s=0;
+    for(const w of words){if(T.startsWith(w))s+=6;else if(new RegExp('(^|[\\s/&(-])'+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(T))s+=4;else if(T.includes(w))s+=2;else s+=1}
+    res.push([s,it])}
+  return res.sort((a,b)=>b[0]-a[0]||a[1].t.length-b[1].t.length).slice(0,8).map(x=>x[1])}
+function fnRender(){const box=fnBox(),q=$('#findIn').value;FN.res=FN.on?fnFind(q):[];if(FN.sel>=FN.res.length)FN.sel=0;box.textContent='';box.hidden=!FN.res.length;if(!FN.res.length)return;
+  const h=document.createElement('div');h.className='fn-h';h.textContent=tr('Funktionen');box.appendChild(h);
+  FN.res.forEach((it,k)=>{const b=document.createElement('button');b.type='button';b.className='fn-i'+(k===FN.sel?' sel':'');b.setAttribute('role','option');
+    const ic=document.createElement('span');ic.className='fn-ic';ic.innerHTML=it.svg||(typeof hmSvg==='function'?hmSvg(it.ic):'');
+    const tx=document.createElement('span');tx.className='fn-tx';const l=document.createElement('b');l.textContent=tr(it.t);tx.appendChild(l);
+    const sub=[it.g?tr(it.g):'',it.d?tr(it.d):''].filter(Boolean).join(' · ');if(sub){const d=document.createElement('span');d.textContent=sub;tx.appendChild(d)}
+    b.append(ic,tx);if(it.k){const kb=document.createElement('kbd');kb.textContent=it.k;b.appendChild(kb)}
+    if(typeof it.get==='function'){const sw=document.createElement('span');sw.className='fn-on';sw.textContent=it.get()?tr('an'):tr('aus');b.appendChild(sw)}
+    b.onmouseenter=()=>{FN.sel=k;box.querySelectorAll('.fn-i').forEach((x,j)=>x.classList.toggle('sel',j===k))};
+    b.onclick=()=>fnRun(it);box.appendChild(b)})}
+function fnRun(it){if(!it)return;const keep=typeof it.get==='function';if(!keep)closeFind();else fnBox().hidden=true;try{it.run()}catch(e){console.error(e)}if(keep)setTimeout(()=>{FN.list=null;fnRender()},50)}
+function fnBox(){let b=document.getElementById('fnRes');if(b)return b;b=document.createElement('div');b.id='fnRes';b.className='fn-res';b.setAttribute('role','listbox');b.hidden=true;$('#findBar').appendChild(b);return b}
+{const inp=$('#findIn'),t=$('#findFn'),ph=()=>inp.setAttribute('placeholder',FN.on?'Suchen: Dokument oder Funktion':'Im Dokument suchen');t.checked=FN.on;ph();
+  t.onchange=()=>{FN.on=t.checked;ph();try{localStorage.setItem('pdfwerkbank:findFn',FN.on?'1':'0')}catch(e){}fnRender();inp.focus()};
+  inp.addEventListener('input',()=>{FN.sel=0;fnRender()});
+  inp.addEventListener('keydown',e=>{if(!FN.on||!FN.res.length)return;
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();e.stopImmediatePropagation();FN.picked=true;FN.sel=(FN.sel+(e.key==='ArrowDown'?1:-1)+FN.res.length)%FN.res.length;fnRender()}
+    // Enter führt die Funktion aus, wenn im Dokument nichts gefunden wurde oder mit der Pfeiltaste gewählt
+    else if(e.key==='Enter'&&!e.shiftKey&&(e.altKey||!FD.hits.length||FN.picked)){e.preventDefault();e.stopImmediatePropagation();FN.picked=false;fnRun(FN.res[FN.sel])}},true);
+  inp.addEventListener('input',()=>{FN.picked=false});
+  // Menüs ändern sich (z. B. Update verfügbar): beim Öffnen der Suche neu einsammeln
+  $('#bFind').addEventListener('click',()=>{FN.list=null});addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='f')FN.list=null},true)}
+
 /* ---------- 3.4: Drucken ----------
    Gedruckt wird genau das, was beim Speichern in der PDF landet (Beschriftungen, Formulare, Unterschriften) –
    die Seiten werden dafür in Druckauflösung gezeichnet und an das Druckfenster des Systems übergeben. */

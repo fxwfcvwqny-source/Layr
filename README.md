@@ -27,7 +27,7 @@
 - **Big symbol library** – general shapes, UML, flowcharts (PAP), Nassi-Shneiderman, ER models, 40+ network symbols, topologies and IT-security symbols
 - **Notes and to-dos per document** – a notes panel with checkable tasks, stored *inside* the PDF; save notes, tasks, highlights and text boxes as a Markdown file
 - **Stays editable** – save over the original file; reopen it in Layr and every annotation can still be moved or removed
-- **Create your own form fields** – drag out text fields, multi-line fields, checkboxes and drop-downs (form field tool, F); when saving they become real PDF form fields that any program can fill in
+- **Create your own form fields** – drag out text fields, multi-line fields, checkboxes and drop-downs (form field tool, F); when saving they become real PDF form fields that any program can fill in; fields already built into a PDF can be turned back into editable fields with one click
 - **Fill in PDF forms** – text fields, checkboxes, radio buttons and drop-downs become real input fields; the values are saved into the PDF's own form fields, so every other PDF program sees them
 - **Signatures** – draw, type or scan your signature and place it anywhere or into a signature field; Layr can remember it on your device and can add place and date underneath (a visible signature like on paper, not a certificate-based digital signature)
 - **Spell checking (German and English)** – misspelled words in text boxes, tables and notes get a red wavy line, right-click for suggestions or to add a word to your dictionary (manage your words under *Settings → Writing & spelling*); works offline with the real Hunspell engine
@@ -39,15 +39,15 @@
 - **Page numbers, header, footer and watermark** – on every page (*File → Page numbers & header*), with placeholders for file name, date and page; numbers stay correct when you reorder pages
 - **Export** – save pages as PNG or JPG (several pages as one ZIP file) or save a smaller copy of the PDF for email (*File*)
 - **Flashcards** – every highlight becomes a card with a gap, add your own cards and learn with a review schedule (a card you know comes back after 1, 3, 7, 14, 30 and 60 days). Type the answer if you like – small typos and umlauts don't count as wrong. Statistics for the last 14 days, a hint when cards are due (also from other files) and export for Anki (CSV)
-- **Diagrams from text** – a few lines become a mind map, a chart (columns, bars, line, pie – also from a table), a logic circuit with truth table and simplified formula (DIN/IEC or ANSI symbols) or a Nassi-Shneiderman structogram from pseudocode (tool D); double-click to edit
+- **Diagrams from text** – a few lines become a mind map, a chart (columns, bars, line, pie – also from a table), a logic circuit with truth table and simplified formula (DIN/IEC or ANSI symbols) or a Nassi-Shneiderman structogram from pseudocode (tool D); building blocks, a hint for the current line and clear error messages help with the writing, or put it together in the builder (an outline, a table or a clickable truth table) without any syntax; double-click to edit
 - **Align and distribute** – line up selected objects at their edges or centres, spread them evenly, or centre a single object on the page
-- **Presentation mode (F5)** – full screen, page by page, with a laser pointer
+- **Presentation mode (F5)** – full screen, page by page, with a glowing laser pointer in four colours
 - **Tablet mode, guides and grid** – only the pen draws while fingers scroll, and the pen's eraser button erases; objects snap to edges and centres while you move them, with an optional 5 mm grid (*View*)
 - **Print (Ctrl+P)** – print the whole document, the current page or a selection like 1-3, 5, with your annotations, form entries and signatures exactly as they will be saved; each page keeps its own size and orientation, and your notes can be added as a last page
 - **Password-protected PDFs** – open PDFs protected with a password (RC4 and AES up to 256 bit) and save them protected again; protect any PDF with a password or remove the protection (*File → Password protection*)
 - **Compare two PDFs** – see side by side what changed between two versions: removed text in red, new text in green, with a list of all changes (*File → Compare PDFs*)
-- **Split view and night mode** – show another part of the document, another tab or another file next to the one you're working on; show pages dark at night without changing the file (*View*)
-- **Search (Ctrl+F)** – find words in the PDF text and in your own annotations, with every match highlighted
+- **Split view and night mode** – show another part of the document, another tab or another file next to the one you're working on: drag a tab to the right half or use the split button at the top, resize the columns and swap sides; show pages dark at night without changing the file (*View*)
+- **Search (Ctrl+F)** – find words in the PDF text and in your own annotations, with every match highlighted; the same box also finds Layr's features (menus, tools, shortcuts) and runs them – switch that off with one click
 - **Pages and documents** – rotate, sort, duplicate and delete pages in a page overview (drag to reorder), add blank, lined, grid or dotted pages, merge several PDFs, extract pages as a new PDF or split a file into parts (*File → Extract pages*), turn photos of sheets into a PDF that is straightened and cleaned up, and improve scanned pages (contrast, black and white)
 - **Rename files** – click the file name at the top left (or press F2) to rename the PDF right where it is
 - **Recently opened** – reopen your last files with one click (desktop app; the list stays on your computer and can be turned off)
