@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-AGa1iH/Ikv00vEG2jy5Npj/+oe6wgQHsshBaKxaluyk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uHVmoI2Cmx4Eu+7vvqLPomEV1fLA4p/IosiTuvGQjm4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2243,6 +2243,7 @@ const I18N_EN={
 'heute':'today','Wiederholungen der letzten 14 Tage (farbig: richtig)':'Reviews in the last 14 days (coloured: correct)','Heute auch fällig:':'Also due today:','Öffne die Datei „':'Open the file “','“, um ihre Karten zu lernen.':'” to study its cards.',
 'Richtig!':'Correct!','Richtig – mit kleinem Tippfehler.':'Correct – with a small typo.','Leider falsch. Deine Antwort: ':'Not quite. Your answer: ','Stufe ':'Level ','Lernstand zurückgesetzt.':'Progress reset.',
 '1 Lernkarte':'1 flashcard',' Lernkarten':' flashcards',' heute fällig – Taste Z zum Lernen.':' due today – press Z to study.',
+'Bitte mindestens 8 Zeichen.':'Please use at least 8 characters.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 };
@@ -6716,7 +6717,7 @@ function lkSan(v){if(!v||typeof v!=='object')return{own:[],box:{},st:{},log:{}};
   if(v.log&&typeof v.log==='object')for(const[d,x]of Object.entries(v.log).slice(-400))if(DAY.test(d)&&Array.isArray(x)&&x.length===2&&x.every(n=>Number.isInteger(n)&&n>=0&&n<1e6))log[d]=[x[0],Math.min(x[0],x[1])];
   return{own,box,st,log}}
 // beim Öffnen einer Datei: einmal am Tag auf fällige Karten hinweisen und den Index auffrischen
-async function lkOnOpen(){try{if(!S.cards||!S.doc)return;const D=lkData(),cards=await lkCards();lkIdxUpdate(cards);const n=cards.filter(c=>lkIsDue(D,c)&&D.st[c.id]).length;if(!n)return;
+async function lkOnOpen(){try{if(!S.cards||!S.doc||crNoStore())return;const D=lkData(),cards=await lkCards();lkIdxUpdate(cards);const n=cards.filter(c=>lkIsDue(D,c)&&D.st[c.id]).length;if(!n)return;
   const k='pdfwerkbank:cardhint',today=lkDay();let seen={};try{seen=JSON.parse(localStorage.getItem(k)||'{}')||{}}catch(e){}const sk=storeKey();if(seen[sk]===today)return;
   seen[sk]=today;try{localStorage.setItem(k,JSON.stringify(Object.fromEntries(Object.entries(seen).filter(([,d])=>d===today))))}catch(e){}
   setTimeout(()=>toast((n===1?tr('1 Lernkarte'):n+tr(' Lernkarten'))+tr(' heute fällig – Taste Z zum Lernen.')),1400)}catch(e){}}
@@ -6907,7 +6908,7 @@ function pwsOpen(){if(!S.doc||!S.pages.length){toast(tr('Erst eine PDF öffnen.'
   $('#pwsA').value='';$('#pwsB').value='';$('#pwsErr').textContent='';showEl($('#pwsDlg'));setTimeout(()=>$('#pwsA').focus(),30)}
 function pwsClose(){animHide($('#pwsDlg'))}
 function pwsApply(){const a=$('#pwsA').value,b=$('#pwsB').value,err=$('#pwsErr');
-  if([...a].length<4){err.textContent=tr('Bitte mindestens 4 Zeichen.');return}
+  if([...a].length<8){err.textContent=tr('Bitte mindestens 8 Zeichen.');return}
   if(a!==b){err.textContent=tr('Die beiden Passwörter sind verschieden.');return}
   const P=S.crypt?S.crypt.P:-4;crForget();S.crypt={pw:a,P,owner:false};pwsClose();crBadge();markDirty();
   toast(tr(window.werkbank?'Die Datei wird beim Speichern mit dem Passwort geschützt (AES-256).':'Beim Speichern wird die Datei mit dem Passwort geschützt (AES-256).'))}

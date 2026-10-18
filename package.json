@@ -1,6 +1,6 @@
 {
   "name": "layr",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "Layr – annotate, draw and take notes on PDFs",
   "main": "app/main.js",
   "author": {
@@ -12,7 +12,7 @@
     "sherpa-onnx-node": "1.13.8"
   },
   "devDependencies": {
-    "electron": "44.7.2",
+    "electron": "44.9.0",
     "electron-builder": "26.15.3"
   },
   "build": {

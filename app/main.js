@@ -1,6 +1,6 @@
 // Layr – Desktop-App (Electron) für Linux und Windows, früher PDF-Werkbank
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell, net, session, utilityProcess } = require('electron');
-const { pathToFileURL } = require('url');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, net, session, utilityProcess, protocol } = require('electron');
+const { pathToFileURL, fileURLToPath } = require('url');
 const crypto = require('crypto');
 const zlib = require('zlib');
 const { spawn } = require('child_process');
@@ -25,6 +25,13 @@ if (process.platform === 'linux' && !process.env.LAYR_WAYLAND) app.commandLine.a
 // Nur die eigene Seite (Hauptfenster, oberster Rahmen) darf Programmfunktionen aufrufen.
 const APP_PAGE = () => pathToFileURL(path.join(__dirname, 'web', 'index.html')).href;
 const samePage = u => typeof u === 'string' && u.split(/[?#]/)[0] === APP_PAGE();
+// 3.6.1: Die Seite darf über file:// nur die eigenen Programmdateien (Ordner web) laden – keine anderen Dateien auf dem Rechner.
+// Geöffnete PDFs kommen nie über file://, sondern als Daten vom Hauptprozess oder über die Dateiauswahl.
+const WEB_DIR = path.join(__dirname, 'web');
+function webFileOk(u) {
+  try { const p = path.resolve(fileURLToPath(u)); const a = process.platform === 'win32' ? p.toLowerCase() : p, b = process.platform === 'win32' ? WEB_DIR.toLowerCase() : WEB_DIR;
+    return a.startsWith(b + path.sep) && !/[\\/]\.\.?([\\/]|$)/.test(p); } catch (e) { return false; }
+}
 function okSender(e) {
   try { return !!(win && !win.isDestroyed() && e.sender === win.webContents && e.senderFrame && e.senderFrame === win.webContents.mainFrame && samePage(e.senderFrame.url)); }
   catch (x) { return false; }
@@ -143,6 +150,7 @@ else {
   });
   app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
+    protocol.handle('file', req => webFileOk(req.url) ? net.fetch(req.url, { bypassCustomProtocolHandlers: true }) : new Response(null, { status: 403 }));
     // Berechtigungen: nur Text in die Zwischenablage schreiben (Kopieren-Knöpfe); keine Downloads aus der Seite
     // Mikrofon: nur für die eigene Seite, nur Ton (keine Kamera, kein Bildschirm) und nur während eines Diktats
     session.defaultSession.setPermissionRequestHandler((wc, perm, cb, details) => {
@@ -255,8 +263,8 @@ handle('export', async (_e, name, data) => {
   if (r.canceled || !r.filePath) return null;
   let target = path.resolve(r.filePath); if (path.extname(target).toLowerCase() !== '.' + ext && !(ext === 'jpg' && /\.jpe?g$/i.test(target))) target += '.' + ext;
   // nie eine geöffnete Datei überschreiben (auch nicht die eines anderen Tabs)
-  const open = [savedPath, currentFile, ...[...DOCS.values()].flatMap(d => [d.c, d.s])].filter(Boolean).map(p => path.resolve(p));
-  if (open.includes(target)) return null;
+  const open = [savedPath, currentFile, ...[...DOCS.values()].flatMap(d => [d.c, d.s])].filter(Boolean);
+  if (open.some(p => samePath(p, target))) return null;
   writeSafe(target, data); lastDir = path.dirname(target);
   return path.basename(target);
 });
@@ -514,7 +522,8 @@ handle('upd-download', async () => {
     return { error: String(e && e.message || e) };
   } finally { dlBusy = false; }
 });
-function pendingBytes() {
+// Liefert die geprüften Bytes und die Prüfsumme aus derselben, gerade geprüften Beschreibung (nichts wird danach neu gelesen)
+function pendingChecked() {
   try {
     if (!pending || path.dirname(pending.file) !== UPD_DIR()) return null;
     const yml = fs.readFileSync(path.join(UPD_DIR(), 'release.yml'), 'utf8'), sig = fs.readFileSync(path.join(UPD_DIR(), 'release.yml.sig'), 'utf8');
@@ -522,14 +531,15 @@ function pendingBytes() {
     const ver = (/^version:\s*(\d+\.\d+\.\d+)\s*$/m.exec(yml) || [])[1]; if (!ver || ver !== pending.version || cmpVer(ver, app.getVersion()) <= 0) return null;
     const want = ymlEntry(yml, path.basename(pending.file)); if (!want || !ASSET_RX[pending.type].test(path.basename(pending.file))) return null;
     const data = fs.readFileSync(pending.file); if (data.length !== want.size || sha512(data) !== want.sha512) return null;
-    return data;
+    const hex = Buffer.from(want.sha512, 'base64').toString('hex'); if (hex.length !== 128) return null;
+    return { data, hex };
   } catch (e) { return null; }
 }
-function verifyPending() { return !!pendingBytes(); }
+const pendingBytes = () => { const c = pendingChecked(); return c ? c.data : null; };
+function verifyPending() { return !!pendingChecked(); }
 const ROOT_SCRIPT = 'set -eu; d=$(mktemp -d); trap \'rm -rf "$d"\' EXIT; cp -- "$1" "$d/layr.deb"; echo "$2  $d/layr.deb" | sha512sum -c --status || exit 3; dpkg -i "$d/layr.deb"';
 let pkChild = null, termTakeover = false;
 const updLog = t => { try { fs.appendFileSync(path.join(app.getPath('userData'), 'update-log.txt'), `${new Date().toISOString()} ${app.getVersion()} ${t}\n`, { mode: 0o600 }); } catch (e) {} };
-function debHex() { const want = ymlEntry(fs.readFileSync(path.join(UPD_DIR(), 'release.yml'), 'utf8'), path.basename(pending.file)); const hex = want && Buffer.from(want.sha512, 'base64').toString('hex'); return hex && hex.length === 128 ? hex : null; }
 const debCmd = () => `sudo apt install "${pending.file}"`;
 // Terminal öffnen, das als Benutzer läuft und nur die Installation mit sudo macht (Ubuntu fragt dort nach dem Passwort)
 function openTerminal(argv) {
@@ -568,13 +578,14 @@ function installNow(relaunch) {
 handle('upd-install', async (_e, auto) => {
   if (!pending) pending = loadPending();
   if (!pending) return { error: 'nopending' };
-  if (!verifyPending()) { pending = null; try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} return { error: 'hash' }; }
+  const chk = pendingChecked();
+  if (!chk) { pending = null; try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} return { error: 'hash' }; }
   if (auto) { installOnQuit = true; relaunchAfter = false; return { ok: true, later: true }; }
   if (pending.type === 'deb') {
-    // .deb braucht Administratorrechte: pkexec zeigt die Passwortabfrage von Ubuntu
+    // .deb braucht Administratorrechte: pkexec zeigt die Passwortabfrage von Ubuntu.
+    // Das Skript als root kopiert die Datei in einen eigenen Ordner und prüft dort genau diese (signierte) Prüfsumme.
     const asRoot = typeof process.getuid === 'function' && process.getuid() === 0;
-    const want = ymlEntry(fs.readFileSync(path.join(UPD_DIR(), 'release.yml'), 'utf8'), path.basename(pending.file));
-    const hex = want && Buffer.from(want.sha512, 'base64').toString('hex'); if (!hex || hex.length !== 128) return { error: 'hash' };
+    const hex = chk.hex;
     const script = ROOT_SCRIPT;
     const sh = ['/bin/sh', '-c', script, 'layr-update', pending.file, hex];
     const cmd = asRoot ? sh[0] : '/usr/bin/pkexec', args = asRoot ? sh.slice(1) : sh;
@@ -604,8 +615,8 @@ handle('upd-install', async (_e, auto) => {
 handle('upd-terminal', async () => {
   if (!pending) pending = loadPending();
   if (!pending || pending.type !== 'deb') return { error: 'nopending' };
-  if (!verifyPending()) return { error: 'hash' };
-  const hex = debHex(); if (!hex) return { error: 'hash' };
+  const chk = pendingChecked(); if (!chk) return { error: 'hash' };
+  const hex = chk.hex;
   if (pkChild) { termTakeover = true; try { pkChild.kill(); } catch (e) {} }
   const en = getLang() === 'en';
   const user = 'printf "%s\\n\\n" "$5"; if sudo /bin/sh -c "$3" layr-update "$1" "$2"; then printf "\\n%s\\n" "$6"; (setsid "$4" >/dev/null 2>&1 &); sleep 2; else printf "\\n%s\\n%s" "$7" "$8"; read -r _; fi';

@@ -84,9 +84,9 @@ Download the file for your system from the [latest release](https://github.com/f
 ## Security
 
 - PDFs are rendered with an up-to-date [PDF.js](https://github.com/mozilla/pdf.js) without any `eval`, and the desktop app runs under a strict Content Security Policy: no code from PDFs, no external scripts, no connections from the page to other servers.
-- The page has no access to Node.js or your files. It can only ask the main process for a small set of actions (open, save, rename …), and the main process only answers its own page. Saving only writes to the open file, to a place you picked in the system's save dialog or – when a new sheet is saved automatically – to a new file in your last-used folder that never replaces an existing one.
+- The page has no access to Node.js or your files. It can only load Layr's own program files; any other file on your computer is blocked, even for `file://` addresses. It can only ask the main process for a small set of actions (open, save, rename …), and the main process only answers its own page. Saving only writes to the open file, to a place you picked in the system's save dialog or – when a new sheet is saved automatically – to a new file in your last-used folder that never replaces an existing one.
 - Exporting (images, ZIP, flashcards as CSV, notes as Markdown, extracted pages, a smaller copy) always asks the system's save dialog where to save, only writes these file types and never replaces the open file.
-- Password protection uses the PDF standard's AES-256 encryption (revision 6) with a fresh random key every time you save; it is computed on your device with the browser's WebCrypto.
+- Password protection uses the PDF standard's AES-256 encryption (revision 6) with a fresh random key every time you save; it is computed on your device with the browser's WebCrypto. New passwords need at least 8 characters.
 - Redaction removes the marked content from the file itself: the affected pages are stored again as images, and the hidden original copy inside the PDF is replaced too. After saving, undo can't bring it back.
 - Links and navigation are locked: only https links to this repository are opened in your browser.
 - Files are written through a temporary file that is created exclusively (no symlink tricks) and keeps the original file permissions; renaming never overwrites another file.
