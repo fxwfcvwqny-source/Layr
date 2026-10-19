@@ -1,5 +1,5 @@
 /* Hunspell 1.7 als WebAssembly (hunspell-wasm 0.3.0, https://github.com/rotemdan/hunspell-wasm).
-   Lizenz: MPL 1.1 (wahlweise LGPL 2.0 / GPL 2.0). Quelltext: https://github.com/hunspell/hunspell */
+   Lizenz: MPL 1.1 / GPL 2.0 oder später / LGPL 2.1 oder später; Layr nutzt Hunspell unter der GPL 3. Quelltext: https://github.com/hunspell/hunspell */
 
 var Hunspell = (() => {
   var _scriptName = (typeof location!=='undefined'?location.href:'');

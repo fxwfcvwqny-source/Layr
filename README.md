@@ -72,8 +72,9 @@ Download the file for your system from the [latest release](https://github.com/f
 ## Privacy
 
 - Your PDFs, notes and settings stay on your computer. Layr has no account, no telemetry and no tracking.
-- Layr only goes online for updates: it asks the public GitHub API for the latest version number and downloads new versions from this repository's releases. Both can be turned off.
+- Layr only goes online for updates and for two downloads you start yourself (the German dictionary and the dictation model, see below). For updates it asks the public GitHub API for the latest version number and downloads new versions from this repository's releases. Both can be turned off.
 - Spell checking runs completely offline. Electron's built-in spell checker, which would download dictionaries from a Google server, is switched off. Only if you click *Download German dictionary* does Layr fetch that one file from the public npm registry (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
+- Dictation runs completely offline. Only when you set up dictation and click *Download and install* does Layr download the speech model (about 490 MB) once from the sherpa-onnx project's releases on GitHub and check it against fixed checksums. What you say is never uploaded. The model can be removed again under *Layr & updates*.
 - Remembered signatures and your personal dictionary stay on your computer.
 - Text recognition (OCR) runs completely on your computer: the recognition engine and the German and English language data are part of the app, nothing is uploaded.
 - For password-protected PDFs, Layr keeps nothing in its local cache: annotations and notes only end up in the encrypted file. Passwords are never stored.
@@ -111,5 +112,10 @@ The app itself is plain HTML/JavaScript in [`app/web/index.html`](app/web/index.
 
 ## License
 
-Copyright © 2026 Layr. All rights reserved.
-Bundled third-party components keep their own licenses, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Copyright © 2026 Layr
+
+Layr is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+Layr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License in [LICENSE](LICENSE) for more details.
+
+Bundled third-party components keep their own licenses, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The installers include `LICENSE`, `THIRD_PARTY_NOTICES.md` and the `licenses` folder in Layr's `resources` folder.

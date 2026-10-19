@@ -1,12 +1,12 @@
 {
   "name": "layr",
-  "version": "3.7.2",
+  "version": "3.7.3",
   "description": "Layr – annotate, draw and take notes on PDFs",
   "main": "app/main.js",
   "author": {
     "name": "Layr"
   },
-  "license": "UNLICENSED",
+  "license": "GPL-3.0-or-later",
   "productName": "Layr",
   "dependencies": {
     "sherpa-onnx-node": "1.13.8"
@@ -26,6 +26,20 @@
     "files": [
       "app/**/*",
       "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "LICENSE",
+        "to": "LICENSE"
+      },
+      {
+        "from": "THIRD_PARTY_NOTICES.md",
+        "to": "THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "from": "licenses",
+        "to": "licenses"
+      }
     ],
     "asar": true,
     "fileAssociations": [
