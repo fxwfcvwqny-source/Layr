@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KY0C9XtAtBlHnqacSFYup1Z+lAkHD9XfZ7BV4wErQNU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-f4RX/vpw1tG9Ujp7GOFe8y/BDsuJH1MrBOkN9JMb3Lw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2422,7 +2422,7 @@ const I18N_EN={
 'Markierung auf Seite ':'Highlight on page ','Eigene Karte':'Own card','1 Karte':'1 card',' Karten':' cards','Fach':'Box','Karte löschen':'Delete card',
 'Noch keine Karten. Markiere wichtige Stellen mit dem Textmarker (Taste M) – jede Markierung wird zu einer Karte. Oder lege unten eigene Karten an.':'No cards yet. Highlight important passages with the highlighter (key M) – every highlight becomes a card. Or add your own cards below.',
 'Fertig!':'Done!',' gewusst, ':' known, ',' noch einmal üben.':' to practise again.','Bitte Frage und Antwort eingeben.':'Please enter a question and an answer.','-Lernkarten':'-flashcards',
-'Hilfslinien':'Guides','Beim Verschieben an Kanten einrasten':'Snap to edges while moving','Raster (5 mm)':'Grid (5 mm)','Punkte anzeigen und daran ausrichten':'Show dots and snap to them','Auswahl nach dem Setzen':'Keep selection after placing','Neue Objekte bleiben ausgewählt':'New objects stay selected','Gesperrte Objekte: Klicks gehen durch':'Locked objects: clicks pass through','Klicks auf gesperrte Objekte wirken auf das darunter':'Clicks on locked objects affect the object below',
+'Hilfslinien':'Guides','Beim Verschieben an Kanten einrasten':'Snap to edges while moving','Raster (5 mm)':'Grid (5 mm)','Punkte anzeigen und daran ausrichten':'Show dots and snap to them','Auswahl nach dem Setzen':'Keep selection after placing','Neue Objekte bleiben ausgewählt':'New objects stay selected','Gesperrte Objekte: Klicks gehen durch':'Locked objects: clicks pass through','Klicks auf gesperrte Objekte wirken auf das darunter':'Clicks on locked objects affect the object below','Position sperren':'Lock position','Entsperren':'Unlock',
 'Tablet-Modus':'Tablet mode','Nur der Stift zeichnet, Finger scrollen':'Only the pen draws, fingers scroll','Präsentation':'Presentation','Vorherige Seite':'Previous page','Nächste Seite':'Next page','Laserpointer':'Laser pointer','Beenden (Esc)':'End (Esc)',
 '← → blättern · L Laserpointer · C Laserfarbe · B schwarz · W weiß · Esc beenden':'← → turn pages · L laser pointer · C laser colour · B black · W white · Esc end',
 'Passwort eingeben':'Enter password','ist mit einem Passwort geschützt.':'is protected with a password.','Passwort anzeigen':'Show password','Das Passwort stimmt nicht.':'The password is wrong.',
@@ -3677,10 +3677,16 @@ function layout(){try{decoEnsure()}catch(e){}
   try{formsLayout()}catch(e){}
   renderAll();
 }
+/* Schloss-Marke: nur auf dem Bildschirm, nicht im Export (buildOutput nutzt drawObj) */
+function drawLockMark(c,o){const b=bbox(o),u=1/S.zoom,x=b.x+b.w,y=b.y,r=5*u;
+  c.save();c.fillStyle='#1b1f24';c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();
+  c.strokeStyle='#fff';c.lineWidth=1.2*u;c.beginPath();c.arc(x,y-u,2*u,Math.PI,0);c.stroke();
+  c.fillStyle='#fff';c.fillRect(x-2.6*u,y-.5*u,5.2*u,3.6*u);c.restore()}
 function redraw(i){
   const P=S.pages[i];if(!P||!P.ictx)return;orgRelink(P);if(DRAG&&redrawDrag(i))return;const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);
   const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);
   for(const o of P.objs)drawObj(c,o);
+  for(const o of P.objs)if(o.locked)drawLockMark(c,o);
   try{drawSpell(c,i)}catch(e){}
   try{drawFind(c,i)}catch(e){}
   if(S.draft&&S.draft.p===i){const D=S.draft;
@@ -4087,7 +4093,9 @@ function attachInk(P,i){
   };
   ink.addEventListener('contextmenu',e=>{e.preventDefault();
     {const[x,y]=toPt(e.clientX,e.clientY),o=!st&&!S.draft&&[...P.objs].reverse().find(o=>o.type==='table'&&hit(o,x,y,6/S.zoom)),rc=o&&tblCell(o,x,y);
-      if(rc){closeEditor();if(S.tool!=='select')setTool('select');setSel({p:i,o});redraw(i);tblMenu(i,o,rc[0],rc[1],e.clientX,e.clientY);return}}if(st)clearTimeout(st.qsT);qsTagHide();if(S.lasso){S.lasso=null;redraw(i)}if(S.draft){S.draft=null;redraw(i)}st=null;setTool('select')});
+      if(rc){closeEditor();if(S.tool!=='select')setTool('select');setSel({p:i,o});redraw(i);tblMenu(i,o,rc[0],rc[1],e.clientX,e.clientY);return}}
+    {const[x,y]=toPt(e.clientX,e.clientY),t=6/S.zoom,o=!st&&!S.draft&&[...P.objs].reverse().find(o=>o.type!=='deco'&&(hit(o,x,y,t)||(o.locked&&inBox(o,x,y,t))));if(o){objMenu(i,o,e.clientX,e.clientY);return}}
+    if(st)clearTimeout(st.qsT);qsTagHide();if(S.lasso){S.lasso=null;redraw(i)}if(S.draft){S.draft=null;redraw(i)}st=null;setTool('select')});
   ink.addEventListener('pointerup',end);ink.addEventListener('pointercancel',end);
   ink.addEventListener('dblclick',e=>{
     if(!['select','rect','ellipse','table','symbol'].includes(S.tool))return;const[x,y]=toPt(e.clientX,e.clientY);const o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o)return;
@@ -5880,6 +5888,8 @@ function tblMenu(i,o,r,c,x,y){ctx.innerHTML='';const add=(t,f,dis)=>{const b=doc
   add('Zeile löschen',()=>tblDelete(o,'r',r),o.rows<=1);add('Spalte löschen',()=>tblDelete(o,'c',c),o.cols<=1);
   add('Zelleninhalt leeren',()=>{o.cells[r][c]=''},!(o.cells[r]&&o.cells[r][c]));
   showEl(ctx);const b=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-b.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-b.height-8)+'px'}
+function objMenu(i,o,x,y){ctx.innerHTML='';const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr(o.locked?'Entsperren':'Position sperren');b.onclick=()=>{closeMenu();pushHist();if(o.locked)delete o.locked;else o.locked=true;redraw(i);markDirty()};ctx.appendChild(b);
+  showEl(ctx);const r=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-r.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-r.height-8)+'px'}
 
 /* ---------- 3.2: Tabs, Satzanfänge groß, Tabellen-Leiste ---------- */
 /* Tabs: Jede geöffnete Datei ist ein Tab. Der aktive Tab lebt in S; die anderen liegen als Schnappschuss im Speicher.
