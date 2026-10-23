@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-H5W0926tNJBMVcvPSnhF5DVQl2fJeTibz92+m71CTEE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uCmFa48GFDJIBax+wigSyAsOHRMhUpota/nZqYztoHk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4342,6 +4342,7 @@ function posIdx(o,g,x,y){const{b,starts}=g;const li=clamp(Math.floor(y/b.lh),0,b
 document.addEventListener('pointerdown',e=>{if(!editorEl)return;const t=e.target;if(editorEl.contains(t)||(fontPop&&fontPop.contains(t)))return;
   if(t.closest&&t.closest('#panel,.ctx,#ruler,.modal,#bMic'))return;if(t.classList&&t.classList.contains('ink'))return;closeEditor()},true);
 function openTextEditor(i,o,isNew,at){
+  if(at&&rotOf(o)){const r=S.pages[i].ink.getBoundingClientRect(),z=S.zoom,q=rotP((at[0]-r.left)/z,(at[1]-r.top)/z,...tCtr(o),-o.rot);at=[r.left+q[0]*z,r.top+q[1]*z,at[2]]}
   closeEditor();const P=S.pages[i];const before=isNew?null:snapshot(),origJson=JSON.stringify(o),startText=o.text;
   editingObj=o;
   const root=document.createElement('div');root.className='tbx';
