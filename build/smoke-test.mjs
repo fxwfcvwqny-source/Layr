@@ -76,6 +76,7 @@ else {
   ok('Ellipsen bekommen keine Festpunkte auf Dritteln, eckige Symbole schon', await ev("(()=>{const E={type:'sym',sym:'usecase',x:0,y:0,w:100,h:40},R={type:'sym',sym:'org_unit',x:0,y:0,w:100,h:40};return anchorRect(E)===false&&anchorRect(R)===true&&JSON.stringify(orgAnchor(E,'t1'))===JSON.stringify(orgAnchor(E,'t'))&&orgAnchor(R,'t1')[0]===25})()") === true);
   ok('Ablegen an der Seitenmitte bleibt automatisch, Ecken-Drittel werden Festpunkt', await ev("(()=>{const R={type:'rect',x:0,y:0,w:100,h:40};return pickAnchor(R,50,0)==='auto'&&pickAnchor(R,25,0)==='t1'&&pickAnchor(R,100,30)==='r3'})()") === true);
   ok('Andock-Hinweis zeigt auf kleinen Kästen nur die Seitenmitten', await ev("(()=>{let n=0;const c={save(){},restore(){},strokeRect(){},setLineDash(){},beginPath(){},arc(){n++},fill(){},stroke(){}};const d=(w,h)=>{n=0;drawDockHint(c,{type:'rect',x:0,y:0,w,h});return n};return d(30,30)===4&&d(100,100)===12})()") === true);
+  ok('Festpunkt wird auf schmalen Kästen nicht gefangen', await ev("(()=>{const R={type:'rect',x:0,y:0,w:30,h:100};return pickAnchor(R,7.5,0)==='auto'})()") === true);
   ok('Verbindung behält gültige Festpunkte und setzt unbekannte auf auto', await ev("(()=>{const r=sanObj({type:'line',x1:0,y1:0,x2:1,y2:1,color:'#000000',link:{a:'x',b:'y',ta:'t2',tb:'junk'}});return r.link.ta==='t2'&&r.link.tb==='auto'})()") === true);
   ws.close();
   console.log(failed ? `${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
