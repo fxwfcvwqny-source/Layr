@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-R1l3bRwDTaoJyeQ/SUF+x3MRFIWisKQHsvKrlzdo3YQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-o0MaF03V3gWw4qFr97dbXR8zerJwkdfSq+LYynpmS0M=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2942,8 +2942,8 @@ def('org_team','Organigramm','Bereich / Team',240,150,'Team',(c,o,x,y,w,h)=>{c.s
 const newOid=()=>'o'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
 const DOCKABLE=['sym','rect','ellipse','text','table','image'];
 function dockBox(o){if(o.type==='text')return bbox(o);let x=o.x,y=o.y,w=o.w,h=o.h;if(w<0){x+=w;w=-w}if(h<0){y+=h;h=-h}return{x,y,w,h}}
-function orgAnchor(o,t){const{x,y,w,h}=dockBox(o);let yb=y+h;if(t==='b'&&o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].below&&o.label){const b=bbox(o);yb=b.y+b.h}
-  return t==='t'?[x+w/2,y]:t==='b'?[x+w/2,yb]:t==='l'?[x,y+h/2]:t==='r'?[x+w,y+h/2]:[x+w/2,y+h/2]}
+function orgAnchor(o,t,f=.5){const{x,y,w,h}=dockBox(o);let yb=y+h;if(t==='b'&&o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].below&&o.label){const b=bbox(o);yb=b.y+b.h}
+  return t==='t'?[x+w*f,y]:t==='b'?[x+w*f,yb]:t==='l'?[x,y+h*f]:t==='r'?[x+w,y+h*f]:[x+w/2,y+h/2]}
 /* Seite wählen, an der eine Linie andockt: die, die zum anderen Ende zeigt */
 function autoSides(A,B,pa,pb){const a=A?dockBox(A):{x:pa[0],y:pa[1],w:0,h:0},b=B?dockBox(B):{x:pb[0],y:pb[1],w:0,h:0};
   const dx=(b.x+b.w/2)-(a.x+a.w/2),dy=(b.y+b.h/2)-(a.y+a.h/2),gx=Math.abs(dx)-(a.w+b.w)/2,gy=Math.abs(dy)-(a.h+b.h)/2;
@@ -2957,10 +2957,17 @@ function drawDockHint(c,o){const b=dockBox(o),z=S.zoom,p=3/z;c.save();c.strokeSt
   for(const t of['t','b','l','r']){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle='#fff';c.fill();c.stroke()}c.restore()}
 /* Verbindungen an ihre Kästen anpassen; ist ein Kasten weg, verschwindet auch seine Linie */
 function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
+  const ends=[];
   for(const o of P.objs){const L=o.link;if(!L)continue;const A=L.a?by[L.a]:null,B=L.b?by[L.b]:null;
     if((L.a&&!A)||(L.b&&!B)){if(o.locked)delete o.link;else gone.push(o);continue}if(!A&&!B){delete o.link;continue}
     let ta=L.ta||'auto',tb=L.tb||'auto';if(ta==='auto'||tb==='auto'){const sd=autoSides(A,B,[o.x1,o.y1],[o.x2,o.y2]);if(ta==='auto')ta=sd[0];if(tb==='auto')tb=sd[1];o.elbowDir=sd[2]}
-    if(A&&o.__drag!=='a'){const q=orgAnchor(A,ta);o.x1=q[0];o.y1=q[1]}if(B&&o.__drag!=='b'){const q=orgAnchor(B,tb);o.x2=q[0];o.y2=q[1]}}
+    if(A&&o.__drag!=='a')ends.push({o,end:'a',box:A,side:ta,other:[o.x2,o.y2],idx:ends.length});
+    if(B&&o.__drag!=='b')ends.push({o,end:'b',box:B,side:tb,other:[o.x1,o.y1],idx:ends.length})}
+  /* Enden auf derselben Seite eines Kastens verteilen, sortiert nach der Gegenseite der Linie */
+  const grp=new Map();for(const e of ends){const k=e.box.oid+'|'+e.side;if(!grp.has(k))grp.set(k,[]);grp.get(k).push(e)}
+  for(const g of grp.values()){const n=g.length,hz=g[0].side==='t'||g[0].side==='b';
+    if(n>1)g.sort((p,q)=>(hz?p.other[0]-q.other[0]:p.other[1]-q.other[1])||p.idx-q.idx);
+    g.forEach((e,k)=>{const q=orgAnchor(e.box,e.side,n>1?(k+1)/(n+1):.5);if(e.end==='a'){e.o.x1=q[0];e.o.y1=q[1]}else{e.o.x2=q[0];e.o.y2=q[1]}})}
   if(gone.length){P.objs=P.objs.filter(o=>!gone.includes(o));if(S.sel&&S.pages[S.sel.p]===P){const keep=selItems().filter(o=>!gone.includes(o));
     if(!keep.length)S.sel=null;else if(S.sel.o.type==='group'){S.sel.o.items=keep;if(keep.length===1)S.sel={p:S.sel.p,o:keep[0]}}}}}
 /* Beim Duplizieren bekommen die Kopien eigene Kennungen, damit ihre Linien an den Kopien hängen */
