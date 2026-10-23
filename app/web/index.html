@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-mwGuCaaUHKOWOr5DwJ/N2rLiaE0wMMLJ9ekT4Z9yWD4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2c+fL6EkjQe1z/cZtYvQnBYl4v/1KbqWbDPef5l6pE8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5899,6 +5899,7 @@ function tblMenu(i,o,r,c,x,y){ctx.innerHTML='';const add=(t,f,dis)=>{const b=doc
   add('Spalte links einfügen',()=>tblInsert(o,'c',c),o.cols>=60);add('Spalte rechts einfügen',()=>tblInsert(o,'c',c+1),o.cols>=60);sep();
   add('Zeile löschen',()=>tblDelete(o,'r',r),o.rows<=1);add('Spalte löschen',()=>tblDelete(o,'c',c),o.cols<=1);
   add('Zelleninhalt leeren',()=>{o.cells[r][c]=''},!(o.cells[r]&&o.cells[r][c]));
+  add(o.locked?'Entsperren':'Position sperren',()=>{if(o.locked)delete o.locked;else o.locked=true});
   showEl(ctx);const b=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-b.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-b.height-8)+'px'}
 function objMenu(i,o,x,y){ctx.innerHTML='';const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr(o.locked?'Entsperren':'Position sperren');b.onclick=()=>{closeMenu();pushHist();if(o.locked)delete o.locked;else o.locked=true;redraw(i);markDirty()};ctx.appendChild(b);
   showEl(ctx);const r=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-r.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-r.height-8)+'px'}
