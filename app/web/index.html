@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3eVx429t/xGhiHoEAGSKuGJEwBAz+rrfyW603XtuGao=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gRn20xHC3f++YqNDUpAIeTaskajMlMBetnM1+mfMPi4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2894,7 +2894,7 @@ function def(id,cat,name,w,h,lab,draw,opt={}){SYM[id]={id,cat,name,w,h,label:lab
 // Allgemeine Formen
 function fitPoly(pts,x,y,w,h){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[u,v]of pts){a=Math.min(a,u);b=Math.min(b,v);c=Math.max(c,u);d=Math.max(d,v)}return pts.map(([u,v])=>[x+(u-a)/(c-a||1)*w,y+(v-b)/(d-b||1)*h])}
 const ngon=(n,rot=-Math.PI/2)=>[...Array(n)].map((_,i)=>{const a=rot+i*2*Math.PI/n;return[Math.cos(a),Math.sin(a)]});
-const shapeDef=(id,name,w,h,pts,lab,ly=.5,lw=.6,opt={})=>def(id,'Formen',name,w,h,lab,(c,o,x,y,w,h)=>{poly(c,fitPoly(typeof pts==='function'?pts(w,h):pts,x,y,w,h));fillStroke(c,o);label(c,o,x+w/2,y+h*ly,w*lw)},opt);
+const shapeDef=(id,name,w,h,pts,lab,ly=.5,lw=.6,opt={})=>def(id,'Formen',name,w,h,lab,(c,o,x,y,w,h)=>{poly(c,fitPoly(typeof pts==='function'?pts(w,h):pts,x,y,w,h));fillStroke(c,o);label(c,o,x+w/2,y+h*ly,w*lw)},{...opt,pts});
 shapeDef('f_tri','Dreieck',64,56,[[.5,0],[1,1],[0,1]],'',.66,.5);
 shapeDef('f_rtri','Rechtwinkliges Dreieck',60,52,[[0,0],[1,1],[0,1]],'',.7,.4);
 shapeDef('f_diamond','Raute',64,64,[[.5,0],[1,.5],[.5,1],[0,.5]],'',.5,.5);
