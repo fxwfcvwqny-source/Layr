@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tq2VUum8+5eXbZFSUD50ap1sc3aYBvPO4W9nrcU+tkY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-txgdVcM26GgTWLsun5SPW2SxwA/Swe+nERkjpgRLwpE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4436,7 +4436,7 @@ function openTextEditor(i,o,isNew,at){
   if(at&&o.orient==='h'){const idx=at2idx(at[0],at[1]);if(at[2]==='word')eng.word(idx);else eng.select(idx,idx)}else eng.select(o.text.length,o.text.length);
   redraw(i);eng.focus();setTimeout(()=>{if(editorEl===root)eng.focus()},0);
   editorDone=v=>{
-    const t=v.replace(/\s+$/,'');
+    const t=v.trimEnd();
     if(!isNew&&o.locked&&!t){for(const k of Object.keys(o))delete o[k];Object.assign(o,JSON.parse(origJson))}
     else{o.text=t;normSpans(o)}
     if(isNew){if(t.trim()){pushHist();P.objs.push(o);markDirty();if(keepSelOn)setSel({p:i,o})}}
@@ -7057,7 +7057,7 @@ function cdUI(){document.querySelectorAll('#cdTheme button').forEach(b=>b.setAtt
   $('#cdNum').checked=CD.num;$('#cdOk').disabled=!$('#cdText').value.trim();cdPrev()}
 function cdPrev(){const cv=$('#cdPrev'),dpr=Math.min(2,devicePixelRatio||1),W=cv.clientWidth||480,H=cv.clientHeight||160;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);
   const o={text:$('#cdText').value||' ',lang:CD.lang,theme:CD.theme,num:CD.num,fs:CD.fs},m=codeMeasure(o),s=Math.min(1.2,(W-4)/m.w,(H-4)/m.h);drawCode(c,{...o,x:2,y:2,w:m.w*s,h:m.h*s})}
-function cdPlace(){const text=$('#cdText').value.replace(/\s+$/,'').slice(0,20000);if(!text.trim())return;const data={text,lang:CD.lang,theme:CD.theme,num:CD.num,fs:CD.fs};
+function cdPlace(){const text=$('#cdText').value.trimEnd().slice(0,20000);if(!text.trim())return;const data={text,lang:CD.lang,theme:CD.theme,num:CD.num,fs:CD.fs};
   try{localStorage.setItem('pdfwerkbank:code',JSON.stringify({lang:CD.lang,theme:CD.theme,num:CD.num,fs:CD.fs}))}catch(e){}
   const fit=(P,o)=>{const m=codeMeasure(o),k=Math.min(1,(P.w-40)/m.w);o.w=m.w*k;o.h=m.h*k};
   if(CD.edit){const{p,o}=CD.edit;if(S.pages[p]&&S.pages[p].objs.includes(o)){pushHist();Object.assign(o,data);fit(S.pages[p],o);redraw(p);markDirty();animHide($('#cdDlg'));setSel({p,o});return}}
