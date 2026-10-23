@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tp1efxML0zREcDfbrXxHZBQKVRDVldlA/cH2Eet0kIo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZBSt1l5fuE+LTHFFjJ+0u455bJc6pu4YgG0KJO29jLg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3729,7 +3729,7 @@ async function renderPage(i,g){
 }
 // Textebene (pdf.js) nur für sichtbare Seiten, erst im Werkzeug „Text auswählen“; Zoom über --scale-factor
 async function tlBuild(i){const P=S.pages[i],doc=S.doc;if(!P||P.tl||!doc)return;P.tl=document.createElement('div');P.tl.className='textLayer';P.el.appendChild(P.tl);P.tl.addEventListener('contextmenu',e=>{e.preventDefault();setTool('select')});
-  try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P)return;const vp=pg.getViewport({scale:1});P.tl.style.setProperty('--total-scale-factor',`calc(var(--scale-factor,1)*${vp.userUnit||1})`);await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:P.tl,viewport:vp}).render()}catch(e){}}
+  try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P)return;const vp=pg.getViewport({scale:1});P.tl.style.setProperty('--total-scale-factor',`calc(var(--scale-factor,1)*${vp.userUnit||1})`);await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:P.tl,viewport:vp}).render()}catch(e){if(P.tl){P.tl.remove();P.tl=null}}}
 
 /* ---------- Verlauf & Zwischenspeicher ---------- */
 const H={u:[],r:[]};
