@@ -634,7 +634,7 @@ handle('upd-terminal', async () => {
   return { ok: true };
 });
 listen('upd-auto-install', (_e, on) => { if (pending && (pending.type === 'nsis' || pending.type === 'appimage')) installOnQuit = !!on; });
-app.on('will-quit', () => { if (installOnQuit && pending) installNow(relaunchAfter); });
+app.on('will-quit', () => { if (installOnQuit && pending) { asrKill(); installNow(relaunchAfter); } });
 
 
 // ---------- Diktieren (3.3) ----------
