@@ -513,13 +513,13 @@ handle('upd-download', async () => {
     try { const rd = r.body.getReader();
       for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > want.size) throw new Error('size');
         h.update(value); fs.writeSync(fd, value); kick();
-        if (Date.now() - last > 150 && win) { last = Date.now(); win.webContents.send('upd-progress', got, want.size); } }
+        if (Date.now() - last > 150 && win && !win.isDestroyed()) { last = Date.now(); win.webContents.send('upd-progress', got, want.size); } }
     } finally { fs.closeSync(fd); }
     if (got !== want.size || h.digest('base64') !== want.sha512) throw new Error('hash');
     fs.renameSync(part, file);
     pending = { version: rel.version, file, type, sha512: want.sha512, notes: rel.notes };
     fs.writeFileSync(path.join(dir, 'pending.json'), JSON.stringify(pending), { mode: 0o600 });
-    if (win) win.webContents.send('upd-progress', want.size, want.size);
+    if (win && !win.isDestroyed()) win.webContents.send('upd-progress', want.size, want.size);
     return { ok: true, version: rel.version };
   } catch (e) {
     try { fs.rmSync(dir, { recursive: true, force: true }); } catch (x) {}
