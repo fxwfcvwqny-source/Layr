@@ -564,7 +564,8 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 @keyframes lyr-out{from{opacity:1;transform:none}to{opacity:0;transform:translateY(6px) scale(.975)}}
 @keyframes lyr-slide-out{from{opacity:1;transform:none}to{opacity:.3;transform:translateX(48px)}}
 @keyframes lyr-toast-out{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,10px)}}
-:root.theme-anim,:root.theme-anim *{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease!important}
+/* shortcut: theme switch is instant, a fade on every element cost ~70 ms per frame; upgrade only with a fade on a few containers */
+:root.theme-anim,:root.theme-anim *{transition:none!important}
 @keyframes lyr-in{from{opacity:0;transform:translateY(8px) scale(.975)}to{opacity:1;transform:none}}
 @keyframes lyr-drop{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes lyr-slide{from{opacity:.4;transform:translateX(36px)}to{opacity:1;transform:none}}
