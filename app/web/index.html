@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-t/Y1FWcWT8OwIZ6GHN5JPwqi7m6v/bfz7AyS5xgBXCQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ITc7vXLAmWa+pRaeTI3Xb6HGjmerErt9BzsfLQKvshY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3555,6 +3555,7 @@ let CLIP=null;
 function copySel(){if(!S.sel)return false;const T=selItems();if(!T.length)return false;
   const imgs={};for(const o of T)if(o.type==='image'){const s=S.imgs[o.img]||imgLsGet(o.img);if(s)imgs[o.img]=s}
   CLIP={stamp:'layr:'+Date.now(),n:0,objs:JSON.stringify(T,(k,v)=>k==='_editing'||k==='__drag'?undefined:v),imgs};return true}
+function clipText(){return JSON.parse(CLIP.objs).map(o=>o.type==='text'?o.text:o.type==='table'?o.cells.map(r=>r.join('\t')).join('\n'):'').filter(Boolean).join('\n\n')}
 function pasteClip(){if(!CLIP||!S.pages.length)return;const p=curPage();pushHist();
   for(const k in CLIP.imgs)if(!S.imgs[k]&&IMG_OK.test(CLIP.imgs[k]))S.imgs[k]=CLIP.imgs[k];
   const d=12*(++CLIP.n),C=JSON.parse(CLIP.objs);for(const c of C){moveObj(c,d,d);if(c.sym==='num')c.label=String(S.num++)}
@@ -4804,7 +4805,7 @@ function updImgUI(){const sec=document.getElementById('imgSec');if(!sec)return;c
   $('#imgReplace').onclick=()=>{if(!imgTarget())return;inp.dataset.mode='replace';inp.click()};
   addEventListener('copy',e=>{const t=e.target;if(editorEl||(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.isContentEditable)))return;
     const s=getSelection();if(s&&!s.isCollapsed&&String(s).trim())return;if(!e.clipboardData||!copySel())return;e.preventDefault();
-    e.clipboardData.setData('text/plain',JSON.parse(CLIP.objs).filter(o=>o.type==='text').map(o=>o.text).join('\n\n'));
+    e.clipboardData.setData('text/plain',clipText());
     e.clipboardData.setData('application/x-layr',CLIP.stamp)});
   addEventListener('paste',e=>{const t=e.target;if(editorEl||(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.isContentEditable)))return;if(!S.pages.length||!e.clipboardData)return;
     let fs=[...(e.clipboardData.files||[])].filter(f=>/^image\//.test(f.type));
