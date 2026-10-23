@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qdtbYPFJohEy49N39CKhZ+480P5HOfxRVmE56/C4TBQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6BVKX/2nor9P+w8JZF+qCTAPqy27PP4jdvTtk2iz0O4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -55,6 +55,9 @@ button{cursor:pointer}
 .th canvas{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);display:block}
 .th span{font:500 11px var(--f-mono);color:var(--muted)}
 .th.cur{background:var(--accent-soft)}.th.cur span{color:var(--accent);font-weight:600}
+.th.sel{outline:2px solid var(--accent);outline-offset:-2px}
+.th-bar{position:sticky;top:0;z-index:1;align-self:stretch;display:flex;justify-content:center;gap:6px;padding:2px 0 4px;background:var(--panel);border-bottom:1px solid var(--line)}
+.th-bar .ib{width:28px;height:28px}.th-bar .ib svg{width:16px;height:16px}
 .ctx{position:fixed;z-index:95;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:4px;min-width:220px;display:flex;flex-direction:column}
 .ctx button{border:0;background:transparent;text-align:left;padding:7px 10px;border-radius:6px;font-size:13px}
 .ctx button:hover:not(:disabled){background:var(--hover)}
@@ -1937,7 +1940,7 @@ const I18N_EN={
 'A4 hoch':'A4 portrait','A4 quer':'A4 landscape','A3 quer':'A3 landscape','Leer':'Blank','Liniert':'Lined','Kariert':'Squared','Punkte':'Dotted','Creme':'Cream','Rosé':'Rosé','Papier':'Paper',
 'Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
 // Seitenmenü
-'Seite duplizieren':'Duplicate page','Nach oben':'Move up','Nach unten':'Move down','Seite löschen':'Delete page','Nach oben verschieben':'Move up','Nach unten verschieben':'Move down','Beschriftungen dieser Seite entfernen':'Remove annotations on this page',
+'Seite duplizieren':'Duplicate page','Nach oben':'Move up','Nach unten':'Move down','Seite löschen':'Delete page','Nach oben verschieben':'Move up','Nach unten verschieben':'Move down','Seite nach oben':'Move page up','Seite nach unten':'Move page down','Beschriftungen dieser Seite entfernen':'Remove annotations on this page',
 // Zusammenführen
 'PDFs zusammenführen':'Merge PDFs','+ PDFs hinzufügen':'+ Add PDFs','Noch keine Dateien. Füge mindestens zwei PDFs hinzu oder ziehe sie hierher.':'No files yet. Add at least two PDFs or drag them here.',
 'Reihenfolge mit den Pfeilen ändern. Die Originaldateien bleiben unverändert, es entsteht eine neue PDF.':'Change the order with the arrows. The original files stay unchanged; a new PDF is created.',
@@ -6140,6 +6143,8 @@ $('#bThumbs').onclick=()=>toggleThumbs();
 async function buildThumbs(){
   TM.order=null;TM.sel=null;
   const el=$('#thumbs');if(!thumbsOn||!S.doc)return;const g=++thumbGen;el.innerHTML='';
+  const bar=document.createElement('div');bar.className='th-bar';bar.innerHTML=`<button class="ib" aria-label="${tr('Seite nach oben')}" title="${tr('Seite nach oben')} (Alt+↑)">${SVG_UP}</button><button class="ib" aria-label="${tr('Seite nach unten')}" title="${tr('Seite nach unten')} (Alt+↓)">${SVG_DN}</button>`;
+  const[up,dn]=bar.querySelectorAll('button');up.onclick=()=>thMove(-1);dn.onclick=()=>thMove(1);bar.addEventListener('mousedown',e=>e.preventDefault());el.appendChild(bar);
   S.pages.forEach((P,i)=>{
     const b=document.createElement('button');b.className='th';b.dataset.i=i;b.style.setProperty('--i',Math.min(i,14));b.title=`Seite ${i+1} (Rechtsklick für Optionen)`;
     const c=document.createElement('canvas'),W=110,Hh=Math.round(W*P.h/P.w);c.style.width=W+'px';c.style.height=Hh+'px';c.width=W*2;c.height=Hh*2;
