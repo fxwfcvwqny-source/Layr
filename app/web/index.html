@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-1fmRFy0xZIr5smPf53wDyfVt8p0a+2NqY+Hpmgtqgsc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8RIo5NhuJoyL8hf826UCPw65/xUOHSgU2oupvg0FNw8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5731,7 +5731,7 @@ async function tabGate(fn){if(tabBusy||rbBusy){toast(tr('Bitte kurz warten, es l
 // Neuen Tab beginnen; S bleibt dabei unverändert (der alte Tab ist so per tabBack sofort wieder da)
 async function tabOpen_(noReuse){
   if(tabSame){tabSame=false;return{t:TAB,reused:true}}
-  if(!noReuse&&TAB&&(!S.bytes||tabPristine()))return{t:TAB,reused:true};
+  if(TAB&&(!S.bytes||(!noReuse&&tabPristine())))return{t:TAB,reused:true};
   const prev=TAB;if(prev)prev.snap=tabCapture();
   const t={id:tabNewId(),snap:null};TABS.splice(prev?TABS.indexOf(prev)+1:TABS.length,0,t);TAB=t;await tabMain(t.id);return{t,prev,reused:false}}
 // Öffnen hat nicht geklappt: zurück zum vorherigen Tab (dessen Inhalt steht noch in S)
