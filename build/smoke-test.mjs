@@ -92,6 +92,7 @@ else {
   ok('Jede Phosphor-Icon-Referenz zeigt auf ein vorhandenes Symbol', await ev("(()=>{const u=[...document.querySelectorAll('use')].map(e=>e.getAttribute('href')||'').filter(h=>h.startsWith('#ph-'));return u.length>0&&u.every(h=>document.querySelector(h)?.tagName.toLowerCase()==='symbol')})()") === true);
   ok('Werkzeugleiste: sichtbare Werkzeuge zeigen Icons mit Fläche', await ev("(()=>{const v=[...document.querySelectorAll('#tools .tool')].filter(b=>b.offsetWidth>0).map(b=>b.querySelector('svg')).filter(Boolean);return v.length>0&&v.every(e=>e.getBBox().width>0)})()") === true);
   ok('Alle Icon-Namen aus HM_IC, TB_HDR und TOOLS haben ein Symbol im Sprite', await ev("(()=>{const t=[...Object.values(HM_IC),...TB_HDR.map(x=>x.ic),...TOOLS.filter(x=>x!=='-').flatMap(x=>[...String(x.i).matchAll(/#ph-([a-z0-9-]+)/g)].map(m=>m[1]))];return t.length>0&&t.every(n=>!!document.getElementById('ph-'+n))})()") === true);
+  ok('Messen-Werkzeug entfernt, Werkzeugleiste baut sich auf', await ev("(()=>!TOOLS.some(t=>t&&t.id==='measure')&&!document.querySelector('.tool[data-t=measure]')&&document.querySelectorAll('#tools .tool').length>5)()") === true);
   ws.close();
   console.log(failed ? `${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
   done(failed ? 1 : 0);

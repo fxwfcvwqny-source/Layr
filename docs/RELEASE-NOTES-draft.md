@@ -20,6 +20,7 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 ## Removed
 
 - The "clear page" button (it also removed locked objects).
+- The measure tool (`G`, "Messen"). Measure lines already in a document stay as they are.
 
 ## New
 
