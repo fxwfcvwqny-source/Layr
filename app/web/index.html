@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-IhN/Q98RlGXj/IV9rUi8AbXJnp+Vnx/j8gCUKk+ziPk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Pk6Y6kO5FrZQqqu/JI1rXe6+kILYsGu72p72qvIcoMk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6111,6 +6111,8 @@ async function rebuildPages(entries,msg,focus){
   closeEditor();
   const t0=TAB,b0=S.bytes;
   const src=await PDFLib.PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true}),out=await PDFLib.PDFDocument.create(),srcPages=src.getPages();
+  // shortcut: outlines/bookmarks are dropped (pdf-lib has no API), keep until the rebuild is done in place
+  try{for(const[g,s]of[['getTitle','setTitle'],['getAuthor','setAuthor'],['getSubject','setSubject'],['getCreator','setCreator']]){const v=src[g]();if(v)out[s](v)}const kw=src.getKeywords();if(kw)out.setKeywords([kw]);const cd=src.getCreationDate();if(cd)out.setCreationDate(cd)}catch(e){}
   for(const en of entries){
     if(en.blank){const ref=srcPages[en.like];let dims=[595.28,841.89];if(en.fmt&&FMT[en.fmt])dims=FMT[en.fmt];else if(ref){const sz=ref.getSize(),r=((ref.getRotation().angle%360)+360)%360;dims=r%180?[sz.height,sz.width]:[sz.width,sz.height]}paintBg(out.addPage(dims),en.bg!=null?en.bg:(S.isNew?S.bg:'blank'),en.paper!=null?en.paper:(S.isNew?S.paper:'white'))}
     else{const[cp]=await out.copyPages(src,[en.i]);if(en.rot)cp.setRotation(PDFLib.degrees((((cp.getRotation().angle+en.rot)%360)+360)%360));out.addPage(cp)}
