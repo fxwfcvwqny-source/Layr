@@ -1,4 +1,4 @@
-# Layr 3.8.0 (draft release notes)
+# Layr 3.8.1 (draft release notes)
 
 Work in progress on branch `fix/mic-and-updater`. This file is updated while the work goes on and is meant to become the release notes.
 
@@ -12,6 +12,10 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Page grid ("Seiten ordnen") with many pages: no more flicker or lost drag, auto-scroll at the edges, dropping outside the dialog ends the drag, Escape during a drag no longer risks deleting a page.
 - Extracting pages with "remove from file" can no longer lose pages: the new tab is created and marked unsaved first, the source is shortened afterwards; scans and extracts are never replaced silently by the next opened file.
 - Page changes (move, delete, rotate, insert) are serialized, tell you when they were not applied, and keep title, author and dates; whole-document undo steps are capped.
+- Choosing colours on the text quick bar works when the text is long.
+- Faster theme switch: transitions are only suspended when the theme really changes.
+- Update install: while a download runs, a refused terminal install shows the download state instead of doing nothing.
+- Update check: a stuck check ends after a timeout.
 
 ## New
 
@@ -24,7 +28,9 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Tables: handles on all four edges to resize only the outer row or column.
 - Sidebar: move pages up and down with buttons or Alt+Up / Alt+Down; the moves are applied as one undo step.
 - New UML symbols: node, artifact.
-- Free rotation of text boxes: drag the round handle above the box; Shift snaps to 15 degrees.
+- Text rotation snaps to 15 degree steps (hold Alt for a free angle) and shows the angle while rotating; "Straighten" (double click on the handle or context menu) resets it.
+- Outline docking points on all shapes: 12 per round or polygon shape, 3 per side on rectangles.
+- Split view: columns line up (same scale and spacing).
 
 ## Design
 
@@ -32,6 +38,7 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Compact toolbar; bundled IBM Plex Sans interface font.
 - Logo in the accent colour.
 - Text quick bar shows the colour at the caret and has a size setting.
+- Bigger text select icon; smaller default text quick bar.
 
 ## Known limits
 
