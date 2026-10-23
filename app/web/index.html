@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-NptNObelO9uPMzB12ARD8M/It05ANrFlX5RAQ2Tp8T0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-t/Y1FWcWT8OwIZ6GHN5JPwqi7m6v/bfz7AyS5xgBXCQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2676,10 +2676,16 @@ function fillStroke(c,o){if(o.fill==='white'){c.save();c.fillStyle='#fff';c.fill
 function poly(c,pts){c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.closePath()}
 function seg(c,x1,y1,x2,y2){c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()}
 function wrapLines(c,text,maxW){
-  const out=[];for(const para of String(text).split('\n')){
+  // out.soft: indexes k of lines that end at a character cut (no char consumed, see wrapGap)
+  const out=[];out.soft=new Set();
+  // a word wider than maxW is cut by characters (longest fitting prefix, at least 1 char)
+  const cut=cur=>{while(c.measureText(cur).width>maxW&&[...cur].length>1){const ch=[...cur];let p=ch[0],k=1;while(k<ch.length&&c.measureText(p+ch[k]).width<=maxW){p+=ch[k];k++}out.soft.add(out.length);out.push(p);cur=ch.slice(k).join('')}return cur};
+  for(const para of String(text).split('\n')){
     const words=para.split(' ');let cur='';
-    for(const w of words){const t=cur?cur+' '+w:w;if(c.measureText(t).width>maxW&&cur){out.push(cur);cur=w}else cur=t}
-    out.push(cur)}return out}
+    for(const w of words){const t=cur?cur+' '+w:w;if(c.measureText(t).width>maxW&&cur){out.push(cut(cur));cur=w}else cur=t}
+    out.push(cut(cur))}return out}
+// characters consumed by the break after line k: 1 for space/newline, 0 for a character cut
+const wrapGap=(lines,k)=>lines.soft&&lines.soft.has(k)?0:1;
 function label(c,o,cx,cy,maxW,opt={}){
   if(!o.label)return;c.save();c.setLineDash([]);c.globalAlpha=1;c.fillStyle=o.color;const fs=o.fs||11;
   c.font=`${opt.italic?'italic ':''}${opt.bold?'600 ':''}${fs}px ${FONT}`;c.textAlign=opt.left?'left':'center';c.textBaseline='middle';
@@ -4070,7 +4076,7 @@ document.addEventListener('compositionend',e=>dbg('compositionend '+JSON.stringi
 document.addEventListener('focusout',e=>{if(editorEl)dbg('focusout '+desc(e.target)+' -> '+desc(e.relatedTarget))},true);
 addEventListener('blur',()=>{if(editorEl)dbg('window blur')});
 // Geometrie des Textes beim Bearbeiten (waagerecht): Zeilen, Zeilenanfänge, Position eines Zeichens
-function hGeo(o){const b=textBox({...o,orient:'h'}),starts=[];let n=0;for(const L of b.lines){starts.push(n);n+=L.length+1}return{b,starts}}
+function hGeo(o){const b=textBox({...o,orient:'h'}),starts=[];let n=0;b.lines.forEach((L,k)=>{starts.push(n);n+=L.length+wrapGap(b.lines,k)});return{b,starts}}
 function idxPos(o,g,idx){const{b,starts}=g;let li=b.lines.length-1;for(let k=0;k<b.lines.length;k++)if(idx<=starts[k]+b.lines[k].length){li=k;break}
   const col=clamp(idx-starts[li],0,b.lines[li].length);mctx.font=tfont(o);return{li,col,x:mctx.measureText(b.lines[li].slice(0,col)).width,y:li*b.lh}}
 function posIdx(o,g,x,y){const{b,starts}=g;const li=clamp(Math.floor(y/b.lh),0,b.lines.length-1),L=b.lines[li]||'';mctx.font=tfont(o);let best=0,bd=1e9;
@@ -5211,12 +5217,12 @@ function spItems(o){
   else return[];key+='|'+SP.ver;
   const c=SP.box.get(o);if(c&&c.key===key)return c.items;const items=[];
   if(o.type==='text'){const b=textBox(o),off=(b.lh-o.fs)/2;mctx.font=tfont(o);let pos=0;
-    b.lines.forEach((L,li)=>{for(const r of spLine(L)){const x=mctx.measureText(L.slice(0,r.a)).width,w=mctx.measureText(L.slice(r.a,r.b)).width;items.push({x,y:li*b.lh+off,w,h:o.fs,base:li*b.lh+off+o.fs*1.02,i:pos+r.a,n:r.b-r.a,word:r.w,cell:null})}pos+=L.length+1})}
+    b.lines.forEach((L,li)=>{for(const r of spLine(L)){const x=mctx.measureText(L.slice(0,r.a)).width,w=mctx.measureText(L.slice(r.a,r.b)).width;items.push({x,y:li*b.lh+off,w,h:o.fs,base:li*b.lh+off+o.fs*1.02,i:pos+r.a,n:r.b-r.a,word:r.w,cell:null})}pos+=L.length+wrapGap(b.lines,li)})}
   else{const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.22,fam=famOf(o);
     for(let r=0;r<o.rows;r++)for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;
       const cw=X[k+1]-X[k],ch=Y[r+1]-Y[r],L=wrapLines(mctx,t,Math.max(10,cw-8)),y0=Y[r]+ch/2-(L.length-1)*lh/2;let pos=0;
       L.forEach((l,j)=>{for(const q of spLine(l)){const x=X[k]+4+mctx.measureText(l.slice(0,q.a)).width,w=mctx.measureText(l.slice(q.a,q.b)).width,yy=y0+j*lh;
-          if(yy>Y[r+1]||yy<Y[r])continue;items.push({x:x-o.x,y:yy-fs*.55-o.y,w,h:fs*1.1,base:yy+fs*.5-o.y,i:pos+q.a,n:q.b-q.a,word:q.w,cell:[r,k]})}pos+=l.length+1})}}
+          if(yy>Y[r+1]||yy<Y[r])continue;items.push({x:x-o.x,y:yy-fs*.55-o.y,w,h:fs*1.1,base:yy+fs*.5-o.y,i:pos+q.a,n:q.b-q.a,word:q.w,cell:[r,k]})}pos+=l.length+wrapGap(L,j)})}}
   SP.box.set(o,{key,items});return items}
 function spWave(c,x1,x2,y,z){const a=1.15/z,s=2.6/z;c.beginPath();c.moveTo(x1,y);let k=0;for(let x=x1;x<x2;x+=s){c.lineTo(Math.min(x+s,x2),y+(k++%2?-a:a))}c.stroke()}
 function drawSpell(c,i){if(!SP.on)return;const P=S.pages[i];if(!P)return;const z=S.zoom;let any=false;
@@ -5452,7 +5458,7 @@ function drawText(c,o){
   // eine Zeile in Farbabschnitten zeichnen (Position aus der Breite des Anfangs, so bleiben Abstände wie ohne Farben)
   const line=(L,st,x,y)=>{if(!rich){c.fillStyle=o.color;c.fillText(L,x,y);ul(L,x,y);return}
     for(const[a,e,col]of spanRuns(o,st,st+L.length)){const s=L.slice(a-st,e-st),dx=a>st?c.measureText(L.slice(0,a-st)).width:0;c.fillStyle=col;c.fillText(s,x+dx,y);ul(s,x+dx,y,col)}};
-  let n=0;const starts=b.lines.map(L=>{const s=n;n+=L.length+1;return s});
+  let n=0;const starts=b.lines.map((L,k)=>{const s=n;n+=L.length+wrapGap(b.lines,k);return s});
   if(o.orient==='h')b.lines.forEach((l,i)=>line(l,starts[i],o.x,o.y+i*b.lh+off));
   else if(o.orient==='v'){c.translate(o.x,o.y+b.h);c.rotate(-Math.PI/2);b.lines.forEach((l,i)=>line(l,starts[i],0,i*b.lh+off))}
   else{c.textAlign='center';b.lines.forEach((l,i)=>{let k=starts[i];[...l].forEach((ch,j)=>{c.fillStyle=rich?spanColorAt(o,k):o.color;c.fillText(ch,o.x+i*b.cw+b.cw/2,o.y+j*o.fs*1.1);k+=ch.length})})}
