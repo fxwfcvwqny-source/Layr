@@ -4796,7 +4796,7 @@ function updImgUI(){const sec=document.getElementById('imgSec');if(!sec)return;c
   addEventListener('paste',e=>{const t=e.target;if(editorEl||(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.isContentEditable)))return;if(!S.pages.length||!e.clipboardData)return;
     let fs=[...(e.clipboardData.files||[])].filter(f=>/^image\//.test(f.type));
     if(!fs.length)fs=[...(e.clipboardData.items||[])].filter(x=>x.kind==='file'&&/^image\//.test(x.type)).map(x=>x.getAsFile()).filter(Boolean);
-    if(!fs.length)return;e.preventDefault();const tg=lastPtr&&pageAt(lastPtr[0],lastPtr[1]);insertImages(fs,tg?tg.p:null,tg?tg.pt:null)})}
+    if(!fs.length){if(CLIP&&e.clipboardData.getData('application/x-layr')===CLIP.stamp){e.preventDefault();pasteClip()}return}e.preventDefault();const tg=lastPtr&&pageAt(lastPtr[0],lastPtr[1]);insertImages(fs,tg?tg.p:null,tg?tg.pt:null)})}
 
 /* ---------- Seiten drehen ----------
    Gedreht wird wie in jedem PDF-Programm über den /Rotate-Eintrag der Seite (im Uhrzeigersinn).
