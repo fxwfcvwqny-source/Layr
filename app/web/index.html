@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-S38v0d01Mg8l/Wd97PdeIN+XFQFJHfHk53/rNC1yQzA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KMHamQXTjbRgEcuBU1diw/wHuIMXqnz34aASs6wLieo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2279,7 +2279,7 @@ const I18N_EN={
 'Befehl kopieren':'Copy command','Terminal öffnen':'Open terminal','Befehl kopiert.':'Command copied.',
 'Im Terminal dein Passwort eingeben. Layr startet danach neu.':'Enter your password in the terminal. Layr restarts afterwards.',
 'Kein Terminal gefunden. Bitte den Befehl kopieren und im Terminal ausführen.':'No terminal found. Please copy the command and run it in a terminal.',
-'Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, drag a rectangle to select everything it touches (like on the desktop). In the shape tools, a click on an annotation is enough to move it. Back here: Esc, V or right-click.',
+'Text auswählen':'Select text','Text der PDF mit der Maus markieren und mit Strg+C kopieren.':'Select text in the PDF with the mouse and copy it with Ctrl+C.','Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, drag a rectangle to select everything it touches (like on the desktop). In the shape tools, a click on an annotation is enough to move it. Back here: Esc, V or right-click.',
 'Auswählen mit Rechteck. Noch einmal klicken: umkreisen.':'Select with a rectangle. Click again: circle to select.','Auswählen durch Umkreisen. Noch einmal klicken: Rechteck.':'Select by circling. Click again: rectangle.',
 'Zelle bearbeiten':'Edit cell','Zeile darüber einfügen':'Insert row above','Zeile darunter einfügen':'Insert row below','Spalte links einfügen':'Insert column left','Spalte rechts einfügen':'Insert column right',
 'Zeile löschen':'Delete row','Spalte löschen':'Delete column','Zelleninhalt leeren':'Clear cell',
@@ -2613,6 +2613,7 @@ const S={tool:'select',color:'#1b1f24',lw:2,fs:14,orient:'h',bold:false,dash:fal
 const I=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const TOOLS=[
   {id:'select',k:'V',n:'Auswählen',i:I('<rect x="3" y="3" width="14" height="11" rx="1.5" stroke-dasharray="2.4 2.4"/><path d="M11.5 10.5l8.5 3.4-3.6 1.4-1.4 3.6z"/>'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.'},
+  {id:'textsel',k:'Y',n:'Text auswählen',i:I('<rect x="3" y="7" width="18" height="10" rx="1.5" stroke-dasharray="2.4 2.4"/><path d="M12 9.5v5M10 9.5h4M10 14.5h4"/>'),h:'Text der PDF mit der Maus markieren und mit Strg+C kopieren.'},
   '-',
   {id:'pen',k:'P',n:'Stift',i:I('<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'),h:'Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.'},
   {id:'marker',k:'M',n:'Textmarker',i:I('<path d="M9 15l-3 3h5l1-1"/><path d="M8 14l8-9 3 3-9 8z"/><path d="M4 21h16"/>'),h:'Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.'},
@@ -2756,6 +2757,7 @@ function setTool(id){
   if(id==='lasso')id='select';
   if(S.tool==='marker'&&id!=='marker'&&S.color===MARKER_DEF)setColor(S._prevColor||'#1b1f24',true);
   if(id==='marker'&&S.tool!=='marker'){S._prevColor=S.color;if(!['#ffd60a','#4ade80','#38bdf8','#f472b6'].includes(S.color))setColor(MARKER_DEF,true)}
+  if(S.tool==='textsel'&&id!=='textsel')try{getSelection().removeAllRanges()}catch(e){}
   S.tool=id;closeEditor();
   if(id!=='select'&&id!=='lasso')setSel(null);
   document.querySelectorAll('.tool').forEach(b=>{if(b.dataset.t!=='ruler')b.setAttribute('aria-pressed',b.dataset.t===id)});tbSync();moveToolInd();try{ffBar()}catch(e){}
@@ -6180,7 +6182,7 @@ function setBars(tools,side,instant){const a=$('#app'),pt=bars.tools,ps=bars.sid
   $('#bTglTools').setAttribute('aria-pressed',tools);$('#bTglSide').setAttribute('aria-pressed',side);try{localStorage.setItem('pdfwerkbank:bars',JSON.stringify(bars))}catch(e){}}
 $('#bTglTools').onclick=()=>setBars(!bars.tools,bars.side);$('#bTglSide').onclick=()=>setBars(bars.tools,!bars.side);
 try{const b=JSON.parse(localStorage.getItem('pdfwerkbank:bars')||'null');if(b)setBars(b.tools!==false,b.side!==false,true)}catch(e){}
-const KEYS={v:'select',p:'pen',m:'marker',e:'eraser',t:'text',l:'line',a:'arrow',r:'rect',o:'ellipse',s:'symbol',g:'measure',q:'select',k:'table'};
+const KEYS={v:'select',y:'textsel',p:'pen',m:'marker',e:'eraser',t:'text',l:'line',a:'arrow',r:'rect',o:'ellipse',s:'symbol',g:'measure',q:'select',k:'table'};
 addEventListener('keydown',e=>{
   const t=e.target,k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey;
   if(editorEl)dbg('key '+e.key+' @'+desc(t));
