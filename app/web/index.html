@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+JXJweybxhC6QZ2Z+ikU9lpoWZYXDEkItUa77TPVfHY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-l/Ym8ZbAZIvFV0FNpsRfQBbeiv90lCWnLokt3Frlg34=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4071,10 +4071,10 @@ function attachInk(P,i){
         if(d.type==='field'){norm(d);const sz=FF_SIZE[d.kind]||FF_SIZE.text;if(d.w<6||d.h<6){d.w=sz[0];d.h=sz[1];d.x=st.x;d.y=st.y-sz[1]/2}else if(d.kind==='check'){d.w=d.h=Math.min(Math.max(d.w,d.h),40)}d.name=ffFreeName(tr('Feld'));ok=true}
         if(d.type==='table'){norm(d);if(d.w<24||d.h<14){d.w=d.cols*72;d.h=d.rows*22;d.x=st.x;d.y=st.y}ok=true}
         S.dock=null;
-        S.draft=null;if(ok){pushHist();P.objs.push(d);markDirty();if(S.tool==='marker'&&d.type==='pen')hlSnap(i,d);if((d.type==='rect'||d.type==='ellipse')&&!st.qs)setSel({p:i,o:d});if(d.type==='table'){setTool('select');setSel({p:i,o:d});const dd=d;setTimeout(()=>editCell(i,dd,0,0),30)}if(d.type==='field'){setSel({p:i,o:d});const dd=d;setTimeout(()=>ffEdit({p:i,o:dd},true),30)}}else if(S.sel)setSel(null);redraw(i);break}
+        S.draft=null;if(ok){pushHist();P.objs.push(d);markDirty();if(S.tool==='marker'&&d.type==='pen')hlSnap(i,d);if((d.type==='rect'||d.type==='ellipse')&&!st.qs&&keepSelOn)setSel({p:i,o:d});if(d.type==='table'){setTool('select');setSel({p:i,o:d});const dd=d;setTimeout(()=>editCell(i,dd,0,0),30)}if(d.type==='field'){setSel({p:i,o:d});const dd=d;setTimeout(()=>ffEdit({p:i,o:dd},true),30)}}else if(S.sel)setSel(null);redraw(i);break}
       case'symbol':{if(!d)break;S.draft=null;const s=SYM[S.sym];norm(d);
         if(d.w<8||d.h<6){d.w=s.w;d.h=s.h;d.x=st.x-s.w/2;d.y=st.y-s.h/2}
-        pushHist();P.objs.push(d);if(S.sym==='num')S.num++;markDirty();setSel({p:i,o:d});redraw(i);break}
+        pushHist();P.objs.push(d);if(S.sym==='num')S.num++;markDirty();if(keepSelOn)setSel({p:i,o:d});else if(S.sel)setSel(null);redraw(i);break}
       case'select':case'text':
         if(st.o&&st.o.type==='line'&&(st.mode==='p1'||st.mode==='p2')){const o=st.o,one=st.mode==='p1';delete o.__drag;
           if(st.moved){const L=o.link||{a:null,b:null,ta:'auto',tb:'auto'},dk=st.dockT;if(one){L.a=dk?ensureOid(dk):null;L.ta='auto'}else{L.b=dk?ensureOid(dk):null;L.tb='auto'}if(L.a&&L.a===L.b)L[one?'a':'b']=null;if(L.a||L.b)o.link=L;else delete o.link}S.dock=null;redraw(i)}
@@ -4310,7 +4310,7 @@ function openTextEditor(i,o,isNew,at){
     vert:(idx,d)=>{const p=idxPos(o,g,idx),li=p.li+d;if(li<0)return 0;if(li>=g.b.lines.length)return o.text.length;return posIdx(o,g,p.x,(li+.5)*g.b.lh)},
     edge:(idx,d)=>{const p=idxPos(o,g,idx);return g.starts[p.li]+(d<0?0:g.b.lines[p.li].length)},
     onEmptyUndo:()=>{if(o.text===startText&&JSON.stringify({...o,text:startText})===origJson){closeEditor();undo()}}});
-  const done=()=>{closeEditor();if(o.text&&o.text.trim())setSel({p:i,o})};
+  const done=()=>{closeEditor();if(o.text&&o.text.trim()&&(keepSelOn||!isNew))setSel({p:i,o})};
   ED={o,p:i,set,eng,focus:eng.focus,esc:done};
   dbg('editor open '+(isNew?'new':'edit')+' fs='+o.fs+' z='+S.zoom.toFixed(2)+' color='+o.color+' font='+tfont(o)+' fontsReady='+(document.fonts?document.fonts.status:'?')+' messung='+(mctx.font=tfont({...o,fs:20}),Math.round(mctx.measureText('Hamburg').width)));
   root.addEventListener('keydown',e=>{e.stopPropagation();if(e.defaultPrevented)return;const mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
@@ -4365,7 +4365,7 @@ function openTextEditor(i,o,isNew,at){
   redraw(i);eng.focus();setTimeout(()=>{if(editorEl===root)eng.focus()},0);
   editorDone=v=>{
     const t=v.replace(/\s+$/,'');o.text=t;normSpans(o);
-    if(isNew){if(t.trim()){pushHist();P.objs.push(o);markDirty();setSel({p:i,o})}}
+    if(isNew){if(t.trim()){pushHist();P.objs.push(o);markDirty();if(keepSelOn)setSel({p:i,o})}}
     else if(!t){H.u.push(before);H.r=[];updUndo();P.objs.splice(P.objs.indexOf(o),1);if(S.sel&&S.sel.o===o)S.sel=null;markDirty()}
     else if(JSON.stringify(o)!==origJson){H.u.push(before);H.r=[];updUndo();markDirty()}
     redraw(i)};
