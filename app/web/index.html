@@ -1589,17 +1589,17 @@ header,.file{min-width:0}
 
 <aside class="notes" id="notes" aria-labelledby="ntT" hidden>
   <div class="nt-head"><div><h2 id="ntT">Notizen</h2><p>Gehören zu diesem Dokument und werden im PDF mitgespeichert.</p></div>
-    <div class="nt-hb"><button class="ib" id="ntMd" title="Als Markdown speichern"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15V9l2.5 3L12 9v6M16 9v6M14 13l2 2 2-2"/></svg></button><button class="ib" id="ntCopy" title="Alles kopieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></button><button class="ib" id="ntClose" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+    <div class="nt-hb"><button class="ib" id="ntMd" title="Als Markdown speichern"><svg class="ph" aria-hidden="true"><use href="#ph-markdown-logo"/></svg></button><button class="ib" id="ntCopy" title="Alles kopieren"><svg class="ph" aria-hidden="true"><use href="#ph-copy"/></svg></button><button class="ib" id="ntClose" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div></div>
   <div class="nt-tools">
-    <button class="btn" id="ntStamp" title="Datum und Uhrzeit einfügen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Zeitstempel</button>
-    <button class="btn" id="ntList" title="Aufzählungspunkt" data-en="Bullet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Punkt</button>
-    <button class="btn" id="ntTodo" title="Neue Aufgabe – steht der Cursor in einer Textzeile, wird diese Zeile zur Aufgabe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>Aufgabe</button>
+    <button class="btn" id="ntStamp" title="Datum und Uhrzeit einfügen"><svg class="ph" aria-hidden="true"><use href="#ph-clock"/></svg>Zeitstempel</button>
+    <button class="btn" id="ntList" title="Aufzählungspunkt" data-en="Bullet"><svg class="ph" aria-hidden="true"><use href="#ph-list-bullets"/></svg>Punkt</button>
+    <button class="btn" id="ntTodo" title="Neue Aufgabe – steht der Cursor in einer Textzeile, wird diese Zeile zur Aufgabe"><svg class="ph" aria-hidden="true"><use href="#ph-check-square"/></svg>Aufgabe</button>
   </div>
   <section class="nt-tasks" id="ntTasks" aria-label="Aufgaben">
     <div class="nt-th"><span>Aufgaben</span><span id="ntProg"></span></div>
     <div class="nt-bar"><i id="ntBar"></i></div>
     <ul class="nt-list" id="ntTaskList"></ul>
-    <label class="nt-add" for="ntNew"><span class="nt-plus" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span><input id="ntNew" placeholder="Neue Aufgabe … (Enter)" autocomplete="off" spellcheck="true"></label>
+    <label class="nt-add" for="ntNew"><span class="nt-plus" aria-hidden="true"><svg class="ph" aria-hidden="true"><use href="#ph-plus"/></svg></span><input id="ntNew" placeholder="Neue Aufgabe … (Enter)" autocomplete="off" spellcheck="true"></label>
   </section>
   <div class="nt-lbl">Notizen</div>
   <div class="nt-tw"><div class="sp-bd" id="ntBd" aria-hidden="true" hidden></div><textarea id="ntText" spellcheck="true" placeholder="Gedanken, Aufgaben und Fragen zu diesem Dokument …"></textarea></div>
@@ -1616,7 +1616,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="ipDlg" hidden role="dialog" aria-modal="true" aria-labelledby="ipT">
   <div class="card ipcard">
-    <div class="ip-h"><h2 id="ipT">Subnetzrechner</h2><button class="ib" id="ipX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="ipT">Subnetzrechner</h2><button class="ib" id="ipX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <label class="ip-l">IPv4 oder IPv6 mit Präfix (oder MAC für EUI-64)<input id="ipAddr" value="192.168.10.0/24" spellcheck="false" autocomplete="off"></label>
     <div class="seg" id="ipMode"><button data-v="info" aria-pressed="true">Netz-Info</button><button data-v="split">In Subnetze teilen</button><button data-v="vlsm">VLSM</button></div>
     <label class="ip-l" id="ipSplitIn" hidden>Anzahl Subnetze<input id="ipCount" type="number" min="2" max="1024" value="4"></label>
@@ -1627,13 +1627,13 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="pgDlg" hidden role="dialog" aria-modal="true" aria-labelledby="pgT">
   <div class="card pgcard">
-    <div class="ip-h"><h2 id="pgT">Seiten ordnen</h2><button class="ib" id="pgX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="pgT">Seiten ordnen</h2><button class="ib" id="pgX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="pg-bar">
-      <button class="btn" id="pgL" title="Auswahl nach links drehen (Umschalt+R)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M4.6 9A8 8 0 1 1 6 17.5"/></svg>Links drehen</button>
-      <button class="btn" id="pgR" title="Auswahl nach rechts drehen (R)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4v5h-5"/><path d="M19.4 9A8 8 0 1 0 18 17.5"/></svg>Rechts drehen</button>
-      <button class="btn" id="pgDup" title="Auswahl duplizieren (Strg+D)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="8" width="12" height="13" rx="1.5"/><path d="M16 8V4.5A1.5 1.5 0 0 0 14.5 3h-9A1.5 1.5 0 0 0 4 4.5v11A1.5 1.5 0 0 0 5.5 17H8"/></svg>Duplizieren</button>
-      <button class="btn pg-del" id="pgDel" title="Auswahl löschen (Entf)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Löschen</button>
-      <button class="btn" id="pgSplit" title="Auswahl als neue PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="11" rx="1.5"/><path d="M14 7h5.5A1.5 1.5 0 0 1 21 8.5v11a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 10 19.5V17"/><path d="M14 12l3-3-3-3"/></svg>Herauslösen</button>
+      <button class="btn" id="pgL" title="Auswahl nach links drehen (Umschalt+R)"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-counter-clockwise"/></svg>Links drehen</button>
+      <button class="btn" id="pgR" title="Auswahl nach rechts drehen (R)"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-clockwise"/></svg>Rechts drehen</button>
+      <button class="btn" id="pgDup" title="Auswahl duplizieren (Strg+D)"><svg class="ph" aria-hidden="true"><use href="#ph-copy"/></svg>Duplizieren</button>
+      <button class="btn pg-del" id="pgDel" title="Auswahl löschen (Entf)"><svg class="ph" aria-hidden="true"><use href="#ph-trash"/></svg>Löschen</button>
+      <button class="btn" id="pgSplit" title="Auswahl als neue PDF"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-square-out"/></svg>Herauslösen</button>
       <span class="pg-sel" id="pgSel"></span>
     </div>
     <div class="pg-grid" id="pgGrid"></div>
@@ -1648,7 +1648,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="sigDlg" hidden role="dialog" aria-modal="true" aria-labelledby="sigT">
   <div class="card sigcard">
-    <div class="ip-h"><h2 id="sigT">Unterschrift</h2><button class="ib" id="sigX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="sigT">Unterschrift</h2><button class="ib" id="sigX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="sig-saved" id="sigSaved" hidden></div>
     <div class="seg" id="sigMode"><button data-v="draw" aria-pressed="true">Zeichnen</button><button data-v="type">Tippen</button><button data-v="img">Bild</button></div>
     <div class="sig-input" id="sigTypeIn" hidden><input id="sigName" placeholder="Vor- und Nachname" autocomplete="off" spellcheck="false"></div>
@@ -1663,7 +1663,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="calcDlg" hidden role="dialog" aria-modal="true" aria-labelledby="calcT">
   <div class="card ipcard calccard">
-    <div class="ip-h"><h2 id="calcT">IT-Rechner</h2><button class="ib" id="calcX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="calcT">IT-Rechner</h2><button class="ib" id="calcX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="seg" id="calcMode"><button data-v="num" aria-pressed="true">Zahlensysteme</button><button data-v="data">Datenmengen</button><button data-v="rate">Übertragung</button><button data-v="ups">USV</button><button data-v="power">Strom</button><button data-v="logic">Logik</button></div>
     <div class="calc-in" id="calcIn"></div>
     <div class="calc-lg" id="calcLg" hidden></div>
@@ -1675,12 +1675,12 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="abDlg" hidden role="dialog" aria-modal="true" aria-labelledby="abT">
   <div class="card ipcard abcard">
-    <div class="ip-h"><h2 id="abT">Layr &amp; Updates</h2><button class="ib" id="abX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="abT">Layr &amp; Updates</h2><button class="ib" id="abX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <section id="dAbout" hidden>
       <div class="ab-row"><span class="ab-logo" aria-hidden="true"></span><div><b>Layr</b><span id="abVer">Version …</span></div></div>
       <label class="tgl big"><input type="checkbox" id="upAuto" role="switch" checked><span class="knob"></span><span class="tl">Automatisch nach Updates suchen</span></label>
       <div id="upAutoRow" class="up-row" hidden><label class="tgl big"><input type="checkbox" id="upAutoDl" role="switch" checked><span class="knob"></span><span class="tl">Updates selbst installieren</span></label><p class="hint" id="upAutoHint"></p></div>
-      <div class="ab-btns"><button class="btn" id="upNow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>Jetzt suchen</button><button class="btn" id="abGh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Downloads &amp; Neuigkeiten</button></div>
+      <div class="ab-btns"><button class="btn" id="upNow"><svg class="ph" aria-hidden="true"><use href="#ph-arrows-clockwise"/></svg>Jetzt suchen</button><button class="btn" id="abGh"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-square-out"/></svg>Downloads &amp; Neuigkeiten</button></div>
       <p class="hint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
       <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
       <p class="hint">Die Liste liegt nur auf diesem Rechner und enthält nur Dateinamen und Ordner.</p></div></section>
@@ -1688,7 +1688,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="asrDlg" hidden role="dialog" aria-modal="true" aria-labelledby="asrT">
   <div class="card asrcard">
-    <div class="ip-h"><h2 id="asrT">Diktieren einrichten</h2><button class="ib" id="asrX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="asrT">Diktieren einrichten</h2><button class="ib" id="asrX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div id="asrAsk" class="asr-b">
       <p>Zum Diktieren braucht Layr einmalig ein Spracherkennungs-Modell: <b>NVIDIA Parakeet TDT 0.6B v3</b></p>
       <p><b>Soll es jetzt installiert werden?</b></p>
@@ -1713,7 +1713,7 @@ header,.file{min-width:0}
 <div class="dict" id="dictBar" role="status" aria-live="polite" hidden><span class="dict-lv" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="dict-t" id="dictT"></span><button class="btn" id="dictStop">Beenden</button></div>
 <div class="modal" id="wrDlg" hidden role="dialog" aria-modal="true" aria-labelledby="wrT">
   <div class="card ipcard wrcard">
-    <div class="ip-h"><h2 id="wrT">Schreiben &amp; Rechtschreibung</h2><button class="ib" id="wrX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="wrT">Schreiben &amp; Rechtschreibung</h2><button class="ib" id="wrX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="wr-body">
     <section class="wr-s"><h3>Rechtschreibung</h3>
       <label class="tgl sprow"><input type="checkbox" id="spOn" role="switch" checked><span class="knob"></span><span class="tl">Rechtschreibung prüfen</span></label>
@@ -1723,13 +1723,13 @@ header,.file{min-width:0}
         <div class="wr-wl" id="wrWords"></div><p class="hint" id="wrNone">Noch keine. Rechtsklick auf ein rot unterstrichenes Wort → „Zum Wörterbuch hinzufügen“.</p></div>
     </section>
     <section class="wr-s"><h3>Schreiben</h3><div class="seg" id="dAutoCap"><button data-v="on">Satzanfang groß</button><button data-v="off">Aus</button></div><p class="hint">Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.</p></section>
-    <section class="wr-s" id="asrSec" hidden><h3>Diktieren</h3><div class="ab-row"><span class="upd-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span><div><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div><p class="hint" id="wrDictKey"></p><button class="btn" id="wrKeys" type="button" style="align-self:flex-start">Tastenkürzel ändern</button></section>
+    <section class="wr-s" id="asrSec" hidden><h3>Diktieren</h3><div class="ab-row"><span class="upd-i"><svg class="ph" aria-hidden="true"><use href="#ph-microphone"/></svg></span><div><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div><p class="hint" id="wrDictKey"></p><button class="btn" id="wrKeys" type="button" style="align-self:flex-start">Tastenkürzel ändern</button></section>
     </div>
   </div>
 </div>
 <div class="modal" id="kbDlg" hidden role="dialog" aria-modal="true" aria-labelledby="kbT">
   <div class="card ipcard kbcard">
-    <div class="ip-h"><h2 id="kbT">Tastenkürzel</h2><button class="ib" id="kbX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="kbT">Tastenkürzel</h2><button class="ib" id="kbX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint">Auf ein Kürzel klicken und die neue Taste oder Tastenkombination drücken, z. B. F9 fürs Diktieren. Esc bricht ab, Entf entfernt das Kürzel.</p>
     <input type="search" id="kbQ" placeholder="Aktion suchen" autocomplete="off" spellcheck="false">
     <div class="kb-list" id="kbList"></div>
@@ -1738,7 +1738,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="tbDlg" hidden role="dialog" aria-modal="true" aria-labelledby="tbT">
   <div class="card ipcard tbcard">
-    <div class="ip-h"><h2 id="tbT">Werkzeugleiste anpassen</h2><button class="ib" id="tbX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="tbT">Werkzeugleiste anpassen</h2><button class="ib" id="tbX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint">Wähle, was oben stehen soll. Ausgeblendete Werkzeuge findest du unter „Mehr“ am Ende der Werkzeugleiste, ausgeblendete Knöpfe der Kopfleiste im Menü Ansicht. Die Tastenkürzel funktionieren weiter.</p>
     <div class="tb-list" id="tbList"></div>
     <p class="hint" id="tbInfo"></p>
@@ -1747,7 +1747,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="decoDlg" hidden role="dialog" aria-modal="true" aria-labelledby="dcT">
   <div class="card ipcard dccard">
-    <div class="ip-h"><h2 id="dcT">Seitenzahlen &amp; Kopfzeile</h2><button class="ib" id="dcX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="dcT">Seitenzahlen &amp; Kopfzeile</h2><button class="ib" id="dcX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="dc-scroll">
     <section class="dc-box" id="dcNumBox"><label class="tgl"><input type="checkbox" id="dcNum" role="switch"><span class="knob"></span><span class="tl"><b>Seitenzahlen</b></span></label>
       <div class="dc-body"><div class="dc-row"><span class="dc-l">Format</span><select id="dcFmt"><option value="n">1</option><option value="pn">Seite 1</option><option value="pnN">Seite 1 von 5</option><option value="nN">1 / 5</option><option value="dash">– 1 –</option></select>
@@ -1770,7 +1770,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="exDlg" hidden role="dialog" aria-modal="true" aria-labelledby="exT">
   <div class="card prcard">
-    <div class="ip-h"><h2 id="exT">Als Bild speichern</h2><button class="ib" id="exX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="exT">Als Bild speichern</h2><button class="ib" id="exX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="pr-row"><span class="pr-l">Seiten</span><div class="seg" id="exWhich"><button type="button" data-v="cur">Aktuelle Seite</button><button type="button" data-v="all">Alle</button><button type="button" data-v="sel">Auswahl</button></div></div>
     <input type="text" id="exRange" class="pr-range" placeholder="z. B. 1-3, 5" autocomplete="off" spellcheck="false" hidden>
     <div class="pr-row"><span class="pr-l">Format</span><div class="seg" id="exFmt"><button type="button" data-v="png">PNG</button><button type="button" data-v="jpg">JPG</button></div></div>
@@ -1782,7 +1782,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="shDlg" hidden role="dialog" aria-modal="true" aria-labelledby="shT">
   <div class="card prcard">
-    <div class="ip-h"><h2 id="shT">Kleinere Kopie speichern</h2><button class="ib" id="shX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="shT">Kleinere Kopie speichern</h2><button class="ib" id="shX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint">Fotos und Scans in der PDF werden verkleinert, z. B. für E-Mail oder Upload. Deine Datei bleibt, wie sie ist; die Kopie bekommt einen eigenen Namen.</p>
     <div class="pr-row"><span class="pr-l">Stufe</span><div class="seg" id="shLvl"><button type="button" data-v="l">Leicht</button><button type="button" data-v="m">Mittel</button><button type="button" data-v="s">Stark</button></div></div>
     <label class="tgl"><input type="checkbox" id="shKeep" role="switch"><span class="knob"></span><span class="tl">In Layr bearbeitbar lassen (größer)</span></label>
@@ -1791,7 +1791,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="rdDlg" hidden role="dialog" aria-modal="true" aria-labelledby="rdT">
   <div class="card prcard">
-    <div class="ip-h"><h2 id="rdT">Endgültig schwärzen?</h2><button class="ib" id="rdX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="rdT">Endgültig schwärzen?</h2><button class="ib" id="rdX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p>Alles in den markierten Bereichen wird schwarz und aus der Datei entfernt – auch aus der versteckten Originalfassung, die Layr in der PDF mitspeichert.</p>
     <p class="hint" id="rdInfo"></p>
     <p class="hint">Bis zum Speichern kannst du es mit Strg+Z rückgängig machen.</p>
@@ -1800,7 +1800,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="ocrDlg" hidden role="dialog" aria-modal="true" aria-labelledby="ocrT">
   <div class="card prcard">
-    <div class="ip-h"><h2 id="ocrT">Text erkennen</h2><button class="ib" id="ocrX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="ocrT">Text erkennen</h2><button class="ib" id="ocrX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint">Macht gescannte Seiten durchsuchbar: Der erkannte Text liegt unsichtbar über dem Bild, so funktionieren Suche, Textmarker und Kopieren. Alles läuft auf deinem Gerät, nichts wird hochgeladen.</p>
     <div id="ocrOpts" class="ocr-opts">
       <div class="pr-row"><span class="pr-l">Seiten</span><div class="seg" id="ocrWhich"><button type="button" data-v="all">Alle ohne Text</button><button type="button" data-v="cur">Aktuelle Seite</button><button type="button" data-v="sel">Auswahl</button></div></div>
@@ -1814,7 +1814,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="rkDlg" hidden role="dialog" aria-modal="true" aria-labelledby="rkT">
   <div class="card ipcard rkcard">
-    <div class="ip-h"><h2 id="rkT">Rack-Planer</h2><button class="ib" id="rkX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="rkT">Rack-Planer</h2><button class="ib" id="rkX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="rk-top"><label class="ip-l rk-ul">Höhe<select id="rkU"></select></label><label class="ip-l rk-nl">Name (optional)<input id="rkName" maxlength="60" placeholder="z. B. Serverraum EG" autocomplete="off"></label></div>
     <div class="seg rk-tab" id="rkTab"><button type="button" data-v="dev">Geräte</button><button type="button" data-v="pl">Patchliste</button></div>
     <div class="rk-main"><div class="rk-side"><div class="rk-hd"><span>HE</span><span>Gerät</span><span>Höhe</span><span>Ports</span><span>Bezeichnung</span></div><div class="rk-list" id="rkList"></div>
@@ -1828,7 +1828,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="cdDlg" hidden role="dialog" aria-modal="true" aria-labelledby="cdT">
   <div class="card ipcard cdcard">
-    <div class="ip-h"><h2 id="cdT">Codeblock</h2><button class="ib" id="cdX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="cdT">Codeblock</h2><button class="ib" id="cdX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="cd-row"><select id="cdLang" aria-label="Sprache"></select><div class="seg" id="cdTheme"><button type="button" data-v="light">Hell</button><button type="button" data-v="dark">Dunkel</button></div>
       <div class="seg" id="cdFs" title="Schriftgröße (pt)"><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" data-v="11">11</button><button type="button" data-v="12">12</button></div>
       <label class="chk"><input type="checkbox" id="cdNum" checked> Zeilennummern</label></div>
@@ -1839,7 +1839,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="lkDlg" hidden role="dialog" aria-modal="true" aria-labelledby="lkT">
   <div class="card ipcard lkcard">
-    <div class="ip-h"><h2 id="lkT">Lernkarten</h2><button class="ib" id="lkX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="lkT">Lernkarten</h2><button class="ib" id="lkX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div id="lkListV" class="lk-v">
       <p class="hint">Jede Textmarker-Markierung wird zur Karte: Vorne steht der Satz mit einer Lücke, hinten das Markierte. Eigene Karten kannst du unten anlegen. Karten und Lernstand werden in der PDF gespeichert.</p>
       <div class="lk-list" id="lkList"></div>
@@ -1865,16 +1865,16 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="pwDlg" hidden role="dialog" aria-modal="true" aria-labelledby="pwT">
   <div class="card prcard pwcard">
-    <div class="ip-h"><h2 id="pwT">Passwort eingeben</h2><button class="ib" id="pwX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="pwT">Passwort eingeben</h2><button class="ib" id="pwX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint"><b id="pwFile" data-noi18n></b> <span>ist mit einem Passwort geschützt.</span></p>
-    <div class="pw-row"><input id="pwIn" class="pw-in" type="password" autocomplete="off" spellcheck="false" maxlength="127" aria-label="Passwort"><button class="ib" id="pwEye" type="button" title="Passwort anzeigen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+    <div class="pw-row"><input id="pwIn" class="pw-in" type="password" autocomplete="off" spellcheck="false" maxlength="127" aria-label="Passwort"><button class="ib" id="pwEye" type="button" title="Passwort anzeigen"><svg class="ph" aria-hidden="true"><use href="#ph-eye"/></svg></button></div>
     <p class="pw-err" id="pwErr" hidden>Das Passwort stimmt nicht.</p>
     <div class="ab-btns asr-btns"><button class="btn" id="pwNo" type="button">Abbrechen</button><button class="btn primary" id="pwGo" type="button">Öffnen</button></div>
   </div>
 </div>
 <div class="modal" id="pwsDlg" hidden role="dialog" aria-modal="true" aria-labelledby="pwsT">
   <div class="card prcard pwcard">
-    <div class="ip-h"><h2 id="pwsT">Passwortschutz</h2><button class="ib" id="pwsX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="pwsT">Passwortschutz</h2><button class="ib" id="pwsX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint" id="pwsState"></p>
     <p class="hint" id="pwsOwner" hidden>Geöffnet mit dem Besitzerpasswort: Beim Speichern schützt dieses Passwort die Datei.</p>
     <input id="pwsA" class="pw-in" type="password" autocomplete="new-password" spellcheck="false" maxlength="127" placeholder="Neues Passwort">
@@ -1886,7 +1886,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="sxDlg" hidden role="dialog" aria-modal="true" aria-labelledby="sxT">
   <div class="card prcard">
-    <div class="ip-h"><h2 id="sxT">Seiten herauslösen</h2><button class="ib" id="sxX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="sxT">Seiten herauslösen</h2><button class="ib" id="sxX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="seg sp-mode" id="sxMode"><button type="button" data-v="sel">Auswahl</button><button type="button" data-v="every">Gleichmäßig teilen</button><button type="button" data-v="groups">Nach Bereichen</button></div>
     <div class="pr-row sp-sel"><span class="pr-l">Seiten</span><input type="text" id="sxRange" class="sp-in" placeholder="z. B. 1-3, 5" autocomplete="off" spellcheck="false"></div>
     <div class="pr-row sp-every"><span class="pr-l">Je Datei</span><input type="number" id="sxN" class="sp-in sp-num" min="1" value="1"><span class="sp-t">Seiten</span></div>
@@ -1899,11 +1899,11 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="imDlg" hidden role="dialog" aria-modal="true" aria-labelledby="imT">
   <div class="card ipcard imcard">
-    <div class="ip-h"><h2 id="imT">Bilder zu PDF</h2><button class="ib" id="imX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="imT">Bilder zu PDF</h2><button class="ib" id="imX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="im-files"><div class="im-grid" id="imGrid"></div><p class="im-empty" id="imEmpty">Fotos von Blättern oder Scans hierher ziehen – sie werden zu Seiten einer PDF.</p></div>
     <div class="im-pages"><div class="pr-row"><span class="pr-l">Seiten</span><input type="text" id="imRange" class="sp-in" placeholder="z. B. 1-3, 5" autocomplete="off" spellcheck="false"></div>
       <div class="im-pv"><figure><canvas id="imBefore"></canvas><figcaption>Vorher</figcaption></figure><figure><canvas id="imAfter"></canvas><figcaption>Nachher</figcaption></figure></div>
-      <div class="im-nav"><button class="ib" id="imPrev" type="button" title="Vorherige Seite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button><span id="imPvL" data-noi18n></span><button class="ib" id="imNext" type="button" title="Nächste Seite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
+      <div class="im-nav"><button class="ib" id="imPrev" type="button" title="Vorherige Seite"><svg class="ph" aria-hidden="true"><use href="#ph-caret-left"/></svg></button><span id="imPvL" data-noi18n></span><button class="ib" id="imNext" type="button" title="Nächste Seite"><svg class="ph" aria-hidden="true"><use href="#ph-caret-right"/></svg></button></div></div>
     <div class="pr-row"><span class="pr-l">Verbessern</span><div class="seg" id="imFx"><button type="button" data-v="orig">Original</button><button type="button" data-v="doc">Dokument</button><button type="button" data-v="bw">Schwarzweiß</button></div></div>
     <label class="tgl"><input type="checkbox" id="imDeskew" role="switch" checked><span class="knob"></span><span class="tl">Schief fotografierte Blätter gerade ausrichten</span></label>
     <div class="pr-row im-files"><span class="pr-l">Format</span><div class="seg" id="imFmt"><button type="button" data-v="a4">A4</button><button type="button" data-v="img">Wie das Bild</button></div></div>
@@ -1916,7 +1916,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="ffDlg" hidden role="dialog" aria-modal="true" aria-labelledby="ffT">
   <div class="card prcard">
-    <div class="ip-h"><h2 id="ffT">Formularfeld</h2><button class="ib" id="ffX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="ffT">Formularfeld</h2><button class="ib" id="ffX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="seg ff-kind" id="ffKind"><button type="button" data-v="text">Text</button><button type="button" data-v="multi">Mehrzeilig</button><button type="button" data-v="check">Kästchen</button><button type="button" data-v="choice">Auswahlliste</button></div>
     <div class="pr-row"><span class="pr-l">Name</span><input type="text" id="ffName" class="sp-in" maxlength="100" autocomplete="off" spellcheck="false"></div>
     <div class="pr-row ff-o"><span class="pr-l">Einträge</span><textarea id="ffOpts" class="sp-in ff-ta" rows="4" placeholder="Eine Möglichkeit pro Zeile" spellcheck="false"></textarea></div>
@@ -1929,7 +1929,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="cmpDlg" hidden role="dialog" aria-modal="true" aria-labelledby="cmpT">
   <div class="card prcard">
-    <div class="ip-h"><h2 id="cmpT">PDFs vergleichen</h2><button class="ib" id="cmpX0" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="cmpT">PDFs vergleichen</h2><button class="ib" id="cmpX0" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint">Vergleicht den Text dieser PDF mit einer anderen Fassung: Entferntes erscheint links rot, Neues rechts grün. Beschriftungen zählen nicht mit.</p>
     <p class="hint" id="cmpTabsL">Mit einer geöffneten Datei:</p>
     <div class="cmp-tabs" id="cmpTabs" data-noi18n></div>
@@ -1939,7 +1939,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="dgDlg" hidden role="dialog" aria-modal="true" aria-labelledby="dgT">
   <div class="card ipcard dgcard">
-    <div class="ip-h"><h2 id="dgT">Diagramm aus Text</h2><button class="ib" id="dgX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="dgT">Diagramm aus Text</h2><button class="ib" id="dgX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="seg dg-kind" id="dgKind"><button type="button" data-v="mind">Mindmap</button><button type="button" data-v="chart">Diagramm</button><button type="button" data-v="logic">Logikschaltung</button><button type="button" data-v="nsd">Struktogramm</button></div>
     <div class="dg-main">
       <div class="dg-l">
@@ -1968,7 +1968,7 @@ header,.file{min-width:0}
 </div>
 <div class="modal" id="prDlg" hidden role="dialog" aria-modal="true" aria-labelledby="prT">
   <div class="card prcard">
-    <div class="ip-h"><h2 id="prT">Drucken</h2><button class="ib" id="prX" title="Schließen (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ip-h"><h2 id="prT">Drucken</h2><button class="ib" id="prX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="pr-row"><span class="pr-l">Seiten</span><div class="seg" id="prWhich"><button type="button" data-v="all">Alle</button><button type="button" data-v="cur">Aktuelle Seite</button><button type="button" data-v="sel">Auswahl</button></div></div>
     <input type="text" id="prRange" placeholder="z. B. 1-3, 5" autocomplete="off" spellcheck="false" hidden>
     <label class="tgl"><input type="checkbox" id="prMarks" role="switch" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
@@ -1980,7 +1980,7 @@ header,.file{min-width:0}
 </div>
 <div class="drawer-bg" id="studioBg" hidden></div>
 <aside class="studio" id="studio" role="dialog" aria-modal="true" aria-labelledby="stT" hidden>
-  <div class="st-head"><div><h2 id="stT">Personalisieren</h2><p>Gilt nur auf diesem Rechner und ändert keine PDF.</p></div><button class="ib" id="stClose" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="st-head"><div><h2 id="stT">Personalisieren</h2><p>Gilt nur auf diesem Rechner und ändert keine PDF.</p></div><button class="ib" id="stClose" aria-label="Schließen"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
   <div class="st-body">
     <section data-noi18n><h3>Sprache · Language</h3><div class="seg" id="dLang"><button data-v="de">Deutsch</button><button data-v="en">English</button></div></section>
     <section><h3>Erscheinungsbild</h3><div class="themes" id="dTheme"><button type="button" class="thc" data-v="system"><span class="mini system"><i></i><b></b></span>Wie System</button><button type="button" class="thc" data-v="light"><span class="mini light"><i></i><b></b></span>Hell</button><button type="button" class="thc" data-v="dark"><span class="mini dark"><i></i><b></b></span>Dunkel</button></div></section>
@@ -2003,7 +2003,7 @@ header,.file{min-width:0}
       <label class="cust" for="dToastC"><input type="color" id="dToastC" value="#2457c5"> Eigene Meldungsfarbe wählen</label>
       <span class="lbl">Position</span><div class="seg" id="dToastPos"><button data-v="bc">Unten mittig</button><button data-v="br">Unten rechts</button><button data-v="tc">Oben</button></div>
       <span class="lbl">Anzeigedauer</span><div class="seg" id="dToastDur"><button data-v="short">Kurz</button><button data-v="normal">Normal</button><button data-v="long">Lang</button></div>
-      <button class="btn" id="dToastTest" style="align-self:flex-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Test-Meldung zeigen</button></section>
+      <button class="btn" id="dToastTest" style="align-self:flex-start"><svg class="ph" aria-hidden="true"><use href="#ph-bell"/></svg>Test-Meldung zeigen</button></section>
     <section><h3>Bewegung</h3><div class="seg" id="dMotion"><button data-v="on">Animationen an</button><button data-v="off">Aus</button></div></section>
     <section id="dAboutLink" hidden><h3>Layr &amp; Updates</h3><p class="hint">Version, Updates und „Zuletzt geöffnet“ haben ein eigenes Fenster (Knopf oben rechts).</p><button class="btn" id="abOpen2" style="align-self:flex-start">Layr &amp; Updates öffnen</button></section>
     <button class="btn" id="dReset">Alles auf Standard</button>
@@ -2014,8 +2014,8 @@ header,.file{min-width:0}
   <div class="card wide" role="dialog" aria-modal="true" aria-labelledby="newT">
     <h2 id="newT">Neues Blatt</h2>
     <div class="mode" id="nMode">
-      <button type="button" data-v="doc" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M13 12v6M10 15h6"/></svg><b>Neues Dokument</b><span>Eine eigene, neue PDF-Datei</span></button>
-      <button type="button" data-v="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h8l3 3v11H9z"/><path d="M5 3h8M5 3v14"/><path d="M14.5 11v6M11.5 14h6"/></svg><b>Zur aktuellen PDF</b><span id="nAddSub">Leere Seiten einfügen</span></button>
+      <button type="button" data-v="doc" aria-pressed="true"><svg class="ph" aria-hidden="true"><use href="#ph-file-plus"/></svg><b>Neues Dokument</b><span>Eine eigene, neue PDF-Datei</span></button>
+      <button type="button" data-v="add"><svg class="ph" aria-hidden="true"><use href="#ph-files"/></svg><b>Zur aktuellen PDF</b><span id="nAddSub">Leere Seiten einfügen</span></button>
     </div>
     <span class="lbl">Papier</span>
     <div class="bgpick" id="nBg"><button type="button" class="bgt" data-v="blank" aria-pressed="true"><span class="pp"></span><span>Leer</span></button><button type="button" class="bgt" data-v="grid"><span class="pp"></span><span>Kariert</span></button><button type="button" class="bgt" data-v="lines"><span class="pp"></span><span>Liniert</span></button><button type="button" class="bgt" data-v="dots"><span class="pp"></span><span>Punkte</span></button></div>
