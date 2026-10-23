@@ -268,6 +268,15 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
     top: 0;
   }
 }
+.textLayer[data-main-rotation="90"] {
+  transform: rotate(90deg) translateY(-100%);
+}
+.textLayer[data-main-rotation="180"] {
+  transform: rotate(180deg) translate(-100%, -100%);
+}
+.textLayer[data-main-rotation="270"] {
+  transform: rotate(270deg) translateX(-100%);
+}
 .page{--user-unit:1;--total-scale-factor:calc(var(--scale-factor,1)*var(--user-unit));--scale-round-x:1px;--scale-round-y:1px}
 .page .textLayer{display:none}
 .mode-textsel .page .textLayer{display:block}
