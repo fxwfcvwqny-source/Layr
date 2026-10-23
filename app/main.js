@@ -472,6 +472,7 @@ function ymlEntry(yml, name) {
   const m = re.exec(yml); return m ? { sha512: m[1], size: +m[2] } : null;
 }
 function loadPending() {
+  if (dlBusy) return null;
   try { const p = JSON.parse(fs.readFileSync(path.join(UPD_DIR(), 'pending.json'), 'utf8'));
     if (p && cmpVer(p.version, app.getVersion()) > 0 && p.type === pkgType() && fs.existsSync(p.file) && path.dirname(p.file) === UPD_DIR()) return p;
   } catch (e) {}
