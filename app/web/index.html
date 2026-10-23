@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-iWGkQqmu0SYskecrpwIW3RRrn0sihOBHnLQI8SLy1g4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-0UBAmbcv/+LzsWj3UE2vllod/jmRb/8x/DCi809u8oM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2837,7 +2837,7 @@ function syncControls(o){
   if(o.lw!=null&&o.type!=='text')setRange('lw',o.lw,x=>x+' pt');
   if(o.fs!=null)setRange('fs',o.fs,x=>x+' pt');
   if(o.type==='text'){setFontUI(o.font||'');segSet('orient',o.orient);$('#bold').checked=!!o.bold;$('#underl').checked=!!o.underline}
-  if(o.type==='line'){$('#startH').value=o.start;$('#endH').value=o.end;$('#elbow').checked=!!o.elbow}
+  if(o.type==='line'){$('#startH').value=o.start;$('#endH').value=o.end;$('#elbow').checked=!!o.elbow;$('#dash').checked=!!o.dash}
   if('dash' in o)$('#dash').checked=!!o.dash;
   syncFill();
 }
