@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-vogTI7GBX0qSvFQNF/suZqrrEzBcaZbpkVhdZxOl0qA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-QB0Oks4qxEchbInFFrmbzeGL6gPrMk777X64Xxr5dwk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2679,7 +2679,20 @@ function wrapLines(c,text,maxW){
   // out.soft: indexes k of lines that end at a character cut (no char consumed, see wrapGap)
   const out=[];out.soft=new Set();
   // a word wider than maxW is cut by characters (longest fitting prefix, at least 1 char)
-  const cut=cur=>{while(c.measureText(cur).width>maxW&&[...cur].length>1){const ch=[...cur];let p=ch[0],k=1;while(k<ch.length&&c.measureText(p+ch[k]).width<=maxW){p+=ch[k];k++}out.soft.add(out.length);out.push(p);cur=ch.slice(k).join('')}return cur};
+  const cut=cur=>{if(c.measureText(cur).width<=maxW)return cur;
+    const ch=[...cur],n=ch.length;
+    // suffixes that fit form a tail range from s on (widths grow with length), so "remainder too wide" is i<s
+    const fits=i=>c.measureText(ch.slice(i).join('')).width<=maxW;
+    let s=0,e=n;while(s<e){const m=(s+e)>>1;if(fits(m))e=m;else s=m+1}
+    let i=0;
+    while(i<s&&n-i>1){
+      // largest k with ch[i..k) fitting, at least one char; gallop then bisect to stay O(line) per probe
+      const ok=k=>c.measureText(ch.slice(i,k).join('')).width<=maxW;
+      let lo=i+1,hi=n+1;
+      for(let d=1;lo+d<=n;d*=2){if(ok(lo+d))lo+=d;else{hi=lo+d;break}}
+      while(hi-lo>1){const m=(lo+hi)>>1;if(ok(m))lo=m;else hi=m}
+      out.soft.add(out.length);out.push(ch.slice(i,lo).join(''));i=lo}
+    return ch.slice(i).join('')};
   for(const para of String(text).split('\n')){
     const words=para.split(' ');let cur='';
     for(const w of words){const t=cur?cur+' '+w:w;if(c.measureText(t).width>maxW&&cur){out.push(cut(cur));cur=w}else cur=t}
