@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KfqJ1vdGLeMQG2iRf0y+7V2p5qCF1bsOfEZsj3AVTwI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Kftp2GhGjt9YEzJeIfnem3uVfYaZDzUCTt3ZC2rcJzM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4924,12 +4924,13 @@ let PGauto=0;
 function pgAutoScroll(){PGauto=0;const d=PGdrag;if(!d||!d.on)return;const g=pgGrid.getBoundingClientRect(),y=PGxy[1],dir=y<g.top+40?-1:y>g.bottom-40?1:0;
   if(!dir)return;pgGrid.scrollTop+=dir*12;pgMove(...PGxy);PGauto=requestAnimationFrame(pgAutoScroll)}
 pgGrid.addEventListener('pointermove',e=>{const d=PGdrag;if(!d||e.pointerId!==d.id)return;
-  if(!d.on){if(Math.hypot(e.clientX-d.x0,e.clientY-d.y0)<6)return;d.on=true;d.tx=0;d.ty=0;const r=d.el.getBoundingClientRect();d.gx=d.x0-(r.left+r.width/2);d.gy=d.y0-(r.top+r.height/2);d.el.classList.add('drag');pgGrid.classList.add('dragging','settled')}
+  if(!d.on){if(Math.hypot(e.clientX-d.x0,e.clientY-d.y0)<6)return;d.on=true;d.tx=0;d.ty=0;const r=d.el.getBoundingClientRect();d.gx=d.x0-(r.left+r.width/2);d.gy=d.y0-(r.top+r.height/2);d.el.classList.add('drag');pgGrid.classList.add('dragging','settled');try{pgGrid.setPointerCapture(d.id)}catch(x){}}
   PGxy=[e.clientX,e.clientY];if(!PGraf)PGraf=requestAnimationFrame(()=>{PGraf=0;pgMove(...PGxy)});if(!PGauto)PGauto=requestAnimationFrame(pgAutoScroll)});
 function pgUp(e){const d=PGdrag;if(!d||e.pointerId!==d.id)return;PGdrag=null;cancelAnimationFrame(PGauto);PGauto=0;
   if(!d.on){pgSelect(d.p,d.ev);return}
   pgGrid.classList.remove('dragging');d.el.classList.remove('drag');const el=d.el;el.style.transition='transform .28s cubic-bezier(.2,.9,.25,1.1)';el.style.transform='';setTimeout(()=>{el.style.transition=''},300);pgSync()}
 pgGrid.addEventListener('pointerup',pgUp);pgGrid.addEventListener('pointercancel',pgUp);
+pgGrid.addEventListener('lostpointercapture',ev=>{if(PGdrag&&PGdrag.on&&ev.pointerId===PGdrag.id)pgUp(ev)});
 pgGrid.addEventListener('dblclick',e=>{const el=e.target.closest('.pgt');if(!el||e.target.closest('button'))return;const p=PG.find(x=>x.u===+el.dataset.u);if(p)pgRotate([p],90)});
 {const sel=()=>PG.filter(p=>p.sel);
   $('#pgL').onclick=()=>pgRotate(sel(),-90);$('#pgR').onclick=()=>pgRotate(sel(),90);$('#pgDel').onclick=()=>pgDelete(sel());$('#pgDup').onclick=()=>pgDuplicate(sel());
