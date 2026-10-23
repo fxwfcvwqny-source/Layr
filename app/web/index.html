@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-JRbwNzagKrYDer3M6jSwuovmHoxe6ZfEF5IfAJ9U8bk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Uq+xRCedCIVf7AZ5Ky8zGnuLXXgk5f7rX41/GFtjJpI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4724,6 +4724,7 @@ const ACCENTS=[['petrol','Petrol','#0b6570'],['blue','Blau','#2457c5'],['indigo'
 let design={...DDEF};try{Object.assign(design,JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}'));if(design.desk==='dots')design.desk='plain'}catch(e){}
 const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar']];
 const mixHex=(h,t)=>{const n=parseInt(h.slice(1),16),c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,'0'));return'#'+c.join('')};
+let designTheme=null; // theme of the last applyDesign call; only a real switch suspends transitions
 function applyDesign(save){const r=document.documentElement;
   if(design.theme==='system')r.removeAttribute('data-theme');else r.dataset.theme=design.theme;
   for(const k of ['accent','toolbar','density','corners','desk','deskc','sheet','shadow','motion','light','dark','bars','tbstyle','qbar'])r.dataset[k]=design[k];
@@ -4742,7 +4743,8 @@ function applyDesign(save){const r=document.documentElement;
   $('#dAccent').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===design.accent));
   if(design.accentC)$('#dAccC').value=design.accentC;
   _acc='';requestAnimationFrame(()=>moveToolInd&&moveToolInd());
-  if(save){r.classList.add('theme-anim');clearTimeout(applyDesign.t);applyDesign.t=setTimeout(()=>r.classList.remove('theme-anim'),420);try{localStorage.setItem('pdfwerkbank:design',JSON.stringify(design))}catch(e){}if(S.pages)redrawAll()}}
+  const tc=design.theme!==designTheme;designTheme=design.theme;
+  if(save){if(tc){r.classList.add('theme-anim');clearTimeout(applyDesign.t);applyDesign.t=setTimeout(()=>r.classList.remove('theme-anim'),420)}try{localStorage.setItem('pdfwerkbank:design',JSON.stringify(design))}catch(e){}if(S.pages)redrawAll()}}
 for(const [k,n,c] of ACCENTS){const b=document.createElement('button');b.className='acc';b.dataset.v=k;b.title=n;b.setAttribute('aria-label',n);b.style.setProperty('--c',c);b.onclick=()=>{design.accent=k;applyDesign(true)};$('#dAccent').appendChild(b)}
 {const b=document.createElement('button');b.className='acc custom';b.dataset.v='custom';b.title='Eigene Farbe';b.setAttribute('aria-label','Eigene Farbe');b.onclick=()=>{if(!design.accentC)$('#dAccC').click();else{design.accent='custom';applyDesign(true)}};$('#dAccent').appendChild(b)}
 {const live=rafLast(v=>{design.barsC=v;design.bars='custom';applyDesign(false)});$('#dBarC').addEventListener('input',e=>live(e.target.value));$('#dBarC').addEventListener('change',()=>applyDesign(true))}
