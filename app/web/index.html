@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8RIo5NhuJoyL8hf826UCPw65/xUOHSgU2oupvg0FNw8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3wAPrQf6ocRtYQAbLAIpMF0HAF3BmroWojWi8hagjdE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2288,7 +2288,7 @@ const I18N_EN={
 'Aus dieser Datei entfernen':'Remove from this file','In neuem Tab öffnen':'Open in new tab','Als ZIP speichern':'Save as ZIP','Herauslösen':'Extract','Auswahl als neue PDF':'Selection as a new PDF',
 'Bereiche mit Semikolon trennen, z. B. 1-3; 4-10; 11-':'Separate ranges with semicolons, e.g. 1-3; 4-10; 11-','Bitte Seiten angeben, z. B. 1-3, 5':'Please enter pages, e.g. 1-3, 5',
 ' Seite wird zu einer neuen PDF.':' page becomes a new PDF.',' Seiten werden zu einer neuen PDF.':' pages become a new PDF.','Eine Datei.':'One file.',' Dateien, zusammen in einer ZIP-Datei.':' files, together in one ZIP file.',
-'Mindestens eine Seite muss in der Datei bleiben.':'At least one page must stay in the file.','Teile':'Parts','Erst Seiten auswählen.':'Select pages first.','Die Seiten werden noch umgebaut. Bitte noch einmal versuchen.':'The pages are still being rebuilt. Please try again.','Das Dokument wurde währenddessen geändert. Die Änderung wurde nicht angewendet.':'The document changed in the meantime. The change was not applied.','Bitte kurz warten, es läuft noch eine Seitenänderung.':'Please wait a moment, a page change is still running.',
+'Mindestens eine Seite muss in der Datei bleiben.':'At least one page must stay in the file.','Teile':'Parts','Erst Seiten auswählen.':'Select pages first.','Die Seiten werden noch umgebaut. Bitte noch einmal versuchen.':'The pages are still being rebuilt. Please try again.','Das Dokument wurde währenddessen geändert. Die Änderung wurde nicht angewendet.':'The document changed in the meantime. The change was not applied.','Die Seiten konnten nicht neu aufgebaut werden.':'The pages could not be rebuilt.','Bitte kurz warten, es läuft noch eine Seitenänderung.':'Please wait a moment, a page change is still running.',
 '“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'” is extracted and open in a new tab. Undo in the file with Ctrl+Z.','“ ist in einem neuen Tab offen.':'” is open in a new tab.','“ ist in einem neuen Tab offen. Aus der Originaldatei wurde nichts entfernt.':'” is open in a new tab. Nothing was removed from the original file.',
 'Herauslösen hat nicht geklappt: ':'Extracting failed: ',
 'Bilder zu PDF':'Images to PDF','Fotos von Blättern als PDF, gerade und klar':'Photos of sheets as a PDF, straight and clear','Scan verbessern':'Improve scan',
@@ -4910,7 +4910,9 @@ function openPgDlg(focus){if(!S.doc||!S.pages.length)return;closeEditor();closeM
   const gen=++PGgen;requestAnimationFrame(()=>{pgRender(gen);const f=focus!=null&&pgGrid.children[focus];if(f)f.scrollIntoView({block:'nearest'})});setTimeout(()=>$('#pgOk').focus(),60)}
 function closePgDlg(){PGgen++;PGdrag=null;cancelAnimationFrame(PGauto);cancelAnimationFrame(PGraf);PGauto=PGraf=0;pgGrid.classList.remove('dragging');animHide(pgDlg)}
 async function pgApply(){if(!pgChanged()){closePgDlg();return}const entries=PG.map(p=>({i:p.i,rot:p.rot}));
-  if(await rebuildPages(entries,tr('Seiten neu geordnet. Rückgängig mit Strg+Z.'),0))closePgDlg()}
+  $('#pgOk').disabled=true;pgGrid.style.pointerEvents='none';
+  try{if(await rebuildPages(entries,tr('Seiten neu geordnet. Rückgängig mit Strg+Z.'),0))closePgDlg()}
+  finally{$('#pgOk').disabled=false;pgGrid.style.pointerEvents=''}}
 /* Ziehen zum Sortieren */
 pgGrid.addEventListener('pointerdown',e=>{if(e.button!==0)return;const el=e.target.closest('.pgt');if(!el||e.target.closest('button'))return;
   const p=PG.find(x=>x.u===+el.dataset.u);if(!p)return;PGdrag={el,p,x0:e.clientX,y0:e.clientY,on:false,id:e.pointerId,ev:e};el.setPointerCapture(e.pointerId)});
@@ -6132,7 +6134,7 @@ async function rebuildPages(entries,msg,focus){
   const objs=entries.map(en=>{if(en.blank)return[];const P0=S.pages[en.i];return rotObjs(JSON.parse(JSON.stringify(P0.objs,(k,v)=>k==='_editing'?undefined:v)),P0.w,P0.h,en.rot||0)});
   const snap=docSnap();
   await openPdf(bytes,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
-  if(S.bytes===b0)return false;
+  if(S.bytes===b0){toast(tr('Die Seiten konnten nicht neu aufgebaut werden.'));return false}
   H.u.push(snap);H.r=[];capDocHist();
   updUndo();markDirty();if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);return true;
   }finally{rbBusy=false}
