@@ -3421,7 +3421,9 @@ function handles(o){
   if(o.type==='pen'||o.type==='hl'||o.type==='deco')return[];
   const b=boxOf(o);
   const hs=[{k:'tl',x:b.x,y:b.y},{k:'tr',x:b.x+b.w,y:b.y},{k:'bl',x:b.x,y:b.y+b.h},{k:'br',x:b.x+b.w,y:b.y+b.h}];
-  if((o.type==='text'&&o.orient==='h')||o.type==='table')hs.push({k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2},{k:'mt',x:b.x+b.w/2,y:b.y},{k:'mb',x:b.x+b.w/2,y:b.y+b.h});
+  if((o.type==='text'&&o.orient==='h')||o.type==='table'){const near=(v,E)=>E.slice(1,-1).some(e=>Math.abs(e-v)<12/S.zoom);
+    for(const m of[{k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2},{k:'mt',x:b.x+b.w/2,y:b.y},{k:'mb',x:b.x+b.w/2,y:b.y+b.h}]){
+      if(o.type==='table'&&(m.k==='mt'||m.k==='mb'?near(m.x,tblCols(o)):near(m.y,tblRows(o))))continue;hs.push(m)}}
   return hs;
 }
 const boxOf=o=>o.type==='text'||o.type==='group'?bbox(o):{x:o.x,y:o.y,w:o.w,h:o.h};
