@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-o0MaF03V3gWw4qFr97dbXR8zerJwkdfSq+LYynpmS0M=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ElZDYNBLl6vcu3lLJr1wp1uSRx/Jsv7+P22iO/9uGX4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2942,8 +2942,13 @@ def('org_team','Organigramm','Bereich / Team',240,150,'Team',(c,o,x,y,w,h)=>{c.s
 const newOid=()=>'o'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
 const DOCKABLE=['sym','rect','ellipse','text','table','image'];
 function dockBox(o){if(o.type==='text')return bbox(o);let x=o.x,y=o.y,w=o.w,h=o.h;if(w<0){x+=w;w=-w}if(h<0){y+=h;h=-h}return{x,y,w,h}}
-function orgAnchor(o,t,f=.5){const{x,y,w,h}=dockBox(o);let yb=y+h;if(t==='b'&&o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].below&&o.label){const b=bbox(o);yb=b.y+b.h}
+/* Anker: 't','b','l','r' (Mitte) oder Seite+Nummer 1..3 ('t1'..'r3') für Festpunkte auf der Seite */
+const ANCHOR_IDS=['t1','t2','t3','b1','b2','b3','l1','l2','l3','r1','r2','r3'];
+function orgAnchor(o,t,f=.5){if(t.length===2){f=[.25,.5,.75][+t[1]-1];t=t[0]} // shortcut: older Layr versions anchor 't1'..'r3' at the box centre (links stay intact), no upgrade needed
+  const{x,y,w,h}=dockBox(o);let yb=y+h;if(t==='b'&&o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].below&&o.label){const b=bbox(o);yb=b.y+b.h}
   return t==='t'?[x+w*f,y]:t==='b'?[x+w*f,yb]:t==='l'?[x,y+h*f]:t==='r'?[x+w,y+h*f]:[x+w/2,y+h/2]}
+/* Nächster Festpunkt am Kasten, sonst 'auto' */
+function pickAnchor(o,x,y){let best='auto',bd=8/S.zoom;for(const t of ANCHOR_IDS){const q=orgAnchor(o,t),d=Math.hypot(q[0]-x,q[1]-y);if(d<bd){bd=d;best=t}}return best}
 /* Seite wählen, an der eine Linie andockt: die, die zum anderen Ende zeigt */
 function autoSides(A,B,pa,pb){const a=A?dockBox(A):{x:pa[0],y:pa[1],w:0,h:0},b=B?dockBox(B):{x:pb[0],y:pb[1],w:0,h:0};
   const dx=(b.x+b.w/2)-(a.x+a.w/2),dy=(b.y+b.h/2)-(a.y+a.h/2),gx=Math.abs(dx)-(a.w+b.w)/2,gy=Math.abs(dy)-(a.h+b.h)/2;
@@ -2954,7 +2959,7 @@ function dockAt(P,x,y,tol,ex){for(let k=P.objs.length-1;k>=0;k--){const o=P.objs
     if(!(x>=b.x-tol&&x<=b.x+b.w+tol&&y>=b.y-tol&&y<=b.y+b.h+tol))continue;
     if(isFrameSym(o)&&x>b.x+tol*2&&x<b.x+b.w-tol*2&&y>b.y+tol*2&&y<b.y+b.h-tol*2)continue;return o}return null}
 function drawDockHint(c,o){const b=dockBox(o),z=S.zoom,p=3/z;c.save();c.strokeStyle=accentCol();c.lineWidth=1.4/z;c.setLineDash([3/z,2.5/z]);c.globalAlpha=.9;c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p);c.setLineDash([]);
-  for(const t of['t','b','l','r']){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle='#fff';c.fill();c.stroke()}c.restore()}
+  for(const t of ANCHOR_IDS){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle='#fff';c.fill();c.stroke()}c.restore()}
 /* Verbindungen an ihre Kästen anpassen; ist ein Kasten weg, verschwindet auch seine Linie */
 function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
   const ends=[];
@@ -2964,7 +2969,7 @@ function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(cons
     if(A&&o.__drag!=='a')ends.push({o,end:'a',box:A,side:ta,other:[o.x2,o.y2],idx:ends.length});
     if(B&&o.__drag!=='b')ends.push({o,end:'b',box:B,side:tb,other:[o.x1,o.y1],idx:ends.length})}
   /* Enden auf derselben Seite eines Kastens verteilen, sortiert nach der Gegenseite der Linie */
-  const grp=new Map();for(const e of ends){const k=e.box.oid+'|'+e.side;if(!grp.has(k))grp.set(k,[]);grp.get(k).push(e)}
+  const grp=new Map();for(const e of ends){const k=/\d/.test(e.side)?'#'+e.idx:e.box.oid+'|'+e.side;if(!grp.has(k))grp.set(k,[]);grp.get(k).push(e)}
   for(const g of grp.values()){const n=g.length,hz=g[0].side==='t'||g[0].side==='b';
     if(n>1)g.sort((p,q)=>(hz?p.other[0]-q.other[0]:p.other[1]-q.other[1])||p.idx-q.idx);
     g.forEach((e,k)=>{const q=orgAnchor(e.box,e.side,n>1?(k+1)/(n+1):.5);if(e.end==='a'){e.o.x1=q[0];e.o.y1=q[1]}else{e.o.x2=q[0];e.o.y2=q[1]}})}
@@ -4040,7 +4045,7 @@ function attachInk(P,i){
         const o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tol));
         if(o&&nearBorder(o,x,y,tol)){setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;break}
         if(o)editText(i,o,[e.clientX,e.clientY]);else newText(i,x,y);st=null;break}
-      case'line':case'arrow':st.dockA=e.altKey?null:dockAt(P,x,y,6/S.zoom);S.dock=st.dockA?{p:i,o:st.dockA}:null;S.draft={p:i,o:{type:'line',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:S.lw,dash:S.dash,elbow:S.elbow,start:S.tool==='arrow'?S.startH:'none',end:S.tool==='arrow'?S.endH:'none'}};break;
+      case'line':case'arrow':st.dockA=e.altKey?null:dockAt(P,x,y,6/S.zoom);st.kA=st.dockA?pickAnchor(st.dockA,x,y):'auto';S.dock=st.dockA?{p:i,o:st.dockA}:null;S.draft={p:i,o:{type:'line',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:S.lw,dash:S.dash,elbow:S.elbow,start:S.tool==='arrow'?S.startH:'none',end:S.tool==='arrow'?S.endH:'none'}};break;
       case'measure':S.draft={p:i,o:{type:'measure',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:Math.min(S.lw,1.5)}};break;
       case'table':S.draft={p:i,o:newTable(x,y,S.tblR||3,S.tblC||3)};break;
       case'redact':S.draft={p:i,o:{type:'redact',x,y,w:0,h:0,color:'#000000',lw:0}};break;
@@ -4069,8 +4074,8 @@ function attachInk(P,i){
         else if(st.mode==='p1'||st.mode==='p2'){const one=st.mode==='p1';if(o.type==='line')tmpProp(o,'__drag',one?'a':'b');
           const oid2=o.link?(one?o.link.b:o.link.a):null,other=oid2?P.objs.find(q=>q.oid===oid2):null;
           [x,y]=e.shiftKey?angSnap(one?o.x2:o.x1,one?o.y2:o.y1,x,y):[x,y];
-          const dk=o.type==='line'&&!e.altKey?dockAt(P,x,y,6/S.zoom,other):null;st.dockT=dk;S.dock=dk?{p:i,o:dk}:null;
-          if(dk){const sd=one?autoSides(dk,other,[x,y],[o.x2,o.y2]):autoSides(other,dk,[o.x1,o.y1],[x,y]);const q=orgAnchor(dk,one?sd[0]:sd[1]);x=q[0];y=q[1]}
+          const dk=o.type==='line'&&!e.altKey?dockAt(P,x,y,6/S.zoom,other):null;st.dockT=dk;S.dock=dk?{p:i,o:dk}:null;st.dockPick=dk?pickAnchor(dk,x,y):'auto';
+          if(dk){const sd=one?autoSides(dk,other,[x,y],[o.x2,o.y2]):autoSides(other,dk,[o.x1,o.y1],[x,y]);const q=orgAnchor(dk,st.dockPick!=='auto'?st.dockPick:one?sd[0]:sd[1]);x=q[0];y=q[1]}
           if(one){o.x1=x;o.y1=y}else{o.x2=x;o.y2=y}}
         else if(st.mode==='tcol'||st.mode==='trow'){const X=st.mode==='tcol',k=st.idx,fr=X?o.cw:o.rh,len=X?o.w:o.h,pos=(X?x-o.x:y-o.y)/len;
           let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;tblHintSet(o,st.mode,k,x,y)}
@@ -4084,8 +4089,8 @@ function attachInk(P,i){
         break}
       case'eraser':eraseAt(P,i,x,y,st);break;
       case'line':case'arrow':case'measure':{if(e.shiftKey)[x,y]=angSnap(d.x1,d.y1,x,y);d.x2=x;d.y2=y;
-        if(S.tool!=='measure'){const db=e.altKey?null:dockAt(P,x,y,6/S.zoom,st.dockA);st.dockB=db;S.dock=db?{p:i,o:db}:st.dockA?{p:i,o:st.dockA}:null;
-          if(st.dockA||db){const sd=autoSides(st.dockA,db,[d.x1,d.y1],[x,y]);if(st.dockA){const q=orgAnchor(st.dockA,sd[0]);d.x1=q[0];d.y1=q[1]}if(db){const q=orgAnchor(db,sd[1]);d.x2=q[0];d.y2=q[1]}d.elbowDir=sd[2]}else delete d.elbowDir}
+        if(S.tool!=='measure'){const db=e.altKey?null:dockAt(P,x,y,6/S.zoom,st.dockA);st.dockB=db;st.kB=db?pickAnchor(db,x,y):'auto';S.dock=db?{p:i,o:db}:st.dockA?{p:i,o:st.dockA}:null;
+          if(st.dockA||db){const sd=autoSides(st.dockA,db,[d.x1,d.y1],[x,y]);if(st.dockA){const q=orgAnchor(st.dockA,st.kA!=='auto'?st.kA:sd[0]);d.x1=q[0];d.y1=q[1]}if(db){const q=orgAnchor(db,st.kB!=='auto'?st.kB:sd[1]);d.x2=q[0];d.y2=q[1]}d.elbowDir=sd[2]}else delete d.elbowDir}
         redraw(i);break}
       case'rect':case'ellipse':case'redact':case'field':case'table':case'symbol':{let w=x-st.x,h=y-st.y;if(e.shiftKey||(S.tool==='symbol'&&SYM[S.sym].fixed)){const s=Math.max(Math.abs(w),Math.abs(h));if(S.tool==='symbol'){const r=SYM[S.sym].h/SYM[S.sym].w;w=Math.sign(w||1)*s;h=Math.sign(h||1)*s*r}else{w=Math.sign(w||1)*s;h=Math.sign(h||1)*s}}d.x=st.x;d.y=st.y;d.w=w;d.h=h;redraw(i);break}
     }
@@ -4100,7 +4105,7 @@ function attachInk(P,i){
         if(!d)break;let ok=true;
         if(d.type==='line'||d.type==='measure')ok=Math.hypot(d.x2-d.x1,d.y2-d.y1)>3/S.zoom;
         if(d.type==='rect'||d.type==='ellipse'||d.type==='redact'){norm(d);ok=d.w>2&&d.h>2}
-        if(d.type==='line'&&ok&&(st.dockA||st.dockB)&&st.dockA!==st.dockB)d.link={a:st.dockA?ensureOid(st.dockA):null,ta:'auto',b:st.dockB?ensureOid(st.dockB):null,tb:'auto'};
+        if(d.type==='line'&&ok&&(st.dockA||st.dockB)&&st.dockA!==st.dockB)d.link={a:st.dockA?ensureOid(st.dockA):null,ta:st.kA||'auto',b:st.dockB?ensureOid(st.dockB):null,tb:st.kB||'auto'};
         if(d.type==='field'){norm(d);const sz=FF_SIZE[d.kind]||FF_SIZE.text;if(d.w<6||d.h<6){d.w=sz[0];d.h=sz[1];d.x=st.x;d.y=st.y-sz[1]/2}else if(d.kind==='check'){d.w=d.h=Math.min(Math.max(d.w,d.h),40)}d.name=ffFreeName(tr('Feld'));ok=true}
         if(d.type==='table'){norm(d);if(d.w<24||d.h<14){d.w=d.cols*72;d.h=d.rows*22;d.x=st.x;d.y=st.y}ok=true}
         S.dock=null;
@@ -4110,7 +4115,7 @@ function attachInk(P,i){
         pushHist();P.objs.push(d);if(S.sym==='num')S.num++;markDirty();if(keepSelOn)setSel({p:i,o:d});else if(S.sel)setSel(null);redraw(i);break}
       case'select':case'text':
         if(st.o&&st.o.type==='line'&&(st.mode==='p1'||st.mode==='p2')){const o=st.o,one=st.mode==='p1';delete o.__drag;
-          if(st.moved){const L=o.link||{a:null,b:null,ta:'auto',tb:'auto'},dk=st.dockT;if(one){L.a=dk?ensureOid(dk):null;L.ta='auto'}else{L.b=dk?ensureOid(dk):null;L.tb='auto'}if(L.a&&L.a===L.b)L[one?'a':'b']=null;if(L.a||L.b)o.link=L;else delete o.link}S.dock=null;redraw(i)}
+          if(st.moved){const L=o.link||{a:null,b:null,ta:'auto',tb:'auto'},dk=st.dockT;if(one){L.a=dk?ensureOid(dk):null;L.ta=dk?st.dockPick:'auto'}else{L.b=dk?ensureOid(dk):null;L.tb=dk?st.dockPick:'auto'}if(L.a&&L.a===L.b)L[one?'a':'b']=null;if(L.a||L.b)o.link=L;else delete o.link}S.dock=null;redraw(i)}
         if(!st.hist&&!st.moved&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='table'){const o=st.o,rc=tblCell(o,st.x,st.y);st=null;if(rc)editCell(i,o,rc[0],rc[1]);return}
         if(st.hist)markDirty();else if(S.tool==='select'&&!st.selDrag&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='text'&&!st.moved){const o=st.o;st=null;editText(i,o,[e.clientX,e.clientY]);return}break;
     }
@@ -5660,7 +5665,7 @@ function sanObj(o){
     case'pen':if(!Array.isArray(r.pts))return null;r.pts=r.pts.filter(p=>Array.isArray(p)&&isNum(p[0])&&isNum(p[1])).map(p=>[p[0],p[1]]);return r.pts.length?r:null;
     case'line':case'measure':if(!(isNum(r.x1)&&isNum(r.y1)&&isNum(r.x2)&&isNum(r.y2)))return null;
       if(r.type==='line'){if(typeof r.label==='string'&&r.label)r.label=r.label.replace(/\n/g,' ').slice(0,200);else delete r.label}
-      if(r.link&&typeof r.link==='object'){const L=r.link;r.link={a:typeof L.a==='string'?L.a.slice(0,40):null,b:typeof L.b==='string'?L.b.slice(0,40):null,ta:typeof L.ta==='string'?L.ta.slice(0,8):'auto',tb:typeof L.tb==='string'?L.tb.slice(0,8):'auto'}}else delete r.link;return r;
+      if(r.link&&typeof r.link==='object'){const L=r.link;r.link={a:typeof L.a==='string'?L.a.slice(0,40):null,b:typeof L.b==='string'?L.b.slice(0,40):null,ta:typeof L.ta==='string'&&/^(auto|[tblr][1-3]?)$/.test(L.ta)?L.ta:'auto',tb:typeof L.tb==='string'&&/^(auto|[tblr][1-3]?)$/.test(L.tb)?L.tb:'auto'}}else delete r.link;return r;
     case'rect':case'ellipse':return box()?r:null;
     case'text':if(!isNum(r.x)||!isNum(r.y)||typeof r.text!=='string')return null;if(r.minH!=null&&!(isNum(r.minH)&&r.minH>0&&r.minH<=2e4))delete r.minH;if(!['h','v','stack'].includes(r.orient))r.orient='h';if(!isNum(r.fs))r.fs=14;
       if(r.spans!=null){r.spans=Array.isArray(r.spans)?r.spans.filter(s=>s&&isNum(s.a)&&isNum(s.b)&&s.b>s.a&&typeof s.color==='string'&&COL_RX.test(s.color)).slice(0,2000).map(s=>({a:Math.max(0,s.a|0),b:Math.min(r.text.length,s.b|0),color:s.color})).filter(s=>s.b>s.a):[];if(!r.spans.length)delete r.spans}
