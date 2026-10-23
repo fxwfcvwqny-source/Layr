@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-nilA3HmsJNUj6UcRFtCwsUk5Iyug8fnPKrQ+XNWqVl4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2XyCng1JUc9qt4cOuyIaisYRM0jRWpqoRFbd0BBjMQY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2834,7 +2834,7 @@ function applySel(props,isRange){
     dash:['line','rect','ellipse','sym'].includes(o.type),elbow:o.type==='line',start:o.type==='line',end:o.type==='line',label:o.type==='line',fill:['rect','ellipse','sym'].includes(o.type)});
   const jobs=T.map(o=>{const a=allow(o);return[o,Object.keys(props).filter(k=>a[k])]}).filter(j=>j[1].length);if(!jobs.length)return;
   if(!isRange||!ctrlHist){pushHist();if(isRange)ctrlHist=true}
-  for(const[o,ch]of jobs)for(const k of ch){o[k]=props[k];if(k==='color'&&o.spans)delete o.spans}if(S.sel.o.type==='group'&&props.color)S.sel.o.color=props.color;
+  for(const[o,ch]of jobs)keepCtr(o,()=>{for(const k of ch){o[k]=props[k];if(k==='color'&&o.spans)delete o.spans}});if(S.sel.o.type==='group'&&props.color)S.sel.o.color=props.color;
   redraw(S.sel.p);markDirty();
 }
 function syncControls(o){
@@ -3608,6 +3608,8 @@ TB_DESC.field='Ausfüllbare Felder für jedes Programm';
 const rotOf=o=>o.type==='text'&&o.orient==='h'&&o.rot?o.rot:0;
 function rotP(x,y,cx,cy,deg){const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),dx=x-cx,dy=y-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]}
 function tCtr(o){const t=textBox(o);return[o.x+t.w/2,o.y+t.h/2]}
+// Runs fn (which may change the text size) and keeps the centre of rotated text fixed
+function keepCtr(o,fn){if(!rotOf(o))return fn();const c=tCtr(o),r=fn(),t=textBox(o);o.x=c[0]-t.w/2;o.y=c[1]-t.h/2;return r}
 function bbox(o){
   switch(o.type){
     case'pen':{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of o.pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}const p=o.lw/2;return{x:a-p,y:b-p,w:c-a+2*p,h:d-b+2*p}}
@@ -4366,10 +4368,10 @@ function openTextEditor(i,o,isNew,at){
   const set=props=>{
     // Farbe bei markiertem Text: nur für die markierten Zeichen
     if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
-    for(const k of['fs','color','bold','orient','underline','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];
+    keepCtr(o,()=>{for(const k of['fs','color','bold','orient','underline','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k]});
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}if('bold' in props){S.bold=o.bold;$('#bold').checked=o.bold}if('underline' in props){S.underline=!!o.underline;$('#underl').checked=!!o.underline}if('color' in props)setColor(o.color,true);textClamp(o,P,true);refresh();redraw(i)};
-  eng=textEngine(area,o.text,{lists:true,onChange:st=>{shiftSpans(o,o.text,st.v);o.text=st.v;textClamp(o,P,true);refresh();redraw(i)},
+  eng=textEngine(area,o.text,{lists:true,onChange:st=>{keepCtr(o,()=>{shiftSpans(o,o.text,st.v);o.text=st.v});textClamp(o,P,true);refresh();redraw(i)},
     vert:(idx,d)=>{const p=idxPos(o,g,idx),li=p.li+d;if(li<0)return 0;if(li>=g.b.lines.length)return o.text.length;return posIdx(o,g,p.x,(li+.5)*g.b.lh)},
     edge:(idx,d)=>{const p=idxPos(o,g,idx);return g.starts[p.li]+(d<0?0:g.b.lines[p.li].length)},
     onEmptyUndo:()=>{if(o.text===startText&&JSON.stringify({...o,text:startText})===origJson){closeEditor();undo()}}});
@@ -4414,13 +4416,14 @@ function openTextEditor(i,o,isNew,at){
     if(o.locked){e.preventDefault();e.stopPropagation();eng.focus();return}
     const h=e.target.dataset&&e.target.dataset.h;if(!h&&e.target!==root)return;
     e.preventDefault();e.stopPropagation();root.setPointerCapture(e.pointerId);
-    dragBegin(i,o);const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW,minH:o.minH,h0:g.b.h},w0=(o.wrapW||g.b.w)||1;
+    dragBegin(i,o);const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW,minH:o.minH,h0:g.b.h,c0:h&&rotOf(o)?tCtr(o):null},w0=(o.wrapW||g.b.w)||1;
     const mv=ev=>{const dx=(ev.clientX-sx)/z,dy=(ev.clientY-sy)/z;
       if(!h){o.x=gg.x+dx;o.y=gg.y+dy}
       else if(h==='br'){const k=Math.max(.1,Math.min((w0+dx)/w0,(P.w-gg.x)/w0,(P.h-gg.y)/gg.h0));o.fs=clamp(Math.round(gg.fs*k*2)/2,4,200);if(gg.wrapW)o.wrapW=gg.wrapW*o.fs/gg.fs;S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}
       else if(h==='mr'){o.wrapW=Math.max(o.fs*1.5,Math.min(P.w-o.x,w0+dx))}
       else if(h==='ml'){const nw=Math.max(o.fs*1.5,Math.min(gg.x+w0,w0-dx));o.x=gg.x+(w0-nw);o.wrapW=nw}
       else if(h==='mb'||h==='mt'){const nat=textBox({...o,minH:0}).h;let nh=Math.max(nat,Math.min(h==='mb'?P.h-o.y:gg.y+gg.h0,gg.h0+(h==='mb'?dy:-dy)));if(h==='mt'){o.y=gg.y+gg.h0-nh}if(nh<=nat+.5)delete o.minH;else o.minH=nh}
+      if(gg.c0){const t=textBox(o);o.x=gg.c0[0]-t.w/2;o.y=gg.c0[1]-t.h/2}
       if(!h)textClamp(o,P,false);refresh();redraw(i)};
     const up=()=>{root.removeEventListener('pointermove',mv);root.removeEventListener('pointerup',up);root.removeEventListener('pointercancel',up);eng.focus()};
     root.addEventListener('pointermove',mv);root.addEventListener('pointerup',up);root.addEventListener('pointercancel',up)});
