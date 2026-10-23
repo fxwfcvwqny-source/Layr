@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-OGIJdIbmjvJ6hdo2gCPw4B+PFfAZTGs7KtNGePZuiuI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ilUxlQCeRZS3h0yyrGpFNnS1KckSshDnj9ku10B6yeA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4916,7 +4916,7 @@ function pgMove(x,y){const d=PGdrag;if(!d||!d.on)return;
   // Ziel: das Feld, dessen Mitte dem Zeiger am nächsten liegt (Layoutposition, ohne Animations-Transform)
   const g=pgGrid.getBoundingClientRect(),px=x-g.left+pgGrid.scrollLeft,py=y-g.top+pgGrid.scrollTop;
   let best=null,bd=1e9,bx=0;for(const el of pgGrid.children){if(el===d.el)continue;const cx=el.offsetLeft+el.offsetWidth/2,cy=el.offsetTop+el.offsetHeight/2,q=Math.hypot(px-cx,py-cy);if(q<bd){bd=q;best=el;bx=cx}}
-  const cur=PG.indexOf(d.p);
+  const cur=PG.indexOf(d.p);if(cur<0||!d.el.isConnected){PGdrag=null;return}
   if(best&&bd<110){const k=PG.findIndex(x=>x.u===+best.dataset.u),after=px>bx;let to=k+(after?1:0);if(to>cur)to--;
     if(to!==cur)flip(()=>{PG.splice(cur,1);PG.splice(to,0,d.p);const nx=PG[to+1];pgGrid.insertBefore(d.el,nx?pgGrid.querySelector(`[data-u="${nx.u}"]`):null);pgSync()})}
   const r=d.el.getBoundingClientRect(),lx=r.left+r.width/2-d.tx,ly=r.top+r.height/2-d.ty;
