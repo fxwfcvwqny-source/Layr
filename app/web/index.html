@@ -4789,6 +4789,10 @@ function updImgUI(){const sec=document.getElementById('imgSec');if(!sec)return;c
   a.addEventListener('change',()=>{if(hist)markDirty();hist=false});
   $('#imgRatio').onclick=()=>{const o=imgTarget();if(!o)return;const im=imgEl(o.img);if(!im||!im.naturalWidth)return;pushHist();const cy=o.y+o.h/2;o.h=o.w*im.naturalHeight/im.naturalWidth;o.y=cy-o.h/2;redraw(S.sel.p);markDirty()};
   $('#imgReplace').onclick=()=>{if(!imgTarget())return;inp.dataset.mode='replace';inp.click()};
+  addEventListener('copy',e=>{const t=e.target;if(editorEl||(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.isContentEditable)))return;
+    const s=getSelection();if(s&&!s.isCollapsed&&String(s).trim())return;if(!e.clipboardData||!copySel())return;e.preventDefault();
+    e.clipboardData.setData('text/plain',JSON.parse(CLIP.objs).filter(o=>o.type==='text').map(o=>o.text).join('\n\n'));
+    e.clipboardData.setData('application/x-layr',CLIP.stamp)});
   addEventListener('paste',e=>{const t=e.target;if(editorEl||(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.isContentEditable)))return;if(!S.pages.length||!e.clipboardData)return;
     let fs=[...(e.clipboardData.files||[])].filter(f=>/^image\//.test(f.type));
     if(!fs.length)fs=[...(e.clipboardData.items||[])].filter(x=>x.kind==='file'&&/^image\//.test(x.type)).map(x=>x.getAsFile()).filter(Boolean);
