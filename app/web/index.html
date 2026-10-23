@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uCmFa48GFDJIBax+wigSyAsOHRMhUpota/nZqYztoHk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tO79OzRhnjLwOptHWDcLFlhYhWSCkIZ8fE49MGnwVOY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5692,6 +5692,7 @@ function sanObj(o){
     case'rect':case'ellipse':return box()?r:null;
     case'text':if(!isNum(r.x)||!isNum(r.y)||typeof r.text!=='string')return null;if(r.minH!=null&&!(isNum(r.minH)&&r.minH>0&&r.minH<=2e4))delete r.minH;if(!['h','v','stack'].includes(r.orient))r.orient='h';if(!isNum(r.fs))r.fs=14;
       if(r.spans!=null){r.spans=Array.isArray(r.spans)?r.spans.filter(s=>s&&isNum(s.a)&&isNum(s.b)&&s.b>s.a&&typeof s.color==='string'&&COL_RX.test(s.color)).slice(0,2000).map(s=>({a:Math.max(0,s.a|0),b:Math.min(r.text.length,s.b|0),color:s.color})).filter(s=>s.b>s.a):[];if(!r.spans.length)delete r.spans}
+      if(r.rot!=null){if(isNum(r.rot)&&r.rot)r.rot=clamp(r.rot,-360,360);else delete r.rot}
       return r;
     case'deco':{if(!box()||!['num','head','foot','wm'].includes(r.kind)||typeof r.text!=='string')return null;r.text=r.text.slice(0,200);
       if(!['l','c','r'].includes(r.al))r.al='c';if(!['t','b'].includes(r.pos))r.pos='b';if(!(isNum(r.fs)&&r.fs>=6&&r.fs<=30))r.fs=10;
