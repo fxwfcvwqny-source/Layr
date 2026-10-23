@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gjhV5fj4rQR+CT8+d5TS09CO+FY+rqUuizEh4JOIU8U=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8QH3NUNZ21w8lnOlP73G3JnFPt2gSQgdtoMMcUL/mAc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4916,7 +4916,7 @@ pgGrid.addEventListener('pointermove',e=>{const d=PGdrag;if(!d||e.pointerId!==d.
   let best=null,bd=1e9;for(const el of pgGrid.children){if(el===d.el)continue;const r=el.getBoundingClientRect(),q=Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2));if(q<bd){bd=q;best=el}}
   const cur=PG.indexOf(d.p);
   if(best&&bd<110){const k=PG.findIndex(x=>x.u===+best.dataset.u),r=best.getBoundingClientRect(),after=e.clientX>r.left+r.width/2;let to=k+(after?1:0);if(to>cur)to--;
-    if(to!==cur)flip(()=>{PG.splice(cur,1);PG.splice(to,0,d.p);for(const p of PG)pgGrid.appendChild(pgGrid.querySelector(`[data-u="${p.u}"]`));pgSync()})}
+    if(to!==cur)flip(()=>{PG.splice(cur,1);PG.splice(to,0,d.p);const nx=PG[to+1];pgGrid.insertBefore(d.el,nx?pgGrid.querySelector(`[data-u="${nx.u}"]`):null);pgSync()})}
   const r=d.el.getBoundingClientRect(),lx=r.left+r.width/2-d.tx,ly=r.top+r.height/2-d.ty;
   d.tx=e.clientX-d.gx-lx;d.ty=e.clientY-d.gy-ly;d.el.style.transition='none';d.el.style.transform=`translate(${d.tx}px,${d.ty}px) scale(1.05)`});
 function pgUp(e){const d=PGdrag;if(!d||e.pointerId!==d.id)return;PGdrag=null;
