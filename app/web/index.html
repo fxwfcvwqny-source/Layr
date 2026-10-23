@@ -6882,7 +6882,7 @@ function prsLaserColor(step){if(step){PRS.lc=(PRS.lc+step+PRS_LC.length)%PRS_LC.
 function prsLaser(){PRS.raf=0;const el=prsEl(),cv=el.querySelector('.prs-laser'),dpr=Math.min(2,devicePixelRatio||1),W=innerWidth,H=innerHeight;
   if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
   const c=cv.getContext('2d'),now=performance.now(),dt=Math.min(64,PRS.lt?now-PRS.lt:16);PRS.lt=now;
-  c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.filter='none';c.clearRect(0,0,cv.width,cv.height);c.setTransform(dpr,0,0,dpr,0,0);
+  c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.clearRect(0,0,cv.width,cv.height);c.setTransform(dpr,0,0,dpr,0,0);
   const show=PRS.on&&PRS.laser&&PRS.lp.in;
   // ein- und ausblenden statt hart an/aus
   PRS.la=Math.max(0,Math.min(1,PRS.la+(show?1:-1)*dt/120));
@@ -6901,7 +6901,7 @@ function prsLaser(){PRS.raf=0;const el=prsEl(),cv=el.querySelector('.prs-laser')
       const band=(sc,al,cf=col)=>{const q=(P,p)=>[p[0]+(P[0]-p[0])*sc,p[1]+(P[1]-p[1])*sc];
         for(let i=1;i<n;i++){const a=(Al[i-1]+Al[i])/2*al;if(a<.01)continue;const l0=q(L[i-1],pts[i-1]),l1=q(L[i],pts[i]),r1=q(R[i],pts[i]),r0=q(R[i-1],pts[i-1]);
           c.fillStyle=cf(a);c.beginPath();c.moveTo(l0[0],l0[1]);c.lineTo(l1[0],l1[1]);c.lineTo(r1[0],r1[1]);c.lineTo(r0[0],r0[1]);c.closePath();c.fill()}};
-      c.filter='blur(6px)';band(2.2,.55);c.filter='blur(1.5px)';band(1,.7);c.filter='none';
+      band(2.2,.3);band(1,.7);
       // heller Kern im Schweif
       band(.42,.6,a=>`rgba(255,${200+(g>>3)},${200+(b>>3)},${a*A})`);}
     // Punkt: weiter Schein, Leuchten, weißer Kern – mit ganz leichtem Flimmern wie ein echter Laser
