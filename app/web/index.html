@@ -4087,8 +4087,8 @@ function openTextEditor(i,o,isNew,at){
     if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
     for(const k of['fs','color','bold','orient','underline','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
-    if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}if('bold' in props){S.bold=o.bold;$('#bold').checked=o.bold}if('underline' in props){S.underline=!!o.underline;$('#underl').checked=!!o.underline}if('color' in props)setColor(o.color,true);refresh();redraw(i)};
-  eng=textEngine(area,o.text,{lists:true,onChange:st=>{shiftSpans(o,o.text,st.v);o.text=st.v;refresh();redraw(i)},
+    if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}if('bold' in props){S.bold=o.bold;$('#bold').checked=o.bold}if('underline' in props){S.underline=!!o.underline;$('#underl').checked=!!o.underline}if('color' in props)setColor(o.color,true);textClamp(o,P,true);refresh();redraw(i)};
+  eng=textEngine(area,o.text,{lists:true,onChange:st=>{shiftSpans(o,o.text,st.v);o.text=st.v;textClamp(o,P,true);refresh();redraw(i)},
     vert:(idx,d)=>{const p=idxPos(o,g,idx),li=p.li+d;if(li<0)return 0;if(li>=g.b.lines.length)return o.text.length;return posIdx(o,g,p.x,(li+.5)*g.b.lh)},
     edge:(idx,d)=>{const p=idxPos(o,g,idx);return g.starts[p.li]+(d<0?0:g.b.lines[p.li].length)},
     onEmptyUndo:()=>{if(o.text===startText&&JSON.stringify({...o,text:startText})===origJson){closeEditor();undo()}}});
