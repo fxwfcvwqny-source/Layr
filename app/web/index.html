@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-l/Ym8ZbAZIvFV0FNpsRfQBbeiv90lCWnLokt3Frlg34=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uwYAqRpah/YrHJyaU8yK50B6yQumTq5ZRVG7HkZN22I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5610,6 +5610,7 @@ function sanObj(o){
   if(typeof r.color!=='string'||!COL_RX.test(r.color))r.color='#1b1f24';
   if(r.lw!=null&&!(isNum(r.lw)&&r.lw>=0&&r.lw<=200))r.lw=1;if(r.lw==null)r.lw=r.type==='text'||r.type==='image'?0:1;
   if(r.alpha!=null&&!(isNum(r.alpha)&&r.alpha>0&&r.alpha<=1))delete r.alpha;
+  if(r.locked!==true)delete r.locked;
   if(r.font!=null&&!own(FONT_MAP,r.font))delete r.font;
   if(r.fs!=null&&!(isNum(r.fs)&&r.fs>=2&&r.fs<=400))r.fs=11;
   const box=()=>isNum(r.x)&&isNum(r.y)&&isNum(r.w)&&isNum(r.h);
