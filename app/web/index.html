@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gRn20xHC3f++YqNDUpAIeTaskajMlMBetnM1+mfMPi4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-n9ZkKDj3jWSO+e/zyguUXyDw3FaEjrqIfnh2HsegTfw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2954,11 +2954,22 @@ const ANCHOR_IDS=['t1','t2','t3','b1','b2','b3','l1','l2','l3','r1','r2','r3'];
 /* Symbole mit eckigem Umriss (Festpunkte auf Dritteln liegen auf dem Rand); alle anderen Formen nur an den Seitenmitten */
 const ANCHOR_RECT_SYMS=new Set(['org_lead','org_unit','org_pos','org_person','org_vacant','org_ext','f_frame','fork','objnode','swimlane','class','interface','objekt','system','component','activation','state','process','subprog','ns_seq','ns_if','ns_while','ns_do','entity','weak','firewall','server','nas','phone','rack','hub','switch','l3switch','modem','patch','usv','tablet','lb','vpn','proxy','vm','container','bridge','repeater','mediaconv','wlc','tk','ids','twofa','vlan','dmz','trust']);
 function anchorRect(o){return['rect','table','image','text'].includes(o.type)||(o.type==='sym'&&ANCHOR_RECT_SYMS.has(o.sym))}
-function orgAnchor(o,t,f=.5){if(t.length===2){f=anchorRect(o)?[.25,.5,.75][+t[1]-1]:.5;t=t[0]} // shortcut: older Layr versions anchor 't1'..'r3' at the box centre (links stay intact), no upgrade needed
+function orgAnchor(o,t,f=.5){if(/^a\d/.test(t))return outlinePt(o,+t.slice(1));if(t.length===2){f=anchorRect(o)?[.25,.5,.75][+t[1]-1]:.5;t=t[0]} // shortcut: older Layr versions anchor 't1'..'r3' at the box centre (links stay intact), no upgrade needed
   const{x,y,w,h}=dockBox(o);let yb=y+h;if(t==='b'&&o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].below&&o.label){const b=bbox(o);yb=b.y+b.h}
   return t==='t'?[x+w*f,y]:t==='b'?[x+w*f,yb]:t==='l'?[x,y+h*f]:t==='r'?[x+w,y+h*f]:[x+w/2,y+h/2]}
 /* Festpunkte an kurzen Seiten (<40) sind ausgeblendet */
 const anchorShown=(b,t)=>t[1]==='2'||((t[0]==='t'||t[0]==='b')?b.w:b.h)>=40;
+/* outline of non-rectangular shapes for the angle anchors 'a<deg>' (angle in the box-normalised space) */
+const OUTLINE_E=new Set(['f_circle','f_ell','usecase','attr','key','multi','conn','start','end','flowend','org_dot','cloud','f_think']),OUTLINE_D=new Set(['decision','branch','rel']);
+const ANCHOR_RE=/^(auto|[tblr][1-3]?|a(?:[12]?\d?\d|3[0-5]\d))$/;
+// shortcut: rounded corners, cylinders and icons use the box outline; upgrade if docking points visibly float
+function outlinePt(o,deg){const{x,y,w,h}=dockBox(o),s=o.type==='sym'?SYM[o.sym]:null,a=deg*Math.PI/180,c=Math.cos(a),n=Math.sin(a);let r;
+  if(o.type==='ellipse'||(s&&OUTLINE_E.has(s.id)))r=1;else if(s&&OUTLINE_D.has(s.id))r=1/(Math.abs(c)+Math.abs(n));
+  else if(s&&s.pts){const P=fitPoly(typeof s.pts==='function'?s.pts(w,h):s.pts,-1,-1,2,2).map(([u,v])=>[o.w<0?-u:u,o.h<0?-v:v]);r=0;
+    for(let i=0;i<P.length;i++){const[p,q]=P[i],[e,f]=P[(i+1)%P.length],dx=e-p,dy=f-q,den=c*dy-n*dx;if(Math.abs(den)<1e-9)continue;const t=(p*dy-q*dx)/den,u=(p*n-q*c)/den;if(t>0&&u>=0&&u<=1)r=Math.max(r,t)}r=r||1}
+  else r=1/Math.max(Math.abs(c),Math.abs(n));
+  return[x+w/2+r*c*w/2,y+h/2+r*n*h/2]}
+function dockIds(o){const b=dockBox(o);return anchorRect(o)?ANCHOR_IDS.filter(t=>anchorShown(b,t)):[...Array(b.w+b.h>=80?12:4)].map((_,i,A)=>'a'+i*360/A.length)}
 /* Nächster Festpunkt am Kasten, sonst 'auto' */
 function pickAnchor(o,x,y){let best='auto',bd=8/S.zoom;const b=dockBox(o);for(const t of anchorRect(o)?ANCHOR_IDS.filter(t=>anchorShown(b,t)):[]){const q=orgAnchor(o,t),d=Math.hypot(q[0]-x,q[1]-y);if(d<bd){bd=d;best=t}}return best[1]==='2'?'auto':best}
 /* Seite wählen, an der eine Linie andockt: die, die zum anderen Ende zeigt */
