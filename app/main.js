@@ -523,6 +523,7 @@ handle('upd-download', async () => {
     return { ok: true, version: rel.version };
   } catch (e) {
     try { fs.rmSync(dir, { recursive: true, force: true }); } catch (x) {}
+    updLog('download: ' + String(e && e.message || e));
     return { error: String(e && e.message || e) };
   } finally { clearTimeout(idle); dlBusy = false; }
 });
@@ -576,7 +577,7 @@ function installNow(relaunch) {
       const fd = fs.openSync(tmp, 'wx', 0o700);
       try { let off = 0; while (off < data.length) off += fs.writeSync(fd, data, off, data.length - off); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
       try { fs.chmodSync(tmp, 0o755); fs.renameSync(tmp, real); } catch (e) { try { fs.unlinkSync(tmp); } catch (x) {} throw e; }
-    } catch (e) { return false; }
+    } catch (e) { updLog('appimage: ' + (e && e.code)); return false; }
     try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {}
     pending = null; return true;
   }
@@ -586,7 +587,7 @@ handle('upd-install', async (_e, auto) => {
   if (!pending) pending = loadPending();
   if (!pending) return { error: 'nopending' };
   const chk = pendingChecked();
-  if (!chk) { pending = null; try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} return { error: 'hash' }; }
+  if (!chk) { updLog('install: hash'); pending = null; try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} return { error: 'hash' }; }
   if (auto) { installOnQuit = true; relaunchAfter = false; return { ok: true, later: true }; }
   if (pending.type === 'deb') {
     // .deb braucht Administratorrechte: pkexec zeigt die Passwortabfrage von Ubuntu.
