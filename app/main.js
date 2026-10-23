@@ -345,7 +345,7 @@ handle('app-info', () => ({ version: app.getVersion(), platform: process.platfor
 listen('set-lang', (_e, l) => { uiLang = l === 'en' ? 'en' : 'de'; try { fs.writeFileSync(langFile(), uiLang); } catch (e) {} });
 handle('check-update', async () => {
   try {
-    const r = await net.fetch(API_LATEST, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' } });
+    const r = await net.fetch(API_LATEST, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' }, signal: AbortSignal.timeout(30000) });
     if (!r.ok) return { error: r.status };
     const j = JSON.parse((await readCapped(r, 2e6)).toString('utf8')), v = String(j.tag_name || '').replace(/^v/i, '');
     if (!/^\d+\.\d+\.\d+$/.test(v)) return { error: 'keine Version' };
