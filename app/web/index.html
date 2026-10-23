@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-RNgOEJJqokfvlYA/TjKPYMsu3uS56IRCbVaMSv0yCGU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WdCDGGCaMrbHSlXw4eoo12QfrGwtuJmizqRJpbA8nOI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6231,6 +6231,7 @@ addEventListener('keydown',e=>{
   else if(mod&&k==='f'){e.preventDefault();openFind()}
   else if(mod&&k==='n'&&e.altKey){e.preventDefault();openNewDlg()}
   else if(mod&&k==='d'){e.preventDefault();dupSel()}
+  else if(mod&&k==='a'&&S.tool==='textsel'){e.preventDefault();const L=pagesEl.querySelectorAll('.textLayer');if(L.length){const r=document.createRange();r.setStartBefore(L[0]);r.setEndAfter(L[L.length-1]);getSelection().removeAllRanges();getSelection().addRange(r)}}
   else if(mod&&k==='a'){e.preventDefault();const i=S.sel?S.sel.p:curPage(),P=S.pages[i];if(P&&P.objs.length){if(S.tool!=='select'&&S.tool!=='lasso')setTool('select');selectItems(i,P.objs.slice())}}
   else if(mod&&(k==='+'||k==='=')){e.preventDefault();zoomTo(S.zoom*1.2)}
   else if(mod&&k==='-'){e.preventDefault();zoomTo(S.zoom/1.2)}
