@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ggDqQfh/3Pwbz6sg+NKnmGND0DA0H2p1BmeZPB5dP80=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-VHu3zsFXCjOHrbMUtB8QKmtEqmkDSdnfaUefz3ILnPg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3509,14 +3509,14 @@ try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:guides')||'{}');if(type
 function gdSave(){try{localStorage.setItem('pdfwerkbank:guides',JSON.stringify(GD))}catch(e){}}
 const GRID=5*72/25.4;
 function gdApply(){document.getElementById('app').classList.toggle('pen-only',GD.pen);try{redrawAll()}catch(e){}}
-function gdBox(L){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of L){let q;try{q=boxOf(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
+function gdBox(L){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of L){let q;try{q=o.type==='text'?bbox(o):boxOf(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
 // liefert den (eingerasteten) Zeigerpunkt; st.gb0 = Rahmen beim Start des Ziehens
 function guideSnap(i,o,x,y,st,e){const P=S.pages[i];if(!P){S.guides=null;return[x,y]}
   const moving=o.type==='group'?o.items:[o];if(!st.gb0){const b=gdBox(moving);st.gb0={x:b.x-(st.lx-st.x),y:b.y-(st.ly-st.y),w:b.w,h:b.h}}
   if(e&&e.altKey||!GD.on&&!GD.grid){S.guides=null;return[x,y]}
   const tol=6/S.zoom,tx=x-st.x,ty=y-st.y,b={x:st.gb0.x+tx,y:st.gb0.y+ty,w:st.gb0.w,h:st.gb0.h};
   const X=[],Y=[];if(GD.on){X.push([0,'p'],[P.w/2,'c'],[P.w,'p']);Y.push([0,'p'],[P.h/2,'c'],[P.h,'p']);
-    for(const q of P.objs){if(moving.includes(q)||q.type==='deco'||q.type==='redact')continue;let r;try{r=boxOf(q)}catch(e2){continue}if(!isNum(r.x)||!isNum(r.w))continue;
+    for(const q of P.objs){if(moving.includes(q)||q.type==='deco'||q.type==='redact')continue;let r;try{r=q.type==='text'?bbox(q):boxOf(q)}catch(e2){continue}if(!isNum(r.x)||!isNum(r.w))continue;
       X.push([r.x,'o'],[r.x+r.w/2,'o'],[r.x+r.w,'o']);Y.push([r.y,'o'],[r.y+r.h/2,'o'],[r.y+r.h,'o'])}}
   const best=(cands,vals)=>{let m=null;for(const[v,kind]of vals)for(const a of cands){const d=v-a;if(Math.abs(d)<=tol&&(!m||Math.abs(d)<Math.abs(m.d)))m={d,v,kind}}return m};
   let sx=GD.on?best([b.x,b.x+b.w/2,b.x+b.w],X):null,sy=GD.on?best([b.y,b.y+b.h/2,b.y+b.h],Y):null;
@@ -3613,7 +3613,7 @@ function bbox(o){
     case'pen':{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of o.pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}const p=o.lw/2;return{x:a-p,y:b-p,w:c-a+2*p,h:d-b+2*p}}
     case'line':case'measure':{const pts=o.type==='line'?linePts(o):[[o.x1,o.y1],[o.x2,o.y2]];let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}
       let x=a,y=b,w=c-a,h=d-b;const lb=o.type==='line'&&lineLblBox(o);if(lb){const x2=Math.max(x+w,lb.x+lb.w),y2=Math.max(y+h,lb.y+lb.h);x=Math.min(x,lb.x);y=Math.min(y,lb.y);w=x2-x;h=y2-y}return{x,y,w,h}}
-    case'text':{const t=textBox(o);return{x:o.x,y:o.y,w:t.w,h:t.h}}
+    case'text':{const t=textBox(o),r=rotOf(o);if(!r)return{x:o.x,y:o.y,w:t.w,h:t.h};const a=r*Math.PI/180,W=Math.abs(t.w*Math.cos(a))+Math.abs(t.h*Math.sin(a)),H=Math.abs(t.w*Math.sin(a))+Math.abs(t.h*Math.cos(a)),cx=o.x+t.w/2,cy=o.y+t.h/2;return{x:cx-W/2,y:cy-H/2,w:W,h:H}}
     case'sym':{const s=SYM[o.sym];let h=o.h,x=o.x,w=o.w;if(s&&s.below&&o.label){const fs=o.fs||11;mctx.font=`${fs}px ${FONT}`;const LL=String(o.label).split('\n');const lw=Math.max(...LL.map(l=>mctx.measureText(l).width));h+=fs*(.45+1.2*LL.length);if(lw>w){x=o.x+w/2-lw/2;w=lw}}return{x,y:o.y,w,h}}
     case'group':{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const it of o.items){const q=bbox(it);a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
     default:return{x:o.x,y:o.y,w:o.w,h:o.h};
@@ -3660,7 +3660,7 @@ function handles(o){
       if(o.type==='table'&&(m.k==='mt'||m.k==='mb'?near(m.x,tblCols(o)):near(m.y,tblRows(o))))continue;hs.push(m)}}
   return hs;
 }
-const boxOf=o=>o.type==='text'||o.type==='group'?bbox(o):{x:o.x,y:o.y,w:o.w,h:o.h};
+const boxOf=o=>{if(o.type==='group')return bbox(o);const t=o.type==='text'?textBox(o):o;return{x:o.x,y:o.y,w:t.w,h:t.h}}; // local, unrotated box
 function handleAt(o,x,y,tol){const h=handles(o).find(h=>Math.abs(h.x-x)<tol*1.4&&Math.abs(h.y-y)<tol*1.4);return h?h.k:null}
 function nearBorder(o,x,y,tol){const b=bbox(o);return!(x>b.x+tol&&x<b.x+b.w-tol&&y>b.y+tol&&y<b.y+b.h-tol)}
 const CURS={tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',ml:'ew-resize',mr:'ew-resize',mt:'ns-resize',mb:'ns-resize',p1:'move',p2:'move'};
