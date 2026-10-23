@@ -78,6 +78,7 @@ else {
   ok('Andock-Hinweis zeigt auf kleinen Kästen nur die Seitenmitten', await ev("(()=>{let n=0;const c={save(){},restore(){},strokeRect(){},setLineDash(){},beginPath(){},arc(){n++},fill(){},stroke(){}};const d=(w,h)=>{n=0;drawDockHint(c,{type:'rect',x:0,y:0,w,h});return n};return d(30,30)===4&&d(100,100)===12})()") === true);
   ok('Festpunkt wird auf schmalen Kästen nicht gefangen', await ev("(()=>{const R={type:'rect',x:0,y:0,w:30,h:100};return pickAnchor(R,7.5,0)==='auto'})()") === true);
   ok('Gedrehter Text: Hülle tauscht Breite und Höhe, ohne Drehung unverändert', await ev("(()=>{const o={type:'text',x:10,y:20,text:'Abc',fs:16,color:'#000000',orient:'h',lw:0};const a=bbox(o),l=boxOf(o);o.rot=90;const b=bbox(o);return Math.abs(b.w-a.h)<0.01&&Math.abs(b.h-a.w)<0.01&&Math.abs(b.x+b.w/2-(a.x+a.w/2))<0.01&&l.w===a.w&&l.h===a.h&&boxOf(o).w===a.w})()") === true);
+  ok('Gedrehter Text trifft in seinen eigenen Achsen, nicht in der Hülle', await ev("(()=>{const o={type:'text',x:100,y:100,text:'Ein langer Text',fs:16,color:'#000000',orient:'h',lw:0,rot:45};const t=textBox(o),cx=o.x+t.w/2,cy=o.y+t.h/2,b=bbox(o);return hit(o,cx,cy,2)&&!hit(o,b.x+0.5,b.y+0.5,2)})()") === true);
   ok('Verbindung behält gültige Festpunkte und setzt unbekannte auf auto', await ev("(()=>{const r=sanObj({type:'line',x1:0,y1:0,x2:1,y2:1,color:'#000000',link:{a:'x',b:'y',ta:'t2',tb:'junk'}});return r.link.ta==='t2'&&r.link.tb==='auto'})()") === true);
   ws.close();
   console.log(failed ? `${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

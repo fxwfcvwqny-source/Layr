@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-VHu3zsFXCjOHrbMUtB8QKmtEqmkDSdnfaUefz3ILnPg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-cZIgkCZfNDIWrpsX6EXPp8GdX8e8uBTwxYuqclsRkWU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3628,6 +3628,7 @@ function hit(o,x,y,tol,strict){
   if(o.locked&&lockPassOn)return false;
   if(o.type==='deco')return false;
   if(o.type==='group')return inBox(o,x,y,tol);
+  if(rotOf(o)){const[lx,ly]=rotP(x,y,...tCtr(o),-o.rot),t=textBox(o);return lx>=o.x-tol&&lx<=o.x+t.w+tol&&ly>=o.y-tol&&ly<=o.y+t.h+tol}
   const b=bbox(o);if(x<b.x-tol-o.lw||x>b.x+b.w+tol+o.lw||y<b.y-tol-o.lw||y>b.y+b.h+tol+o.lw)return false;
   if(o.type==='pen'){const p=o.pts;if(p.length===1)return Math.hypot(x-p[0][0],y-p[0][1])<tol+o.lw/2;for(let i=1;i<p.length;i++)if(dSeg(x,y,p[i-1],p[i])<tol+o.lw/2)return true;return false}
   if(o.type==='line'){const lb=lineLblBox(o);if(lb&&x>=lb.x-tol&&x<=lb.x+lb.w+tol&&y>=lb.y-tol&&y<=lb.y+lb.h+tol)return true;const p=linePts(o);for(let i=1;i<p.length;i++)if(dSeg(x,y,p[i-1],p[i])<tol+o.lw/2)return true;return false}
@@ -3662,7 +3663,7 @@ function handles(o){
 }
 const boxOf=o=>{if(o.type==='group')return bbox(o);const t=o.type==='text'?textBox(o):o;return{x:o.x,y:o.y,w:t.w,h:t.h}}; // local, unrotated box
 function handleAt(o,x,y,tol){const h=handles(o).find(h=>Math.abs(h.x-x)<tol*1.4&&Math.abs(h.y-y)<tol*1.4);return h?h.k:null}
-function nearBorder(o,x,y,tol){const b=bbox(o);return!(x>b.x+tol&&x<b.x+b.w-tol&&y>b.y+tol&&y<b.y+b.h-tol)}
+function nearBorder(o,x,y,tol){if(rotOf(o)){const[lx,ly]=rotP(x,y,...tCtr(o),-o.rot),t=textBox(o);return!(lx>o.x+tol&&lx<o.x+t.w-tol&&ly>o.y+tol&&ly<o.y+t.h-tol)}const b=bbox(o);return!(x>b.x+tol&&x<b.x+b.w-tol&&y>b.y+tol&&y<b.y+b.h-tol)}
 const CURS={tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',ml:'ew-resize',mr:'ew-resize',mt:'ns-resize',mb:'ns-resize',p1:'move',p2:'move'};
 function resizeTo(o,st,x,y,shift){
   if(o.type==='group'){groupResize(o,st,x,y,shift);return}
@@ -3980,6 +3981,7 @@ function objSamples(o){const b=bbox(o);let s;
   if(o.type==='pen'){const k=Math.max(1,Math.floor(o.pts.length/24));s=o.pts.filter((_,i)=>i%k===0)}
   else if(o.type==='line'){s=[];const p=linePts(o);p.forEach((q,i)=>{s.push(q);if(i)s.push([(q[0]+p[i-1][0])/2,(q[1]+p[i-1][1])/2])})}
   else if(o.type==='measure')s=[[o.x1,o.y1],[o.x2,o.y2],[(o.x1+o.x2)/2,(o.y1+o.y2)/2]];
+  else if(rotOf(o)){const t=textBox(o),[cx,cy]=tCtr(o);s=[[o.x,o.y],[o.x+t.w,o.y],[o.x,o.y+t.h],[o.x+t.w,o.y+t.h],[cx,cy]].map(p=>rotP(p[0],p[1],cx,cy,o.rot))}
   else s=[[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h],[b.x+b.w/2,b.y],[b.x+b.w/2,b.y+b.h],[b.x,b.y+b.h/2],[b.x+b.w,b.y+b.h/2],[b.x+b.w/2,b.y+b.h/2]];
   return s}
 function lassoHit(o,poly){const s=objSamples(o);if(!s.length)return false;let n=0;for(const p of s)if(pointInPoly(p[0],p[1],poly))n++;return n/s.length>=.5}
