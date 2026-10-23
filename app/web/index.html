@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8QH3NUNZ21w8lnOlP73G3JnFPt2gSQgdtoMMcUL/mAc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pTJd3bcZfOZZnBomQqBuH08hMQhfyhcvdhenK+YnaTw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4883,10 +4883,10 @@ async function pgRender(gen){const done={};
       try{const page=await S.doc.getPage(p.i+1);if(gen!==PGgen)return;await page.render({canvasContext:bc,viewport:page.getViewport({scale:W/P.w})}).promise}catch(e){}
       bc.setTransform(W/P.w,0,0,W/P.w,0,0);for(const o of P.objs)try{drawObj(bc,o)}catch(e){}done[p.i]=base}
     if(gen!==PGgen)return;c.drawImage(done[p.i],0,0);el.classList.add('ready')}}
-function flip(fn){const before=new Map([...pgGrid.children].map(el=>[el,el.getBoundingClientRect()]));fn();if(motionOff())return;
-  for(const el of pgGrid.children){const b=before.get(el);if(!b||el===(PGdrag&&PGdrag.el))continue;const a=el.getBoundingClientRect(),dx=b.left-a.left,dy=b.top-a.top;if(!dx&&!dy)continue;
-    el.style.transition='none';el.style.transform=`translate(${dx}px,${dy}px)`;void el.offsetWidth;el.style.transition='transform .32s cubic-bezier(.2,.9,.25,1)';el.style.transform='';
-    setTimeout(()=>{if(!el.style.transform)el.style.transition=''},360)}}
+function flip(fn){const g=pgGrid.getBoundingClientRect(),before=new Map();for(const el of pgGrid.children){const r=el.getBoundingClientRect();if(r.bottom>g.top-200&&r.top<g.bottom+200)before.set(el,r)}fn();if(motionOff())return;
+  const mv=[];for(const[el,b]of before){if(el===(PGdrag&&PGdrag.el)||!el.isConnected)continue;const a=el.getBoundingClientRect(),dx=b.left-a.left,dy=b.top-a.top;if(dx||dy)mv.push([el,dx,dy])}
+  for(const[el,dx,dy]of mv){el.style.transition='none';el.style.transform=`translate(${dx}px,${dy}px)`}void pgGrid.offsetWidth;
+  for(const[el]of mv){el.style.transition='transform .32s cubic-bezier(.2,.9,.25,1)';el.style.transform='';setTimeout(()=>{if(!el.style.transform)el.style.transition=''},360)}}
 function pgRotate(list,d){for(const p of list){p.rot+=d;const el=pgGrid.querySelector(`[data-u="${p.u}"]`);if(el)pgPlace(el,p,true)}pgSync()}
 function pgDelete(list){if(PG.length-list.length<1)return;const set=new Set(list.map(p=>p.u));
   const els=[...pgGrid.children].filter(el=>set.has(+el.dataset.u));
