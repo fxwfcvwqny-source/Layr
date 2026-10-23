@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2PKNzy/guoQ7QM+M04X22i0ljTHQQBdDVHW01NxNXoo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XkflFyGf44H2tEOd0JY9zkoVNpSyDHhP87GwOqfUEIk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2286,7 +2286,7 @@ const I18N_EN={
 'Bereiche mit Semikolon trennen, z. B. 1-3; 4-10; 11-':'Separate ranges with semicolons, e.g. 1-3; 4-10; 11-','Bitte Seiten angeben, z. B. 1-3, 5':'Please enter pages, e.g. 1-3, 5',
 ' Seite wird zu einer neuen PDF.':' page becomes a new PDF.',' Seiten werden zu einer neuen PDF.':' pages become a new PDF.','Eine Datei.':'One file.',' Dateien, zusammen in einer ZIP-Datei.':' files, together in one ZIP file.',
 'Mindestens eine Seite muss in der Datei bleiben.':'At least one page must stay in the file.','Teile':'Parts','Erst Seiten auswählen.':'Select pages first.',
-'“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'” is extracted and open in a new tab. Undo in the file with Ctrl+Z.','“ ist in einem neuen Tab offen.':'” is open in a new tab.',
+'“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'” is extracted and open in a new tab. Undo in the file with Ctrl+Z.','“ ist in einem neuen Tab offen.':'” is open in a new tab.','“ ist in einem neuen Tab offen. Aus der Originaldatei wurde nichts entfernt.':'” is open in a new tab. Nothing was removed from the original file.',
 'Herauslösen hat nicht geklappt: ':'Extracting failed: ',
 'Bilder zu PDF':'Images to PDF','Fotos von Blättern als PDF, gerade und klar':'Photos of sheets as a PDF, straight and clear','Scan verbessern':'Improve scan',
 'Gerade ausrichten, Kontrast, Schwarzweiß':'Straighten, contrast, black and white','Fotos von Blättern oder Scans hierher ziehen – sie werden zu Seiten einer PDF.':'Drag photos of sheets or scans here – they become pages of a PDF.',
@@ -7192,10 +7192,11 @@ async function sxRun(asFile){const p=sxPlan();if(!p)return;const go=$('#sxGo'),s
   try{const cr=S.crypt;
     if(SX.mode==='sel'&&!asFile){const l=p[0];
       const bytes=await sxSubset(S.bytes,l),objs=l.map(i=>SX.marks?JSON.parse(JSON.stringify(S.pages[i].objs,(k,v)=>k==='_editing'?undefined:v)):[]);
-      const name=sxName(l),form=SX.marks&&S.form?Object.assign(Object.create(null),S.form):null,del=SX.del,n=S.pages.length;sxClose();
-      if(del)await rebuildPages(idx(n).filter(i=>!l.includes(i)).map(i=>({i})),null,Math.max(0,Math.min(l[0],n-l.length-1)));
+      const name=sxName(l),form=SX.marks&&S.form?Object.assign(Object.create(null),S.form):null,del=SX.del,n=S.pages.length,srcTab=TAB,srcBytes=S.bytes;sxClose();
       const ok_=await tabGate(()=>tabOpenWith(async()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();const r=await tabLoad(bytes,name,{isNew:true,objs,form,crypt:cr||null});if(r)markDirty();return r}));
-      if(ok_)toast(tr('„')+name+tr(del?'“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'“ ist in einem neuen Tab offen.'));return}
+      // Aus der Originaldatei erst entfernen, wenn der neue Tab steht; sonst gehen die Seiten bei einem Fehler verloren
+      let cut=false;if(ok_&&del&&srcTab!==TAB&&TABS.includes(srcTab)){const nt=TAB;await tabSwitch(srcTab);if(TAB===srcTab&&S.bytes===srcBytes)cut=await rebuildPages(idx(n).filter(i=>!l.includes(i)).map(i=>({i})),null,Math.max(0,Math.min(l[0],n-l.length-1)));await tabSwitch(nt)}
+      if(ok_)toast(tr('„')+name+tr(!del?'“ ist in einem neuen Tab offen.':cut?'“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'“ ist in einem neuen Tab offen. Aus der Originaldatei wurde nichts entfernt.'));return}
     const base=SX.marks?await buildOutput():S.bytes;const files=[];
     for(let k=0;k<p.length;k++){go.textContent=tr('Speichert')+(p.length>1?` ${k+1}/${p.length}`:'');files.push({name:sxName(p[k]),data:await crSeal(await sxSubset(base,p[k]),cr)});await new Promise(r=>setTimeout(r,0))}
     sxClose();if(files.length===1)await exBytes(files[0].name,files[0].data,'application/pdf');else await exBytes(`${exBase()}-${tr('Teile')}.zip`,zipStore(files),'application/zip')}
