@@ -3387,8 +3387,8 @@ function bbox(o){
 }
 // Keep text boxes on their page; wrap=true breaks lines at the right page edge
 function textClamp(o,P,wrap){if(!P||o.type!=='text')return;o.x=Math.max(0,o.x);
-  if(wrap&&o.orient==='h'&&textBox(o).w>P.w-o.x)o.wrapW=Math.max(o.fs*1.5,P.w-o.x);
-  const b=textBox(o);o.x=clamp(o.x,0,Math.max(0,P.w-b.w));o.y=clamp(o.y,0,Math.max(0,P.h-b.h))}
+  let b=textBox(o);if(wrap&&o.orient==='h'&&b.w>P.w-o.x){o.wrapW=Math.max(o.fs*1.5,P.w-o.x);b=textBox(o)}
+  o.x=clamp(o.x,0,Math.max(0,P.w-b.w));o.y=clamp(o.y,0,Math.max(0,P.h-b.h))}
 function dSeg(px,py,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy;let t=l?((px-a[0])*dx+(py-a[1])*dy)/l:0;t=clamp(t,0,1);return Math.hypot(px-a[0]-t*dx,py-a[1]-t*dy)}
 function hit(o,x,y,tol,strict){
   if(o.type==='deco')return false;
