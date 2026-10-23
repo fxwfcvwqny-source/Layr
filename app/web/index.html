@@ -4139,7 +4139,7 @@ function openTextEditor(i,o,isNew,at){
       else if(h==='mr'){o.wrapW=Math.max(o.fs*1.5,w0+dx)}
       else if(h==='ml'){const nw=Math.max(o.fs*1.5,w0-dx);o.x=gg.x+(w0-nw);o.wrapW=nw}
       else if(h==='mb'||h==='mt'){const nat=textBox({...o,minH:0}).h;let nh=Math.max(nat,gg.h0+(h==='mb'?dy:-dy));if(h==='mt'){o.y=gg.y+gg.h0-nh}if(nh<=nat+.5)delete o.minH;else o.minH=nh}
-      refresh();redraw(i)};
+      textClamp(o,P,false);refresh();redraw(i)};
     const up=()=>{root.removeEventListener('pointermove',mv);root.removeEventListener('pointerup',up);root.removeEventListener('pointercancel',up);eng.focus()};
     root.addEventListener('pointermove',mv);root.addEventListener('pointerup',up);root.addEventListener('pointercancel',up)});
   editorEl=root;editorTa={get value(){return eng.value}};refresh();
