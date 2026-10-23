@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-JlE+SzX+PFMNLFX1nH9Z1zzGtrecp7LHL6BLu8sfFBo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tq2VUum8+5eXbZFSUD50ap1sc3aYBvPO4W9nrcU+tkY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5634,12 +5634,14 @@ async function updDownload(show){const W=window.werkbank;if(!W||!W.updDownload)r
   let skip='';try{skip=localStorage.getItem('pdfwerkbank:updSkip')||''}catch(e){}
   if(show||skip!==UPD.r.version)updRender('ready')}
 async function updTerminal(){const W=window.werkbank;if(!W||!W.updTerminal)return;await flushAuto();let r=null;try{r=await W.updTerminal()}catch(e){}
+  if(r&&r.error==='busy')return;
   if(r&&r.ok){toast(tr('Im Terminal dein Passwort eingeben. Layr startet danach neu.'));return}
   if(r&&r.cmd){UPD.cmd=r.cmd;updRender('term');toast(tr('Kein Terminal gefunden. Bitte den Befehl kopieren und im Terminal ausführen.'));return}
   toast(tr('Die Installation hat nicht geklappt.'))}
 async function updInstall(){const W=window.werkbank;updRender('inst');await flushAuto();
   let r=null;try{r=await W.updInstall(false)}catch(e){}
   if(r&&r.ok)return;if(r&&r.error==='takeover')return;
+  if(r&&r.error==='busy'){updRender('dl');return}
   if(r&&(r.error==='noauth'||r.error==='pkexec')&&r.cmd){UPD.cmd=r.cmd;updRender('term');return}
   animHide(updCard());
   toast(r&&r.error==='cancel'?tr('Installation abgebrochen. Du kannst es später noch einmal versuchen.'):r&&r.error==='pkexec'?tr('Zum Installieren fehlt pkexec. Bitte das .deb-Paket aus dem Browser installieren.'):tr('Die Installation hat nicht geklappt.'));

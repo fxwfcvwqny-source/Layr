@@ -584,6 +584,7 @@ function installNow(relaunch) {
   return false;
 }
 handle('upd-install', async (_e, auto) => {
+  if (dlBusy) return { error: 'busy' };
   if (!pending) pending = loadPending();
   if (!pending) return { error: 'nopending' };
   const chk = pendingChecked();
@@ -621,6 +622,7 @@ handle('upd-install', async (_e, auto) => {
   return { ok: true };
 });
 handle('upd-terminal', async () => {
+  if (dlBusy) return { error: 'busy' };
   if (!pending) pending = loadPending();
   if (!pending || pending.type !== 'deb') return { error: 'nopending' };
   const chk = pendingChecked(); if (!chk) return { error: 'hash' };
