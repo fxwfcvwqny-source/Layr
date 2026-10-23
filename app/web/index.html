@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-MLZR5sF3+NhrLr5UerXVa0vaTom3KBhYDoXHfkf5e/Q=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-BD0Stb6ekAtOHZxmJHHVK7BqFefIBvi0aQqm5D8R4KY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3290,7 +3290,7 @@ async function rdApply(){const rd=S.pages.map(P=>P.objs.filter(o=>o.type==='reda
       const kx=cv.width/P.w,ky=cv.height/P.h;c.fillStyle='#000';for(const r of R)c.fillRect(Math.floor(r.x*kx)-1,Math.floor(r.y*ky)-1,Math.ceil(r.w*kx)+2,Math.ceil(r.h*ky)+2);
       const bl=await new Promise(r=>cv.toBlob(r,'image/jpeg',.9));cv.width=cv.height=0;const img=await out.embedJpg(new Uint8Array(await bl.arrayBuffer()));
       const np=out.addPage([P.w,P.h]);np.drawImage(img,{x:0,y:0,width:P.w,height:P.h})}
-    fixAcroForm(src,out);H.u.push(docSnap());H.r=[];S.rdPurge=true;
+    fixAcroForm(src,out);H.u.push(docSnap());capDocHist();H.r=[];S.rdPurge=true;
     animHide($('#rdDlg'));
     await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
     updUndo();markDirty();rdBar();
@@ -3376,7 +3376,7 @@ function ffCount(){let n=0;for(const P of S.pages)for(const o of P.objs)if(o.typ
 async function ffFinalize(){const lists=S.pages.map(P=>P.objs.filter(o=>o.type==='field'));if(!lists.some(l=>l.length))return;closeEditor();setSel(null);
   try{const pdf=await PDFLib.PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true}),n=await ffBuild(pdf,S.doc,lists);const out=await pdf.save();
     const objs=S.pages.map(P=>JSON.parse(JSON.stringify(P.objs.filter(o=>o.type!=='field'),(k,v)=>k==='_editing'?undefined:v)));
-    H.u.push(docSnap());H.r=[];await openPdf(out,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});updUndo();markDirty();if(S.tool==='field')setTool('select');ffBar();
+    H.u.push(docSnap());capDocHist();H.r=[];await openPdf(out,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});updUndo();markDirty();if(S.tool==='field')setTool('select');ffBar();
     toast((n===1?tr('1 Feld'):n+tr(' Felder'))+tr(' ist jetzt ausfüllbar. Rückgängig mit Strg+Z.'))}
   catch(e){console.error(e);toast(tr('Das hat nicht geklappt: ')+(e&&e.message||e))}}
 /* Eigenschaften */
@@ -3557,7 +3557,7 @@ function restoreSnap(js){const a=JSON.parse(js);a.forEach((objs,i)=>{if(S.pages[
 const docSnap=()=>({doc:S.bytes,name:S.name,isNew:S.isNew,bg:S.bg,sample:S.sample,objs:JSON.parse(snapshot())});
 async function applyDocSnap(d){const cp=curPage();await openPdf(d.doc,d.name,{isNew:d.isNew,bg:d.bg,sample:d.sample,objs:JSON.parse(JSON.stringify(d.objs)),keepHist:true});updUndo();markDirty();scrollToPage(Math.min(cp,S.pages.length-1))}
 function undo(){closeEditor();if(!H.u.length)return;const e=H.u.pop();if(typeof e!=='string'){H.r.push(docSnap());applyDocSnap(e);return}H.r.push(snapshot());restoreSnap(e);updUndo()}
-function redo(){closeEditor();if(!H.r.length)return;const e=H.r.pop();if(typeof e!=='string'){H.u.push(docSnap());applyDocSnap(e);return}H.u.push(snapshot());restoreSnap(e);updUndo()}
+function redo(){closeEditor();if(!H.r.length)return;const e=H.r.pop();if(typeof e!=='string'){H.u.push(docSnap());capDocHist();applyDocSnap(e);return}H.u.push(snapshot());restoreSnap(e);updUndo()}
 function updUndo(){$('#bUndo').disabled=!H.u.length;$('#bRedo').disabled=!H.r.length}
 const storeKey=()=>'pdfwerkbank:'+S.name+':'+(S.bytes?S.bytes.length:0);
 let saveT=0;
@@ -6644,7 +6644,7 @@ async function ocrRun(){if(OCR.busy)return;const n=S.pages.length;let P=OCR.whic
       const pl=rot===90?{x:cx+Wd,y:cy}:rot===180?{x:cx+Wd,y:cy+Hh}:rot===270?{x:cx,y:cy+Hh}:{x:cx,y:cy};txtLayerPage(TL,pg,ws,{rot,x:pl.x,y:pl.y,h:S.pages[i].h})}
     txtLayerEnd(TL);const out=await src.save();
     const objs=S.pages.map(Pg=>JSON.parse(JSON.stringify(Pg.objs,(k,v)=>k==='_editing'?undefined:v)));
-    H.u.push(docSnap());H.r=[];OCR.busy=false;animHide($('#ocrDlg'));
+    H.u.push(docSnap());capDocHist();H.r=[];OCR.busy=false;animHide($('#ocrDlg'));
     await openPdf(out,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});updUndo();markDirty();
     toast(words?(tr('Text erkannt: ')+words+tr(' Wörter auf ')+res.size+(res.size===1?tr(' Seite. Jetzt durchsuchbar.'):tr(' Seiten. Jetzt durchsuchbar.'))):tr('Auf diesen Seiten wurde kein Text gefunden.'))}
   catch(e){if(String(e&&e.message)!=='stop'){console.error(e);toast(tr('Texterkennung hat nicht geklappt: ')+(e&&e.message||e))}else toast(tr('Texterkennung abgebrochen.'))}
@@ -7304,7 +7304,7 @@ async function imRun(){if(IM.busy)return;const go=$('#imGo'),t0=go.textContent;I
     const bytes=await pdf.save();
     if(IM.dest==='append'&&S.bytes&&!S.sample){const src=await PDFLib.PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true}),add=await PDFLib.PDFDocument.load(bytes),
         cp=await src.copyPages(add,add.getPageIndices()),n0=S.pages.length;cp.forEach(p=>src.addPage(p));const objs=S.pages.map(P=>JSON.parse(JSON.stringify(P.objs,(k,v)=>k==='_editing'?undefined:v)));cp.forEach(()=>objs.push([]));
-      H.u.push(docSnap());H.r=[];IM.busy=false;imClose();await openPdf(await src.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});updUndo();markDirty();scrollToPage(n0);
+      H.u.push(docSnap());capDocHist();H.r=[];IM.busy=false;imClose();await openPdf(await src.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});updUndo();markDirty();scrollToPage(n0);
       toast(cp.length+tr(cp.length===1?' Seite angehängt. Rückgängig mit Strg+Z.':' Seiten angehängt. Rückgängig mit Strg+Z.'));return}
     const d=new Date(),p2=n=>String(n).padStart(2,'0'),name=`Scan ${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())} ${p2(d.getHours())}-${p2(d.getMinutes())}.pdf`;
     IM.busy=false;imClose();
@@ -7317,7 +7317,7 @@ async function imPagesRun(o){const list=prParse($('#imRange').value,S.pages.leng
     go.textContent=tr('Bereitet vor')+` ${++k}/${list.length}`;await new Promise(r=>setTimeout(r,0));const P=S.pages[i],c=imProcess(await imPage(i,2.5),0,o,imMAX),im=await imEmbed(out,c,o.fx),pg=out.addPage([P.w,P.h]);
     pg.drawImage(im,{x:0,y:0,width:P.w,height:P.h})}
   fixAcroForm(src,out);const objs=S.pages.map(P=>JSON.parse(JSON.stringify(P.objs,(k,v)=>k==='_editing'?undefined:v)));
-  H.u.push(docSnap());H.r=[];IM.busy=false;imClose();await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});updUndo();markDirty();
+  H.u.push(docSnap());capDocHist();H.r=[];IM.busy=false;imClose();await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});updUndo();markDirty();
   toast(list.length+tr(list.length===1?' Seite verbessert. Rückgängig mit Strg+Z.':' Seiten verbessert. Rückgängig mit Strg+Z.'))}
 {const d=$('#imDlg'),grid=$('#imGrid');
   segBind('imFx',v=>{IM.fx=v;imUI();imRefresh()});segBind('imFmt',v=>{IM.fmt=v;imUI()});segBind('imMargin',v=>{IM.margin=v;imUI()});segBind('imDest',v=>{if(v==='append'&&!(S.bytes&&!S.sample))return;IM.dest=v;imUI()});
@@ -8326,7 +8326,7 @@ async function ffUnbake(){const conv=FM.fields.filter(FF_CONV);if(!conv.length||
       let name=f.name;if(seen.has(name)){let i=2;while(seen.has(name+' '+i))i++;name=name+' '+i}seen.add(name);
       objs[f.p].push({type:'field',kind:k,name,x:f.x,y:f.y,w:f.w,h:f.h,color:'#3068d6',lw:0,v:k==='check'?(v===true):(typeof v==='string'?v:''),opts:k==='choice'?f.opts.map(o=>o.t||o.v).filter(Boolean).slice(0,60):[]})}
     const form0=Object.assign(Object.create(null),S.form);for(const nm of done)delete form0[nm];
-    H.u.push(docSnap());H.r=[];await openPdf(await pdf.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,form:form0,keepHist:true});
+    H.u.push(docSnap());capDocHist();H.r=[];await openPdf(await pdf.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,form:form0,keepHist:true});
     updUndo();markDirty();if(S.tool!=='field')setTool('field');ffBar();
     toast((done.size===1?tr('1 Feld'):done.size+tr(' Felder'))+tr(' ist wieder bearbeitbar: verschieben, Größe ändern, Doppelklick für Name und Art. Rückgängig mit Strg+Z.'))}
   catch(e){console.error(e);toast(tr('Das hat nicht geklappt: ')+(e&&e.message||e))}}
