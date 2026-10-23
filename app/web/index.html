@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZBSt1l5fuE+LTHFFjJ+0u455bJc6pu4YgG0KJO29jLg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-mwGuCaaUHKOWOr5DwJ/N2rLiaE0wMMLJ9ekT4Z9yWD4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4367,6 +4367,7 @@ function openTextEditor(i,o,isNew,at){
     area.addEventListener('pointermove',mv);area.addEventListener('pointerup',up);area.addEventListener('pointercancel',up)});
   // Rahmen = verschieben, Griffe = Breite / Schriftgröße
   root.addEventListener('pointerdown',e=>{
+    if(o.locked)return;
     const h=e.target.dataset&&e.target.dataset.h;if(!h&&e.target!==root)return;
     e.preventDefault();e.stopPropagation();root.setPointerCapture(e.pointerId);
     dragBegin(i,o);const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW,minH:o.minH,h0:g.b.h},w0=(o.wrapW||g.b.w)||1;
@@ -4383,9 +4384,11 @@ function openTextEditor(i,o,isNew,at){
   if(at&&o.orient==='h'){const idx=at2idx(at[0],at[1]);if(at[2]==='word')eng.word(idx);else eng.select(idx,idx)}else eng.select(o.text.length,o.text.length);
   redraw(i);eng.focus();setTimeout(()=>{if(editorEl===root)eng.focus()},0);
   editorDone=v=>{
-    const t=v.replace(/\s+$/,'');o.text=t;normSpans(o);
+    const t=v.replace(/\s+$/,'');
+    if(!isNew&&o.locked&&!t){for(const k of Object.keys(o))delete o[k];Object.assign(o,JSON.parse(origJson))}
+    else{o.text=t;normSpans(o)}
     if(isNew){if(t.trim()){pushHist();P.objs.push(o);markDirty();if(keepSelOn)setSel({p:i,o})}}
-    else if(!t){H.u.push(before);H.r=[];updUndo();P.objs.splice(P.objs.indexOf(o),1);if(S.sel&&S.sel.o===o)S.sel=null;markDirty()}
+    else if(!t&&!o.locked){H.u.push(before);H.r=[];updUndo();P.objs.splice(P.objs.indexOf(o),1);if(S.sel&&S.sel.o===o)S.sel=null;markDirty()}
     else if(JSON.stringify(o)!==origJson){H.u.push(before);H.r=[];updUndo();markDirty()}
     redraw(i)};
 }
