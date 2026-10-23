@@ -4135,7 +4135,7 @@ function openTextEditor(i,o,isNew,at){
     dragBegin(i,o);const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW,minH:o.minH,h0:g.b.h},w0=(o.wrapW||g.b.w)||1;
     const mv=ev=>{const dx=(ev.clientX-sx)/z,dy=(ev.clientY-sy)/z;
       if(!h){o.x=gg.x+dx;o.y=gg.y+dy}
-      else if(h==='br'){const k=Math.max(.1,Math.min((w0+dx)/w0,(P.w-gg.x)/w0));o.fs=clamp(Math.round(gg.fs*k*2)/2,4,200);if(gg.wrapW)o.wrapW=gg.wrapW*o.fs/gg.fs;S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}
+      else if(h==='br'){const k=Math.max(.1,Math.min((w0+dx)/w0,(P.w-gg.x)/w0,(P.h-gg.y)/gg.h0));o.fs=clamp(Math.round(gg.fs*k*2)/2,4,200);if(gg.wrapW)o.wrapW=gg.wrapW*o.fs/gg.fs;S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}
       else if(h==='mr'){o.wrapW=Math.max(o.fs*1.5,Math.min(P.w-o.x,w0+dx))}
       else if(h==='ml'){const nw=Math.max(o.fs*1.5,Math.min(gg.x+w0,w0-dx));o.x=gg.x+(w0-nw);o.wrapW=nw}
       else if(h==='mb'||h==='mt'){const nat=textBox({...o,minH:0}).h;let nh=Math.max(nat,Math.min(h==='mb'?P.h-o.y:gg.y+gg.h0,gg.h0+(h==='mb'?dy:-dy)));if(h==='mt'){o.y=gg.y+gg.h0-nh}if(nh<=nat+.5)delete o.minH;else o.minH=nh}
