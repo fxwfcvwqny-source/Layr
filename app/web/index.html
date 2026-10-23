@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qlGE0aO6u29mqHphLNxd4FeoLmbYBJPoxVYz649g6cc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gjhV5fj4rQR+CT8+d5TS09CO+FY+rqUuizEh4JOIU8U=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2881,9 +2881,13 @@ function drawTable(c,o){const X=tblCols(o),Y=tblRows(o);c.setLineDash([]);
     c.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;c.fillStyle=o.color;c.textBaseline='middle';c.textAlign='left';
     const L=wrapLines(c,t,Math.max(10,cw-8));const y0=cellY0(Y[r],ch,lh,L.length);L.forEach((l,j)=>c.fillText(l,X[k]+4,y0+j*lh));c.restore()}}
 function newTable(x,y,rows,cols){return{type:'table',x,y,w:0,h:0,rows,cols,cw:eqFr(cols),rh:eqFr(rows),cells:Array.from({length:rows},()=>Array(cols).fill('')),fs:11,color:S.color==='#ffd60a'?'#1b1f24':S.color,lw:1,head:S.tblHead!==false,fill:'white',...(S.font?{font:S.font}:{})}}
-function editCell(i,o,r,k){const X=tblCols(o),Y=tblRows(o),fs=o.fs||11;tmpProp(o,'__ec',[r,k]);redraw(i);
-  const box=makeEditor(i,X[k]+4,Y[r]+Math.max(0,(Y[r+1]-Y[r])/2-fs*.7),fs,o.color,(o.cells[r]&&o.cells[r][k])||'',{w:X[k+1]-X[k]-8,bold:o.head&&r===0});
-  box.style.width=(X[k+1]-X[k]-8)*S.zoom+'px';box.style.whiteSpace='pre-wrap';box.style.overflowWrap='anywhere';box.style.fontFamily=famOf(o);
+function editCell(i,o,r,k){const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.22,fam=famOf(o);tmpProp(o,'__ec',[r,k]);redraw(i);
+  const txt=(o.cells[r]&&o.cells[r][k])||'',cw=X[k+1]-X[k],ch=Y[r+1]-Y[r];
+  mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;
+  const y0=cellY0(Y[r],ch,lh,wrapLines(mctx,txt,Math.max(10,cw-8)).length);
+  // editor border 1.5px and padding 2px sit outside the text: shift box so the text lands where drawTable draws it
+  const box=makeEditor(i,X[k]+4-3.5/S.zoom,y0-lh/2-1.5/S.zoom,fs,o.color,txt,{w:cw-8,bold:o.head&&r===0});
+  box.style.width=(cw-8)*S.zoom+7+'px';box.style.lineHeight='1.22';box.style.whiteSpace='pre-wrap';box.style.overflowWrap='anywhere';box.style.fontFamily=fam;
   editorDone=v=>{delete o.__ec;if(v!==((o.cells[r]&&o.cells[r][k])||'')){pushHist();o.cells[r][k]=v;markDirty()}redraw(i)};
   box.addEventListener('keydown',e=>{if(e.key!=='Tab')return;e.preventDefault();e.stopImmediatePropagation();let n=r*o.cols+k+(e.shiftKey?-1:1);n=(n+o.rows*o.cols)%(o.rows*o.cols);closeEditor();editCell(i,o,Math.floor(n/o.cols),n%o.cols)},true)}
 function tblTarget(){if(!S.sel)return null;const o=S.sel.o;return o.type==='table'?o:null}
