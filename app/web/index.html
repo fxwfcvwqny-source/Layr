@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-11L0qRbzO4sSdvVda5a0/wNqppU4JnVzsns7hlqRB4s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-il53V4gCocqp6F6I/1YDw3ZMplvp1893umW5Xl/hBcU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2975,7 +2975,8 @@ function outlinePt(o,deg){const{x,y,w,h}=dockBox(o),s=o.type==='sym'?SYM[o.sym]:
   return[x+w/2+r*c*w/2,y+h/2+r*n*h/2]}
 function dockIds(o){const b=dockBox(o);return anchorRect(o)?ANCHOR_IDS.filter(t=>anchorShown(b,t)):[...Array(b.w+b.h>=80?12:4)].map((_,i,A)=>'a'+i*360/A.length)}
 /* Nächster Festpunkt am Kasten, sonst 'auto' */
-function pickAnchor(o,x,y){let best='auto',bd=12/S.zoom;for(const t of dockIds(o)){const q=orgAnchor(o,t),d=Math.hypot(q[0]-x,q[1]-y);if(d<bd){bd=d;best=t}}
+function pickAnchor(o,x,y){const ids=dockIds(o),Q=ids.map(t=>orgAnchor(o,t));let gap=Infinity;for(let i=0;i<Q.length;i++)for(let j=i+1;j<Q.length;j++)gap=Math.min(gap,Math.hypot(Q[i][0]-Q[j][0],Q[i][1]-Q[j][1]));
+  let best='auto',bd=Math.min((anchorRect(o)?8:12)/S.zoom,gap*.4);for(let i=0;i<ids.length;i++){const d=Math.hypot(Q[i][0]-x,Q[i][1]-y);if(d<bd){bd=d;best=ids[i]}}
   const side={a0:'r',a90:'b',a180:'l',a270:'t'}[best];if(/^[tblr]2$/.test(best))return 'auto';
   if(side){const p=orgAnchor(o,best),m=orgAnchor(o,side);if(Math.hypot(p[0]-m[0],p[1]-m[1])<.5)return 'auto'}return best}
 /* Seite wählen, an der eine Linie andockt: die, die zum anderen Ende zeigt */
