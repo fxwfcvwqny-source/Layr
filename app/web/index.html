@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6BVKX/2nor9P+w8JZF+qCTAPqy27PP4jdvTtk2iz0O4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lks0qH+e1ZscpC+oeJL5D2uyhyeFcr0Ja0aTTbRJMow=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6168,6 +6168,8 @@ function thMove(d){if(rbBusy||!S.pages.length)return;const n=S.pages.length;if(!
 async function thCommit(){const o=TM.order;TM.order=null;if(!o||TM.b0!==S.bytes){buildThumbs();return}if(o.every((v,k)=>v===k))return;const to=o.indexOf(TM.sel);
   if(await rebuildPages(o.map(i=>({i})),`Seite ist jetzt Seite ${to+1}.`,to)){TM.sel=to;const b=$('#thumbs').querySelector(`.th[data-i="${to}"]`);if(b){b.classList.add('sel');b.focus({preventScroll:true});b.scrollIntoView({block:'nearest'})}}else buildThumbs()}
 async function thFlush(){if(TM.order){clearTimeout(TM.t);await thCommit()}}
+// stopPropagation: sonst bewegt der globale Pfeiltasten-Handler die markierten Objekte
+$('#thumbs').addEventListener('keydown',e=>{if(e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();e.stopPropagation();const th=e.target.closest&&e.target.closest('.th');if(th)TM.sel=+th.dataset.i;thMove(e.key==='ArrowUp'?-1:1)}});
 function drawThumb(i){const P=S.pages[i];if(!P||!P.thumb)return;const c=P.thumb.getContext('2d',{willReadFrequently:true});c.setTransform(1,0,0,1,0,0);c.fillStyle='#fff';c.fillRect(0,0,P.thumb.width,P.thumb.height);if(P.thumbBase)c.drawImage(P.thumbBase,0,0);const k=P.thumb.width/P.w;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)drawObj(c,o)}
 function refreshThumbs(){if(!thumbsOn)return;clearTimeout(thT);thT=setTimeout(()=>S.pages.forEach((_,i)=>drawThumb(i)),300)}
 function markThumb(){if(!thumbsOn)return;const cp=curPage();document.querySelectorAll('.th').forEach(b=>b.classList.toggle('cur',+b.dataset.i===cp))}
