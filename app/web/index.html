@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-DgfL16yBgGg4herScjLl1ldvvwMtClyI9ATpiYwUF3A=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-11L0qRbzO4sSdvVda5a0/wNqppU4JnVzsns7hlqRB4s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2964,11 +2964,13 @@ const anchorShown=(b,t)=>t[1]==='2'||((t[0]==='t'||t[0]==='b')?b.w:b.h)>=40;
 /* outline of non-rectangular shapes for the angle anchors 'a<deg>' (angle in the box-normalised space) */
 const OUTLINE_E=new Set(['f_circle','f_ell','usecase','attr','key','multi','conn','start','end','flowend','org_dot','cloud','f_think']),OUTLINE_D=new Set(['decision','branch','rel']);
 const ANCHOR_RE=/^(auto|[tblr][1-3]?|a(?:[12]?\d?\d|3[0-5]\d))$/;
+/* nearest point on the polygon outline P to (px,py), box-normalised space */
+function nearestOnPoly(P,px,py){let best=null,bd=Infinity;for(let i=0;i<P.length;i++){const[ax,ay]=P[i],[bx,by]=P[(i+1)%P.length],dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy;let k=L?((px-ax)*dx+(py-ay)*dy)/L:0;k=Math.max(0,Math.min(1,k));const qx=ax+k*dx,qy=ay+k*dy,d=Math.hypot(qx-px,qy-py);if(d<bd){bd=d;best=[qx,qy]}}return best}
 // shortcut: rounded corners, cylinders and icons use the box outline; upgrade if docking points visibly float
 function outlinePt(o,deg){const{x,y,w,h}=dockBox(o),s=o.type==='sym'?SYM[o.sym]:null,a=deg*Math.PI/180,c=Math.cos(a),n=Math.sin(a);let r;
   if(o.type==='ellipse'||(s&&OUTLINE_E.has(s.id)))r=1;else if(s&&OUTLINE_D.has(s.id))r=1/(Math.abs(c)+Math.abs(n));
   else if(s&&s.pts){const P=fitPoly(typeof s.pts==='function'?s.pts(w,h):s.pts,-1,-1,2,2).map(([u,v])=>[o.w<0?-u:u,o.h<0?-v:v]);r=0;
-    for(let i=0;i<P.length;i++){const[p,q]=P[i],[e,f]=P[(i+1)%P.length],dx=e-p,dy=f-q,den=c*dy-n*dx;if(Math.abs(den)<1e-9)continue;const t=(p*dy-q*dx)/den,u=(p*n-q*c)/den;if(t>0&&u>=0&&u<=1)r=Math.max(r,t)}r=r||1}
+    for(let i=0;i<P.length;i++){const[p,q]=P[i],[e,f]=P[(i+1)%P.length],dx=e-p,dy=f-q,den=c*dy-n*dx;if(Math.abs(den)<1e-9)continue;const t=(p*dy-q*dx)/den,u=(p*n-q*c)/den;if(t>0&&u>=0&&u<=1)r=Math.max(r,t)}if(!r){const N=nearestOnPoly(P,c,n);return[x+w/2+N[0]*w/2,y+h/2+N[1]*h/2]}}
   else r=1/Math.max(Math.abs(c),Math.abs(n));
   return[x+w/2+r*c*w/2,y+h/2+r*n*h/2]}
 function dockIds(o){const b=dockBox(o);return anchorRect(o)?ANCHOR_IDS.filter(t=>anchorShown(b,t)):[...Array(b.w+b.h>=80?12:4)].map((_,i,A)=>'a'+i*360/A.length)}
