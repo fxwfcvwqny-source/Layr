@@ -101,7 +101,7 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .tools>button:first-of-type{margin-left:auto}.tools>button:last-of-type{margin-right:auto}
 :root[data-toolbar="left"] .tools>button:first-of-type{margin-left:0}
 .tool{position:relative;width:var(--tool,36px);height:var(--tool,36px);border-radius:var(--r);border:0;background:transparent;display:grid;place-items:center;color:var(--ink);transition:background .12s,color .12s,transform .12s}
-.tool svg{width:var(--tool-i,21px);height:var(--tool-i,21px)}
+.tool svg{width:var(--tool-i,20px);height:var(--tool-i,20px)}
 .tool:hover{background:var(--hover)}
 .tool[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent)}
 .tool .k{position:absolute;right:3px;bottom:2px;font:500 9px var(--f-mono);color:var(--muted)}
@@ -1414,7 +1414,7 @@ header,.file{min-width:0}
 @media (max-height:620px){
   header{padding-block:4px}
   .tools{padding-block:2px}
-  :root:not([data-density]),:root[data-density="normal"]{--tool:36px;--tool-i:19px}
+  :root:not([data-density]),:root[data-density="normal"]{--tool:36px;--tool-i:20px}
 }
 @media (max-width:860px){
   .app,.app.no-panel{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "tabs" "tools" "view"}
@@ -1435,7 +1435,7 @@ header,.file{min-width:0}
 @media (prefers-reduced-motion:reduce){.panel{transition:none}}
 .ripple{display:none}
 /* toolbar */
-.ib{width:30px;height:30px}.ib svg{width:18px;height:18px}
+.ib{width:30px;height:30px}.ib svg{width:18px;height:18px}header .ib svg{width:20px;height:20px}
 .btn{height:30px;padding:0 10px;font-size:13px}.btn svg{width:16px;height:16px}
 /* compact menus */
 .ctx.hm{padding:4px}
