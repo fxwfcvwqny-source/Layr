@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Pk6Y6kO5FrZQqqu/JI1rXe6+kILYsGu72p72qvIcoMk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2PKNzy/guoQ7QM+M04X22i0ljTHQQBdDVHW01NxNXoo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6215,8 +6215,8 @@ $('#mOk').onclick=async()=>{
   for(const it of mItems){const src=await PDFLib.PDFDocument.load(it.bytes.slice(),{ignoreEncryption:true});const pages=await out.copyPages(src,src.getPageIndices());
     pages.forEach((p,k)=>{out.addPage(p);objs.push(it.current?JSON.parse(JSON.stringify(it.objs[k]||[])):[])})}
   const name=($('#mName').value.trim()||'Zusammengeführt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
-  closeMerge();{const bytes=await out.save();await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs})}))}
-  if(objs.some(o=>o.length))markDirty();
+  closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs})}));
+  if(!ok)return;markDirty();
   toast(`${mItems.length} Dateien mit zusammen ${S.pages.length} Seiten zusammengeführt. Mit „Speichern“ sicherst du „${name}“.`);
 };
 
@@ -7194,7 +7194,7 @@ async function sxRun(asFile){const p=sxPlan();if(!p)return;const go=$('#sxGo'),s
       const bytes=await sxSubset(S.bytes,l),objs=l.map(i=>SX.marks?JSON.parse(JSON.stringify(S.pages[i].objs,(k,v)=>k==='_editing'?undefined:v)):[]);
       const name=sxName(l),form=SX.marks&&S.form?Object.assign(Object.create(null),S.form):null,del=SX.del,n=S.pages.length;sxClose();
       if(del)await rebuildPages(idx(n).filter(i=>!l.includes(i)).map(i=>({i})),null,Math.max(0,Math.min(l[0],n-l.length-1)));
-      const ok_=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs,form,crypt:cr||null})}));
+      const ok_=await tabGate(()=>tabOpenWith(async()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();const r=await tabLoad(bytes,name,{isNew:true,objs,form,crypt:cr||null});if(r)markDirty();return r}));
       if(ok_)toast(tr('„')+name+tr(del?'“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'“ ist in einem neuen Tab offen.'));return}
     const base=SX.marks?await buildOutput():S.bytes;const files=[];
     for(let k=0;k<p.length;k++){go.textContent=tr('Speichert')+(p.length>1?` ${k+1}/${p.length}`:'');files.push({name:sxName(p[k]),data:await crSeal(await sxSubset(base,p[k]),cr)});await new Promise(r=>setTimeout(r,0))}
