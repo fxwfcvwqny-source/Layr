@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ITc7vXLAmWa+pRaeTI3Xb6HGjmerErt9BzsfLQKvshY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-O3YiuDgpD5hH5BNQnIyveUJbyziGWZFnmRx5oSrgzvA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4046,10 +4046,17 @@ function makeEditor(i,x,y,fs,color,value,opt={}){
     disp.innerHTML=esc(st.v.slice(0,l))+(l===h?'<i class="crt2"></i>':'<mark>'+esc(st.v.slice(l,h))+'</mark>')+esc(st.v.slice(h))+'​'};
   const eng=textEngine(box,value,{onChange:render});render(eng.st);
   box.addEventListener('keydown',e=>{e.stopPropagation();if(e.defaultPrevented)return;if(e.key==='Escape'||(e.key==='Enter'&&(e.ctrlKey||e.metaKey))){e.preventDefault();closeEditor()}});
-  box.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();let idx=eng.st.v.length;
-    const r=document.caretRangeFromPoint&&document.caretRangeFromPoint(e.clientX,e.clientY);
+  const at=(cx,cy)=>{let idx=eng.st.v.length;
+    const r=document.caretRangeFromPoint&&document.caretRangeFromPoint(cx,cy);
     if(r&&disp.contains(r.startContainer)){let n=0;const w=document.createTreeWalker(disp,NodeFilter.SHOW_TEXT);let t;while((t=w.nextNode())){if(t===r.startContainer){idx=n+r.startOffset;break}n+=t.nodeValue.length}}
-    idx=Math.min(idx,eng.st.v.length);if(e.detail===2)eng.word(idx);else eng.select(e.shiftKey?eng.st.a:idx,idx);eng.focus()});
+    return Math.min(idx,eng.st.v.length)};
+  box.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const idx=at(e.clientX,e.clientY);
+    if(e.detail===2)eng.word(idx);else eng.select(e.shiftKey?eng.st.a:idx,idx);eng.focus();
+    if(e.detail>1)return;
+    box.setPointerCapture(e.pointerId);
+    const mv=ev=>eng.select(eng.st.a,at(ev.clientX,ev.clientY));
+    const up=()=>{box.removeEventListener('pointermove',mv);box.removeEventListener('pointerup',up);box.removeEventListener('pointercancel',up)};
+    box.addEventListener('pointermove',mv);box.addEventListener('pointerup',up);box.addEventListener('pointercancel',up)});
   editorEl=box;editorTa={get value(){return eng.value}};ED={eng,esc:()=>closeEditor(),focus:eng.focus};
   eng.focus();setTimeout(()=>{if(editorEl===box)eng.focus()},0);return box;
 }
