@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4MM/OzRUe8FzAmJLRxFQ87vGjBc6G3NuuOutPq95nrY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-dH0PDaE4BqoxL7JTYRM1gacH0SKi0RdFh8qHEH/AgJc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -8273,7 +8273,7 @@ function dgBOutline(box,k,src,focus){const mind=k==='mind';
       dgBtn(K.sw,'',P([{d:0,k:'sw',t:''},{d:1,k:'case',t:'1'},{d:2,k:'s',t:''},{d:1,k:'case',t:'2'},{d:2,k:'s',t:''}])),dgBtn(K.call,'',P([{d:0,k:'call',t:''}])))}
   const list=document.createElement('div');list.className='dg-rows';list.setAttribute('role','tree');box.append(tb,list);
   const KN=mind?null:[['s',DGL('Anweisung','Statement')],['if',K.if],['else',K.else],['while',K.while],['for',K.for],['rep',K.rep],['until',K.until],['sw',K.sw],['case',DGL('Fall','Case')],['call',K.call],['brk',K.brk]];
-  const PH=r=>mind?(r.d===0?DGL('Thema (Mitte)','Topic (centre)'):r.d===1?DGL('Hauptast','Main branch'):DGL('Unterpunkt','Sub-item')):({s:DGL('Anweisung, z. B. summe = 0','Statement, e.g. sum = 0'),if:DGL('Bedingung, z. B. x > 0','Condition, e.g. x > 0'),while:DGL('Bedingung','Condition'),for:DGL('z. B. i = 1 BIS 10','e.g. i = 1 TO 10'),until:DGL('Abbruchbedingung','Stop condition'),sw:DGL('Wert, z. B. note','Value, e.g. grade'),case:DGL('Wert, z. B. 1','Value, e.g. 1'),call:DGL('Name des Unterprogramms','Name of the subroutine'),brk:DGL('(optional)','(optional)')})[r.k]||'';
+  const phTxt=r=>mind?(r.d===0?DGL('Thema (Mitte)','Topic (centre)'):r.d===1?DGL('Hauptast','Main branch'):DGL('Unterpunkt','Sub-item')):({s:DGL('Anweisung, z. B. summe = 0','Statement, e.g. sum = 0'),if:DGL('Bedingung, z. B. x > 0','Condition, e.g. x > 0'),while:DGL('Bedingung','Condition'),for:DGL('z. B. i = 1 BIS 10','e.g. i = 1 TO 10'),until:DGL('Abbruchbedingung','Stop condition'),sw:DGL('Wert, z. B. note','Value, e.g. grade'),case:DGL('Wert, z. B. 1','Value, e.g. 1'),call:DGL('Name des Unterprogramms','Name of the subroutine'),brk:DGL('(optional)','(optional)')})[r.k]||'';
   const canIn=i=>i>0&&rows[i].d<=rows[i-1].d&&!(mind&&i===0);const canOut=i=>mind?(i>0&&rows[i].d>1):rows[i].d>0;
   const shiftBlock=(i,dd)=>{const j=after(i);for(let q=i;q<j;q++)rows[q].d+=dd};
   const move=(i,dir)=>{const d=rows[i].d,j=after(i);if(mind&&i===0)return i;
@@ -8284,7 +8284,7 @@ function dgBOutline(box,k,src,focus){const mind=k==='mind';
       const g=document.createElement('span');g.className='dg-guide';row.appendChild(g);
       if(!mind){const s=document.createElement('select');s.className='dg-kind-s';s.setAttribute('aria-label',DGL('Art','Kind'));for(const[v,l]of KN){const o=document.createElement('option');o.value=v;o.textContent=l;s.appendChild(o)}s.value=r.k;
         s.onchange=()=>{r.k=s.value;render(i);sync()};row.appendChild(s)}
-      const inp=document.createElement('input');inp.type='text';inp.className='dg-in';inp.value=r.t;inp.placeholder=PH(r);inp.maxLength=300;inp.setAttribute('data-noi18n','');inp.spellcheck=true;
+      const inp=document.createElement('input');inp.type='text';inp.className='dg-in';inp.value=r.t;inp.placeholder=phTxt(r);inp.maxLength=300;inp.setAttribute('data-noi18n','');inp.spellcheck=true;
       if(!mind&&(r.k==='else'||r.k==='rep')){inp.disabled=true;inp.value='';inp.placeholder=r.k==='else'?DGL('(Nein-Zweig darunter)','(no branch below)'):DGL('(Inhalt darunter)','(content below)')}
       inp.oninput=()=>{r.t=inp.value;sync()};
       inp.onkeydown=e=>{if(e.isComposing)return;const k=e.key;
