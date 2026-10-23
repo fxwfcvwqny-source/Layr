@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-V+Y7Ac0f65K9pLloIqQ/IB3zFBTmcNoGLHCm8FZbWHU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-1fmRFy0xZIr5smPf53wDyfVt8p0a+2NqY+Hpmgtqgsc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5721,7 +5721,7 @@ const tabSleep=ms=>new Promise(r=>setTimeout(r,ms));
 function tabCapture(){return{bytes:S.bytes,name:S.name,isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs:JSON.parse(snapshot()),notes:S.notes||'',
   tasks:JSON.parse(JSON.stringify(S.tasks||[])),form:S.form?Object.assign(Object.create(null),S.form):null,hu:H.u.slice(),hr:H.r.slice(),dirty:!!S.dirty,
   savedName:S.savedName||null,zoom:S.zoom,autoFit:S.autoFit,scroll:viewer.scrollTop,crypt:S.crypt||null,cards:S.cards?JSON.parse(JSON.stringify(S.cards)):null}}
-const tabPristine=()=>!!S.isNew&&!S.dirty&&S.pages.every(P=>!P.objs.length)&&!String(S.notes||'').trim()&&!(S.tasks&&S.tasks.length)&&!H.u.length;
+const tabPristine=()=>!!S.isNew&&!S.dirty&&!S.savedName&&S.pages.every(P=>!P.objs.length)&&!String(S.notes||'').trim()&&!(S.tasks&&S.tasks.length)&&!H.u.length;
 async function tabMain(id){if(window.werkbank&&werkbank.tabActivate){try{await werkbank.tabActivate(id)}catch(e){}}}
 const tabMainClose=id=>{try{window.werkbank&&werkbank.tabClose&&werkbank.tabClose(id)}catch(e){}};
 // Vor einem Wechsel: Eingabe übernehmen, laufendes Speichern abwarten (sonst landet es im falschen Tab), offenes Auto-Speichern erledigen
