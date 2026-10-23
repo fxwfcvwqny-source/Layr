@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lks0qH+e1ZscpC+oeJL5D2uyhyeFcr0Ja0aTTbRJMow=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-V+Y7Ac0f65K9pLloIqQ/IB3zFBTmcNoGLHCm8FZbWHU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6178,14 +6178,14 @@ function scrollToPage(i){const P=S.pages[i];if(!P||!P.el)return;const top=viewer
 const ctx=$('#ctx');
 function closeMenu(){animHide(ctx)}
 function pageMenu(i,x,y){
-  const n=S.pages.length,all=idx(n).map(j=>({i:j})),sw=(a,b)=>{const o=all.slice();[o[a],o[b]]=[o[b],o[a]];return o};
+  const n=S.pages.length,all=idx(n).map(j=>({i:j}));
   const items=[
     ['Zu Seite '+(i+1)+' springen',()=>scrollToPage(i)],'-',
     ['Seite duplizieren',()=>rebuildPages(idx(n).flatMap(j=>j===i?[{i:j},{i:j}]:[{i:j}]),`Seite ${i+1} dupliziert. Rückgängig mit Strg+Z.`,i+1)],
     ['Leere Seite davor einfügen',()=>rebuildPages(idx(n).flatMap(j=>j===i?[{blank:1,like:j},{i:j}]:[{i:j}]),'Leere Seite eingefügt.',i)],
     ['Leere Seite danach einfügen',()=>rebuildPages(idx(n).flatMap(j=>j===i?[{i:j},{blank:1,like:j}]:[{i:j}]),'Leere Seite eingefügt.',i+1)],'-',
-    ['Nach oben verschieben',()=>rebuildPages(sw(i,i-1),`Seite ist jetzt Seite ${i}.`,i-1),i===0],
-    ['Nach unten verschieben',()=>rebuildPages(sw(i,i+1),`Seite ist jetzt Seite ${i+2}.`,i+1),i===n-1],'-',
+    ['Nach oben verschieben',()=>{TM.sel=i;thMove(-1)},i===0],
+    ['Nach unten verschieben',()=>{TM.sel=i;thMove(1)},i===n-1],'-',
     ['Nach rechts drehen',()=>rotatePages([i],90)],['Nach links drehen',()=>rotatePages([i],-90)],['Alle Seiten drehen',()=>rotatePages(idx(n),90),n<2],'-',
     ['Seiten ordnen …',()=>openPgDlg(i)],['Seite herauslösen',()=>sxOpen([i])],'-',
     ['Beschriftungen dieser Seite entfernen',()=>{pushHist();S.pages[i].objs=[];S.sel=null;redraw(i);markDirty();toast('Beschriftungen entfernt. Rückgängig mit Strg+Z.')},!S.pages[i].objs.length],
