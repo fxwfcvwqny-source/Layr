@@ -17,6 +17,10 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Update install: while a download runs, a refused terminal install shows the download state instead of doing nothing.
 - Update check: a stuck check ends after a timeout.
 
+## Removed
+
+- The "clear page" button (it also removed locked objects).
+
 ## New
 
 - Copy and paste annotation objects (text boxes, symbols, shapes, arrows) with Ctrl+C / Ctrl+V.
@@ -43,7 +47,6 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 ## Known limits
 
 - Bookmarks (outlines) are still lost when pages are rebuilt (pdf-lib has no API for them).
-- Locked objects are still removed by "clear page" (with confirmation and undo).
 - Older Layr versions place an arrow end with a fixed anchor (`t1`, ...) at the centre of the shape.
 - The text layer is not available in split view and presentation mode.
 
