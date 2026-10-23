@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Cznl+sFWvpt/K6Lfz3Fp+MD1szFDlbkpOEH/B+/vLio=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ggDqQfh/3Pwbz6sg+NKnmGND0DA0H2p1BmeZPB5dP80=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3604,6 +3604,10 @@ function ffCancel(){const E=FF.edit;if(!E)return;Object.assign(E.sel.o,JSON.pars
   d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();ffCancel()}else if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='checkbox'){e.preventDefault();ffApply()}})}
 TB_DESC.field='Ausfüllbare Felder für jedes Programm';
 /* ---------- Geometrie / Treffer ---------- */
+// rotation only for horizontal text; degrees, clockwise on screen (canvas y-down)
+const rotOf=o=>o.type==='text'&&o.orient==='h'&&o.rot?o.rot:0;
+function rotP(x,y,cx,cy,deg){const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),dx=x-cx,dy=y-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]}
+function tCtr(o){const t=textBox(o);return[o.x+t.w/2,o.y+t.h/2]}
 function bbox(o){
   switch(o.type){
     case'pen':{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of o.pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}const p=o.lw/2;return{x:a-p,y:b-p,w:c-a+2*p,h:d-b+2*p}}
