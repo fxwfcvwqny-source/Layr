@@ -2915,7 +2915,7 @@ def('lifeline','UML','Lebenslinie',90,200,'obj: Klasse',(c,o,x,y,w,h)=>{const hh
 def('activation','UML','Aktivierung',10,60,'',(c,o,x,y,w,h)=>{c.beginPath();c.rect(x,y,w,h);c.save();c.fillStyle='#fff';c.fill();c.restore();c.stroke()});
 def('state','UML','Zustand',100,34,'Zustand',(c,o,x,y,w,h)=>{rr(c,x,y,w,h,8);fillStroke(c,o);label(c,o,x+w/2,y+h/2,w-10)});
 def('node','UML','Knoten',120,70,'Knoten',SYM.f_cube.draw);
-def('artifact','UML','Artefakt',110,50,'«artifact»\nDatei.jar',(c,o,x,y,w,h)=>{const d=Math.min(12,h*.3);poly(c,[[x,y],[x+w-d,y],[x+w,y+d],[x+w,y+h],[x,y+h]]);fillStroke(c,o);poly(c,[[x+w-d,y],[x+w-d,y+d],[x+w,y+d]]);c.stroke();label(c,o,x+w/2,y+h/2,w-10)});
+def('artifact','UML','Artefakt',110,50,'«artifact»\nDatei.jar',(c,o,x,y,w,h)=>{const d=Math.min(12,h*.3);poly(c,[[x,y],[x+w-d,y],[x+w,y+d],[x+w,y+h],[x,y+h]]);fillStroke(c,o);poly(c,[[x+w-d,y],[x+w-d,y+d],[x+w,y+d]]);fillStroke(c,o);label(c,o,x+w/2,y+h/2,w-10)});
 // Programmablaufplan (DIN 66001)
 def('terminal','PAP','Start / Ende',90,32,'Start',(c,o,x,y,w,h)=>{rr(c,x,y,w,h,h/2);fillStroke(c,o);label(c,o,x+w/2,y+h/2,w-h)});
 def('process','PAP','Operation',100,36,'Anweisung',(c,o,x,y,w,h)=>{c.beginPath();c.rect(x,y,w,h);fillStroke(c,o);label(c,o,x+w/2,y+h/2,w-8)});
