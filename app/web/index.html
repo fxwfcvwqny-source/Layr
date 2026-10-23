@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HwjFJfsKWFyUwfrug7VPb1vkdC2A5NRoIEA2/L61Wts=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pD6JG+JNXtawgEFLR9HYpzcG8ucdBCZtX+8z/4XNnIM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3309,6 +3309,10 @@ function linePts(o){
   return p.filter((q,i)=>i===0||Math.hypot(q[0]-p[i-1][0],q[1]-p[i-1][1])>.01);
 }
 const headLen=o=>Math.max(7,o.lw*3.5);
+// Point at half the total length of the line's polyline
+function lineMid(o){const p=linePts(o),seg=(i)=>Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);let L=0;for(let i=1;i<p.length;i++)L+=seg(i);let h=L/2;
+  for(let i=1;i<p.length;i++){const s=seg(i);if(h<=s){const k=s?h/s:0;return[p[i-1][0]+(p[i][0]-p[i-1][0])*k,p[i-1][1]+(p[i][1]-p[i-1][1])*k]}h-=s}return p[p.length-1].slice()}
+function lineLblBox(o){if(!o.label)return null;const m=lineMid(o),fs=o.fs||10;mctx.font=`${fs}px ${FONT}`;const w=mctx.measureText(String(o.label)).width+6,h=fs*1.4;return{x:m[0]-w/2,y:m[1]-h/2,w,h}}
 const trimOf=(h,L)=>h==='triangle'||h==='filled'?L*.85:h==='diamond'||h==='diamondf'?L*1.7:h==='dot'?L*.3:0;
 function trimPt(a,b,t){const d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(d<1e-6)return a;const k=Math.min(t,d*.9)/d;return[a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k]}
 function drawHead(c,type,P,Q,L,o){
