@@ -3832,6 +3832,7 @@ function attachInk(P,i){
           let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;tblHintSet(o,st.mode,k,x,y)}
         else resizeTo(o,st,x,y,e.shiftKey);
         if(o.type==='text'&&st.orig&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
+        if(o.type==='text')textClamp(o,P,false);
         redraw(i);break}
       case'pen':case'marker':{if(!d)break;if(st.qs){qsAdjust(st,x,y,e);redraw(i);break}
         const p=d.pts,l=p[p.length-1];if(Math.hypot(x-l[0],y-l[1])>.6/S.zoom){p.push([x,y]);redraw(i)}
