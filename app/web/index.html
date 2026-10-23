@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-L/CrRhwm3ufxnxzNH6nkLxMZqiIDsq3zs4cVVqHgmGU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-983KfMnPjRe9Ir4y/pT7d48b32P5r56eshSUqXimUqo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4879,10 +4879,10 @@ function pgTile(p){const el=document.createElement('div');el.className='pgt';el.
 async function pgRender(gen){const done={};
   for(const el of [...pgGrid.children]){if(gen!==PGgen)return;const p=PG.find(x=>x.u===+el.dataset.u);if(!p)continue;const P=S.pages[p.i],cv=el.querySelector('canvas'),f=pgFit({...p,rot:0});
     const W=Math.round(f.w*2),Hh=Math.round(f.h*2);cv.width=W;cv.height=Hh;const c=cv.getContext('2d');
-    if(!done[p.i]){const base=document.createElement('canvas');base.width=W;base.height=Hh;const bc=base.getContext('2d');bc.fillStyle='#fff';bc.fillRect(0,0,W,Hh);
-      try{const page=await S.doc.getPage(p.i+1);if(gen!==PGgen)return;await page.render({canvasContext:bc,viewport:page.getViewport({scale:W/P.w})}).promise}catch(e){}
-      bc.setTransform(W/P.w,0,0,W/P.w,0,0);for(const o of P.objs)try{drawObj(bc,o)}catch(e){}done[p.i]=base}
-    if(gen!==PGgen)return;c.drawImage(done[p.i],0,0);el.classList.add('ready')}}
+    if(!done[p.i]){done[p.i]=cv;c.fillStyle='#fff';c.fillRect(0,0,W,Hh);
+      try{const page=await S.doc.getPage(p.i+1);if(gen!==PGgen)return;await page.render({canvasContext:c,viewport:page.getViewport({scale:W/P.w})}).promise}catch(e){}
+      c.setTransform(W/P.w,0,0,W/P.w,0,0);for(const o of P.objs)try{drawObj(c,o)}catch(e){}}
+    if(gen!==PGgen)return;if(done[p.i]!==cv)c.drawImage(done[p.i],0,0);el.classList.add('ready')}}
 function flip(fn){const g=pgGrid.getBoundingClientRect(),before=new Map();for(const el of pgGrid.children){const r=el.getBoundingClientRect();if(r.bottom>g.top-200&&r.top<g.bottom+200)before.set(el,r)}fn();if(motionOff())return;
   const mv=[];for(const[el,b]of before){if(el===(PGdrag&&PGdrag.el)||!el.isConnected)continue;const a=el.getBoundingClientRect(),dx=b.left-a.left,dy=b.top-a.top;if(dx||dy)mv.push([el,dx,dy])}
   for(const[el,dx,dy]of mv){el.style.transition='none';el.style.transform=`translate(${dx}px,${dy}px)`}void pgGrid.offsetWidth;
