@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uEiyqUxf9Q/JFCsO8ckisDXFGTKz6qu0LFbv2nQzPkA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3eVx429t/xGhiHoEAGSKuGJEwBAz+rrfyW603XtuGao=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2629,7 +2629,7 @@ const S={tool:'select',color:'#1b1f24',lw:2,fs:14,orient:'h',bold:false,dash:fal
 const I=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const TOOLS=[
   {id:'select',k:'V',n:'Auswählen',i:I('<rect x="3" y="3" width="14" height="11" rx="1.5" stroke-dasharray="2.4 2.4"/><path d="M11.5 10.5l8.5 3.4-3.6 1.4-1.4 3.6z"/>'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.'},
-  {id:'textsel',k:'Y',n:'Text auswählen',i:I('<rect x="3" y="7" width="18" height="10" rx="1.5" stroke-dasharray="2.4 2.4"/><path d="M12 9.5v5M10 9.5h4M10 14.5h4"/>'),h:'Text der PDF mit der Maus markieren und mit Strg+C kopieren.'},
+  {id:'textsel',k:'Y',n:'Text auswählen',i:I('<path d="M12 4v16M8.5 4h7M8.5 20h7"/><path d="M3.5 9v6M20.5 9v6" stroke-dasharray="2 2.2"/>'),h:'Text der PDF mit der Maus markieren und mit Strg+C kopieren.'},
   '-',
   {id:'pen',k:'P',n:'Stift',i:I('<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'),h:'Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.'},
   {id:'marker',k:'M',n:'Textmarker',i:I('<path d="M9 15l-3 3h5l1-1"/><path d="M8 14l8-9 3 3-9 8z"/><path d="M4 21h16"/>'),h:'Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.'},
