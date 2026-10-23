@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-T10Iv1mbUuZgd59SD+xys7Q6G2fsalfHHDVK5i0FNnk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-CeOChE3M5mecoC31CJZnoj1x24cMfXGl6m1Mqs9cjjk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5719,7 +5719,7 @@ const tabMainClose=id=>{try{window.werkbank&&werkbank.tabClose&&werkbank.tabClos
 // Vor einem Wechsel: Eingabe übernehmen, laufendes Speichern abwarten (sonst landet es im falschen Tab), offenes Auto-Speichern erledigen
 async function tabQuiet(){closeEditor();for(let n=0;(autoBusy||saveHold)&&n<2400;n++)await tabSleep(25);await flushAuto();clearTimeout(autoT)}
 // Nur eine Tab-Aktion gleichzeitig
-async function tabGate(fn){if(tabBusy)return false;tabBusy=true;try{await tabQuiet();return await fn()}finally{tabBusy=false;tabRender()}}
+async function tabGate(fn){if(tabBusy||rbBusy)return false;tabBusy=true;try{await tabQuiet();return await fn()}finally{tabBusy=false;tabRender()}}
 // Neuen Tab beginnen; S bleibt dabei unverändert (der alte Tab ist so per tabBack sofort wieder da)
 async function tabOpen_(){
   if(tabSame){tabSame=false;return{t:TAB,reused:true}}
@@ -6103,16 +6103,27 @@ $('#nOk').onclick=async()=>{
 $('#bAddPage').onclick=()=>openAddDlg();
 /* ---------- Seitenvorschau & Seiten bearbeiten ---------- */
 const idx=n=>[...Array(n).keys()];
+let rbBusy=false;
 async function rebuildPages(entries,msg,focus){
-  if(!S.bytes)return;closeEditor();
-  const src=await PDFLib.PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true}),out=await PDFLib.PDFDocument.create(),srcPages=src.getPages(),objs=[];
+  if(!S.bytes||rbBusy)return false;rbBusy=true;try{
+  closeEditor();
+  const t0=TAB,b0=S.bytes;
+  const src=await PDFLib.PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true}),out=await PDFLib.PDFDocument.create(),srcPages=src.getPages();
   for(const en of entries){
-    if(en.blank){const ref=srcPages[en.like];let dims=[595.28,841.89];if(en.fmt&&FMT[en.fmt])dims=FMT[en.fmt];else if(ref){const sz=ref.getSize(),r=((ref.getRotation().angle%360)+360)%360;dims=r%180?[sz.height,sz.width]:[sz.width,sz.height]}paintBg(out.addPage(dims),en.bg!=null?en.bg:(S.isNew?S.bg:'blank'),en.paper!=null?en.paper:(S.isNew?S.paper:'white'));objs.push([])}
-    else{const[cp]=await out.copyPages(src,[en.i]);if(en.rot)cp.setRotation(PDFLib.degrees((((cp.getRotation().angle+en.rot)%360)+360)%360));out.addPage(cp);const P0=S.pages[en.i];objs.push(rotObjs(JSON.parse(JSON.stringify(P0.objs,(k,v)=>k==='_editing'?undefined:v)),P0.w,P0.h,en.rot||0))}
+    if(en.blank){const ref=srcPages[en.like];let dims=[595.28,841.89];if(en.fmt&&FMT[en.fmt])dims=FMT[en.fmt];else if(ref){const sz=ref.getSize(),r=((ref.getRotation().angle%360)+360)%360;dims=r%180?[sz.height,sz.width]:[sz.width,sz.height]}paintBg(out.addPage(dims),en.bg!=null?en.bg:(S.isNew?S.bg:'blank'),en.paper!=null?en.paper:(S.isNew?S.paper:'white'))}
+    else{const[cp]=await out.copyPages(src,[en.i]);if(en.rot)cp.setRotation(PDFLib.degrees((((cp.getRotation().angle+en.rot)%360)+360)%360));out.addPage(cp)}
   }
-  fixAcroForm(src,out);H.u.push(docSnap());H.r=[];
-  await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
-  updUndo();markDirty();if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);
+  fixAcroForm(src,out);
+  const bytes=await out.save();
+  if(TAB!==t0||S.bytes!==b0)return false;
+  // Striche erst nach dem Speichern aus dem Seitenstand holen, sonst gehen Striche verloren, die während des Speicherns gezeichnet wurden
+  const objs=entries.map(en=>{if(en.blank)return[];const P0=S.pages[en.i];return rotObjs(JSON.parse(JSON.stringify(P0.objs,(k,v)=>k==='_editing'?undefined:v)),P0.w,P0.h,en.rot||0)});
+  const snap=docSnap();
+  await openPdf(bytes,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
+  if(S.bytes===b0)return false;
+  H.u.push(snap);H.r=[];
+  updUndo();markDirty();if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);return true;
+  }finally{rbBusy=false}
 }
 let thumbsOn=false,thumbGen=0,thT=0;
 function toggleThumbs(on){const was=thumbsOn;thumbsOn=on==null?!thumbsOn:on;if(was!==thumbsOn)barAnim('thumbs',$('#thumbs'),h=>$('#app').classList.toggle('show-thumbs',!h),!thumbsOn,260);$('#bThumbs').setAttribute('aria-pressed',thumbsOn);try{localStorage.setItem('pdfwerkbank:thumbs',thumbsOn?'1':'0')}catch(e){}if(thumbsOn)buildThumbs()}
