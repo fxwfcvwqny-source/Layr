@@ -3537,6 +3537,15 @@ function setSel(sel){const prev=S.sel;S.sel=sel;if(prev)redraw(prev.p);
   if(sel){redraw(sel.p);syncControls(sel.o)}try{updTblUI()}catch(e){}try{ffBar()}catch(e){}try{alUI()}catch(e){}}
 function delSel(){if(!S.sel)return;pushHist();const P=S.pages[S.sel.p],T=selItems();P.objs=P.objs.filter(o=>!T.includes(o));const p=S.sel.p;S.sel=null;redraw(p);markDirty()}
 function dupSel(){if(!S.sel)return;pushHist();const p=S.sel.p,C=selItems().map(o=>{const c=JSON.parse(JSON.stringify(o));moveObj(c,12,12);if(c.sym==='num')c.label=String(S.num++);return c});orgRemap(C);S.pages[p].objs.push(...C);selectItems(p,C);markDirty()}
+/* internal clipboard for annotation objects; system clipboard only gets text + a stamp */
+let CLIP=null;
+function copySel(){if(!S.sel)return false;const T=selItems();if(!T.length)return false;
+  const imgs={};for(const o of T)if(o.type==='image'){const s=S.imgs[o.img]||imgLsGet(o.img);if(s)imgs[o.img]=s}
+  CLIP={stamp:'layr:'+Date.now(),n:0,objs:JSON.stringify(T,(k,v)=>k==='_editing'||k==='__drag'?undefined:v),imgs};return true}
+function pasteClip(){if(!CLIP||!S.pages.length)return;const p=curPage();pushHist();
+  for(const k in CLIP.imgs)if(!S.imgs[k])S.imgs[k]=CLIP.imgs[k];
+  const d=12*(++CLIP.n),C=JSON.parse(CLIP.objs);for(const c of C){moveObj(c,d,d);if(c.sym==='num')c.label=String(S.num++)}
+  orgRemap(C);S.pages[p].objs.push(...C);selectItems(p,C);markDirty()}
 function orderSel(front){if(!S.sel)return;pushHist();const P=S.pages[S.sel.p],T=P.objs.filter(o=>selItems().includes(o));P.objs=P.objs.filter(o=>!T.includes(o));if(front)P.objs.push(...T);else P.objs.unshift(...T);redraw(S.sel.p);markDirty()}
 
 /* ---------- 3.6: Ausrichten & Verteilen ----------
