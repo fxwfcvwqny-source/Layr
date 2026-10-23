@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FcxhmM5DanP9Cm1U/yViUoifn+HNFBy41dAFV82cHPc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KT7JZHl2MQMuBtnOg5FDJtLMv6KWNrV6FKVAHDTQyYY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2695,7 +2695,7 @@ function wrapLines(c,text,maxW){
     return ch.slice(i).join('')};
   for(const para of String(text).split('\n')){
     const words=para.split(' ');let cur='';
-    for(const w of words){const t=cur?cur+' '+w:w;if(c.measureText(t).width>maxW&&cur){out.push(cut(cur));cur=w}else cur=t}
+    for(const w of words){let t=cur?cur+' '+w:w;if(c.measureText(t).width>maxW&&cur){cur=cut(cur);t=cur+' '+w;if(c.measureText(t).width>maxW){out.push(cur);cur=w}else cur=t}else cur=t}
     out.push(cut(cur))}return out}
 // characters consumed by the break after line k: 1 for space/newline, 0 for a character cut
 const wrapGap=(lines,k)=>lines.soft&&lines.soft.has(k)?0:1;
