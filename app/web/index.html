@@ -1442,6 +1442,15 @@ header,.file{min-width:0}
 .ctx.hm .hm-ic{width:18px;height:18px;background:transparent}
 .ctx.hm button.hm-i:hover,.ctx.hm button.hm-i:focus-visible{background:var(--hover)}
 .ctx.hm button.hm-i:hover .hm-ic,.ctx.hm button.hm-i:focus-visible .hm-ic,.ctx.hm [aria-checked="true"] .hm-ic{background:transparent;color:var(--ink);transform:none}
+/* quick bar */
+.edbar{border-radius:var(--r);padding:2px;gap:1px;scale:var(--qb,1);transform-origin:left bottom}
+.tbx.flip .edbar{transform-origin:left top}
+:root[data-qbar="m"]{--qb:1.2}
+:root[data-qbar="l"]{--qb:1.4}
+.edbar button{border-radius:var(--r-s)}
+.edcol .cbar{width:16px;height:4px;border-radius:1px;box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent)}
+.edpal{border-radius:var(--r)}
+.edbar .edsw{border-radius:var(--r-s)}
 </style></head><body>
 
 <div class="app" id="app">
