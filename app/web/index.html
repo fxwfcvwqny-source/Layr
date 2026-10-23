@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KMHamQXTjbRgEcuBU1diw/wHuIMXqnz34aASs6wLieo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-RPXfc7l0LRKKV7b2Mb5mjtJf7vPMYkD9vJgd17dx9qs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2762,6 +2762,7 @@ function setTool(id){
   if(id!=='select'&&id!=='lasso')setSel(null);
   document.querySelectorAll('.tool').forEach(b=>{if(b.dataset.t!=='ruler')b.setAttribute('aria-pressed',b.dataset.t===id)});tbSync();moveToolInd();try{ffBar()}catch(e){}
   {const a=$('#app');a.className=a.className.replace(/\bmode-\S+/g,'').replace(/\s+/g,' ').trim()+' mode-'+id}
+  if(id==='textsel')S.pages.forEach((P,i)=>{if(P.vis)tlBuild(i)});
   syncFill();try{updTblUI()}catch(e){}
 }
 
@@ -3650,10 +3651,12 @@ function drawSel(c,o){
 
 /* ---------- Seiten ---------- */
 const pagesEl=$('#pages'),viewer=$('#viewer');
+let TLO=null;
 function buildPages(){
   pagesEl.innerHTML='';
+  TLO&&TLO.disconnect();TLO=new IntersectionObserver(es=>{for(const e of es){const i=+e.target.dataset.i,P=S.pages[i];if(!P)continue;P.vis=e.isIntersecting;if(P.vis&&S.tool==='textsel')tlBuild(i)}},{root:viewer,rootMargin:'800px'});
   S.pages.forEach((P,i)=>{
-    const el=document.createElement('div');el.className='page';
+    const el=document.createElement('div');el.className='page';el.dataset.i=i;TLO.observe(el);
     const pdf=document.createElement('canvas');pdf.className='pdf';
     const ink=document.createElement('canvas');ink.className='ink';
     const no=document.createElement('span');no.className='pno';no.textContent=(i+1);
@@ -3665,7 +3668,7 @@ function buildPages(){
 }
 function layout(){try{decoEnsure()}catch(e){}
   const k=DPR();
-  S.pages.forEach((P,i)=>{const W=Math.max(1,Math.round(P.w*S.zoom*k)),Hh=Math.max(1,Math.round(P.h*S.zoom*k));P.el.style.width=(W/k)+'px';P.el.style.height=(Hh/k)+'px';P.ink.width=W;P.ink.height=Hh;redraw(i)});
+  S.pages.forEach((P,i)=>{const W=Math.max(1,Math.round(P.w*S.zoom*k)),Hh=Math.max(1,Math.round(P.h*S.zoom*k));P.el.style.width=(W/k)+'px';P.el.style.height=(Hh/k)+'px';P.el.style.setProperty('--scale-factor',S.zoom);P.ink.width=W;P.ink.height=Hh;redraw(i)});
   {const a=$('#addPageCard'),L=S.pages[S.pages.length-1];if(a&&L)a.style.width=Math.max(220,L.w*S.zoom)+'px'}
   $('#bFit').textContent=Math.round(S.zoom*100)+' %';
   if(rulerOn)drawRuler();
@@ -3707,6 +3710,9 @@ async function renderPage(i,g){
   try{await page.render({canvasContext:cv.getContext('2d'),viewport:vp,annotationMode:pdfjsLib.AnnotationMode.ENABLE_FORMS}).promise}catch(e){return}
   if(g!==renderGen)return;P.el.replaceChild(cv,P.pdf);P.pdf=cv;
 }
+// Textebene (pdf.js) nur für sichtbare Seiten, erst im Werkzeug „Text auswählen“; Zoom über --scale-factor
+async function tlBuild(i){const P=S.pages[i],doc=S.doc;if(!P||P.tl||!doc)return;P.tl=document.createElement('div');P.tl.className='textLayer';P.el.appendChild(P.tl);
+  try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P)return;await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:P.tl,viewport:pg.getViewport({scale:1})}).render()}catch(e){}}
 
 /* ---------- Verlauf & Zwischenspeicher ---------- */
 const H={u:[],r:[]};
