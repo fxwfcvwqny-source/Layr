@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-yXlVeFh44NZpL7MlkW+mwRJojfopeBIIt/ed8WIk8bA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2PtlW6vVHeQldSoe5NauUTagE3xpfLtcGz37DYWUpU0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2944,11 +2944,14 @@ const DOCKABLE=['sym','rect','ellipse','text','table','image'];
 function dockBox(o){if(o.type==='text')return bbox(o);let x=o.x,y=o.y,w=o.w,h=o.h;if(w<0){x+=w;w=-w}if(h<0){y+=h;h=-h}return{x,y,w,h}}
 /* Anker: 't','b','l','r' (Mitte) oder Seite+Nummer 1..3 ('t1'..'r3') für Festpunkte auf der Seite */
 const ANCHOR_IDS=['t1','t2','t3','b1','b2','b3','l1','l2','l3','r1','r2','r3'];
-function orgAnchor(o,t,f=.5){if(t.length===2){f=[.25,.5,.75][+t[1]-1];t=t[0]} // shortcut: older Layr versions anchor 't1'..'r3' at the box centre (links stay intact), no upgrade needed
+/* Symbole mit eckigem Umriss (Festpunkte auf Dritteln liegen auf dem Rand); alle anderen Formen nur an den Seitenmitten */
+const ANCHOR_RECT_SYMS=new Set(['org_lead','org_unit','org_pos','org_person','org_vacant','org_ext','f_frame','fork','objnode','swimlane','class','interface','objekt','system','component','activation','state','process','subprog','ns_seq','ns_if','ns_while','ns_do','entity','weak','firewall','server','nas','phone','rack','hub','switch','l3switch','modem','patch','usv','tablet','lb','vpn','proxy','vm','container','bridge','repeater','mediaconv','wlc','tk','ids','twofa','vlan','dmz','trust']);
+function anchorRect(o){return['rect','table','image','text'].includes(o.type)||(o.type==='sym'&&ANCHOR_RECT_SYMS.has(o.sym))}
+function orgAnchor(o,t,f=.5){if(t.length===2){f=anchorRect(o)?[.25,.5,.75][+t[1]-1]:.5;t=t[0]} // shortcut: older Layr versions anchor 't1'..'r3' at the box centre (links stay intact), no upgrade needed
   const{x,y,w,h}=dockBox(o);let yb=y+h;if(t==='b'&&o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].below&&o.label){const b=bbox(o);yb=b.y+b.h}
   return t==='t'?[x+w*f,y]:t==='b'?[x+w*f,yb]:t==='l'?[x,y+h*f]:t==='r'?[x+w,y+h*f]:[x+w/2,y+h/2]}
 /* Nächster Festpunkt am Kasten, sonst 'auto' */
-function pickAnchor(o,x,y){let best='auto',bd=8/S.zoom;for(const t of ANCHOR_IDS){const q=orgAnchor(o,t),d=Math.hypot(q[0]-x,q[1]-y);if(d<bd){bd=d;best=t}}return best}
+function pickAnchor(o,x,y){let best='auto',bd=8/S.zoom;for(const t of anchorRect(o)?ANCHOR_IDS:[]){const q=orgAnchor(o,t),d=Math.hypot(q[0]-x,q[1]-y);if(d<bd){bd=d;best=t}}return best}
 /* Seite wählen, an der eine Linie andockt: die, die zum anderen Ende zeigt */
 function autoSides(A,B,pa,pb){const a=A?dockBox(A):{x:pa[0],y:pa[1],w:0,h:0},b=B?dockBox(B):{x:pb[0],y:pb[1],w:0,h:0};
   const dx=(b.x+b.w/2)-(a.x+a.w/2),dy=(b.y+b.h/2)-(a.y+a.h/2),gx=Math.abs(dx)-(a.w+b.w)/2,gy=Math.abs(dy)-(a.h+b.h)/2;
@@ -2959,7 +2962,7 @@ function dockAt(P,x,y,tol,ex){for(let k=P.objs.length-1;k>=0;k--){const o=P.objs
     if(!(x>=b.x-tol&&x<=b.x+b.w+tol&&y>=b.y-tol&&y<=b.y+b.h+tol))continue;
     if(isFrameSym(o)&&x>b.x+tol*2&&x<b.x+b.w-tol*2&&y>b.y+tol*2&&y<b.y+b.h-tol*2)continue;return o}return null}
 function drawDockHint(c,o){const b=dockBox(o),z=S.zoom,p=3/z;c.save();c.strokeStyle=accentCol();c.lineWidth=1.4/z;c.setLineDash([3/z,2.5/z]);c.globalAlpha=.9;c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p);c.setLineDash([]);
-  for(const t of ANCHOR_IDS){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle='#fff';c.fill();c.stroke()}c.restore()}
+  for(const t of anchorRect(o)?ANCHOR_IDS:['t','b','l','r']){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle='#fff';c.fill();c.stroke()}c.restore()}
 /* Verbindungen an ihre Kästen anpassen; ist ein Kasten weg, verschwindet auch seine Linie */
 function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
   const ends=[],ctr=b=>{const d=dockBox(b);return[d.x+d.w/2,d.y+d.h/2]};
@@ -2969,7 +2972,7 @@ function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(cons
     if(A&&o.__drag!=='a')ends.push({o,end:'a',box:A,side:ta,fix:(L.ta||'auto')!=='auto',other:B?ctr(B):[o.x2,o.y2],idx:ends.length});
     if(B&&o.__drag!=='b')ends.push({o,end:'b',box:B,side:tb,fix:(L.tb||'auto')!=='auto',other:A?ctr(A):[o.x1,o.y1],idx:ends.length})}
   /* Enden auf derselben Seite eines Kastens verteilen, sortiert nach der Gegenseite der Linie; feste Seiten bleiben stehen */
-  const grp=new Map();for(const e of ends){const k=/\d/.test(e.side)||e.fix?'#'+e.idx:e.box.oid+'|'+e.side;if(!grp.has(k))grp.set(k,[]);grp.get(k).push(e)}
+  const grp=new Map();for(const e of ends){const k=/\d/.test(e.side)||e.fix||!anchorRect(e.box)?'#'+e.idx:e.box.oid+'|'+e.side;if(!grp.has(k))grp.set(k,[]);grp.get(k).push(e)}
   for(const g of grp.values()){const n=g.length,hz=g[0].side==='t'||g[0].side==='b';
     if(n>1)g.sort((p,q)=>(hz?p.other[0]-q.other[0]:p.other[1]-q.other[1])||p.idx-q.idx);
     g.forEach((e,k)=>{const q=orgAnchor(e.box,e.side,n>1?(k+1)/(n+1):.5);if(e.end==='a'){e.o.x1=q[0];e.o.y1=q[1]}else{e.o.x2=q[0];e.o.y2=q[1]}})}
