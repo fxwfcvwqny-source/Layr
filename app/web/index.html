@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2c+fL6EkjQe1z/cZtYvQnBYl4v/1KbqWbDPef5l6pE8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ouI8ApjHVk7CGHeRw+iFgwLOKM5V2LhzDyMMy4nriY0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2956,7 +2956,7 @@ function drawDockHint(c,o){const b=dockBox(o),z=S.zoom,p=3/z;c.save();c.strokeSt
 /* Verbindungen an ihre Kästen anpassen; ist ein Kasten weg, verschwindet auch seine Linie */
 function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
   for(const o of P.objs){const L=o.link;if(!L)continue;const A=L.a?by[L.a]:null,B=L.b?by[L.b]:null;
-    if((L.a&&!A)||(L.b&&!B)){gone.push(o);continue}if(!A&&!B){delete o.link;continue}
+    if((L.a&&!A)||(L.b&&!B)){if(o.locked)delete o.link;else gone.push(o);continue}if(!A&&!B){delete o.link;continue}
     let ta=L.ta||'auto',tb=L.tb||'auto';if(ta==='auto'||tb==='auto'){const sd=autoSides(A,B,[o.x1,o.y1],[o.x2,o.y2]);if(ta==='auto')ta=sd[0];if(tb==='auto')tb=sd[1];o.elbowDir=sd[2]}
     if(A&&o.__drag!=='a'){const q=orgAnchor(A,ta);o.x1=q[0];o.y1=q[1]}if(B&&o.__drag!=='b'){const q=orgAnchor(B,tb);o.x2=q[0];o.y2=q[1]}}
   if(gone.length){P.objs=P.objs.filter(o=>!gone.includes(o));if(S.sel&&S.pages[S.sel.p]===P){const keep=selItems().filter(o=>!gone.includes(o));
