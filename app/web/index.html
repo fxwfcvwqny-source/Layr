@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-5MjxUJCS04npvqRd2vR75PHnqsl3vcJendJC56Gjb5s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-iWGkQqmu0SYskecrpwIW3RRrn0sihOBHnLQI8SLy1g4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4388,7 +4388,7 @@ function openTextEditor(i,o,isNew,at){
     area.addEventListener('pointermove',mv);area.addEventListener('pointerup',up);area.addEventListener('pointercancel',up)});
   // Rahmen = verschieben, Griffe = Breite / Schriftgröße
   root.addEventListener('pointerdown',e=>{
-    if(o.locked)return;
+    if(o.locked){e.preventDefault();e.stopPropagation();eng.focus();return}
     const h=e.target.dataset&&e.target.dataset.h;if(!h&&e.target!==root)return;
     e.preventDefault();e.stopPropagation();root.setPointerCapture(e.pointerId);
     dragBegin(i,o);const sx=e.clientX,sy=e.clientY,z=S.zoom,gg={x:o.x,y:o.y,fs:o.fs,wrapW:o.wrapW,minH:o.minH,h0:g.b.h},w0=(o.wrapW||g.b.w)||1;
