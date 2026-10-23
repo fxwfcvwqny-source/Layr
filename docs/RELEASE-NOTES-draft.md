@@ -45,6 +45,7 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Icons use the Phosphor bold weight for crisp lines on scaled Windows displays.
 - Text quick bar shows the colour at the caret and has a size setting.
 - Bigger text select icon; smaller default text quick bar.
+- Sharper symbol tiles on scaled displays; the More button uses three plain dots.
 
 ## Known limits
 
