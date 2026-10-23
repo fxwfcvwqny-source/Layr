@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qaVmBTpte+6/afPx3X6ysbHfmPeLKZ7uy5eTVsvwjfw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-NVFPD9YP1vQx9xzQxwNLZlxGMVHXXB44KSd5Dfr9uJ8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -356,7 +356,7 @@ select{height:30px;border:1px solid var(--line);border-radius:6px;background:var
 .cat[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 .symgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .ddrow{display:flex;align-items:center;gap:8px;font-size:13px}.ddrow span{color:var(--muted);flex:none}
-.tool .dd{position:absolute;right:3px;top:3px;width:9px;height:9px;color:var(--muted)}
+.tool .dd{position:absolute;right:3px;top:3px;width:12px;height:12px;color:var(--muted)}
 .symPop{position:fixed;z-index:94;width:352px;max-width:calc(100vw - 16px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
 .symPop .symgrid{grid-template-columns:repeat(4,1fr);grid-auto-rows:max-content;align-content:start;overflow-y:auto;min-height:0;padding:2px}
 .sym{border:1px solid var(--line);border-radius:8px;background:#fff;padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#2b3440}
@@ -1055,7 +1055,7 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 }
 /* 3.5: Werkzeugleiste anpassen */
 .tb-off{display:none!important}
-.tool.tb-more .dd{position:absolute;right:3px;bottom:5px;width:9px;height:9px;opacity:.7}
+.tool.tb-more .dd{position:absolute;right:3px;bottom:5px;width:12px;height:12px;opacity:.7}
 .tool.tb-more[aria-expanded="true"]{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent)}
 #tbDlg .tbcard{width:min(560px,100%);max-height:calc(100vh - 40px)}
 .tb-list{overflow:auto;display:flex;flex-direction:column;gap:2px;min-height:120px;margin:0 -6px;padding:0 6px}
@@ -2629,35 +2629,36 @@ const S={tool:'select',color:'#1b1f24',lw:2,fs:14,orient:'h',bold:false,dash:fal
 
 /* ---------- Icons ---------- */
 const I=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const PH=n=>'<svg class="ph" aria-hidden="true"><use href="#ph-'+n+'"/></svg>';
 const TOOLS=[
-  {id:'select',k:'V',n:'Auswählen',i:I('<rect x="3" y="3" width="14" height="11" rx="1.5" stroke-dasharray="2.4 2.4"/><path d="M11.5 10.5l8.5 3.4-3.6 1.4-1.4 3.6z"/>'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.'},
-  {id:'textsel',k:'Y',n:'Text auswählen',i:I('<path d="M12 4v16M8.5 4h7M8.5 20h7"/><path d="M3.5 9v6M20.5 9v6" stroke-dasharray="2 2.2"/>'),h:'Text der PDF mit der Maus markieren und mit Strg+C kopieren.'},
+  {id:'select',k:'V',n:'Auswählen',i:PH('cursor'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.'},
+  {id:'textsel',k:'Y',n:'Text auswählen',i:PH('cursor-text'),h:'Text der PDF mit der Maus markieren und mit Strg+C kopieren.'},
   '-',
-  {id:'pen',k:'P',n:'Stift',i:I('<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'),h:'Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.'},
-  {id:'marker',k:'M',n:'Textmarker',i:I('<path d="M9 15l-3 3h5l1-1"/><path d="M8 14l8-9 3 3-9 8z"/><path d="M4 21h16"/>'),h:'Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.'},
-  {id:'eraser',k:'E',n:'Radierer',i:I('<path d="M4 16l9-9 6 6-5 5H8z"/><path d="M10 10l6 6M7 20h12"/>'),h:'Über Beschriftungen wischen, um sie zu entfernen. Das PDF selbst bleibt.'},
-  {id:'text',k:'T',n:'Text',i:I('<path d="M5 5h14M12 5v14M9 19h6"/>'),h:'Klicken und tippen. Ausrichtung rechts: horizontal, vertikal oder gestapelt.'},
+  {id:'pen',k:'P',n:'Stift',i:PH('pencil-simple'),h:'Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.'},
+  {id:'marker',k:'M',n:'Textmarker',i:PH('highlighter'),h:'Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.'},
+  {id:'eraser',k:'E',n:'Radierer',i:PH('eraser'),h:'Über Beschriftungen wischen, um sie zu entfernen. Das PDF selbst bleibt.'},
+  {id:'text',k:'T',n:'Text',i:PH('text-t'),h:'Klicken und tippen. Ausrichtung rechts: horizontal, vertikal oder gestapelt.'},
   '-',
-  {id:'line',k:'L',n:'Linie',i:I('<path d="M5 19L19 5"/>'),h:'Linie ziehen. Auf einem Symbol beginnen oder enden lassen, dann dockt sie an und wandert mit (Alt: frei). Umschalt rastet ein, „Gewinkelt“ für Diagramme.'},
-  {id:'arrow',k:'A',n:'Pfeil',i:I('<path d="M5 19L19 5"/><path d="M10 5h9v9"/>'),h:'Pfeil ziehen. Dockt wie die Linie an Symbolen an und wandert mit (Alt: frei). Pfeilspitzen für UML (Vererbung, Komposition …) rechts wählen.'},
-  {id:'rect',k:'R',n:'Rechteck',i:I('<rect x="4" y="6" width="16" height="12" rx="1"/>'),h:'Rechteck ziehen. Umschalt für ein Quadrat.'},
-  {id:'ellipse',k:'O',n:'Ellipse',i:I('<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>'),h:'Ellipse ziehen. Umschalt für einen Kreis.'},
-  {id:'table',k:'K',n:'Tabelle',i:I('<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 10h18M3 14.5h18M9 5v14M15 5v14"/>'),h:'Tabelle aufziehen. Doppelklick in eine Zelle zum Schreiben, Tab springt zur nächsten. Zeilen und Spalten rechts einstellen.'},
-  {id:'symbol',k:'S',n:'Symbol setzen',i:I('<rect x="3" y="4" width="8" height="6" rx="1.5"/><path d="M17 3l4 4-4 4-4-4z"/><circle cx="7" cy="17" r="3"/><path d="M14 14h7v6h-7z"/>'),h:'Klick öffnet die Symbol-Auswahl. Symbol wählen, dann aufs Blatt klicken oder ziehen.'},
-  {id:'image',k:'B',n:'Bild einfügen',i:I('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M21 15.5l-5-5L6 20"/>'),h:'Bild (PNG, JPG, WebP, GIF, SVG) aufs Blatt setzen. Geht auch mit Strg+V oder durch Hineinziehen.',action:()=>pickImage()},
-  {id:'sign',k:'W',n:'Unterschrift',i:I('<path d="M3 17c3-1 4-6 6-6s1 5 3 5 3-4 5-4 2 2 4 2"/><path d="M3 21h18"/>'),h:'Unterschrift zeichnen, tippen oder als Bild einfügen. Kann gemerkt werden (nur auf diesem Gerät).',action:()=>openSigDlg()},
+  {id:'line',k:'L',n:'Linie',i:PH('line-segment'),h:'Linie ziehen. Auf einem Symbol beginnen oder enden lassen, dann dockt sie an und wandert mit (Alt: frei). Umschalt rastet ein, „Gewinkelt“ für Diagramme.'},
+  {id:'arrow',k:'A',n:'Pfeil',i:PH('arrow-up-right'),h:'Pfeil ziehen. Dockt wie die Linie an Symbolen an und wandert mit (Alt: frei). Pfeilspitzen für UML (Vererbung, Komposition …) rechts wählen.'},
+  {id:'rect',k:'R',n:'Rechteck',i:PH('rectangle'),h:'Rechteck ziehen. Umschalt für ein Quadrat.'},
+  {id:'ellipse',k:'O',n:'Ellipse',i:PH('circle'),h:'Ellipse ziehen. Umschalt für einen Kreis.'},
+  {id:'table',k:'K',n:'Tabelle',i:PH('table'),h:'Tabelle aufziehen. Doppelklick in eine Zelle zum Schreiben, Tab springt zur nächsten. Zeilen und Spalten rechts einstellen.'},
+  {id:'symbol',k:'S',n:'Symbol setzen',i:PH('shapes'),h:'Klick öffnet die Symbol-Auswahl. Symbol wählen, dann aufs Blatt klicken oder ziehen.'},
+  {id:'image',k:'B',n:'Bild einfügen',i:PH('image'),h:'Bild (PNG, JPG, WebP, GIF, SVG) aufs Blatt setzen. Geht auch mit Strg+V oder durch Hineinziehen.',action:()=>pickImage()},
+  {id:'sign',k:'W',n:'Unterschrift',i:PH('signature'),h:'Unterschrift zeichnen, tippen oder als Bild einfügen. Kann gemerkt werden (nur auf diesem Gerät).',action:()=>openSigDlg()},
   '-',
-  {id:'measure',k:'G',n:'Messen',i:I('<path d="M4 12h16M4 8v8M20 8v8"/><path d="M8 11v2M12 10v4M16 11v2"/>'),h:'Strecke ziehen, die Länge steht in cm (Originalmaßstab des PDFs).'},
-  {id:'subnet',k:'I',n:'Subnetzrechner',i:I('<rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v4h11v4M6.5 12v4"/><path d="M15 5.5h6M18 2.5v6"/>'),h:'IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.',action:()=>openIpDlg()},
-  {id:'calc',k:'C',n:'IT-Rechner',i:I('<rect x="5" y="2.5" width="14" height="19" rx="2"/><rect x="8" y="5.5" width="8" height="4" rx=".6"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01" stroke-width="2.6"/>'),h:'Zahlensysteme (binär, hexadezimal, dezimal) mit Rechenweg, Datenmengen (GB/GiB), Übertragungszeit, USV-Größe und Laufzeit, Stromkosten.',action:()=>openCalcDlg()},
-  {id:'ruler',k:'U',n:'Lineal ein/aus',i:I('<path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>'),h:'',toggle:true},
+  {id:'measure',k:'G',n:'Messen',i:PH('ruler'),h:'Strecke ziehen, die Länge steht in cm (Originalmaßstab des PDFs).'},
+  {id:'subnet',k:'I',n:'Subnetzrechner',i:PH('network'),h:'IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.',action:()=>openIpDlg()},
+  {id:'calc',k:'C',n:'IT-Rechner',i:PH('calculator'),h:'Zahlensysteme (binär, hexadezimal, dezimal) mit Rechenweg, Datenmengen (GB/GiB), Übertragungszeit, USV-Größe und Laufzeit, Stromkosten.',action:()=>openCalcDlg()},
+  {id:'ruler',k:'U',n:'Lineal ein/aus',i:PH('ruler'),h:'',toggle:true},
   {id:'redact',k:'X',n:'Schwärzen',bar:false,i:I('<rect x="3" y="7" width="18" height="10" rx="1.5" fill="currentColor" stroke="none"/><path d="M3 4h18M3 20h12"/>'),h:'Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.'},
-  {id:'rack',k:'H',n:'Rack-Planer',bar:false,action:()=>rkOpen(),i:I('<rect x="5" y="2.5" width="14" height="19" rx="1.5"/><path d="M8 6.5h8M8 10h8M8 13.5h8M8 17h4"/>'),h:'19-Zoll-Schrank planen: Patchpanel, Switch, Server, USV … mit Höheneinheiten. Doppelklick auf den Schrank öffnet ihn wieder.'},
-  {id:'code',k:'J',n:'Codeblock',bar:false,action:()=>cdOpen(),i:I('<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/>'),h:'Code mit Syntaxfarben einfügen (Bash, Python, Cisco IOS, SQL …). Doppelklick bearbeitet ihn.'},
-  {id:'cards',k:'Z',n:'Lernkarten',bar:false,action:()=>lkOpen(),i:I('<rect x="3" y="6" width="14" height="13" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v11"/><path d="M7 11h6M7 14.5h4"/>'),h:'Karten aus deinen Textmarker-Markierungen und eigene Karten – mit Wiederholungsplan, Antwort eintippen und Export für Anki.'},
-  {id:'present',k:'F5',n:'Präsentieren',bar:false,action:()=>prsStart(),i:I('<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/><path d="M10 8l4 2-4 2z" fill="currentColor"/>'),h:'Vollbild, Seite für Seite, mit Laserpointer. Pfeiltasten blättern, L Laserpointer, B schwarz, Esc beendet.'},
-  {id:'field',k:'F',n:'Formularfeld',bar:false,i:I('<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 10v4M10 12h0"/>'),h:'Felder aufziehen: Text, mehrzeilig, Kästchen oder Auswahlliste. Doppelklick ändert Art und Name. Beim Speichern werden daraus echte PDF-Formularfelder.'},
-  {id:'dia',k:'D',n:'Diagramm aus Text',bar:false,action:()=>dgOpen(S.sel),i:I('<circle cx="12" cy="12" r="3"/><circle cx="4.5" cy="5" r="2"/><circle cx="19.5" cy="5" r="2"/><circle cx="4.5" cy="19" r="2"/><circle cx="19.5" cy="19" r="2"/><path d="M6.2 6.3l3.6 3.6M17.8 6.3l-3.6 3.6M6.2 17.7l3.6-3.6M17.8 17.7l-3.6-3.6"/>'),h:'Mindmap, Diagramm aus einer Tabelle, Logikschaltung mit Wahrheitstabelle oder Struktogramm – aus ein paar Zeilen Text. Doppelklick bearbeitet es.'},
+  {id:'rack',k:'H',n:'Rack-Planer',bar:false,action:()=>rkOpen(),i:PH('hard-drives'),h:'19-Zoll-Schrank planen: Patchpanel, Switch, Server, USV … mit Höheneinheiten. Doppelklick auf den Schrank öffnet ihn wieder.'},
+  {id:'code',k:'J',n:'Codeblock',bar:false,action:()=>cdOpen(),i:PH('code'),h:'Code mit Syntaxfarben einfügen (Bash, Python, Cisco IOS, SQL …). Doppelklick bearbeitet ihn.'},
+  {id:'cards',k:'Z',n:'Lernkarten',bar:false,action:()=>lkOpen(),i:PH('cards'),h:'Karten aus deinen Textmarker-Markierungen und eigene Karten – mit Wiederholungsplan, Antwort eintippen und Export für Anki.'},
+  {id:'present',k:'F5',n:'Präsentieren',bar:false,action:()=>prsStart(),i:PH('projector-screen'),h:'Vollbild, Seite für Seite, mit Laserpointer. Pfeiltasten blättern, L Laserpointer, B schwarz, Esc beendet.'},
+  {id:'field',k:'F',n:'Formularfeld',bar:false,i:PH('textbox'),h:'Felder aufziehen: Text, mehrzeilig, Kästchen oder Auswahlliste. Doppelklick ändert Art und Name. Beim Speichern werden daraus echte PDF-Formularfelder.'},
+  {id:'dia',k:'D',n:'Diagramm aus Text',bar:false,action:()=>dgOpen(S.sel),i:PH('tree-structure'),h:'Mindmap, Diagramm aus einer Tabelle, Logikschaltung mit Wahrheitstabelle oder Struktogramm – aus ein paar Zeilen Text. Doppelklick bearbeitet es.'},
 ];
 const tb=$('#tools');let toolN=0;
 /* Hinweis beim Drüberfahren: Name, Taste und kurze Erklärung. Erscheint nach kurzer Pause,
@@ -2680,7 +2681,7 @@ addEventListener('scroll',tipHide,true);addEventListener('keydown',e=>{if(e.key=
 for(const t of TOOLS){
   if(t==='-'){const hr=document.createElement('hr');hr.style.setProperty('--i',toolN++);tb.appendChild(hr);continue}
   const b=document.createElement('button');b.className='tool';b.dataset.t=t.id;b.setAttribute('aria-label',t.n+' ('+t.k+')');tipFor(b,t);
-  b.innerHTML=t.i+`<span class="k">${t.k}</span>`+(t.id==='symbol'?'<svg class="dd" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'');b.setAttribute('aria-pressed','false');
+  b.innerHTML=t.i+`<span class="k">${t.k}</span>`+(t.id==='symbol'?'<svg class="dd ph" aria-hidden="true"><use href="#ph-caret-down"/></svg>':'');b.setAttribute('aria-pressed','false');
   if(t.id==='symbol'){b.setAttribute('aria-haspopup','true');b.setAttribute('aria-expanded','false')}
   b.style.setProperty('--i',toolN++);b.onclick=()=>{if(t.action)return t.action();if(t.toggle)return toggleRuler();if(t.id==='symbol'){const open=symPop&&!symPop.hidden&&!symPop._ah;setTool('symbol');if(open)closeSymPop();else openSymPop(b)}else{closeSymPop();setTool(t.id)}};tb.appendChild(b);
 }
@@ -2713,8 +2714,8 @@ TB_HID.delete('select');
 function tbSave(){try{localStorage.setItem(TB_KEY,JSON.stringify({hidden:[...TB_HID],known:[...TB_KNOWN]}))}catch(e){}}
 const tbIsHid=id=>TB_HID.has(id);
 const tbTool=id=>TOOLS.find(t=>t!=='-'&&t.id===id);
-function tbMoreIcon(){return I('<rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><path d="M16.75 13.75v6M13.75 16.75h6"/>')}
-const TB_DD='<svg class="dd" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function tbMoreIcon(){return PH('squares-four')}
+const TB_DD='<svg class="dd ph" aria-hidden="true"><use href="#ph-caret-down"/></svg>';
 // Knopf „Mehr“ am Ende der Werkzeugleiste
 tbMore=document.createElement('button');tbMore.className='tool tb-more';tbMore.dataset.t='more';tbMore.type='button';tbMore.setAttribute('aria-haspopup','menu');tbMore.setAttribute('aria-expanded','false');
 tbMore.setAttribute('aria-pressed','false');tbMore.setAttribute('aria-label','Mehr Werkzeuge');tbMore.style.setProperty('--i',toolN++);tbMore.innerHTML=tbMoreIcon()+TB_DD;

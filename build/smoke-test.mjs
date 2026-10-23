@@ -90,6 +90,7 @@ else {
   ok('Winkelanker am Ellipsenrand: a30 liegt auf der Kurve', await ev("(()=>{const o={type:'ellipse',x:100,y:100,w:100,h:52};const q=orgAnchor(o,'a30');return Math.abs(((q[0]-150)/50)**2+((q[1]-126)/26)**2-1)<0.02})()") === true);
   ok('Einrasten: Pfeilende nah am Winkelanker nimmt a30, Seitenmitte wird auto', await ev("(()=>{const o={type:'ellipse',x:100,y:100,w:100,h:52};const S0=S.zoom;S.zoom=1;const q=orgAnchor(o,'a30');const r=[pickAnchor(o,q[0]+2,q[1]-2),pickAnchor(o,...orgAnchor(o,'a270'))];S.zoom=S0;return r[0]==='a30'&&r[1]==='auto'})()") === true);
   ok('Jede Phosphor-Icon-Referenz zeigt auf ein vorhandenes Symbol', await ev("(()=>{const u=[...document.querySelectorAll('use')].map(e=>e.getAttribute('href')||'').filter(h=>h.startsWith('#ph-'));return u.length>0&&u.every(h=>document.querySelector(h)?.tagName.toLowerCase()==='symbol')})()") === true);
+  ok('Werkzeugleiste: sichtbare Werkzeuge zeigen Icons mit Fläche', await ev("(()=>{const v=[...document.querySelectorAll('#tools .tool')].filter(b=>b.offsetWidth>0).map(b=>b.querySelector('svg')).filter(Boolean);return v.length>0&&v.every(e=>e.getBBox().width>0)})()") === true);
   ws.close();
   console.log(failed ? `${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
   done(failed ? 1 : 0);
