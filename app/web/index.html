@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-QxpmgobebMXOaIXKbuKgevghJVL4oslNReR4YPgvswc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2jGzPvluhTCkvlMAsN4qItLI06CxhoggfcL7FOnK5QA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3691,11 +3691,12 @@ function drawSel(c,o){
   let k=1;if(selAnim&&selAnim.o===o){const t=Math.min(1,(performance.now()-selAnim.t0)/300);k=t}
   const eo=1-Math.pow(1-k,3),bk=1+2.2*Math.pow(k-1,3)+1.2*Math.pow(k-1,2);
   const b=bbox(o),z=S.zoom,p=(4+(1-eo)*12)/z;c.save();c.globalAlpha=Math.min(1,.15+eo);c.strokeStyle=accentCol();c.lineWidth=1.2/z;c.setLineDash([4/z,3/z]);c.lineDashOffset=-(1-eo)*14/z;
-  if(o.type!=='line'&&o.type!=='measure')c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p);c.setLineDash([]);c.globalAlpha=1;
+  if(o.type!=='line'&&o.type!=='measure'){if(rotOf(o)){const t=textBox(o),[cx,cy]=tCtr(o);c.save();c.translate(cx,cy);c.rotate(o.rot*Math.PI/180);c.strokeRect(-t.w/2-p,-t.h/2-p,t.w+2*p,t.h+2*p);c.restore()}else c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p)}c.setLineDash([]);c.globalAlpha=1;
   if(o.type==='group'){c.save();c.globalAlpha=.42*Math.min(1,eo+.2);c.lineWidth=1/z;for(const it of o.items){const q=bbox(it);c.strokeRect(q.x-2/z,q.y-2/z,q.w+4/z,q.h+4/z)}
     c.globalAlpha=Math.min(1,eo+.1);const lbl=tr(o.items.length+' ausgewählt');c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(lbl).width;let px=b.x-p,py=b.y-p-21/z;if(py<0)py=b.y+b.h+p+5/z;
     c.fillStyle=accentCol();rr(c,px,py,tw+16/z,17/z,8.5/z);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(lbl,px+8/z,py+9/z);c.restore()}
-  const hs=9*Math.max(.2,bk);for(const h of handles(o)){c.fillStyle='#fff';c.beginPath();c.rect(h.x-hs/2/z,h.y-hs/2/z,hs/z,hs/z);c.fill();c.stroke()}
+  const hs=9*Math.max(.2,bk),hl=handles(o),rh=hl.find(h=>h.k==='rot'),mt=hl.find(h=>h.k==='mt');if(rh&&mt){c.beginPath();c.moveTo(mt.x,mt.y);c.lineTo(rh.x,rh.y);c.stroke()}
+  for(const h of hl){c.fillStyle='#fff';c.beginPath();if(h.k==='rot')c.arc(h.x,h.y,hs/2/z,0,7);else c.rect(h.x-hs/2/z,h.y-hs/2/z,hs/z,hs/z);c.fill();c.stroke()}
   c.restore();
 }
 
