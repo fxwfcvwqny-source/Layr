@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-DytO8RMQnjvNJTQibovZXnF+fCF5enAUHoV6V4mR1Eg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-S38v0d01Mg8l/Wd97PdeIN+XFQFJHfHk53/rNC1yQzA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -8468,7 +8468,7 @@ addEventListener('afterprint',()=>{if(document.documentElement.classList.contain
   d.querySelectorAll('#prQ button').forEach(b=>b.onclick=()=>{PR.dpi=+b.dataset.v;prSave();prUI()});
   $('#prRange').addEventListener('input',prUI);$('#prMarks').onchange=e=>{PR.marks=e.target.checked;prSave()};$('#prNotes').onchange=e=>{PR.notes=e.target.checked;prSave();prUI()}}
 
-if(window.werkbank)werkbank.onOpen((name,bytes,ticket)=>{(async()=>{for(let n=0;tabBusy&&n<600;n++)await tabSleep(25);
+if(window.werkbank)werkbank.onOpen((name,bytes,ticket)=>{(async()=>{for(let n=0;(tabBusy||rbBusy)&&n<600;n++)await tabSleep(25);
   await tabGate(()=>tabOpenWith(async()=>{if(ticket&&werkbank.tabClaim){const r=await werkbank.tabClaim(ticket);if(r&&r.dup)return r}return tabLoad(new Uint8Array(bytes),name)}))})()});
 setColor(S.color,true);setTool('select');buildCats();updUndo();
 async function openBlank(){
