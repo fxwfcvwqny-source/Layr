@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-RPXfc7l0LRKKV7b2Mb5mjtJf7vPMYkD9vJgd17dx9qs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-eoTB/Go3QCT5J8+yOZDTSdEZ0bJe3MQNuvhURF1wWZM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3800,6 +3800,8 @@ function snapPt(s,cx,cy){const t=(cx-s.ox)*s.dx+(cy-s.oy)*s.dy;return[s.ox+t*s.d
    Liegt ein Textmarker-Strich überwiegend auf Text der PDF, wird er durch saubere Markierungen genau über den
    getroffenen Zeichen ersetzt (type:'hl', Vierecke relativ zu x/y). Sonst bleibt der freie Strich. */
 var hlSnapOn=true;try{hlSnapOn=localStorage.getItem('pdfwerkbank:hlsnap')!=='0'}catch(e){}
+var keepSelOn=true;try{keepSelOn=localStorage.getItem('pdfwerkbank:keepSel')!=='0'}catch(e){}
+var lockPassOn=false;try{lockPassOn=localStorage.getItem('pdfwerkbank:lockPass')==='1'}catch(e){}
 function drawHl(c,o){c.save();c.fillStyle=o.color;c.globalCompositeOperation='multiply';
   for(const q of o.q||[]){c.beginPath();q.forEach(([x,y],k)=>k?c.lineTo(o.x+x,o.y+y):c.moveTo(o.x+x,o.y+y));c.closePath();c.fill()}c.restore()}
 // Zeichen einer Textzeile, die der Strich überstreicht → Vierecke
