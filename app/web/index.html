@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Kftp2GhGjt9YEzJeIfnem3uVfYaZDzUCTt3ZC2rcJzM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-OGIJdIbmjvJ6hdo2gCPw4B+PFfAZTGs7KtNGePZuiuI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4901,10 +4901,11 @@ function pgSelect(p,e){const k=PG.indexOf(p);
   else{const only=p.sel&&PG.filter(x=>x.sel).length===1;PG.forEach(x=>x.sel=false);p.sel=!only;PGlast=k}
   pgSync()}
 function openPgDlg(focus){if(!S.doc||!S.pages.length)return;closeEditor();closeMenu&&closeMenu();
+  PGdrag=null;cancelAnimationFrame(PGauto);cancelAnimationFrame(PGraf);PGauto=PGraf=0;pgGrid.classList.remove('dragging');
   PG=S.pages.map((_,i)=>({i,rot:0,u:++PGuid,sel:i===focus,dup:false}));PGlast=focus!=null?focus:-1;pgGrid.innerHTML='';pgGrid.classList.remove('settled');
   PG.forEach((p,k)=>{const el=pgTile(p);el.style.setProperty('--i',Math.min(k,18));pgGrid.appendChild(el)});pgSync();showEl(pgDlg);
   const gen=++PGgen;requestAnimationFrame(()=>{pgRender(gen);const f=focus!=null&&pgGrid.children[focus];if(f)f.scrollIntoView({block:'nearest'})});setTimeout(()=>$('#pgOk').focus(),60)}
-function closePgDlg(){PGgen++;animHide(pgDlg)}
+function closePgDlg(){PGgen++;PGdrag=null;cancelAnimationFrame(PGauto);cancelAnimationFrame(PGraf);PGauto=PGraf=0;pgGrid.classList.remove('dragging');animHide(pgDlg)}
 function pgApply(){if(!pgChanged()){closePgDlg();return}const entries=PG.map(p=>({i:p.i,rot:p.rot}));closePgDlg();
   rebuildPages(entries,tr('Seiten neu geordnet. Rückgängig mit Strg+Z.'),0)}
 /* Ziehen zum Sortieren */
