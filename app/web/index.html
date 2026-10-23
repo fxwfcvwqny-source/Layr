@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-rd7xFB9X7jYwE4szVSW+VcGBqnWYuaNWfruP+V4X3vw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uEiyqUxf9Q/JFCsO8ckisDXFGTKz6qu0LFbv2nQzPkA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1445,8 +1445,8 @@ header,.file{min-width:0}
 /* quick bar */
 .edbar{border-radius:var(--r);padding:2px;gap:1px;scale:var(--qb,1);transform-origin:left bottom}
 .tbx.flip .edbar{transform-origin:left top}
-:root[data-qbar="m"]{--qb:1.2}
-:root[data-qbar="l"]{--qb:1.4}
+:root[data-qbar="m"]{--qb:1.1}
+:root[data-qbar="l"]{--qb:1.3}
 .edbar button{border-radius:var(--r-s)}
 .edcol .cbar{width:16px;height:4px;border-radius:1px;box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent)}
 .edpal{border-radius:var(--r)}
@@ -4369,7 +4369,7 @@ function openTextEditor(i,o,isNew,at){
           const d=document.createElement('b');d.style.left=x0*z+'px';d.style.top=li*lh+'px';d.style.width=Math.max(2,(x1-x0)*z)+'px';d.style.height=lh+'px';selL.appendChild(d)}}}
     {const fn=bF.firstChild;fn.textContent=fontName(o.font);const fc=FONT_MAP[o.font||''];fn.style.fontFamily=fc&&fc.css?fc.css:''}
     if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;
-    root.classList.toggle('flip',o.y*z<46*({s:1,m:1.2,l:1.4}[design.qbar]||1))};
+    root.classList.toggle('flip',o.y*z<46*({s:1,m:1.1,l:1.3}[design.qbar]||1))};
   const set=props=>{
     // Farbe bei markiertem Text: nur für die markierten Zeichen
     if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
