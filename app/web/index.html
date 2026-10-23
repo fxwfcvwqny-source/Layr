@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WVEuBsztphUQuvYP69Z4uXerWoqdG/pzBh+Pck8sxzU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qlGE0aO6u29mqHphLNxd4FeoLmbYBJPoxVYz649g6cc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2864,6 +2864,8 @@ function insertOrgTemplate(k){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===k);i
 const eqFr=n=>Array.from({length:n},()=>1/n);
 function tblCols(o){const X=[o.x];let a=o.x;for(const f of o.cw){a+=f*o.w;X.push(a)}X[X.length-1]=o.x+o.w;return X}
 function tblRows(o){const Y=[o.y];let a=o.y;for(const f of o.rh){a+=f*o.h;Y.push(a)}Y[Y.length-1]=o.y+o.h;return Y}
+// y of the first line's centre: one line stays centred, several lines start at the top padding at the latest
+function cellY0(Y,ch,lh,n){const yc=Y+ch/2-(n-1)*lh/2;return n<=1?yc:Math.max(yc,Y+2+lh/2)}
 function tblCell(o,x,y){const X=tblCols(o),Y=tblRows(o);let c=-1,r=-1;for(let k=0;k<o.cols;k++)if(x>=X[k]&&x<=X[k+1])c=k;for(let k=0;k<o.rows;k++)if(y>=Y[k]&&y<=Y[k+1])r=k;return c<0||r<0?null:[r,c]}
 function tblBorderAt(o,x,y,tol){if(x<o.x-tol||x>o.x+o.w+tol||y<o.y-tol||y>o.y+o.h+tol)return null;const X=tblCols(o),Y=tblRows(o);
   for(let k=1;k<o.cols;k++)if(Math.abs(x-X[k])<tol)return['c',k];for(let k=1;k<o.rows;k++)if(Math.abs(y-Y[k])<tol)return['r',k];return null}
@@ -2877,7 +2879,7 @@ function drawTable(c,o){const X=tblCols(o),Y=tblRows(o);c.setLineDash([]);
   for(let r=0;r<o.rows;r++)for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;if(o.__ec&&o.__ec[0]===r&&o.__ec[1]===k)continue;
     const cw=X[k+1]-X[k],ch=Y[r+1]-Y[r];c.save();c.beginPath();c.rect(X[k]+1,Y[r]+1,cw-2,ch-2);c.clip();
     c.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;c.fillStyle=o.color;c.textBaseline='middle';c.textAlign='left';
-    const L=wrapLines(c,t,Math.max(10,cw-8));const y0=Math.max(Y[r]+2+lh/2,Y[r]+ch/2-(L.length-1)*lh/2);L.forEach((l,j)=>c.fillText(l,X[k]+4,y0+j*lh));c.restore()}}
+    const L=wrapLines(c,t,Math.max(10,cw-8));const y0=cellY0(Y[r],ch,lh,L.length);L.forEach((l,j)=>c.fillText(l,X[k]+4,y0+j*lh));c.restore()}}
 function newTable(x,y,rows,cols){return{type:'table',x,y,w:0,h:0,rows,cols,cw:eqFr(cols),rh:eqFr(rows),cells:Array.from({length:rows},()=>Array(cols).fill('')),fs:11,color:S.color==='#ffd60a'?'#1b1f24':S.color,lw:1,head:S.tblHead!==false,fill:'white',...(S.font?{font:S.font}:{})}}
 function editCell(i,o,r,k){const X=tblCols(o),Y=tblRows(o),fs=o.fs||11;tmpProp(o,'__ec',[r,k]);redraw(i);
   const box=makeEditor(i,X[k]+4,Y[r]+Math.max(0,(Y[r+1]-Y[r])/2-fs*.7),fs,o.color,(o.cells[r]&&o.cells[r][k])||'',{w:X[k+1]-X[k]-8,bold:o.head&&r===0});
@@ -5244,7 +5246,7 @@ function spItems(o){
     b.lines.forEach((L,li)=>{for(const r of spLine(L)){if(spCut(b.lines,li,r))continue;const x=mctx.measureText(L.slice(0,r.a)).width,w=mctx.measureText(L.slice(r.a,r.b)).width;items.push({x,y:li*b.lh+off,w,h:o.fs,base:li*b.lh+off+o.fs*1.02,i:pos+r.a,n:r.b-r.a,word:r.w,cell:null})}pos+=L.length+wrapGap(b.lines,li)})}
   else{const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.22,fam=famOf(o);
     for(let r=0;r<o.rows;r++)for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;
-      const cw=X[k+1]-X[k],ch=Y[r+1]-Y[r],L=wrapLines(mctx,t,Math.max(10,cw-8)),y0=Math.max(Y[r]+2+lh/2,Y[r]+ch/2-(L.length-1)*lh/2);let pos=0;
+      const cw=X[k+1]-X[k],ch=Y[r+1]-Y[r],L=wrapLines(mctx,t,Math.max(10,cw-8)),y0=cellY0(Y[r],ch,lh,L.length);let pos=0;
       L.forEach((l,j)=>{for(const q of spLine(l)){if(spCut(L,j,q))continue;const x=X[k]+4+mctx.measureText(l.slice(0,q.a)).width,w=mctx.measureText(l.slice(q.a,q.b)).width,yy=y0+j*lh;
           if(yy>Y[r+1]||yy<Y[r])continue;items.push({x:x-o.x,y:yy-fs*.55-o.y,w,h:fs*1.1,base:yy+fs*.5-o.y,i:pos+q.a,n:q.b-q.a,word:q.w,cell:[r,k]})}pos+=l.length+wrapGap(L,j)})}}
   SP.box.set(o,{key,items});return items}
