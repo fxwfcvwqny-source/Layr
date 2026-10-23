@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Y4OBNnfUFkj5VUMuDLvVuPJly3Jwyqa5NjEKjenuZps=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-g478o0jhMGp4ffxrZOvZbTkRdxNnZf9pqrEEq05I0Wo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2981,8 +2981,8 @@ function isFrameSym(o){return o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].frame}
 function dockAt(P,x,y,tol,ex){for(let k=P.objs.length-1;k>=0;k--){const o=P.objs[k];if(o===ex||!DOCKABLE.includes(o.type))continue;const b=dockBox(o);
     if(!(x>=b.x-tol&&x<=b.x+b.w+tol&&y>=b.y-tol&&y<=b.y+b.h+tol))continue;
     if(isFrameSym(o)&&x>b.x+tol*2&&x<b.x+b.w-tol*2&&y>b.y+tol*2&&y<b.y+b.h-tol*2)continue;return o}return null}
-function drawDockHint(c,o){const b=dockBox(o),z=S.zoom,p=3/z;c.save();c.strokeStyle=accentCol();c.lineWidth=1.4/z;c.setLineDash([3/z,2.5/z]);c.globalAlpha=.9;c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p);c.setLineDash([]);
-  for(const t of anchorRect(o)?ANCHOR_IDS.filter(t=>anchorShown(b,t)):['t','b','l','r']){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle='#fff';c.fill();c.stroke()}c.restore()}
+function drawDockHint(c,o,k){const b=dockBox(o),z=S.zoom,p=3/z;c.save();c.strokeStyle=accentCol();c.lineWidth=1.4/z;c.setLineDash([3/z,2.5/z]);c.globalAlpha=.9;c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p);c.setLineDash([]);
+  for(const t of dockIds(o)){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle=t===k?accentCol():'#fff';c.fill();c.stroke()}c.restore()}
 /* Verbindungen an ihre Kästen anpassen; ist ein Kasten weg, verschwindet auch seine Linie */
 function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
   const ends=[],ctr=b=>{const d=dockBox(b);return[d.x+d.w/2,d.y+d.h/2]};
@@ -3761,7 +3761,7 @@ function redraw(i){
       c.save();c.globalAlpha=1-e;drawObj(c,D.ghost);c.restore();const b=bbox(D.o),cx=b.x+b.w/2,cy=b.y+b.h/2,sc=.9+.1*bk;
       c.save();c.globalAlpha=.3+.7*e;c.translate(cx,cy);c.scale(sc,sc);c.translate(-cx,-cy);drawObj(c,D.o);c.restore();if(t>=1)D.ghost=null}
     else drawObj(c,D.o)}
-  if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o);
+  if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o,S.dock.k);
   if(S.lasso&&S.lasso.p===i)drawLasso(c,S.lasso.pts,1,S.lasso.rect);
   if(S.lassoFade&&S.lassoFade.p===i){const F=S.lassoFade,t=(performance.now()-F.t0)/260;if(t>=1)S.lassoFade=null;else drawLasso(c,F.pts,1-t,F.rect)}
   if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawObj(c,ED.o);
@@ -4083,7 +4083,7 @@ function attachInk(P,i){
         const o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tol));
         if(o&&nearBorder(o,x,y,tol)){setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;break}
         if(o)editText(i,o,[e.clientX,e.clientY]);else newText(i,x,y);st=null;break}
-      case'line':case'arrow':st.dockA=e.altKey?null:dockAt(P,x,y,6/S.zoom);st.kA=st.dockA?pickAnchor(st.dockA,x,y):'auto';S.dock=st.dockA?{p:i,o:st.dockA}:null;S.draft={p:i,o:{type:'line',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:S.lw,dash:S.dash,elbow:S.elbow,start:S.tool==='arrow'?S.startH:'none',end:S.tool==='arrow'?S.endH:'none'}};break;
+      case'line':case'arrow':st.dockA=e.altKey?null:dockAt(P,x,y,6/S.zoom);st.kA=st.dockA?pickAnchor(st.dockA,x,y):'auto';S.dock=st.dockA?{p:i,o:st.dockA,k:st.kA}:null;S.draft={p:i,o:{type:'line',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:S.lw,dash:S.dash,elbow:S.elbow,start:S.tool==='arrow'?S.startH:'none',end:S.tool==='arrow'?S.endH:'none'}};break;
       case'measure':S.draft={p:i,o:{type:'measure',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:Math.min(S.lw,1.5)}};break;
       case'table':S.draft={p:i,o:newTable(x,y,S.tblR||3,S.tblC||3)};break;
       case'redact':S.draft={p:i,o:{type:'redact',x,y,w:0,h:0,color:'#000000',lw:0}};break;
@@ -4112,7 +4112,7 @@ function attachInk(P,i){
         else if(st.mode==='p1'||st.mode==='p2'){const one=st.mode==='p1';if(o.type==='line')tmpProp(o,'__drag',one?'a':'b');
           const oid2=o.link?(one?o.link.b:o.link.a):null,other=oid2?P.objs.find(q=>q.oid===oid2):null;
           [x,y]=e.shiftKey?angSnap(one?o.x2:o.x1,one?o.y2:o.y1,x,y):[x,y];
-          const dk=o.type==='line'&&!e.altKey?dockAt(P,x,y,6/S.zoom,other):null;st.dockT=dk;S.dock=dk?{p:i,o:dk}:null;st.dockPick=dk?pickAnchor(dk,x,y):'auto';
+          const dk=o.type==='line'&&!e.altKey?dockAt(P,x,y,6/S.zoom,other):null;st.dockT=dk;st.dockPick=dk?pickAnchor(dk,x,y):'auto';S.dock=dk?{p:i,o:dk,k:st.dockPick}:null;
           if(dk){const sd=one?autoSides(dk,other,[x,y],[o.x2,o.y2]):autoSides(other,dk,[o.x1,o.y1],[x,y]);const q=orgAnchor(dk,st.dockPick!=='auto'?st.dockPick:one?sd[0]:sd[1]);x=q[0];y=q[1]}
           if(one){o.x1=x;o.y1=y}else{o.x2=x;o.y2=y}}
         else if(st.mode==='tcol'||st.mode==='trow'){const X=st.mode==='tcol',k=st.idx,fr=X?o.cw:o.rh,len=X?o.w:o.h,pos=(X?x-o.x:y-o.y)/len;
@@ -4129,7 +4129,7 @@ function attachInk(P,i){
         break}
       case'eraser':eraseAt(P,i,x,y,st);break;
       case'line':case'arrow':case'measure':{if(e.shiftKey)[x,y]=angSnap(d.x1,d.y1,x,y);d.x2=x;d.y2=y;
-        if(S.tool!=='measure'){const db=e.altKey?null:dockAt(P,x,y,6/S.zoom,st.dockA);st.dockB=db;st.kB=db?pickAnchor(db,x,y):'auto';S.dock=db?{p:i,o:db}:st.dockA?{p:i,o:st.dockA}:null;
+        if(S.tool!=='measure'){const db=e.altKey?null:dockAt(P,x,y,6/S.zoom,st.dockA);st.dockB=db;st.kB=db?pickAnchor(db,x,y):'auto';S.dock=db?{p:i,o:db,k:st.kB}:st.dockA?{p:i,o:st.dockA,k:st.kA}:null;
           if(st.dockA||db){const sd=autoSides(st.dockA,db,[d.x1,d.y1],[x,y]);if(st.dockA){const q=orgAnchor(st.dockA,st.kA!=='auto'?st.kA:sd[0]);d.x1=q[0];d.y1=q[1]}if(db){const q=orgAnchor(db,st.kB!=='auto'?st.kB:sd[1]);d.x2=q[0];d.y2=q[1]}d.elbowDir=sd[2]}else delete d.elbowDir}
         redraw(i);break}
       case'rect':case'ellipse':case'redact':case'field':case'table':case'symbol':{let w=x-st.x,h=y-st.y;if(e.shiftKey||(S.tool==='symbol'&&SYM[S.sym].fixed)){const s=Math.max(Math.abs(w),Math.abs(h));if(S.tool==='symbol'){const r=SYM[S.sym].h/SYM[S.sym].w;w=Math.sign(w||1)*s;h=Math.sign(h||1)*s*r}else{w=Math.sign(w||1)*s;h=Math.sign(h||1)*s}}d.x=st.x;d.y=st.y;d.w=w;d.h=h;redraw(i);break}
@@ -5787,7 +5787,7 @@ function redrawDrag(i){const P=S.pages[i],D=DRAG;if(!D||D.p!==i||D.w!==P.ink.wid
   const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);c.drawImage(D.below,0,0);
   const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)if(D.dyn.has(o))drawObj(c,o);
   c.setTransform(1,0,0,1,0,0);c.drawImage(D.above,0,0);c.setTransform(k,0,0,k,0,0);
-  if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o);
+  if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o,S.dock.k);
   if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawObj(c,ED.o);
   try{drawGuides(c,i)}catch(e){}if(S.sel&&S.sel.p===i&&S.sel.o!==editingObj)drawSel(c,S.sel.o);return true}
 addEventListener('pointerup',dragEnd,true);addEventListener('pointercancel',dragEnd,true);
