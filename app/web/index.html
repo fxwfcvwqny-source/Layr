@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-X9HkVslR45tz1fgIqQ13H6GZTqXkDdhS9cYf0FvnuB0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tgXpTNJg6OtiCR7kkNjZ+B+BtjfUKLYnoBT3xPsAIC4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5724,9 +5724,9 @@ async function tabQuiet(){closeEditor();for(let n=0;(autoBusy||saveHold)&&n<2400
 // Nur eine Tab-Aktion gleichzeitig
 async function tabGate(fn){if(tabBusy||rbBusy)return false;tabBusy=true;try{await tabQuiet();return await fn()}finally{tabBusy=false;tabRender()}}
 // Neuen Tab beginnen; S bleibt dabei unverändert (der alte Tab ist so per tabBack sofort wieder da)
-async function tabOpen_(){
+async function tabOpen_(noReuse){
   if(tabSame){tabSame=false;return{t:TAB,reused:true}}
-  if(TAB&&(!S.bytes||tabPristine()))return{t:TAB,reused:true};
+  if(!noReuse&&TAB&&(!S.bytes||tabPristine()))return{t:TAB,reused:true};
   const prev=TAB;if(prev)prev.snap=tabCapture();
   const t={id:tabNewId(),snap:null};TABS.splice(prev?TABS.indexOf(prev)+1:TABS.length,0,t);TAB=t;await tabMain(t.id);return{t,prev,reused:false}}
 // Öffnen hat nicht geklappt: zurück zum vorherigen Tab (dessen Inhalt steht noch in S)
@@ -5738,7 +5738,7 @@ async function tabRestore(sn){S.autoFit=sn.autoFit;S.zoom=sn.zoom;
 async function tabSwitch_(t){if(!t||t===TAB||!t.snap)return;if(TAB)TAB.snap=tabCapture();const sn=t.snap;TAB=t;await tabMain(t.id);await tabRestore(sn);t.snap=null}
 // Ein Dokument in einem neuen Tab öffnen (Datei, Zuletzt geöffnet, Doppelklick im Dateimanager, neues Blatt).
 // fn liefert {dup:id} (schon offen), false (nicht geklappt) oder true.
-async function tabOpenWith(fn){const h=await tabOpen_();let r=false;
+async function tabOpenWith(fn,noReuse){const h=await tabOpen_(noReuse);let r=false;
   try{r=await fn()}catch(e){console.error(e);r=false}
   if(r&&r.dup){await tabBack(h);const d=TABS.find(x=>x.id===r.dup);if(d&&d!==TAB)await tabSwitch_(d);toast(tr('Diese Datei ist schon geöffnet.'));return false}
   if(!r){await tabBack(h);return false}
@@ -6218,7 +6218,7 @@ $('#mOk').onclick=async()=>{
   for(const it of mItems){const src=await PDFLib.PDFDocument.load(it.bytes.slice(),{ignoreEncryption:true});const pages=await out.copyPages(src,src.getPageIndices());
     pages.forEach((p,k)=>{out.addPage(p);objs.push(it.current?JSON.parse(JSON.stringify(it.objs[k]||[])):[])})}
   const name=($('#mName').value.trim()||'Zusammengeführt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
-  closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs})}));
+  closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs})},true));
   if(!ok)return;markDirty();
   toast(`${mItems.length} Dateien mit zusammen ${S.pages.length} Seiten zusammengeführt. Mit „Speichern“ sicherst du „${name}“.`);
 };
@@ -7196,7 +7196,7 @@ async function sxRun(asFile){const p=sxPlan();if(!p)return;const go=$('#sxGo'),s
     if(SX.mode==='sel'&&!asFile){const l=p[0];
       const bytes=await sxSubset(S.bytes,l),objs=l.map(i=>SX.marks?JSON.parse(JSON.stringify(S.pages[i].objs,(k,v)=>k==='_editing'?undefined:v)):[]);
       const name=sxName(l),form=SX.marks&&S.form?Object.assign(Object.create(null),S.form):null,del=SX.del,n=S.pages.length,srcTab=TAB,srcBytes=S.bytes;sxClose();
-      const ok_=await tabGate(()=>tabOpenWith(async()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();const r=await tabLoad(bytes,name,{isNew:true,objs,form,crypt:cr||null});if(r)markDirty();return r}));
+      const ok_=await tabGate(()=>tabOpenWith(async()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();const r=await tabLoad(bytes,name,{isNew:true,objs,form,crypt:cr||null});if(r)markDirty();return r},true));
       // Aus der Originaldatei erst entfernen, wenn der neue Tab steht; sonst gehen die Seiten bei einem Fehler verloren
       let cut=false;if(ok_&&del&&srcTab!==TAB&&TABS.includes(srcTab)){const nt=TAB;await tabSwitch(srcTab);if(TAB===srcTab&&S.bytes===srcBytes)cut=await rebuildPages(idx(n).filter(i=>!l.includes(i)).map(i=>({i})),null,Math.max(0,Math.min(l[0],n-l.length-1)));await tabSwitch(nt)}
       if(ok_)toast(tr('„')+name+tr(!del?'“ ist in einem neuen Tab offen.':cut?'“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'“ ist in einem neuen Tab offen. Aus der Originaldatei wurde nichts entfernt.'));return}
@@ -7308,7 +7308,7 @@ async function imRun(){if(IM.busy)return;const go=$('#imGo'),t0=go.textContent;I
       toast(cp.length+tr(cp.length===1?' Seite angehängt. Rückgängig mit Strg+Z.':' Seiten angehängt. Rückgängig mit Strg+Z.'));return}
     const d=new Date(),p2=n=>String(n).padStart(2,'0'),name=`Scan ${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())} ${p2(d.getHours())}-${p2(d.getMinutes())}.pdf`;
     IM.busy=false;imClose();
-    if(await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs:[]})})))toast(tr('„')+name+tr('“ ist erstellt. Tipp: Mit „Text erkennen“ wird sie durchsuchbar.'))}
+    if(await tabGate(()=>tabOpenWith(async()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();const r=await tabLoad(bytes,name,{isNew:true,objs:[]});if(r)markDirty();return r})))toast(tr('„')+name+tr('“ ist erstellt. Tipp: Mit „Text erkennen“ wird sie durchsuchbar.'))}
   catch(e){console.error(e);toast(tr('Das hat nicht geklappt: ')+(e&&e.message||e))}
   finally{IM.busy=false;go.textContent=t0;if(!$('#imDlg').hidden)imUI()}}
 async function imPagesRun(o){const list=prParse($('#imRange').value,S.pages.length);if(!list)return;const go=$('#imGo'),set=new Set(list);
