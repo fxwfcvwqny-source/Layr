@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-AggPrmdNj8eYN9tu0dK02aB4lRFyvsNsPZn3k/aNR3I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-PvBz6JJenmWl0FBWOqLRV1osGxUx3y/zKdL1sv86AKg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1238,6 +1238,7 @@ html.night .page{background:#fff}
 .spv-h{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
 .spv-h select{flex:1;min-width:0;height:30px;border:1px solid var(--line);border-radius:7px;padding:0 6px;background:var(--panel);color:var(--ink);font-size:12.5px}
 .spv-sync{margin:0;white-space:nowrap}.spv-b{flex:1;min-height:0}
+.spv-b.pc{padding:24px 20px 60px;gap:20px}.spv-b .pc-pg{max-width:none;margin:0 auto}
 @media (max-width:860px){.spv-div{display:none}#wrap.split #viewer{right:0;bottom:45%}.spv{top:55%;width:auto;left:0;border-left:0;border-top:1px solid var(--line)}}
 @media print{.spv{display:none!important}}
 .lk-m.due{color:var(--accent);font-weight:600}
@@ -3738,6 +3739,7 @@ function buildPages(){
 function layout(){try{decoEnsure()}catch(e){}
   const k=DPR();
   S.pages.forEach((P,i)=>{const W=Math.max(1,Math.round(P.w*S.zoom*k)),Hh=Math.max(1,Math.round(P.h*S.zoom*k));P.el.style.width=(W/k)+'px';P.el.style.height=(Hh/k)+'px';P.el.style.setProperty('--scale-factor',S.zoom);P.ink.width=W;P.ink.height=Hh;redraw(i)});
+  try{spvZoom()}catch(e){}
   {const a=$('#addPageCard'),L=S.pages[S.pages.length-1];if(a&&L)a.style.width=Math.max(220,L.w*S.zoom)+'px'}
   $('#bFit').textContent=Math.round(S.zoom*100)+' %';
   if(rulerOn)drawRuler();
@@ -7630,7 +7632,7 @@ async function imPagesRun(o){const list=prParse($('#imRange').value,S.pages.leng
 function pcMake(box,doc,o={}){const pc={box,doc,pages:[],gen:0,obs:null,w:0,objs:o.objs||null};box.innerHTML='';box.classList.add('pc');
   pc.obs=new IntersectionObserver(es=>{for(const e of es)if(e.isIntersecting)pcDraw(pc,+e.target.dataset.i)},{root:box,rootMargin:'400px 0px'});
   pc.ready=(async()=>{for(let i=0;i<doc.numPages;i++){let vp;try{vp=(await doc.getPage(i+1)).getViewport({scale:1})}catch(e){vp={width:595,height:842}}
-      const el=document.createElement('div');el.className='pc-pg';el.dataset.i=i;el.style.aspectRatio=vp.width+'/'+vp.height;const n=document.createElement('span');n.className='pc-n';n.textContent=i+1;el.appendChild(n);
+      const el=document.createElement('div');el.className='pc-pg';el.dataset.i=i;el.style.aspectRatio=vp.width+'/'+vp.height;if(o.zoom)el.style.width=pcWidth(vp.width)+'px';const n=document.createElement('span');n.className='pc-n';n.textContent=i+1;el.appendChild(n);
       box.appendChild(el);pc.pages.push({el,w:vp.width,h:vp.height,done:0});pc.obs.observe(el)}})();
   return pc}
 async function pcDraw(pc,i){const P=pc.pages[i];if(!P)return;const W=Math.round(P.el.clientWidth*Math.min(2,devicePixelRatio||1));if(!W||P.done===W)return;P.done=W;
@@ -7640,6 +7642,9 @@ async function pcDraw(pc,i){const P=pc.pages[i];if(!P)return;const W=Math.round(
     c.className='pc-cv';const old=P.el.querySelector('.pc-cv');if(old)old.replaceWith(c);else P.el.prepend(c)}catch(e){P.done=0}}
 function pcRefresh(pc){for(const P of pc.pages)P.done=0;for(const P of pc.pages){const r=P.el.getBoundingClientRect(),b=pc.box.getBoundingClientRect();if(r.bottom>b.top-400&&r.top<b.bottom+400)pcDraw(pc,+P.el.dataset.i)}}
 function pcDestroy(pc){if(!pc)return;try{pc.obs.disconnect()}catch(e){}pc.box.innerHTML='';pc.box.classList.remove('pc')}
+// Geteilte Ansicht: Seiten im Maßstab des Hauptfensters (S.zoom), damit gleiche Seiten auch gleich hoch sind
+function pcWidth(w){const k=DPR();return Math.max(1,Math.round(w*S.zoom*k))/k}
+function spvZoom(){const pc=SPV.pc;if(!pc||!SPV.on)return;let ch=0;for(const P of pc.pages){const w=pcWidth(P.w)+'px';if(P.el.style.width!==w){P.el.style.width=w;ch=1}}if(ch)pcRefresh(pc)}
 // Position: Seite + Anteil (für gleichzeitiges Scrollen)
 function pcPos(pc){const top=pc.box.scrollTop;for(let i=0;i<pc.pages.length;i++){const el=pc.pages[i].el,t=el.offsetTop-pc.box.firstChild.offsetTop,h=el.offsetHeight+12;if(top<t+h)return i+Math.max(0,Math.min(1,(top-t)/h))}return pc.pages.length}
 function pcGo(pc,pos){const i=Math.floor(pos),f=pos-i,P=pc.pages[Math.min(i,pc.pages.length-1)];if(!P)return;const t=P.el.offsetTop-pc.box.firstChild.offsetTop;pc.box.scrollTop=t+f*(P.el.offsetHeight+12)}
@@ -8490,7 +8495,7 @@ function spvOpts(){const s=$('#spvSrc');s.innerHTML='';const add=(v,t)=>{const o
   add('self',tr('Dieses Dokument')+' – '+S.name);for(const t of TABS)if(t!==TAB&&t.snap&&t.snap.bytes)add('tab:'+t.id,t.snap.name);
   if(SPV.src.startsWith('file:'))add(SPV.src,SPV.src.slice(5));add('file',tr('Andere Datei wählen'));s.value=SPV.src}
 function spvSet(doc,src,own,objs){if(SPV.own&&SPV.doc&&SPV.doc!==doc)try{pdfClose(SPV.doc)}catch(e){}pcDestroy(SPV.pc);SPV.doc=doc;SPV.own=own;SPV.src=src;
-  SPV.pc=pcMake($('#spvBody'),doc,{objs});SPV.pc.ready.then(()=>{if(SPV.sync)spvFollow()});spvOpts()}
+  SPV.pc=pcMake($('#spvBody'),doc,{objs,zoom:true});SPV.pc.ready.then(()=>{if(SPV.sync)spvFollow()});spvOpts()}
 async function spvShow(v){if(v==='self'){spvSet(S.doc,'self',false,S.pages.map(P=>P.objs));return}
   const t=TABS.find(x=>'tab:'+x.id===v);if(!t||!t.snap){spvShow('self');return}let doc;try{doc=await pdfOpen(new Uint8Array(t.snap.bytes).slice())}catch(e){toast(tr('Die Datei lässt sich nicht als PDF lesen. Ist sie beschädigt?'));return}
   spvSet(doc,v,true,t.snap.objs)}
