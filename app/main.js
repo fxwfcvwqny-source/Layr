@@ -481,7 +481,7 @@ function loadPending() {
 }
 handle('upd-state', () => { if (!pending) pending = loadPending(); const t = pkgType();
   return { type: t, canInstall: !!t, pending: pending ? { version: pending.version, notes: pending.notes || '' } : null, busy: dlBusy }; });
-async function fetchText(u, max) { if (!u.startsWith(DL_PREFIX)) throw new Error('url'); const r = await net.fetch(u, { headers: { 'User-Agent': 'Layr-Update' } }); if (!r.ok) throw new Error('http ' + r.status);
+async function fetchText(u, max) { if (!u.startsWith(DL_PREFIX)) throw new Error('url'); const r = await net.fetch(u, { headers: { 'User-Agent': 'Layr-Update' }, signal: AbortSignal.timeout(30000) }); if (!r.ok) throw new Error('http ' + r.status);
   return (await readCapped(r, max)).toString('utf8'); }
 handle('upd-download', async () => {
   const type = pkgType(); if (!type) return { error: 'unsupported' };
@@ -496,6 +496,7 @@ handle('upd-download', async () => {
   if (!sigA || !sigA.url.startsWith(DL_PREFIX)) return { error: 'unsigned' };
   dlBusy = true;
   const dir = UPD_DIR(), part = path.join(dir, asset.name + '.part'), file = path.join(dir, asset.name);
+  let idle = null;
   try {
     const yml = await fetchText(ymlA.url, 65536), sig = await fetchText(sigA.url, 4096);
     if (!sigOk(yml, sig)) throw new Error('signature');
@@ -504,12 +505,14 @@ handle('upd-download', async () => {
     try { fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
     fs.mkdirSync(dir, { recursive: true, mode: 0o700 }); try { fs.chmodSync(dir, 0o700); } catch (e) {}
     fs.writeFileSync(path.join(dir, 'release.yml'), yml, { mode: 0o600 }); fs.writeFileSync(path.join(dir, 'release.yml.sig'), sig, { mode: 0o600 });
-    const r = await net.fetch(asset.url, { headers: { 'User-Agent': 'Layr-Update' } });
+    const ctl = new AbortController(), kick = () => { clearTimeout(idle); idle = setTimeout(() => ctl.abort(), 60000); };
+    kick();
+    const r = await net.fetch(asset.url, { headers: { 'User-Agent': 'Layr-Update' }, signal: ctl.signal });
     if (!r.ok || !r.body) throw new Error('http ' + r.status);
     const h = crypto.createHash('sha512'), fd = fs.openSync(part, 'wx', 0o600); let got = 0, last = 0;
     try { const rd = r.body.getReader();
       for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > want.size) throw new Error('size');
-        h.update(value); fs.writeSync(fd, value);
+        h.update(value); fs.writeSync(fd, value); kick();
         if (Date.now() - last > 150 && win) { last = Date.now(); win.webContents.send('upd-progress', got, want.size); } }
     } finally { fs.closeSync(fd); }
     if (got !== want.size || h.digest('base64') !== want.sha512) throw new Error('hash');
@@ -521,7 +524,7 @@ handle('upd-download', async () => {
   } catch (e) {
     try { fs.rmSync(dir, { recursive: true, force: true }); } catch (x) {}
     return { error: String(e && e.message || e) };
-  } finally { dlBusy = false; }
+  } finally { clearTimeout(idle); dlBusy = false; }
 });
 // Liefert die geprüften Bytes und die Prüfsumme aus derselben, gerade geprüften Beschreibung (nichts wird danach neu gelesen)
 function pendingChecked() {
