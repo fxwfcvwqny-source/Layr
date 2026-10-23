@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HaUy0iRyWatNkd2HcC/xQlE2SAN61QjbWman+R1USq8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-R1l3bRwDTaoJyeQ/SUF+x3MRFIWisKQHsvKrlzdo3YQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1538,6 +1538,7 @@ header,.file{min-width:0}
       <div class="row"><label for="startH" style="width:44px">Anfang</label><select id="startH"></select></div>
       <div class="row"><label for="endH" style="width:44px">Ende</label><select id="endH"></select></div>
       <div class="row"><label class="chk"><input type="checkbox" id="dash"> Gestrichelt</label><label class="chk"><input type="checkbox" id="elbow"> Gewinkelt</label></div>
+      <div class="row"><button class="btn" id="lnInc">«include»</button><button class="btn" id="lnExt">«extend»</button></div>
       <p class="hint">Mit gedrückter Umschalttaste rastet die Linie in 15°-Schritten ein.</p>
       <p class="hint">Startet oder endet eine Linie auf einem Symbol, einer Form oder Tabelle, dockt sie dort an und wandert mit. Alt gedrückt halten: frei zeichnen.</p>
     </div>
@@ -2358,7 +2359,7 @@ const I18N_EN={
 'Drucken':'Print','Mit Beschriftungen und Formularen':'With annotations and forms','Seiten':'Pages','Alle':'All','Aktuelle Seite':'Current page','Auswahl':'Selection','z. B. 1-3, 5':'e.g. 1-3, 5',
 'Mit Beschriftungen, Formularen und Unterschriften':'With annotations, forms and signatures','Notizen als letzte Seite':'Notes as the last page','Qualität':'Quality','Schnell':'Fast','Normal':'Normal','Fein':'Fine',
 'Bitte Seiten angeben, z. B. 1-3, 5.':'Please enter pages, e.g. 1-3, 5.','1 Seite wird gedruckt.':'1 page will be printed.',' Seiten werden gedruckt.':' pages will be printed.',
-'Erst eine PDF öffnen.':'Open a PDF first.','Bereitet vor …':'Preparing …','Seite ':'Page ','Notizen':'Notes',
+'Erst eine PDF öffnen.':'Open a PDF first.','Erst eine Linie auswählen.':'Select a line first.','Bereitet vor …':'Preparing …','Seite ':'Page ','Notizen':'Notes',
 'Falls kein Druckfenster erschienen ist: PDF speichern und von dort drucken.':'If no print window appeared: save the PDF and print it from there.','Drucken hat nicht geklappt: ':'Printing failed: ',
 // 3.5
 'Werkzeugleiste anpassen':'Customize toolbar','Wähle, was oben stehen soll. Ausgeblendete Werkzeuge findest du unter „Mehr“ am Ende der Werkzeugleiste, ausgeblendete Knöpfe der Kopfleiste im Menü Ansicht. Die Tastenkürzel funktionieren weiter.':'Choose what is shown at the top. Hidden tools are under “More” at the end of the toolbar, hidden header buttons in the View menu. Keyboard shortcuts keep working.',
@@ -2817,13 +2818,14 @@ $('#dash').onchange=e=>{S.dash=e.target.checked;applySel({dash:S.dash})};
 $('#elbow').onchange=e=>{S.elbow=e.target.checked;applySel({elbow:S.elbow})};
 const HEADS=[['none','ohne'],['arrow','Pfeil offen'],['filled','Pfeil gefüllt'],['triangle','Dreieck hohl (Vererbung)'],['diamond','Raute hohl (Aggregation)'],['diamondf','Raute gefüllt (Komposition)'],['dot','Punkt']];
 for(const id of ['startH','endH']){const s=$('#'+id);for(const [v,n] of HEADS){const o=document.createElement('option');o.value=v;o.textContent=n;s.appendChild(o)}s.value=S[id];s.onchange=()=>{S[id]=s.value;applySel({[id==='startH'?'start':'end']:s.value})}}
+for(const[id,t]of[['lnInc','«include»'],['lnExt','«extend»']])$('#'+id).onclick=()=>{if(!S.sel||S.sel.o.type!=='line'){toast(tr('Erst eine Linie auswählen.'));return}applySel({dash:true,start:'none',end:'arrow',label:t});syncControls(S.sel.o)};
 
 /* Eigenschaften auf die Auswahl anwenden */
 function applySel(props,isRange){
   if(ED&&ED.set){ED.set(props);return}
   if(!S.sel)return;const T=S.sel.o.type==='group'?S.sel.o.items:[S.sel.o];
   const allow=o=>({color:1,lw:o.type!=='text',fs:o.type==='text'||o.type==='sym'||o.type==='table',orient:o.type==='text',bold:o.type==='text',underline:o.type==='text',font:o.type==='text'||o.type==='table',
-    dash:['line','rect','ellipse','sym'].includes(o.type),elbow:o.type==='line',start:o.type==='line',end:o.type==='line',fill:['rect','ellipse','sym'].includes(o.type)});
+    dash:['line','rect','ellipse','sym'].includes(o.type),elbow:o.type==='line',start:o.type==='line',end:o.type==='line',label:o.type==='line',fill:['rect','ellipse','sym'].includes(o.type)});
   const jobs=T.map(o=>{const a=allow(o);return[o,Object.keys(props).filter(k=>a[k])]}).filter(j=>j[1].length);if(!jobs.length)return;
   if(!isRange||!ctrlHist){pushHist();if(isRange)ctrlHist=true}
   for(const[o,ch]of jobs)for(const k of ch){o[k]=props[k];if(k==='color'&&o.spans)delete o.spans}if(S.sel.o.type==='group'&&props.color)S.sel.o.color=props.color;
@@ -4902,7 +4904,7 @@ function findQuad(r,mc,a,b){
   return[P(x0,-d),P(x1,-d),P(x1,u),P(x0,u)].map(([x,y])=>[x,y])}
 function annText(o){
   if(o.type==='text')return o.text||'';
-  if(o.type==='sym')return o.label||'';
+  if(o.type==='sym'||o.type==='line')return o.label||'';
   if(o.type==='table')return(o.cells||[]).map(r=>r.join(' ')).join(' ');
   return''}
 function findCompute(idx,q){
