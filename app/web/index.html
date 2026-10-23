@@ -72,13 +72,13 @@ button{cursor:pointer}
 /* Kopfleiste */
 header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));background:var(--panel);border-bottom:1px solid var(--line);min-width:0}
 .brand{display:flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.01em;white-space:nowrap}
-:root{--lg-b:color-mix(in srgb,var(--accent) 25%,var(--panel));--lg-m:color-mix(in srgb,var(--accent) 55%,var(--panel));--lg-f:var(--accent);--lg-o:color-mix(in srgb,var(--accent) 40%,var(--panel))}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--lg-b:color-mix(in srgb,var(--accent) 25%,var(--panel));--lg-m:color-mix(in srgb,var(--accent) 55%,var(--panel));--lg-f:var(--accent);--lg-o:color-mix(in srgb,var(--accent) 40%,var(--panel))}}
-:root[data-theme="dark"]{--lg-b:color-mix(in srgb,var(--accent) 25%,var(--panel));--lg-m:color-mix(in srgb,var(--accent) 55%,var(--panel));--lg-f:var(--accent);--lg-o:color-mix(in srgb,var(--accent) 40%,var(--panel))}
+:root{--lg-b:#C3C9FF;--lg-m:#8590FF;--lg-f:#2B3BFF;--lg-o:#9CA4FF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--lg-b:#3A3F7A;--lg-m:#5664FF;--lg-f:#FFFFFF;--lg-o:#C3C9FF}}
+:root[data-theme="dark"]{--lg-b:#3A3F7A;--lg-m:#5664FF;--lg-f:#FFFFFF;--lg-o:#C3C9FF}
 .brand{gap:7px;margin-right:8px}
 .brand .logo{width:24px;height:28px;flex:none;display:block}
 .lg-b{fill:var(--lg-b)}.lg-m{fill:var(--lg-m)}.lg-f{fill:var(--lg-f)}.lg-o{fill:var(--lg-o)}
-.brand .bt{font-family:var(--f-ui);font-weight:600;font-size:21px;letter-spacing:-.02em;line-height:1;margin-top:-2px;font-optical-sizing:auto}
+.brand .bt{font-family:"Bricolage Grotesque",var(--f-ui);font-weight:700;font-size:21px;letter-spacing:-.045em;line-height:1;margin-top:-2px;font-optical-sizing:auto}
 .file{min-width:0;flex:1 1 auto;display:flex;align-items:center;gap:8px;color:var(--muted)}
 .file b{color:var(--ink);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pill{font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:var(--r-s);padding:2px 8px;white-space:nowrap}
