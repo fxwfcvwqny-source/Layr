@@ -4055,7 +4055,7 @@ function idxPos(o,g,idx){const{b,starts}=g;let li=b.lines.length-1;for(let k=0;k
 function posIdx(o,g,x,y){const{b,starts}=g;const li=clamp(Math.floor(y/b.lh),0,b.lines.length-1),L=b.lines[li]||'';mctx.font=tfont(o);let best=0,bd=1e9;
   for(let j=0;j<=L.length;j++){const d=Math.abs(mctx.measureText(L.slice(0,j)).width-x);if(d<bd){bd=d;best=j}}return Math.min(starts[li]+best,String(o.text).length)}
 document.addEventListener('pointerdown',e=>{if(!editorEl)return;const t=e.target;if(editorEl.contains(t)||(fontPop&&fontPop.contains(t)))return;
-  if(t.closest&&t.closest('#panel,.ctx,#ruler,.modal'))return;if(t.classList&&t.classList.contains('ink'))return;closeEditor()},true);
+  if(t.closest&&t.closest('#panel,.ctx,#ruler,.modal,#bMic'))return;if(t.classList&&t.classList.contains('ink'))return;closeEditor()},true);
 function openTextEditor(i,o,isNew,at){
   closeEditor();const P=S.pages[i];const before=isNew?null:snapshot(),origJson=JSON.stringify(o),startText=o.text;
   editingObj=o;
