@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jEbulEq0iGGr5wUMpclv390TUvtO4W0iwQoyS5HSyJM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-L/CrRhwm3ufxnxzNH6nkLxMZqiIDsq3zs4cVVqHgmGU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4920,10 +4920,13 @@ function pgMove(x,y){const d=PGdrag;if(!d||!d.on)return;
     if(to!==cur)flip(()=>{PG.splice(cur,1);PG.splice(to,0,d.p);const nx=PG[to+1];pgGrid.insertBefore(d.el,nx?pgGrid.querySelector(`[data-u="${nx.u}"]`):null);pgSync()})}
   const r=d.el.getBoundingClientRect(),lx=r.left+r.width/2-d.tx,ly=r.top+r.height/2-d.ty;
   d.tx=x-d.gx-lx;d.ty=y-d.gy-ly;d.el.style.transition='none';d.el.style.transform=`translate(${d.tx}px,${d.ty}px) scale(1.05)`}
+let PGauto=0;
+function pgAutoScroll(){PGauto=0;const d=PGdrag;if(!d||!d.on)return;const g=pgGrid.getBoundingClientRect(),y=PGxy[1],dir=y<g.top+40?-1:y>g.bottom-40?1:0;
+  if(!dir)return;pgGrid.scrollTop+=dir*12;pgMove(...PGxy);PGauto=requestAnimationFrame(pgAutoScroll)}
 pgGrid.addEventListener('pointermove',e=>{const d=PGdrag;if(!d||e.pointerId!==d.id)return;
   if(!d.on){if(Math.hypot(e.clientX-d.x0,e.clientY-d.y0)<6)return;d.on=true;d.tx=0;d.ty=0;const r=d.el.getBoundingClientRect();d.gx=d.x0-(r.left+r.width/2);d.gy=d.y0-(r.top+r.height/2);d.el.classList.add('drag');pgGrid.classList.add('dragging')}
-  PGxy=[e.clientX,e.clientY];if(!PGraf)PGraf=requestAnimationFrame(()=>{PGraf=0;pgMove(...PGxy)})});
-function pgUp(e){const d=PGdrag;if(!d||e.pointerId!==d.id)return;PGdrag=null;
+  PGxy=[e.clientX,e.clientY];if(!PGraf)PGraf=requestAnimationFrame(()=>{PGraf=0;pgMove(...PGxy)});if(!PGauto)PGauto=requestAnimationFrame(pgAutoScroll)});
+function pgUp(e){const d=PGdrag;if(!d||e.pointerId!==d.id)return;PGdrag=null;cancelAnimationFrame(PGauto);PGauto=0;
   if(!d.on){pgSelect(d.p,d.ev);return}
   pgGrid.classList.remove('dragging');d.el.classList.remove('drag');const el=d.el;el.style.transition='transform .28s cubic-bezier(.2,.9,.25,1.1)';el.style.transform='';setTimeout(()=>{el.style.transition=''},300);pgSync()}
 pgGrid.addEventListener('pointerup',pgUp);pgGrid.addEventListener('pointercancel',pgUp);
