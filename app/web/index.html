@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-DVR6IIHPWDjtvBWPobS7wZL2fKK56CTk5Qm4SOs6AAU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-H5W0926tNJBMVcvPSnhF5DVQl2fJeTibz92+m71CTEE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3620,7 +3620,7 @@ function bbox(o){
   }
 }
 // Keep text boxes on their page; wrap=true breaks lines at the right page edge
-function textClamp(o,P,wrap){if(!P||o.type!=='text')return;o.x=Math.max(0,o.x);
+function textClamp(o,P,wrap){if(!P||o.type!=='text')return;if(rotOf(o)){const b=bbox(o);o.x+=clamp(b.x,0,Math.max(0,P.w-b.w))-b.x;o.y+=clamp(b.y,0,Math.max(0,P.h-b.h))-b.y;return}o.x=Math.max(0,o.x);
   let b=textBox(o);if(wrap&&o.orient==='h'&&b.w>P.w-o.x){o.wrapW=Math.max(o.fs*1.5,P.w-o.x);b=textBox(o)}
   o.x=clamp(o.x,0,Math.max(0,P.w-b.w));o.y=clamp(o.y,0,Math.max(0,P.h-b.h))}
 function dSeg(px,py,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy;let t=l?((px-a[0])*dx+(py-a[1])*dy)/l:0;t=clamp(t,0,1);return Math.hypot(px-a[0]-t*dx,py-a[1]-t*dy)}
