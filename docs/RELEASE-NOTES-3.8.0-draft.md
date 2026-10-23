@@ -24,6 +24,14 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Tables: handles on all four edges to resize only the outer row or column.
 - Sidebar: move pages up and down with buttons or Alt+Up / Alt+Down; the moves are applied as one undo step.
 - New UML symbols: node, artifact.
+- Free rotation of text boxes: drag the round handle above the box; Shift snaps to 15 degrees.
+
+## Design
+
+- Calmer light and dark themes, flat surfaces without glass, no gradients and no dot grid.
+- Compact toolbar; bundled IBM Plex Sans interface font.
+- Logo in the accent colour.
+- Text quick bar shows the colour at the caret and has a size setting.
 
 ## Known limits
 
@@ -34,6 +42,4 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 
 ## Still planned before release
 
-- Free rotation of text boxes.
 - Free lines and dividers in tables.
-- Design cleanup (toolbar, panels, text quick bar with colour display and size setting).
