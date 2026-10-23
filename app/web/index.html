@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2HYYY7TdT9rPWlX9cW6urHjlAyYSZBU5xjCeieHhLX4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KY0C9XtAtBlHnqacSFYup1Z+lAkHD9XfZ7BV4wErQNU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3580,6 +3580,7 @@ function textClamp(o,P,wrap){if(!P||o.type!=='text')return;o.x=Math.max(0,o.x);
   o.x=clamp(o.x,0,Math.max(0,P.w-b.w));o.y=clamp(o.y,0,Math.max(0,P.h-b.h))}
 function dSeg(px,py,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy;let t=l?((px-a[0])*dx+(py-a[1])*dy)/l:0;t=clamp(t,0,1);return Math.hypot(px-a[0]-t*dx,py-a[1]-t*dy)}
 function hit(o,x,y,tol,strict){
+  if(o.locked&&lockPassOn)return false;
   if(o.type==='deco')return false;
   if(o.type==='group')return inBox(o,x,y,tol);
   const b=bbox(o);if(x<b.x-tol-o.lw||x>b.x+b.w+tol+o.lw||y<b.y-tol-o.lw||y>b.y+b.h+tol+o.lw)return false;
@@ -3932,7 +3933,7 @@ function objSamples(o){const b=bbox(o);let s;
   return s}
 function lassoHit(o,poly){const s=objSamples(o);if(!s.length)return false;let n=0;for(const p of s)if(pointInPoly(p[0],p[1],poly))n++;return n/s.length>=.5}
 const selItems=()=>!S.sel?[]:S.sel.o.type==='group'?S.sel.o.items:[S.sel.o];
-function selectItems(i,items){const P=S.pages[i];if(!P){setSel(null);return}const L=P.objs.filter(o=>items.includes(o)&&o.type!=='deco');
+function selectItems(i,items){const P=S.pages[i];if(!P){setSel(null);return}const L=P.objs.filter(o=>items.includes(o)&&o.type!=='deco'&&!(o.locked&&lockPassOn));
   if(!L.length)setSel(null);else if(L.length===1)setSel({p:i,o:L[0]});else setSel({p:i,o:{type:'group',items:L,lw:0,color:L[0].color}})}
 function drawLasso(c,pts,a,rect){if(!pts||pts.length<2)return;if(rect){const z=S.zoom,xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0,h=Math.max(...ys)-y0;c.save();c.setLineDash([]);c.fillStyle=accentCol();c.globalAlpha=a*.13;c.fillRect(x0,y0,w,h);c.globalAlpha=a*.95;c.strokeStyle=accentCol();c.lineWidth=1/z;c.strokeRect(x0,y0,w,h);c.restore();return}const z=S.zoom;c.save();c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let k=1;k<pts.length;k++)c.lineTo(pts[k][0],pts[k][1]);c.closePath();
   c.fillStyle=accentCol();c.globalAlpha=a*.08;c.fill();c.lineJoin='round';c.globalAlpha=a*.9;c.strokeStyle='#fff';c.lineWidth=3/z;c.stroke();
