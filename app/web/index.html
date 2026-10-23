@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pD6JG+JNXtawgEFLR9HYpzcG8ucdBCZtX+8z/4XNnIM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-NcRzFRuNFFiXVbC7Rxq4XMSAQUpN37sFlW/XZ5dihGk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3329,6 +3329,8 @@ function drawLine(c,o){
   a[a.length-1]=trimPt(a[a.length-1],a[a.length-2],trimOf(o.end,L));a[0]=trimPt(a[0],a[1],trimOf(o.start,L));
   c.beginPath();c.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)c.lineTo(a[i][0],a[i][1]);c.stroke();
   drawHead(c,o.end,pts[pts.length-1],pts[pts.length-2],L,o);drawHead(c,o.start,pts[0],pts[1],L,o);
+  if(o.label&&o!==editingObj){const b=lineLblBox(o),m=lineMid(o);c.save();c.setLineDash([]);c.fillStyle='#fff';c.fillRect(b.x,b.y,b.w,b.h);
+    c.fillStyle=o.color;c.font=`${o.fs||10}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(String(o.label),m[0],m[1]);c.restore()}
 }
 function drawPen(c,o){
   const p=o.pts;if(!p.length)return;c.setLineDash([]);
@@ -3580,7 +3582,8 @@ TB_DESC.field='Ausfüllbare Felder für jedes Programm';
 function bbox(o){
   switch(o.type){
     case'pen':{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of o.pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}const p=o.lw/2;return{x:a-p,y:b-p,w:c-a+2*p,h:d-b+2*p}}
-    case'line':case'measure':{const pts=o.type==='line'?linePts(o):[[o.x1,o.y1],[o.x2,o.y2]];let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}return{x:a,y:b,w:c-a,h:d-b}}
+    case'line':case'measure':{const pts=o.type==='line'?linePts(o):[[o.x1,o.y1],[o.x2,o.y2]];let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[x,y]of pts){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}
+      let x=a,y=b,w=c-a,h=d-b;const lb=o.type==='line'&&lineLblBox(o);if(lb){const x2=Math.max(x+w,lb.x+lb.w),y2=Math.max(y+h,lb.y+lb.h);x=Math.min(x,lb.x);y=Math.min(y,lb.y);w=x2-x;h=y2-y}return{x,y,w,h}}
     case'text':{const t=textBox(o);return{x:o.x,y:o.y,w:t.w,h:t.h}}
     case'sym':{const s=SYM[o.sym];let h=o.h,x=o.x,w=o.w;if(s&&s.below&&o.label){const fs=o.fs||11;mctx.font=`${fs}px ${FONT}`;const LL=String(o.label).split('\n');const lw=Math.max(...LL.map(l=>mctx.measureText(l).width));h+=fs*(.45+1.2*LL.length);if(lw>w){x=o.x+w/2-lw/2;w=lw}}return{x,y:o.y,w,h}}
     case'group':{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const it of o.items){const q=bbox(it);a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
@@ -3598,7 +3601,7 @@ function hit(o,x,y,tol,strict){
   if(o.type==='group')return inBox(o,x,y,tol);
   const b=bbox(o);if(x<b.x-tol-o.lw||x>b.x+b.w+tol+o.lw||y<b.y-tol-o.lw||y>b.y+b.h+tol+o.lw)return false;
   if(o.type==='pen'){const p=o.pts;if(p.length===1)return Math.hypot(x-p[0][0],y-p[0][1])<tol+o.lw/2;for(let i=1;i<p.length;i++)if(dSeg(x,y,p[i-1],p[i])<tol+o.lw/2)return true;return false}
-  if(o.type==='line'){const p=linePts(o);for(let i=1;i<p.length;i++)if(dSeg(x,y,p[i-1],p[i])<tol+o.lw/2)return true;return false}
+  if(o.type==='line'){const lb=lineLblBox(o);if(lb&&x>=lb.x-tol&&x<=lb.x+lb.w+tol&&y>=lb.y-tol&&y<=lb.y+lb.h+tol)return true;const p=linePts(o);for(let i=1;i<p.length;i++)if(dSeg(x,y,p[i-1],p[i])<tol+o.lw/2)return true;return false}
   if(o.type==='measure')return dSeg(x,y,[o.x1,o.y1],[o.x2,o.y2])<tol+8;
   const frame=(o.type==='rect'||o.type==='ellipse')&&o.fill==='none'||(o.type==='sym'&&SYM[o.sym]&&SYM[o.sym].frame);
   if(frame&&(strict||o.type!=='sym')){
