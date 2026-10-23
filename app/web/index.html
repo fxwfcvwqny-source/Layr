@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tERtPNLb6E+WEWYFBTP27QVYnfe86vKogUSILDvNuo8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Ge6Wk9VzptOFvOiARLShYAk/2NhKQ1c1rA+OmuEFjd0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3716,6 +3716,8 @@ function drawSel(c,o){
     c.fillStyle=accentCol();rr(c,px,py,tw+16/z,17/z,8.5/z);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(lbl,px+8/z,py+9/z);c.restore()}
   const hs=9*Math.max(.2,bk),hl=handles(o),rh=hl.find(h=>h.k==='rot'),mt=hl.find(h=>h.k==='mt');if(rh&&mt){c.beginPath();c.moveTo(mt.x,mt.y);c.lineTo(rh.x,rh.y);c.stroke()}
   for(const h of hl){c.fillStyle='#fff';c.beginPath();if(h.k==='rot')c.arc(h.x,h.y,hs/2/z,0,7);else c.rect(h.x-hs/2/z,h.y-hs/2/z,hs/z,hs/z);c.fill();c.stroke()}
+  const RH=S.rotHint;if(RH&&RH.o===o&&rh){const t=Math.round(RH.deg)+'°',hh=22/z,px=7/z;c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(t).width;
+    c.fillStyle=accentCol();rr(c,rh.x+12/z,rh.y-hh/2,tw+2*px,hh,6/z);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(t,rh.x+12/z+px,rh.y)}
   c.restore();
 }
 
@@ -4139,6 +4141,7 @@ function attachInk(P,i){
   });
   const end=e=>{
     if(S.tblHint){S.tblHint=null;redraw(i)}
+    if(S.rotHint){S.rotHint=null;redraw(i)}
     if(!st)return;clearTimeout(st.qsT);if(st.qs)qsTagHide();
     if(st.marq){const L=S.lasso,add=st.add;S.lasso=null;st=null;if(L)lassoFinish(i,L,add);return}
     const d=S.draft&&S.draft.o;
