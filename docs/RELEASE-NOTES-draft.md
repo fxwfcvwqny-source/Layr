@@ -40,7 +40,6 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 
 - Calmer light and dark themes, flat surfaces without glass, no gradients and no dot grid.
 - Compact toolbar; bundled IBM Plex Sans interface font.
-- Logo in the accent colour.
 - Text quick bar shows the colour at the caret and has a size setting.
 - Bigger text select icon; smaller default text quick bar.
 
