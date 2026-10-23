@@ -99,7 +99,7 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .tools .tool{flex:none}
 .tools>button:first-of-type{margin-left:auto}.tools>button:last-of-type{margin-right:auto}
 :root[data-toolbar="left"] .tools>button:first-of-type{margin-left:0}
-.tool{position:relative;width:var(--tool,40px);height:var(--tool,40px);border-radius:var(--r);border:0;background:transparent;display:grid;place-items:center;color:var(--ink);transition:background .12s,color .12s,transform .12s}
+.tool{position:relative;width:var(--tool,36px);height:var(--tool,36px);border-radius:var(--r);border:0;background:transparent;display:grid;place-items:center;color:var(--ink);transition:background .12s,color .12s,transform .12s}
 .tool svg{width:var(--tool-i,21px);height:var(--tool-i,21px)}
 .tool:hover{background:var(--hover)}
 .tool[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent)}
@@ -542,7 +542,7 @@ select{height:30px;border:1px solid var(--line);border-radius:6px;background:var
 :root[data-tbstyle="float"] .tools .tool-ind{border-radius:calc(var(--r) + 2px)}
 /* Gleitender Hintergrund für das aktive Werkzeug */
 .tools{position:relative}
-.tool-ind{position:absolute;left:0;top:50%;width:0;height:var(--tool,40px);margin-top:calc(var(--tool,40px) / -2);border-radius:var(--r);background:var(--accent-soft);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent);pointer-events:none;z-index:0;opacity:0;transition:left .18s cubic-bezier(.2,0,0,1),width .18s cubic-bezier(.2,0,0,1),opacity .15s}
+.tool-ind{position:absolute;left:0;top:50%;width:0;height:var(--tool,36px);margin-top:calc(var(--tool,36px) / -2);border-radius:var(--r);background:var(--accent-soft);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent);pointer-events:none;z-index:0;opacity:0;transition:left .18s cubic-bezier(.2,0,0,1),width .18s cubic-bezier(.2,0,0,1),opacity .15s}
 .tools .tool{z-index:1}
 .tools.has-ind .tool[aria-pressed="true"]:not([data-t="ruler"]){background:transparent;box-shadow:none}
 /* Kleine Bewegungen an den Leisten */
@@ -1431,6 +1431,10 @@ header,.file{min-width:0}
 }
 @media (prefers-reduced-motion:reduce){.panel{transition:none}}
 .ripple{display:none}
+/* toolbar */
+:is(.ib,.btn,.tool,.ptabs,.ctx,.edbar,.tabbar,.findbar) svg{stroke-width:1.75}
+.ib{width:30px;height:30px}.ib svg{width:18px;height:18px}
+.btn{height:30px;padding:0 10px;font-size:13px}.btn svg{width:16px;height:16px}
 </style></head><body>
 
 <div class="app" id="app">
