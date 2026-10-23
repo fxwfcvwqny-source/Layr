@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-NcRzFRuNFFiXVbC7Rxq4XMSAQUpN37sFlW/XZ5dihGk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-mDIl6HAQF2ax+aj9zaDhbQzrZhF3UQuApB3N8kZXxc4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5646,6 +5646,7 @@ function sanObj(o){
   switch(r.type){
     case'pen':if(!Array.isArray(r.pts))return null;r.pts=r.pts.filter(p=>Array.isArray(p)&&isNum(p[0])&&isNum(p[1])).map(p=>[p[0],p[1]]);return r.pts.length?r:null;
     case'line':case'measure':if(!(isNum(r.x1)&&isNum(r.y1)&&isNum(r.x2)&&isNum(r.y2)))return null;
+      if(r.type==='line'){if(typeof r.label==='string'&&r.label)r.label=r.label.replace(/\n/g,' ').slice(0,200);else delete r.label}
       if(r.link&&typeof r.link==='object'){const L=r.link;r.link={a:typeof L.a==='string'?L.a.slice(0,40):null,b:typeof L.b==='string'?L.b.slice(0,40):null,ta:typeof L.ta==='string'?L.ta.slice(0,8):'auto',tb:typeof L.tb==='string'?L.tb.slice(0,8):'auto'}}else delete r.link;return r;
     case'rect':case'ellipse':return box()?r:null;
     case'text':if(!isNum(r.x)||!isNum(r.y)||typeof r.text!=='string')return null;if(r.minH!=null&&!(isNum(r.minH)&&r.minH>0&&r.minH<=2e4))delete r.minH;if(!['h','v','stack'].includes(r.orient))r.orient='h';if(!isNum(r.fs))r.fs=14;
