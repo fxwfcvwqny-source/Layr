@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-VeIJn4manYbO64ClwyajqieZ5zsu+MN7wTvL4wpJ/Tw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FcxhmM5DanP9Cm1U/yViUoifn+HNFBy41dAFV82cHPc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5230,6 +5230,8 @@ function spOk(w){if(SP.user.has(w)||SP.ign.has(w))return true;let r=SP.cache.get
 function spSug(w){const E=spWant().map(l=>SP.eng[l]).filter(Boolean),out=[];for(const e of E)for(const s of e.sug(w))if(!out.includes(s))out.push(s);return out.slice(0,6)}
 /* falsche Wörter einer Zeile: [{a,b}] (Zeichenpositionen) */
 const SP_RX=/[\p{L}][\p{L}\p{M}'’-]*[\p{L}\p{M}]|[\p{L}]/gu;
+// a hit touching a soft (mid-word) break is a fragment of a word: skip it
+function spCut(L,li,r){const s=L.soft;return!!s&&((r.b===L[li].length&&s.has(li))||(r.a===0&&s.has(li-1)))}
 function spLine(L){const out=[];if(!SP.on)return out;for(const ch of L.matchAll(/\S+/g)){const chunk=ch[0];for(const m of chunk.matchAll(SP_RX)){const w=m[0];if(spSkip(w,chunk))continue;if(!spOk(w))out.push({a:ch.index+m.index,b:ch.index+m.index+w.length,w})}}return out}
 /* Lage der falschen Wörter eines Objekts (relativ zu o.x/o.y), mit Zwischenspeicher */
 function spItems(o){
@@ -5239,11 +5241,11 @@ function spItems(o){
   else return[];key+='|'+SP.ver;
   const c=SP.box.get(o);if(c&&c.key===key)return c.items;const items=[];
   if(o.type==='text'){const b=textBox(o),off=(b.lh-o.fs)/2;mctx.font=tfont(o);let pos=0;
-    b.lines.forEach((L,li)=>{for(const r of spLine(L)){const x=mctx.measureText(L.slice(0,r.a)).width,w=mctx.measureText(L.slice(r.a,r.b)).width;items.push({x,y:li*b.lh+off,w,h:o.fs,base:li*b.lh+off+o.fs*1.02,i:pos+r.a,n:r.b-r.a,word:r.w,cell:null})}pos+=L.length+wrapGap(b.lines,li)})}
+    b.lines.forEach((L,li)=>{for(const r of spLine(L)){if(spCut(b.lines,li,r))continue;const x=mctx.measureText(L.slice(0,r.a)).width,w=mctx.measureText(L.slice(r.a,r.b)).width;items.push({x,y:li*b.lh+off,w,h:o.fs,base:li*b.lh+off+o.fs*1.02,i:pos+r.a,n:r.b-r.a,word:r.w,cell:null})}pos+=L.length+wrapGap(b.lines,li)})}
   else{const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.22,fam=famOf(o);
     for(let r=0;r<o.rows;r++)for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;
       const cw=X[k+1]-X[k],ch=Y[r+1]-Y[r],L=wrapLines(mctx,t,Math.max(10,cw-8)),y0=Math.max(Y[r]+2+lh/2,Y[r]+ch/2-(L.length-1)*lh/2);let pos=0;
-      L.forEach((l,j)=>{for(const q of spLine(l)){const x=X[k]+4+mctx.measureText(l.slice(0,q.a)).width,w=mctx.measureText(l.slice(q.a,q.b)).width,yy=y0+j*lh;
+      L.forEach((l,j)=>{for(const q of spLine(l)){if(spCut(L,j,q))continue;const x=X[k]+4+mctx.measureText(l.slice(0,q.a)).width,w=mctx.measureText(l.slice(q.a,q.b)).width,yy=y0+j*lh;
           if(yy>Y[r+1]||yy<Y[r])continue;items.push({x:x-o.x,y:yy-fs*.55-o.y,w,h:fs*1.1,base:yy+fs*.5-o.y,i:pos+q.a,n:q.b-q.a,word:q.w,cell:[r,k]})}pos+=l.length+wrapGap(L,j)})}}
   SP.box.set(o,{key,items});return items}
 function spWave(c,x1,x2,y,z){const a=1.15/z,s=2.6/z;c.beginPath();c.moveTo(x1,y);let k=0;for(let x=x1;x<x2;x+=s){c.lineTo(Math.min(x+s,x2),y+(k++%2?-a:a))}c.stroke()}
