@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-U5QDpJhO0zOhCb6/Ue9XVITqXeQeE+VSrsrM0kO76ag=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4MM/OzRUe8FzAmJLRxFQ87vGjBc6G3NuuOutPq95nrY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1435,7 +1435,6 @@ header,.file{min-width:0}
 @media (prefers-reduced-motion:reduce){.panel{transition:none}}
 .ripple{display:none}
 /* toolbar */
-:is(.ib,.btn,.tool,.ptabs,.ctx,.edbar,.tabbar,.findbar) svg{stroke-width:1.75}
 .ib{width:30px;height:30px}.ib svg{width:18px;height:18px}
 .btn{height:30px;padding:0 10px;font-size:13px}.btn svg{width:16px;height:16px}
 /* compact menus */
@@ -2628,7 +2627,6 @@ const S={tool:'select',color:'#1b1f24',lw:2,fs:14,orient:'h',bold:false,dash:fal
   fillShape:'none',fillSym:'white',sym:'action',cat:'Aktivität',zoom:1,pages:[],doc:null,bytes:null,name:'',sel:null,draft:null,num:1,dirty:false,sample:false};
 
 /* ---------- Icons ---------- */
-const I=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const PH=n=>'<svg class="ph" aria-hidden="true"><use href="#ph-'+n+'"/></svg>';
 const TOOLS=[
   {id:'select',k:'V',n:'Auswählen',i:PH('cursor'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Zurück hierher: Esc, V oder Rechtsklick.'},
@@ -2652,7 +2650,7 @@ const TOOLS=[
   {id:'subnet',k:'I',n:'Subnetzrechner',i:PH('network'),h:'IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.',action:()=>openIpDlg()},
   {id:'calc',k:'C',n:'IT-Rechner',i:PH('calculator'),h:'Zahlensysteme (binär, hexadezimal, dezimal) mit Rechenweg, Datenmengen (GB/GiB), Übertragungszeit, USV-Größe und Laufzeit, Stromkosten.',action:()=>openCalcDlg()},
   {id:'ruler',k:'U',n:'Lineal ein/aus',i:PH('ruler'),h:'',toggle:true},
-  {id:'redact',k:'X',n:'Schwärzen',bar:false,i:I('<rect x="3" y="7" width="18" height="10" rx="1.5" fill="currentColor" stroke="none"/><path d="M3 4h18M3 20h12"/>'),h:'Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.'},
+  {id:'redact',k:'X',n:'Schwärzen',bar:false,i:PH('eye-slash'),h:'Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.'},
   {id:'rack',k:'H',n:'Rack-Planer',bar:false,action:()=>rkOpen(),i:PH('hard-drives'),h:'19-Zoll-Schrank planen: Patchpanel, Switch, Server, USV … mit Höheneinheiten. Doppelklick auf den Schrank öffnet ihn wieder.'},
   {id:'code',k:'J',n:'Codeblock',bar:false,action:()=>cdOpen(),i:PH('code'),h:'Code mit Syntaxfarben einfügen (Bash, Python, Cisco IOS, SQL …). Doppelklick bearbeitet ihn.'},
   {id:'cards',k:'Z',n:'Lernkarten',bar:false,action:()=>lkOpen(),i:PH('cards'),h:'Karten aus deinen Textmarker-Markierungen und eigene Karten – mit Wiederholungsplan, Antwort eintippen und Export für Anki.'},
