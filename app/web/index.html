@@ -3419,7 +3419,7 @@ function handles(o){
   if(o.type==='pen'||o.type==='hl'||o.type==='deco')return[];
   const b=boxOf(o);
   const hs=[{k:'tl',x:b.x,y:b.y},{k:'tr',x:b.x+b.w,y:b.y},{k:'bl',x:b.x,y:b.y+b.h},{k:'br',x:b.x+b.w,y:b.y+b.h}];
-  if(o.type==='text'&&o.orient==='h')hs.push({k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2},{k:'mt',x:b.x+b.w/2,y:b.y},{k:'mb',x:b.x+b.w/2,y:b.y+b.h});
+  if((o.type==='text'&&o.orient==='h')||o.type==='table')hs.push({k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2},{k:'mt',x:b.x+b.w/2,y:b.y},{k:'mb',x:b.x+b.w/2,y:b.y+b.h});
   return hs;
 }
 const boxOf=o=>o.type==='text'||o.type==='group'?bbox(o):{x:o.x,y:o.y,w:o.w,h:o.h};
@@ -3429,6 +3429,9 @@ const CURS={tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',
 function resizeTo(o,st,x,y,shift){
   if(o.type==='group'){groupResize(o,st,x,y,shift);return}
   const g=st.orig,gb=st.ob,k=st.mode;
+  if(o.type==='table'&&k[0]==='m'){const R=k==='mt'||k==='mb',end=k==='mb'||k==='mr',L0=R?gb.h:gb.w,A=(R?g.rh:g.cw).map(f=>f*L0),j=end?A.length-1:0,p0=R?gb.y:gb.x,v=R?y:x;
+    A[j]=Math.max(10,A[j]+(end?v-(p0+L0):p0-v));const L=A.reduce((s,q)=>s+q,0),F=A.map(q=>q/L);
+    if(R){o.rh=F;o.h=L;if(!end)o.y=gb.y+gb.h-L}else{o.cw=F;o.w=L;if(!end)o.x=gb.x+gb.w-L}return}
   if(k==='mt'||k==='mb'){const nat=textBox({...o,minH:0}).h,bottom=gb.y+gb.h;
     if(k==='mb')o.minH=Math.max(nat,y-gb.y);else{const ny=Math.min(y,bottom-nat);o.minH=bottom-ny;o.y=ny}
     if(o.minH<=nat+.5)delete o.minH;return}
