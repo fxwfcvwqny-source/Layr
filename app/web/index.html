@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-983KfMnPjRe9Ir4y/pT7d48b32P5r56eshSUqXimUqo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-T10Iv1mbUuZgd59SD+xys7Q6G2fsalfHHDVK5i0FNnk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4867,8 +4867,8 @@ function pgChanged(){return PG.length!==S.pages.length||PG.some((p,k)=>p.i!==k||
 function pgSync(){const sel=PG.filter(p=>p.sel).length;
   $('#pgSel').textContent=sel?(LANG==='en'?`${sel} of ${PG.length} selected`:`${sel} von ${PG.length} ausgewählt`):(LANG==='en'?`${PG.length} pages`:`${PG.length} Seiten`);
   for(const id of ['pgL','pgR','pgDup'])$('#'+id).disabled=!sel;$('#pgDel').disabled=!sel||sel>=PG.length;$('#pgOk').disabled=!pgChanged();$('#pgReset').disabled=!pgChanged();
-  [...pgGrid.children].forEach((el,k)=>{const p=PG[k];if(!p)return;el.classList.toggle('sel',!!p.sel);el.querySelector('.pgt-n').textContent=k+1;
-    el.querySelector('.pgt-o').textContent=p.i!==k||p.dup?(LANG==='en'?'was '+(p.i+1):'war '+(p.i+1)):'';el.querySelector('.pgt-del').disabled=PG.length<=1})}
+  [...pgGrid.children].forEach((el,k)=>{const p=PG[k];if(!p)return;el.classList.toggle('sel',!!p.sel);const n=el.querySelector('.pgt-n'),t=String(k+1);if(n.textContent!==t)n.textContent=t;
+    const o=el.querySelector('.pgt-o'),w=p.i!==k||p.dup?(LANG==='en'?'was '+(p.i+1):'war '+(p.i+1)):'';if(o.textContent!==w)o.textContent=w;el.querySelector('.pgt-del').disabled=PG.length<=1})}
 function pgFit(p){const P=S.pages[p.i],r=((p.rot%360)+360)%360,sw=r%180?P.h:P.w,sh=r%180?P.w:P.h,box=118,k=Math.min(box/sw,box/sh);return{k,w:P.w*k,h:P.h*k}}
 function pgPlace(el,p,anim){const c=el.querySelector('.pgt-c'),f=pgFit(p);c.style.width=f.w+'px';c.style.height=f.h+'px';if(!anim)c.style.transition='none';c.style.transform=`rotate(${p.rot}deg)`;if(!anim){void c.offsetWidth;c.style.transition=''}}
 function pgTile(p){const el=document.createElement('div');el.className='pgt';el.dataset.u=p.u;el.tabIndex=0;
