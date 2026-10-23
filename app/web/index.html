@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-06Ov+qPjC9oLZK+sjsXkltgEdryPtDvf7r7Pm3QbpNU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-QxpmgobebMXOaIXKbuKgevghJVL4oslNReR4YPgvswc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3659,12 +3659,14 @@ function handles(o){
   if((o.type==='text'&&o.orient==='h')||o.type==='table'){const near=(v,E)=>E.slice(1,-1).some(e=>Math.abs(e-v)<12/S.zoom);
     for(const m of[{k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2},{k:'mt',x:b.x+b.w/2,y:b.y},{k:'mb',x:b.x+b.w/2,y:b.y+b.h}]){
       if(o.type==='table'&&(m.k==='mt'||m.k==='mb'?near(m.x,tblCols(o)):near(m.y,tblRows(o))))continue;hs.push(m)}}
+  // shortcut: resize cursors stay axis-aligned on rotated boxes, upgrade if users complain
+  if(o.type==='text'&&o.orient==='h'){const cx=b.x+b.w/2,cy=b.y+b.h/2,d=22/S.zoom;hs.push({k:'rot',x:cx,y:b.y-d});if(o.rot)for(const h of hs)[h.x,h.y]=rotP(h.x,h.y,cx,cy,o.rot)}
   return hs;
 }
 const boxOf=o=>{if(o.type==='group')return bbox(o);const t=o.type==='text'?textBox(o):o;return{x:o.x,y:o.y,w:t.w,h:t.h}}; // local, unrotated box
 function handleAt(o,x,y,tol){const h=handles(o).find(h=>Math.abs(h.x-x)<tol*1.4&&Math.abs(h.y-y)<tol*1.4);return h?h.k:null}
 function nearBorder(o,x,y,tol){if(rotOf(o)){const[lx,ly]=rotP(x,y,...tCtr(o),-o.rot),t=textBox(o);return!(lx>o.x+tol&&lx<o.x+t.w-tol&&ly>o.y+tol&&ly<o.y+t.h-tol)}const b=bbox(o);return!(x>b.x+tol&&x<b.x+b.w-tol&&y>b.y+tol&&y<b.y+b.h-tol)}
-const CURS={tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',ml:'ew-resize',mr:'ew-resize',mt:'ns-resize',mb:'ns-resize',p1:'move',p2:'move'};
+const CURS={tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',ml:'ew-resize',mr:'ew-resize',mt:'ns-resize',mb:'ns-resize',p1:'move',p2:'move',rot:'grab'};
 function resizeTo(o,st,x,y,shift){
   if(o.type==='group'){groupResize(o,st,x,y,shift);return}
   const g=st.orig,gb=st.ob,k=st.mode;
