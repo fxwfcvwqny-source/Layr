@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Jwx9NhB5DELmwpXKCW4p4Zo/k7T7gNsUAN9Ed4U8nSU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-JlE+SzX+PFMNLFX1nH9Z1zzGtrecp7LHL6BLu8sfFBo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2947,6 +2947,7 @@ def('org_team','Organigramm','Bereich / Team',240,150,'Team',(c,o,x,y,w,h)=>{c.s
 /* ---------- Organigramm-Vorlagen: einzelne Kästen + mitwandernde Verbindungen ---------- */
 const newOid=()=>'o'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
 const DOCKABLE=['sym','rect','ellipse','text','table','image'];
+// shortcut: rotated text docks at its axis-aligned hull, not at the rotated frame; upgrade if users dock arrows to rotated text
 function dockBox(o){if(o.type==='text')return bbox(o);let x=o.x,y=o.y,w=o.w,h=o.h;if(w<0){x+=w;w=-w}if(h<0){y+=h;h=-h}return{x,y,w,h}}
 /* Anker: 't','b','l','r' (Mitte) oder Seite+Nummer 1..3 ('t1'..'r3') für Festpunkte auf der Seite */
 const ANCHOR_IDS=['t1','t2','t3','b1','b2','b3','l1','l2','l3','r1','r2','r3'];
