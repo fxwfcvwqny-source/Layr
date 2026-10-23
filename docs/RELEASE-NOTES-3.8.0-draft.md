@@ -1,0 +1,39 @@
+# Layr 3.8.0 (draft release notes)
+
+Work in progress on branch `fix/mic-and-updater`. This file is updated while the work goes on and is meant to become the release notes.
+
+## Fixes
+
+- Dictation button did nothing while a text box was open: the editor was closed by the same click.
+- Updates: a failing installer start (blocked or locked file) no longer crashes the app with an error dialog; failures are written to `update-log.txt`; downloads and update checks have timeouts; a page reload during a download no longer deletes it.
+- Text boxes stay on the page when moved, resized or typed into; very long words without spaces are broken by characters instead of running off the page (also in table cells and notes).
+- Table cell text: wraps and stays inside its row, can be copied (Ctrl+C on a table copies the cell text), the cell editor matches the drawn text and supports selecting with the mouse.
+- Laser pointer: much cheaper drawing (no canvas blur) to stop stuttering on laptops.
+- Page grid ("Seiten ordnen") with many pages: no more flicker or lost drag, auto-scroll at the edges, dropping outside the dialog ends the drag, Escape during a drag no longer risks deleting a page.
+- Extracting pages with "remove from file" can no longer lose pages: the new tab is created and marked unsaved first, the source is shortened afterwards; scans and extracts are never replaced silently by the next opened file.
+- Page changes (move, delete, rotate, insert) are serialized, tell you when they were not applied, and keep title, author and dates; whole-document undo steps are capped.
+
+## New
+
+- Copy and paste annotation objects (text boxes, symbols, shapes, arrows) with Ctrl+C / Ctrl+V.
+- Text select tool (`Y`): select text of the PDF with the mouse and copy it (uses the pdf.js text layer; works on rotated pages).
+- Line labels: lines and arrows can carry a label (double click); one-click presets for `«include»` and `«extend»`.
+- Arrows: several arrows on the same side of a shape are spread apart automatically; fixed anchor points (3 per side) on rectangular shapes.
+- Lock objects (right click): a locked object keeps its position and size; optional setting to let clicks pass through locked objects so other symbols can be placed on top.
+- Setting: keep or release the selection after placing a new object.
+- Tables: handles on all four edges to resize only the outer row or column.
+- Sidebar: move pages up and down with buttons or Alt+Up / Alt+Down; the moves are applied as one undo step.
+- New UML symbols: node, artifact.
+
+## Known limits
+
+- Bookmarks (outlines) are still lost when pages are rebuilt (pdf-lib has no API for them).
+- Locked objects are still removed by "clear page" (with confirmation and undo).
+- Older Layr versions place an arrow end with a fixed anchor (`t1`, ...) at the centre of the shape.
+- The text layer is not available in split view and presentation mode.
+
+## Still planned before release
+
+- Free rotation of text boxes.
+- Free lines and dividers in tables.
+- Design cleanup (toolbar, panels, text quick bar with colour display and size setting).
