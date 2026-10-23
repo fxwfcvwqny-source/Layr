@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Hxq3AtoY2WM6K2GbV23ODh09srQ5WV1tQhaVjh3eUL8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-nilA3HmsJNUj6UcRFtCwsUk5Iyug8fnPKrQ+XNWqVl4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -8248,7 +8248,7 @@ function dgBOutline(box,k,src,focus){const mind=k==='mind';
       if(!mind){const s=document.createElement('select');s.className='dg-kind-s';s.setAttribute('aria-label',DGL('Art','Kind'));for(const[v,l]of KN){const o=document.createElement('option');o.value=v;o.textContent=l;s.appendChild(o)}s.value=r.k;
         s.onchange=()=>{r.k=s.value;render(i);sync()};row.appendChild(s)}
       const inp=document.createElement('input');inp.type='text';inp.className='dg-in';inp.value=r.t;inp.placeholder=PH(r);inp.maxLength=300;inp.setAttribute('data-noi18n','');inp.spellcheck=true;
-      if(!mind&&(r.k==='else'||r.k==='rep')){inp.disabled=true;inp.value='';inp.placeholder=r.k==='else'?DGL('— Nein-Zweig darunter —','— no branch below —'):DGL('— Inhalt darunter —','— content below —')}
+      if(!mind&&(r.k==='else'||r.k==='rep')){inp.disabled=true;inp.value='';inp.placeholder=r.k==='else'?DGL('(Nein-Zweig darunter)','(no branch below)'):DGL('(Inhalt darunter)','(content below)')}
       inp.oninput=()=>{r.t=inp.value;sync()};
       inp.onkeydown=e=>{if(e.isComposing)return;const k=e.key;
         if(k==='Enter'){e.preventDefault();e.stopPropagation();if(e.ctrlKey||e.metaKey){if(!$('#dgOk').disabled)dgPlace();return}
