@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-O3YiuDgpD5hH5BNQnIyveUJbyziGWZFnmRx5oSrgzvA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-oH2xNxvQuw3l1rWuEO5sH2LWoVRUchzlqqVjEy/nTLs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2868,6 +2868,7 @@ function drawTable(c,o){const X=tblCols(o),Y=tblRows(o);c.setLineDash([]);
 function newTable(x,y,rows,cols){return{type:'table',x,y,w:0,h:0,rows,cols,cw:eqFr(cols),rh:eqFr(rows),cells:Array.from({length:rows},()=>Array(cols).fill('')),fs:11,color:S.color==='#ffd60a'?'#1b1f24':S.color,lw:1,head:S.tblHead!==false,fill:'white',...(S.font?{font:S.font}:{})}}
 function editCell(i,o,r,k){const X=tblCols(o),Y=tblRows(o),fs=o.fs||11;tmpProp(o,'__ec',[r,k]);redraw(i);
   const box=makeEditor(i,X[k]+4,Y[r]+Math.max(0,(Y[r+1]-Y[r])/2-fs*.7),fs,o.color,(o.cells[r]&&o.cells[r][k])||'',{w:X[k+1]-X[k]-8,bold:o.head&&r===0});
+  box.style.width=(X[k+1]-X[k]-8)*S.zoom+'px';box.style.whiteSpace='pre-wrap';box.style.overflowWrap='anywhere';box.style.fontFamily=famOf(o);
   editorDone=v=>{delete o.__ec;if(v!==((o.cells[r]&&o.cells[r][k])||'')){pushHist();o.cells[r][k]=v;markDirty()}redraw(i)};
   box.addEventListener('keydown',e=>{if(e.key!=='Tab')return;e.preventDefault();e.stopImmediatePropagation();let n=r*o.cols+k+(e.shiftKey?-1:1);n=(n+o.rows*o.cols)%(o.rows*o.cols);closeEditor();editCell(i,o,Math.floor(n/o.cols),n%o.cols)},true)}
 function tblTarget(){if(!S.sel)return null;const o=S.sel.o;return o.type==='table'?o:null}
