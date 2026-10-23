@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-bAJpZOBpWLg+gPrffIW4U7t8uwKHC/GtlvlF0VDOte0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qdtbYPFJohEy49N39CKhZ+480P5HOfxRVmE56/C4TBQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4396,7 +4396,7 @@ async function buildOutput(){
 }
 /* gibt true zurück, wenn gespeichert wurde */
 async function save(saveAs){
-  if(!S.bytes)return false;closeEditor();clearTimeout(autoT);
+  await thFlush();if(!S.bytes)return false;closeEditor();clearTimeout(autoT);
   try{
     const rev=S.rev,cr=S.crypt,out=await crSeal(await buildOutput(),cr),name=outName();
     const clean=()=>{if(S.rev===rev)S.dirty=false;setSaveState();rdPurge()};
@@ -6138,12 +6138,13 @@ let thumbsOn=false,thumbGen=0,thT=0;
 function toggleThumbs(on){const was=thumbsOn;thumbsOn=on==null?!thumbsOn:on;if(was!==thumbsOn)barAnim('thumbs',$('#thumbs'),h=>$('#app').classList.toggle('show-thumbs',!h),!thumbsOn,260);$('#bThumbs').setAttribute('aria-pressed',thumbsOn);try{localStorage.setItem('pdfwerkbank:thumbs',thumbsOn?'1':'0')}catch(e){}if(thumbsOn)buildThumbs()}
 $('#bThumbs').onclick=()=>toggleThumbs();
 async function buildThumbs(){
+  TM.order=null;TM.sel=null;
   const el=$('#thumbs');if(!thumbsOn||!S.doc)return;const g=++thumbGen;el.innerHTML='';
   S.pages.forEach((P,i)=>{
     const b=document.createElement('button');b.className='th';b.dataset.i=i;b.style.setProperty('--i',Math.min(i,14));b.title=`Seite ${i+1} (Rechtsklick für Optionen)`;
     const c=document.createElement('canvas'),W=110,Hh=Math.round(W*P.h/P.w);c.style.width=W+'px';c.style.height=Hh+'px';c.width=W*2;c.height=Hh*2;
     const sp=document.createElement('span');sp.textContent=i+1;b.append(c,sp);el.appendChild(b);P.thumb=c;P.thumbBase=null;drawThumb(i);
-    b.onclick=()=>{scrollToPage(i);if(innerWidth<=860)toggleThumbs(false)};b.oncontextmenu=e=>{e.preventDefault();pageMenu(i,e.clientX,e.clientY)}});
+    b.onclick=()=>{TM.sel=i;scrollToPage(i);if(innerWidth<=860)toggleThumbs(false)};b.oncontextmenu=e=>{e.preventDefault();pageMenu(i,e.clientX,e.clientY)}});
   markThumb();
   for(let i=0;i<S.pages.length;i++){
     if(g!==thumbGen)return;const P=S.pages[i],page=await S.doc.getPage(i+1),vp=page.getViewport({scale:P.thumb.width/P.w});
@@ -6152,6 +6153,16 @@ async function buildThumbs(){
     if(g!==thumbGen)return;P.thumbBase=base;drawThumb(i);
   }
 }
+// Seiten in der Seitenleiste nur in der Ansicht verschieben; nach einer kurzen Pause wird der Stand als ein Schritt übernommen
+const TM={order:null,b0:null,sel:null,t:0};
+function thMove(d){if(rbBusy||!S.pages.length)return;const n=S.pages.length;if(!TM.order||TM.b0!==S.bytes){TM.order=idx(n);TM.b0=S.bytes}
+  const i=TM.sel!=null?TM.sel:curPage(),k=TM.order.indexOf(i),to=k+d;if(k<0||to<0||to>=n)return;TM.sel=i;TM.order.splice(k,1);TM.order.splice(to,0,i);
+  const box=$('#thumbs'),b=box.querySelector(`.th[data-i="${i}"]`),nx=TM.order[to+1];box.insertBefore(b,nx!=null?box.querySelector(`.th[data-i="${nx}"]`):null);
+  box.querySelectorAll('.th').forEach((el,j)=>{const sp=el.querySelector('span');if(sp)sp.textContent=j+1});b.classList.add('sel');b.focus({preventScroll:true});b.scrollIntoView({block:'nearest'});
+  clearTimeout(TM.t);TM.t=setTimeout(thCommit,700)}
+async function thCommit(){const o=TM.order;TM.order=null;if(!o||TM.b0!==S.bytes){buildThumbs();return}if(o.every((v,k)=>v===k))return;const to=o.indexOf(TM.sel);
+  if(await rebuildPages(o.map(i=>({i})),`Seite ist jetzt Seite ${to+1}.`,to)){TM.sel=to;const b=$('#thumbs').querySelector(`.th[data-i="${to}"]`);if(b){b.classList.add('sel');b.focus({preventScroll:true});b.scrollIntoView({block:'nearest'})}}else buildThumbs()}
+async function thFlush(){if(TM.order){clearTimeout(TM.t);await thCommit()}}
 function drawThumb(i){const P=S.pages[i];if(!P||!P.thumb)return;const c=P.thumb.getContext('2d',{willReadFrequently:true});c.setTransform(1,0,0,1,0,0);c.fillStyle='#fff';c.fillRect(0,0,P.thumb.width,P.thumb.height);if(P.thumbBase)c.drawImage(P.thumbBase,0,0);const k=P.thumb.width/P.w;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)drawObj(c,o)}
 function refreshThumbs(){if(!thumbsOn)return;clearTimeout(thT);thT=setTimeout(()=>S.pages.forEach((_,i)=>drawThumb(i)),300)}
 function markThumb(){if(!thumbsOn)return;const cp=curPage();document.querySelectorAll('.th').forEach(b=>b.classList.toggle('cur',+b.dataset.i===cp))}
