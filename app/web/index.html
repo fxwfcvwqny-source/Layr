@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-f4RX/vpw1tG9Ujp7GOFe8y/BDsuJH1MrBOkN9JMb3Lw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-q8bdQniC6Zzyu3czDVTXr4ohMEy/zDauVrMxbAWokHs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2766,7 +2766,7 @@ function setTool(id){
   if(id==='lasso')id='select';
   if(S.tool==='marker'&&id!=='marker'&&S.color===MARKER_DEF)setColor(S._prevColor||'#1b1f24',true);
   if(id==='marker'&&S.tool!=='marker'){S._prevColor=S.color;if(!['#ffd60a','#4ade80','#38bdf8','#f472b6'].includes(S.color))setColor(MARKER_DEF,true)}
-  if(S.tool==='textsel'&&id!=='textsel')try{getSelection().removeAllRanges()}catch(e){}
+  if(S.tool==='textsel'&&id!=='textsel'){try{getSelection().removeAllRanges()}catch(e){}S.pages.forEach(P=>{if(P.tl){P.tl.remove();P.tl=null}})}
   S.tool=id;closeEditor();
   if(id!=='select'&&id!=='lasso')setSel(null);
   document.querySelectorAll('.tool').forEach(b=>{if(b.dataset.t!=='ruler')b.setAttribute('aria-pressed',b.dataset.t===id)});tbSync();moveToolInd();try{ffBar()}catch(e){}
@@ -3665,7 +3665,7 @@ const pagesEl=$('#pages'),viewer=$('#viewer');
 let TLO=null;
 function buildPages(){
   pagesEl.innerHTML='';
-  TLO&&TLO.disconnect();TLO=new IntersectionObserver(es=>{for(const e of es){const i=+e.target.dataset.i,P=S.pages[i];if(!P)continue;P.vis=e.isIntersecting;if(P.vis&&S.tool==='textsel')tlBuild(i)}},{root:viewer,rootMargin:'800px'});
+  TLO&&TLO.disconnect();TLO=new IntersectionObserver(es=>{for(const e of es){const i=+e.target.dataset.i,P=S.pages[i];if(!P)continue;P.vis=e.isIntersecting;if(P.vis&&S.tool==='textsel')tlBuild(i);if(!P.vis&&P.tl&&!(getSelection().rangeCount&&getSelection().containsNode(P.tl,true))){P.tl.remove();P.tl=null}}},{root:viewer,rootMargin:'800px'});
   S.pages.forEach((P,i)=>{
     const el=document.createElement('div');el.className='page';el.dataset.i=i;TLO.observe(el);
     const pdf=document.createElement('canvas');pdf.className='pdf';
