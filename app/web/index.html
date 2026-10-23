@@ -3767,7 +3767,7 @@ function attachInk(P,i){
     if(e.pointerType==='pen'&&(e.buttons&32)&&S.tool!=='eraser'&&penErase===null){penErase=S.tool;S.tool='eraser'}
     if(e.button!==0&&e.button!==5&&e.pointerType==='mouse')return;
     if(editorEl){closeEditor();if(S.tool==='text'){e.preventDefault();const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tl));if(o&&!nearBorder(o,x,y,tl))editText(i,o,[e.clientX,e.clientY]);return}}
-    try{ink.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault();
+    try{ink.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault();getSelection().removeAllRanges();
     const snap=['pen','marker','line','arrow','measure'].includes(S.tool)?rulerSnapStart(e.clientX,e.clientY):null;
     const sp=snap?snapPt(snap,e.clientX,e.clientY):[e.clientX,e.clientY];
     const [x,y]=toPt(...sp);const tol=6/S.zoom;st={x,y,snap,moved:false};
