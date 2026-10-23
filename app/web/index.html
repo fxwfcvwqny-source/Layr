@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-cZIgkCZfNDIWrpsX6EXPp8GdX8e8uBTwxYuqclsRkWU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-06Ov+qPjC9oLZK+sjsXkltgEdryPtDvf7r7Pm3QbpNU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5488,7 +5488,7 @@ function spLine(L){const out=[];if(!SP.on)return out;for(const ch of L.matchAll(
 /* Lage der falschen Wörter eines Objekts (relativ zu o.x/o.y), mit Zwischenspeicher */
 function spItems(o){
   if(!SP.on||o===editingObj)return[];
-  let key;if(o.type==='text'){if(o.orient!=='h'||!o.text)return[];key='t|'+o.text+'|'+tfont(o)+'|'+(o.wrapW||0)}
+  let key;if(o.type==='text'){if(o.orient!=='h'||!o.text||rotOf(o))return[];key='t|'+o.text+'|'+tfont(o)+'|'+(o.wrapW||0)}
   else if(o.type==='table'){key='b|'+JSON.stringify(o.cells)+'|'+o.w+'|'+o.h+'|'+o.cw+'|'+o.rh+'|'+(o.fs||11)+'|'+famOf(o)+'|'+o.head}
   else return[];key+='|'+SP.ver;
   const c=SP.box.get(o);if(c&&c.key===key)return c.items;const items=[];
@@ -5730,7 +5730,9 @@ function shiftSpans(o,oldT,newT){oldT=String(oldT);newT=String(newT);if(!o.spans
 function spanColorAt(o,i){const s=(o.spans||[]).find(s=>s.a<=i&&i<s.b);return s?s.color:o.color}
 
 function drawText(c,o){
-  if(o===editingObj){if(!ED||ED.o!==o)return;o={...o,orient:'h'}}const b=textBox(o);c.font=tfont(o);c.textBaseline='top';c.fillStyle=o.color;const off=(b.lh-o.fs)/2;
+  if(o===editingObj){if(!ED||ED.o!==o)return;o={...o,orient:'h',rot:0}}
+  {const r=rotOf(o);if(r){const[cx,cy]=tCtr(o);c.translate(cx,cy);c.rotate(r*Math.PI/180);c.translate(-cx,-cy)}} // drawObj saves/restores
+  const b=textBox(o);c.font=tfont(o);c.textBaseline='top';c.fillStyle=o.color;const off=(b.lh-o.fs)/2;
   const ul=(l,x,y,col)=>{if(!o.underline||!l)return;const w=c.measureText(l).width;c.save();c.strokeStyle=col||o.color;c.setLineDash([]);c.globalAlpha=1;c.lineWidth=Math.max(.6,o.fs/(o.bold?11:14));c.beginPath();c.moveTo(x,y+o.fs*.98);c.lineTo(x+w,y+o.fs*.98);c.stroke();c.restore()};
   const rich=!!(o.spans&&o.spans.length);
   // eine Zeile in Farbabschnitten zeichnen (Position aus der Breite des Anfangs, so bleiben Abstände wie ohne Farben)
