@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-PvBz6JJenmWl0FBWOqLRV1osGxUx3y/zKdL1sv86AKg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-YTseW4v2fWtXHlF9TC+CpPHv469mjhuVjnEkmYe1VCQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7646,8 +7646,10 @@ function pcDestroy(pc){if(!pc)return;try{pc.obs.disconnect()}catch(e){}pc.box.in
 function pcWidth(w){const k=DPR();return Math.max(1,Math.round(w*S.zoom*k))/k}
 function spvZoom(){const pc=SPV.pc;if(!pc||!SPV.on)return;let ch=0;for(const P of pc.pages){const w=pcWidth(P.w)+'px';if(P.el.style.width!==w){P.el.style.width=w;ch=1}}if(ch)pcRefresh(pc)}
 // Position: Seite + Anteil (für gleichzeitiges Scrollen)
-function pcPos(pc){const top=pc.box.scrollTop;for(let i=0;i<pc.pages.length;i++){const el=pc.pages[i].el,t=el.offsetTop-pc.box.firstChild.offsetTop,h=el.offsetHeight+12;if(top<t+h)return i+Math.max(0,Math.min(1,(top-t)/h))}return pc.pages.length}
-function pcGo(pc,pos){const i=Math.floor(pos),f=pos-i,P=pc.pages[Math.min(i,pc.pages.length-1)];if(!P)return;const t=P.el.offsetTop-pc.box.firstChild.offsetTop;pc.box.scrollTop=t+f*(P.el.offsetHeight+12)}
+// Schrittweite bis zur nächsten Seite (wie vwPos/vwGo; letzte Seite: eigene Höhe)
+function pcPitch(pc,i){const P=pc.pages[i],N=pc.pages[i+1];return N?N.el.offsetTop-P.el.offsetTop:P.el.offsetHeight}
+function pcPos(pc){const top=pc.box.scrollTop;for(let i=0;i<pc.pages.length;i++){const t=pc.pages[i].el.offsetTop,h=pcPitch(pc,i);if(top<t+h)return i+Math.min(1,(top-t)/h)}return pc.pages.length}
+function pcGo(pc,pos){const i=Math.max(0,Math.min(Math.floor(pos),pc.pages.length-1)),P=pc.pages[i];if(!P)return;pc.box.scrollTop=P.el.offsetTop+(pos-i)*pcPitch(pc,i)}
 
 /* ---------- 3.6: Zwei PDFs vergleichen ----------
    Text beider Fassungen wird zeilenweise, dann wortweise verglichen (Myers-Diff). Links Entferntes rot, rechts Neues grün,
@@ -8486,8 +8488,8 @@ function spvEl(){let el=document.getElementById('spvPane');if(el)return el;el=do
   $('#spvBody').addEventListener('scroll',()=>{if(!SPV.sync||SPV.lock||!SPV.pc)return;SPV.lock++;vwGo(pcPos(SPV.pc));requestAnimationFrame(()=>SPV.lock--)},{passive:true});
   return el}
 // Lage im Hauptfenster (Seite + Anteil)
-function vwPos(){const vt=viewer.getBoundingClientRect().top;for(let i=0;i<S.pages.length;i++){const el=S.pages[i].el;if(!el)continue;const r=el.getBoundingClientRect(),nx=S.pages[i+1]&&S.pages[i+1].el,h=nx?nx.getBoundingClientRect().top-r.top:r.height;if(vt<r.top+h)return i+Math.max(0,Math.min(1,(vt-r.top)/h))}return S.pages.length}
-function vwGo(pos){const i=Math.min(Math.floor(pos),S.pages.length-1),P=S.pages[i];if(!P||!P.el)return;const r=P.el.getBoundingClientRect(),nx=S.pages[i+1]&&S.pages[i+1].el,h=nx?nx.getBoundingClientRect().top-r.top:r.height;
+function vwPos(){const vt=viewer.getBoundingClientRect().top;for(let i=0;i<S.pages.length;i++){const el=S.pages[i].el;if(!el)continue;const r=el.getBoundingClientRect(),nx=S.pages[i+1]&&S.pages[i+1].el,h=nx?nx.getBoundingClientRect().top-r.top:r.height;if(vt<r.top+h)return i+Math.min(1,(vt-r.top)/h)}return S.pages.length}
+function vwGo(pos){const i=Math.max(0,Math.min(Math.floor(pos),S.pages.length-1)),P=S.pages[i];if(!P||!P.el)return;const r=P.el.getBoundingClientRect(),nx=S.pages[i+1]&&S.pages[i+1].el,h=nx?nx.getBoundingClientRect().top-r.top:r.height;
   viewer.scrollTop+=r.top-viewer.getBoundingClientRect().top+(pos-i)*h}
 function spvFollow(){if(!SPV.on||!SPV.sync||SPV.lock||!SPV.pc)return;SPV.lock++;pcGo(SPV.pc,vwPos());requestAnimationFrame(()=>SPV.lock--)}
 viewer.addEventListener('scroll',spvFollow,{passive:true});
