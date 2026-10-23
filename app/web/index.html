@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2XyCng1JUc9qt4cOuyIaisYRM0jRWpqoRFbd0BBjMQY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-rrHlAln8tTi6MY4jK1ozp4C2MknSSISG2uVKscgyvhY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4102,7 +4102,7 @@ function attachInk(P,i){
         else if(st.mode==='tcol'||st.mode==='trow'){const X=st.mode==='tcol',k=st.idx,fr=X?o.cw:o.rh,len=X?o.w:o.h,pos=(X?x-o.x:y-o.y)/len;
           let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;tblHintSet(o,st.mode,k,x,y)}
         else if(st.mode==='rot'){const[cx,cy]=tCtr(st.orig),a=Math.atan2(y-cy,x-cx)*180/Math.PI+90;let r=e.shiftKey?Math.round(a/15)*15:Math.round(a*10)/10;r=((r+180)%360+360)%360-180;if(r)o.rot=r;else delete o.rot}
-        else if(rotOf(st.orig)){const g=st.orig,[cx,cy]=tCtr(g);[x,y]=rotP(x,y,cx,cy,-g.rot);resizeTo(o,st,x,y,e.shiftKey);const t=textBox(o),q=rotP(o.x+t.w/2,o.y+t.h/2,cx,cy,g.rot);o.x=q[0]-t.w/2;o.y=q[1]-t.h/2}
+        else if(rotOf(st.orig)){const g=st.orig,[cx,cy]=tCtr(g);[x,y]=rotP(x,y,cx,cy,-g.rot);resizeTo(o,st,x,y,e.shiftKey);const t=textBox(o),q=rotP(o.x+t.w/2,o.y+t.h/2,cx,cy,g.rot);o.x=q[0]-t.w/2;o.y=q[1]-t.h/2;textClamp(o,P,false)}
         else{if(o.type==='text'){x=clamp(x,0,P.w);y=clamp(y,0,P.h)}resizeTo(o,st,x,y,e.shiftKey)}
         if(o.type==='text'&&st.orig&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
         if(o.type==='text'&&st.mode==='move')textClamp(o,P,false);
