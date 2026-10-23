@@ -1,4 +1,4 @@
-# Layr 3.8.1 (draft release notes)
+# Layr 3.8.2 (draft release notes)
 
 Work in progress on branch `fix/mic-and-updater`. This file is updated while the work goes on and is meant to become the release notes.
 
@@ -40,6 +40,7 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 
 - Calmer light and dark themes, flat surfaces without glass, no gradients and no dot grid.
 - Compact toolbar; bundled IBM Plex Sans interface font.
+- New interface icons (Phosphor Icons, MIT) in toolbar, menus, dialogs and the text bar; the UML/IT symbols on the page are unchanged.
 - Text quick bar shows the colour at the caret and has a size setting.
 - Bigger text select icon; smaller default text quick bar.
 
