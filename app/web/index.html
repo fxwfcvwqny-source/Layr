@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-CeOChE3M5mecoC31CJZnoj1x24cMfXGl6m1Mqs9cjjk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-IhN/Q98RlGXj/IV9rUi8AbXJnp+Vnx/j8gCUKk+ziPk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6104,6 +6104,8 @@ $('#bAddPage').onclick=()=>openAddDlg();
 /* ---------- Seitenvorschau & Seiten bearbeiten ---------- */
 const idx=n=>[...Array(n).keys()];
 let rbBusy=false;
+// Ganze PDFs liegen als Objekte im Verlauf; nur die letzten 10 behalten, sonst wächst der Speicher unbegrenzt
+function capDocHist(){const d=H.u.filter(e=>typeof e!=='string');if(d.length>10)H.u.splice(0,H.u.indexOf(d[d.length-11])+1)}
 async function rebuildPages(entries,msg,focus){
   if(!S.bytes||rbBusy)return false;rbBusy=true;try{
   closeEditor();
@@ -6121,7 +6123,7 @@ async function rebuildPages(entries,msg,focus){
   const snap=docSnap();
   await openPdf(bytes,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
   if(S.bytes===b0)return false;
-  H.u.push(snap);H.r=[];
+  H.u.push(snap);H.r=[];capDocHist();
   updUndo();markDirty();if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);return true;
   }finally{rbBusy=false}
 }
