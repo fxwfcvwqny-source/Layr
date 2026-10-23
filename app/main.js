@@ -558,7 +558,10 @@ function installNow(relaunch) {
   keepLang();
   if (pending.type === 'nsis') {
     const args = ['/S', '--updated']; if (relaunch) args.push('--force-run');
-    spawn(pending.file, args, { detached: true, stdio: 'ignore' }).unref(); pending = null; return true;
+    updLog('nsis start ' + pending.version);
+    try { const p = spawn(pending.file, args, { detached: true, stdio: 'ignore' }); p.on('error', e => updLog('nsis spawn: ' + (e && e.code))); p.unref(); }
+    catch (e) { updLog('nsis spawn: ' + (e && e.code)); return false; }
+    pending = null; return true;
   }
   if (pending.type === 'appimage') {
     const target = process.env.APPIMAGE; if (!target) return false;
