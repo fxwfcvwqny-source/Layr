@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-SOdwRoXJvCFzT5KFrgVpTJDyUKC7IV6VKzHXby2QAtA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ox1CpP7OGkM38T46+4wZpoSlqAiJTYI8KEXheB+xRJ4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1995,6 +1995,7 @@ header,.file{min-width:0}
     <section><h3>Oberfläche</h3>
       <span class="lbl">Ecken</span><div class="seg" id="dCorners"><button data-v="square">Eckig</button><button data-v="round">Abgerundet</button><button data-v="pill">Sehr rund</button></div>
       <span class="lbl">Werkzeuge</span><div class="seg" id="dDensity"><button data-v="compact">Kompakt</button><button data-v="normal">Normal</button><button data-v="large">Groß</button></div>
+      <span class="lbl">Text-Leiste</span><div class="seg" id="dQbar"><button data-v="s">Klein</button><button data-v="m">Mittel</button><button data-v="l">Groß</button></div>
       <div class="seg" id="dToolbar"><button data-v="center">Mittig</button><button data-v="left">Links</button></div></section>
     <section><h3>Meldungen</h3><div class="bars" id="dToast"><button type="button" class="barb tst" data-v="standard" style="--b:var(--ink)"><span><i></i></span>Standard</button><button type="button" class="barb tst" data-v="light" style="--b:var(--panel)"><span><i></i></span>Hell</button><button type="button" class="barb tst" data-v="accent" style="--b:var(--accent)"><span><i></i></span>Akzent</button><button type="button" class="barb tst" data-v="glass" style="--b:color-mix(in srgb,var(--panel) 55%,transparent)"><span><i></i></span>Glas</button><button type="button" class="barb tst" data-v="custom" style="--b:conic-gradient(from 90deg,#e5484d,#f5a524,#46a758,#0090ff,#8e4ec6,#e5484d)"><span><i></i></span>Eigene</button></div>
       <label class="cust" for="dToastC"><input type="color" id="dToastC" value="#2457c5"> Eigene Meldungsfarbe wählen</label>
@@ -2132,7 +2133,7 @@ const I18N_EN={
 'Schreibtisch':'Desk','Sand':'Sand','Himmel':'Sky','Salbei':'Sage','Flieder':'Lilac','Tinte':'Ink','Nachtblau':'Navy','Moos':'Moss','Wein':'Wine','Kakao':'Cocoa','Raster':'Grid','Schlicht':'Plain',
 'Blatt auf dem Bildschirm':'Sheet on screen','Mint':'Mint','Nacht':'Night','Weicher Schatten':'Soft shadow','Kräftig':'Strong','Flach':'Flat',
 'Färbt nur die Ansicht ein, zum Beispiel augenschonend oder als Nachtmodus. Die gespeicherte PDF bleibt, wie sie ist.':'Only tints the view, for example to be easier on the eyes or as a night mode. The saved PDF stays as it is.',
-'Oberfläche':'Interface','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
+'Oberfläche':'Interface','Text-Leiste':'Text bar','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
 'Meldungen':'Notifications','Akzent':'Accent','Glas':'Glass','Eigene Meldungsfarbe wählen':'Choose custom notification colour','Unten mittig':'Bottom centre','Unten rechts':'Bottom right','Oben':'Top',
 'Anzeigedauer':'Display time','Kurz':'Short','Lang':'Long','Test-Meldung zeigen':'Show test notification',
 'Bewegung':'Motion','Animationen an':'Animations on','Aus':'Off','Alles auf Standard':'Reset everything','Alles wieder auf Standard.':'Everything is back to default.',
@@ -4347,7 +4348,7 @@ function openTextEditor(i,o,isNew,at){
           const d=document.createElement('b');d.style.left=x0*z+'px';d.style.top=li*lh+'px';d.style.width=Math.max(2,(x1-x0)*z)+'px';d.style.height=lh+'px';selL.appendChild(d)}}}
     {const fn=bF.firstChild;fn.textContent=fontName(o.font);const fc=FONT_MAP[o.font||''];fn.style.fontFamily=fc&&fc.css?fc.css:''}
     if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):l>0?spanColorAt(o,l-1):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;
-    root.classList.toggle('flip',o.y*z<46)};
+    root.classList.toggle('flip',o.y*z<46*({s:1,m:1.2,l:1.4}[design.qbar]||1))};
   const set=props=>{
     // Farbe bei markiertem Text: nur für die markierten Zeichen
     if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
@@ -4672,14 +4673,14 @@ $('#bZoomIn').onclick=()=>zoomTo(S.zoom*1.2);$('#bZoomOut').onclick=()=>zoomTo(S
 $('#bPanel').onclick=()=>$('#panel').classList.toggle('open');
 // Design-Einstellungen (nur Oberfläche, pro Gerät gemerkt)
 let _acc='';function accentCol(){return _acc||(_acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#0b6570')}
-const DDEF={theme:'system',accent:'petrol',accentC:'',toolbar:'center',density:'normal',corners:'round',desk:'dots',deskc:'standard',sheet:'white',shadow:'soft',motion:'on',light:'standard',dark:'standard',bars:'standard',barsC:'',tbstyle:'bar',toast:'standard',toastC:'',toastPos:'bc',toastDur:'normal'};
+const DDEF={theme:'system',accent:'petrol',accentC:'',toolbar:'center',density:'normal',corners:'round',desk:'dots',deskc:'standard',sheet:'white',shadow:'soft',motion:'on',light:'standard',dark:'standard',bars:'standard',barsC:'',tbstyle:'bar',toast:'standard',toastC:'',toastPos:'bc',toastDur:'normal',qbar:'m'};
 const ACCENTS=[['petrol','Petrol','#0b6570'],['blue','Blau','#2457c5'],['indigo','Indigo','#4338ca'],['violet','Violett','#6d3fc8'],['pink','Beere','#b8336a'],['coral','Koralle','#c2412d'],['orange','Orange','#c0560a'],['gold','Gold','#a16207'],['green','Grün','#2f7d32'],['slate','Schiefer','#3d4b5c']];
 let design={...DDEF};try{Object.assign(design,JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}'))}catch(e){}
-const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur']];
+const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar']];
 const mixHex=(h,t)=>{const n=parseInt(h.slice(1),16),c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,'0'));return'#'+c.join('')};
 function applyDesign(save){const r=document.documentElement;
   if(design.theme==='system')r.removeAttribute('data-theme');else r.dataset.theme=design.theme;
-  for(const k of ['accent','toolbar','density','corners','desk','deskc','sheet','shadow','motion','light','dark','bars','tbstyle'])r.dataset[k]=design[k];
+  for(const k of ['accent','toolbar','density','corners','desk','deskc','sheet','shadow','motion','light','dark','bars','tbstyle','qbar'])r.dataset[k]=design[k];
   if(design.bars==='custom'&&!design.barsC)design.barsC='#1b2129';
   if(design.bars==='custom'&&/^#[0-9a-f]{6}$/i.test(design.barsC)){const h=design.barsC,n=parseInt(h.slice(1),16),L=(.2126*((n>>16)&255)+.7152*((n>>8)&255)+.0722*(n&255))/255,dk=L<.55,ink=dk?'#eef2f6':'#17202b';
     r.style.setProperty('--bar',h);r.style.setProperty('--bar-ink',ink);r.style.setProperty('--bar-muted',`color-mix(in srgb,${ink} 62%,${h})`);r.style.setProperty('--bar-line',`color-mix(in srgb,${ink} 16%,${h})`);r.style.setProperty('--bar-hover',`color-mix(in srgb,${ink} 10%,${h})`);r.classList.toggle('bars-dark',dk)}
