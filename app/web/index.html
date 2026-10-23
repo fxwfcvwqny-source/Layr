@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ICqMAEVPcv0ig5JfPEzaA8+CxV1pLJHx9Bt8svWIHOE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-JRbwNzagKrYDer3M6jSwuovmHoxe6ZfEF5IfAJ9U8bk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5658,7 +5658,7 @@ async function updDownload(show){const W=window.werkbank;if(!W||!W.updDownload)r
   let skip='';try{skip=localStorage.getItem('pdfwerkbank:updSkip')||''}catch(e){}
   if(show||skip!==UPD.r.version)updRender('ready')}
 async function updTerminal(){const W=window.werkbank;if(!W||!W.updTerminal)return;await flushAuto();let r=null;try{r=await W.updTerminal()}catch(e){}
-  if(r&&r.error==='busy')return;
+  if(r&&r.error==='busy'){updRender('dl');return}
   if(r&&r.ok){toast(tr('Im Terminal dein Passwort eingeben. Layr startet danach neu.'));return}
   if(r&&r.cmd){UPD.cmd=r.cmd;updRender('term');toast(tr('Kein Terminal gefunden. Bitte den Befehl kopieren und im Terminal ausführen.'));return}
   toast(tr('Die Installation hat nicht geklappt.'))}
