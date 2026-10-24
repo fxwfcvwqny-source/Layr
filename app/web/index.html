@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZqiSro59S8v3Pd72oI2EofMi5RQLJjYxM4l0oGktaoM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-eq6B+K+toPzbJXvKnPA813lF+iNzXGlhFDYjPcSUAeU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1505,7 +1505,7 @@ header,.file{min-width:0}
       <button class="ib hdr-moved" id="bPages" title="Seiten ordnen: drehen, sortieren, löschen"><svg class="ph" aria-hidden="true"><use href="#ph-files"/></svg></button>
       <button class="btn hdr-moved" id="bOpen" title="PDF öffnen (Strg+O)"><svg class="ph" aria-hidden="true"><use href="#ph-folder-open"/></svg><span class="hide-sm bl">Öffnen</span></button>
       <button class="ib hdr-moved" id="bRecent" hidden aria-haspopup="true" aria-expanded="false" title="Zuletzt geöffnet (Strg+Umschalt+O)"><svg class="ph" aria-hidden="true"><use href="#ph-clock-counter-clockwise"/></svg></button>
-      <label class="tgl" id="autoHdr" title="Automatisch speichern ein/aus"><input type="checkbox" id="autoSaveHdr" role="switch"><span class="knob"></span><span class="tl">Auto</span></label>
+      <label class="tgl" id="autoHdr" title="Automatisch speichern ein/aus"><input type="checkbox" id="autoSaveHdr" role="switch" aria-label="Auto"><span class="knob"></span><span class="tl">Auto</span></label>
       <button class="btn primary" id="bSave" title="Speichern (Strg+S) · Speichern unter: Strg+Umschalt+S"><svg class="ph" aria-hidden="true"><use href="#ph-floppy-disk"/></svg>Speichern</button>
       <button class="ib hdr-moved" id="bThumbs" aria-pressed="false" title="Seitenvorschau ein/aus"><svg class="ph" aria-hidden="true"><use href="#ph-rows"/></svg></button>
       <button class="ib hdr-moved" id="bTglTools" aria-pressed="true" title="Werkzeugleiste ein/aus (Strg+. blendet alle Leisten aus)"><svg class="ph" aria-hidden="true"><use href="#ph-app-window"/></svg></button>
@@ -1535,7 +1535,7 @@ header,.file{min-width:0}
       <button class="ib" id="findPrev" title="Vorheriger Treffer (Umschalt+Enter)"><svg class="ph" aria-hidden="true"><use href="#ph-caret-up"/></svg></button>
       <button class="ib" id="findNext" title="Nächster Treffer (Enter)"><svg class="ph" aria-hidden="true"><use href="#ph-caret-down"/></svg></button>
       <button class="ib" id="findAnn" aria-pressed="true" title="Auch in Beschriftungen suchen (Texte, Symbole, Tabellen)"><svg class="ph" aria-hidden="true"><use href="#ph-pencil-simple"/></svg></button>
-      <label class="tgl fn-tg" title="Auch Funktionen von Layr finden (Menüs, Werkzeuge)"><input type="checkbox" id="findFn" role="switch" checked><span class="knob"></span><span class="tl">Funktionen</span></label>
+      <label class="tgl fn-tg" title="Auch Funktionen von Layr finden (Menüs, Werkzeuge)"><input type="checkbox" id="findFn" role="switch" aria-label="Funktionen" checked><span class="knob"></span><span class="tl">Funktionen</span></label>
       <button class="ib" id="findX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button>
     </div>
     <div id="ruler" hidden><canvas id="rulerCv"></canvas><div class="rot" id="rulerRot" title="Lineal drehen"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-clockwise"/></svg></div><div class="len" id="rulerLen" title="Länge ändern">↔</div><span class="ang" id="rulerAng">0°</span></div>
@@ -1555,8 +1555,8 @@ header,.file{min-width:0}
       <h3>Farbe</h3>
       <div class="row" id="swatches"></div>
       <div class="row"><label for="lw">Stärke</label><input type="range" id="lw" min="0.5" max="16" step="0.5" value="2"><span class="val" id="lwV">2 pt</span></div>
-      <label class="tgl qsrow" title="Stift und Textmarker: am Ende des Strichs kurz halten"><input type="checkbox" id="qShape" role="switch" checked><span class="knob"></span><span class="tl">Formen erkennen (halten)</span></label>
-      <label class="tgl qsrow" id="hlSnapRow" title="Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen"><input type="checkbox" id="qHlSnap" role="switch" checked><span class="knob"></span><span class="tl">Textmarker an Text ausrichten</span></label>
+      <label class="tgl qsrow" title="Stift und Textmarker: am Ende des Strichs kurz halten"><input type="checkbox" id="qShape" role="switch" aria-label="Formen erkennen (halten)" checked><span class="knob"></span><span class="tl">Formen erkennen (halten)</span></label>
+      <label class="tgl qsrow" id="hlSnapRow" title="Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen"><input type="checkbox" id="qHlSnap" role="switch" aria-label="Textmarker an Text ausrichten" checked><span class="knob"></span><span class="tl">Textmarker an Text ausrichten</span></label>
     </div>
     <div class="sec">
       <h3>Text</h3>
@@ -1602,7 +1602,7 @@ header,.file{min-width:0}
     <div class="sec">
       <h3>Dokument</h3>
       <button class="btn" id="bAddPage" style="align-self:flex-start"><svg class="ph" aria-hidden="true"><use href="#ph-file-plus"/></svg>Leere Seite hinzufügen …</button>
-      <label class="tgl big" id="autoRow"><input type="checkbox" id="autoSave" role="switch" checked><span class="knob"></span><span class="tl">Automatisch speichern</span></label>
+      <label class="tgl big" id="autoRow"><input type="checkbox" id="autoSave" role="switch" aria-label="Automatisch speichern" checked><span class="knob"></span><span class="tl">Automatisch speichern</span></label>
       <p class="hint" id="saveState"></p>
     </div>
     <div class="sec" id="selSec">
@@ -1707,12 +1707,12 @@ header,.file{min-width:0}
     <div class="ip-h"><h2 id="abT">Layr &amp; Updates</h2><button class="ib" id="abX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <section id="dAbout" hidden>
       <div class="ab-row"><span class="ab-logo" aria-hidden="true"></span><div><b>Layr</b><span id="abVer">Version …</span></div></div>
-      <label class="tgl big"><input type="checkbox" id="upAuto" role="switch" checked><span class="knob"></span><span class="tl">Automatisch nach Updates suchen</span></label>
-      <div id="upAutoRow" class="up-row" hidden><label class="tgl big"><input type="checkbox" id="upAutoDl" role="switch" checked><span class="knob"></span><span class="tl">Updates selbst installieren</span></label><p class="hint" id="upAutoHint"></p></div>
+      <label class="tgl big"><input type="checkbox" id="upAuto" role="switch" aria-label="Automatisch nach Updates suchen" checked><span class="knob"></span><span class="tl">Automatisch nach Updates suchen</span></label>
+      <div id="upAutoRow" class="up-row" hidden><label class="tgl big"><input type="checkbox" id="upAutoDl" role="switch" aria-label="Updates selbst installieren" checked><span class="knob"></span><span class="tl">Updates selbst installieren</span></label><p class="hint" id="upAutoHint"></p></div>
       <div class="ab-btns"><button class="btn" id="upNow"><svg class="ph" aria-hidden="true"><use href="#ph-arrows-clockwise"/></svg>Jetzt suchen</button><button class="btn" id="abGh"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-square-out"/></svg>Downloads &amp; Neuigkeiten</button></div>
       <p class="hint" id="upHint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
       <p class="hint" id="storeHint" hidden>Updates kommen über den Microsoft Store.</p>
-      <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
+      <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" aria-label="Zuletzt geöffnete Dateien merken" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
       <p class="hint">Die Liste liegt nur auf diesem Rechner und enthält nur Dateinamen und Ordner.</p></div></section>
   </div>
 </div>
@@ -1746,7 +1746,7 @@ header,.file{min-width:0}
     <div class="ip-h"><h2 id="wrT">Schreiben &amp; Rechtschreibung</h2><button class="ib" id="wrX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="wr-body">
     <section class="wr-s"><h3>Rechtschreibung</h3>
-      <label class="tgl sprow"><input type="checkbox" id="spOn" role="switch" checked><span class="knob"></span><span class="tl">Rechtschreibung prüfen</span></label>
+      <label class="tgl sprow"><input type="checkbox" id="spOn" role="switch" aria-label="Rechtschreibung prüfen" checked><span class="knob"></span><span class="tl">Rechtschreibung prüfen</span></label>
       <div class="row" id="spLangRow"><label for="spLang">Sprache</label><select id="spLang"><option value="auto">Deutsch + Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select></div>
       <p class="hint" id="spHint" hidden></p><button class="btn" id="spGet" hidden style="align-self:flex-start">Deutsches Wörterbuch laden</button>
       <div class="wr-words"><div class="wr-wh"><b>Eigene Wörter</b> <span class="wr-cnt" id="wrCnt"></span><button class="btn wr-clear" id="wrClear" type="button" hidden>Alle entfernen</button></div>
@@ -1779,16 +1779,16 @@ header,.file{min-width:0}
   <div class="card ipcard dccard">
     <div class="ip-h"><h2 id="dcT">Seitenzahlen &amp; Kopfzeile</h2><button class="ib" id="dcX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="dc-scroll">
-    <section class="dc-box" id="dcNumBox"><label class="tgl"><input type="checkbox" id="dcNum" role="switch"><span class="knob"></span><span class="tl"><b>Seitenzahlen</b></span></label>
+    <section class="dc-box" id="dcNumBox"><label class="tgl"><input type="checkbox" id="dcNum" role="switch" aria-label="Seitenzahlen"><span class="knob"></span><span class="tl"><b>Seitenzahlen</b></span></label>
       <div class="dc-body"><div class="dc-row"><span class="dc-l">Format</span><select id="dcFmt"><option value="n">1</option><option value="pn">Seite 1</option><option value="pnN">Seite 1 von 5</option><option value="nN">1 / 5</option><option value="dash">– 1 –</option></select>
         <span class="dc-l dc-l2">Beginnt bei</span><input type="number" id="dcStart" min="0" max="99999" value="1"></div>
         <div class="dc-row"><span class="dc-l">Position</span><div class="seg" id="dcNumPos"><button type="button" data-v="t">Oben</button><button type="button" data-v="b">Unten</button></div><div class="seg dc-al" id="dcNumAl"><button type="button" data-v="l">Links</button><button type="button" data-v="c">Mitte</button><button type="button" data-v="r">Rechts</button></div></div>
         <label class="chk"><input type="checkbox" id="dcSkip"> Erste Seite ohne Zahl (Deckblatt)</label><p class="hint" id="dcPrev"></p></div></section>
-    <section class="dc-box" id="dcHeadBox"><label class="tgl"><input type="checkbox" id="dcHead" role="switch"><span class="knob"></span><span class="tl"><b>Kopfzeile</b></span></label>
+    <section class="dc-box" id="dcHeadBox"><label class="tgl"><input type="checkbox" id="dcHead" role="switch" aria-label="Kopfzeile"><span class="knob"></span><span class="tl"><b>Kopfzeile</b></span></label>
       <div class="dc-body"><input type="text" id="dcHeadT" maxlength="200" placeholder="z. B. Lernfeld 9 – Netzwerke" autocomplete="off"><div class="dc-row"><div class="seg dc-al" id="dcHeadAl"><button type="button" data-v="l">Links</button><button type="button" data-v="c">Mitte</button><button type="button" data-v="r">Rechts</button></div><span class="dc-phs"><button type="button" class="dc-ph" data-for="dcHeadT" data-v="{datei}">Dateiname</button><button type="button" class="dc-ph" data-for="dcHeadT" data-v="{datum}">Datum</button><button type="button" class="dc-ph" data-for="dcHeadT" data-v="{n}">Seite</button></span></div></div></section>
-    <section class="dc-box" id="dcFootBox"><label class="tgl"><input type="checkbox" id="dcFoot" role="switch"><span class="knob"></span><span class="tl"><b>Fußzeile</b></span></label>
+    <section class="dc-box" id="dcFootBox"><label class="tgl"><input type="checkbox" id="dcFoot" role="switch" aria-label="Fußzeile"><span class="knob"></span><span class="tl"><b>Fußzeile</b></span></label>
       <div class="dc-body"><input type="text" id="dcFootT" maxlength="200" placeholder="z. B. Max Mustermann, Klasse IT23" autocomplete="off"><div class="dc-row"><div class="seg dc-al" id="dcFootAl"><button type="button" data-v="l">Links</button><button type="button" data-v="c">Mitte</button><button type="button" data-v="r">Rechts</button></div><span class="dc-phs"><button type="button" class="dc-ph" data-for="dcFootT" data-v="{datei}">Dateiname</button><button type="button" class="dc-ph" data-for="dcFootT" data-v="{datum}">Datum</button><button type="button" class="dc-ph" data-for="dcFootT" data-v="{n}">Seite</button></span></div></div></section>
-    <section class="dc-box" id="dcWmBox"><label class="tgl"><input type="checkbox" id="dcWm" role="switch"><span class="knob"></span><span class="tl"><b>Wasserzeichen</b></span></label>
+    <section class="dc-box" id="dcWmBox"><label class="tgl"><input type="checkbox" id="dcWm" role="switch" aria-label="Wasserzeichen"><span class="knob"></span><span class="tl"><b>Wasserzeichen</b></span></label>
       <div class="dc-body"><input type="text" id="dcWmT" maxlength="60" autocomplete="off">
         <div class="dc-row"><span class="dc-l">Größe</span><div class="seg" id="dcWmSize"><button type="button" data-v="s">Klein</button><button type="button" data-v="m">Mittel</button><button type="button" data-v="l">Groß</button></div>
           <div class="seg dc-cols" id="dcWmCol"><button type="button" data-v="#8a94a3" title="Grau" style="--c:#8a94a3"></button><button type="button" data-v="#d62828" title="Rot" style="--c:#d62828"></button><button type="button" data-v="#1d4ed8" title="Blau" style="--c:#1d4ed8"></button></div></div>
@@ -1805,7 +1805,7 @@ header,.file{min-width:0}
     <input type="text" id="exRange" class="pr-range" placeholder="z. B. 1-3, 5" autocomplete="off" spellcheck="false" hidden>
     <div class="pr-row"><span class="pr-l">Format</span><div class="seg" id="exFmt"><button type="button" data-v="png">PNG</button><button type="button" data-v="jpg">JPG</button></div></div>
     <div class="pr-row"><span class="pr-l">Auflösung</span><div class="seg" id="exDpi"><button type="button" data-v="72">Bildschirm</button><button type="button" data-v="150">Normal</button><button type="button" data-v="300">Druck</button></div></div>
-    <label class="tgl"><input type="checkbox" id="exMarks" role="switch" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
+    <label class="tgl"><input type="checkbox" id="exMarks" role="switch" aria-label="Mit Beschriftungen, Formularen und Unterschriften" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
     <p class="hint" id="exInfo"></p>
     <div class="ab-btns asr-btns"><button class="btn" id="exNo" type="button">Abbrechen</button><button class="btn primary" id="exGo" type="button">Speichern</button></div>
   </div>
@@ -1815,7 +1815,7 @@ header,.file{min-width:0}
     <div class="ip-h"><h2 id="shT">Kleinere Kopie speichern</h2><button class="ib" id="shX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint">Fotos und Scans in der PDF werden verkleinert, z. B. für E-Mail oder Upload. Deine Datei bleibt, wie sie ist; die Kopie bekommt einen eigenen Namen.</p>
     <div class="pr-row"><span class="pr-l">Stufe</span><div class="seg" id="shLvl"><button type="button" data-v="l">Leicht</button><button type="button" data-v="m">Mittel</button><button type="button" data-v="s">Stark</button></div></div>
-    <label class="tgl"><input type="checkbox" id="shKeep" role="switch"><span class="knob"></span><span class="tl">In Layr bearbeitbar lassen (größer)</span></label>
+    <label class="tgl"><input type="checkbox" id="shKeep" role="switch" aria-label="In Layr bearbeitbar lassen (größer)"><span class="knob"></span><span class="tl">In Layr bearbeitbar lassen (größer)</span></label>
     <div class="ab-btns asr-btns"><button class="btn" id="shNo" type="button">Abbrechen</button><button class="btn primary" id="shGo" type="button">Speichern</button></div>
   </div>
 </div>
@@ -1880,7 +1880,7 @@ header,.file{min-width:0}
       <div class="ab-btns asr-btns"><button class="btn" id="lkCsv" type="button">Als CSV (Anki)</button><button class="btn" id="lkReset" type="button">Lernstand zurücksetzen</button><span class="lk-sp"></span><button class="btn" id="lkNo" type="button">Schließen</button><button class="btn" id="lkAll" type="button">Alle lernen</button><button class="btn primary" id="lkLearn" type="button">Fällige lernen</button></div>
     </div>
     <div id="lkLearnV" class="lk-v" hidden>
-      <label class="tgl lk-tt"><input type="checkbox" id="lkType" role="switch"><span class="knob"></span><span class="tl">Antwort eintippen</span></label>
+      <label class="tgl lk-tt"><input type="checkbox" id="lkType" role="switch" aria-label="Antwort eintippen"><span class="knob"></span><span class="tl">Antwort eintippen</span></label>
       <div class="lk-card" id="lkCard"><div class="lk-face lk-front" id="lkFront" data-noi18n></div><div class="lk-face lk-back" id="lkBack" data-noi18n></div></div>
       <p class="lk-res" id="lkRes" data-noi18n></p>
       <p class="hint lk-prog" id="lkProg"></p>
@@ -1921,8 +1921,8 @@ header,.file{min-width:0}
     <div class="pr-row sp-sel"><span class="pr-l">Seiten</span><input type="text" id="sxRange" class="sp-in" placeholder="z. B. 1-3, 5" autocomplete="off" spellcheck="false"></div>
     <div class="pr-row sp-every"><span class="pr-l">Je Datei</span><input type="number" id="sxN" class="sp-in sp-num" min="1" value="1"><span class="sp-t">Seiten</span></div>
     <div class="pr-row sp-groups"><span class="pr-l">Bereiche</span><input type="text" id="sxGroups" class="sp-in" placeholder="z. B. 1-3; 4-10; 11-" autocomplete="off" spellcheck="false"></div>
-    <label class="tgl"><input type="checkbox" id="sxMarks" role="switch" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
-    <label class="tgl sp-sel"><input type="checkbox" id="sxDel" role="switch"><span class="knob"></span><span class="tl">Aus dieser Datei entfernen</span></label>
+    <label class="tgl"><input type="checkbox" id="sxMarks" role="switch" aria-label="Mit Beschriftungen, Formularen und Unterschriften" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
+    <label class="tgl sp-sel"><input type="checkbox" id="sxDel" role="switch" aria-label="Aus dieser Datei entfernen"><span class="knob"></span><span class="tl">Aus dieser Datei entfernen</span></label>
     <p class="hint" id="sxInfo"></p>
     <div class="ab-btns asr-btns"><button class="btn" id="sxNo" type="button">Abbrechen</button><button class="btn" id="sxSave" type="button">Speichern</button><button class="btn primary" id="sxGo" type="button">In neuem Tab öffnen</button></div>
   </div>
@@ -1935,7 +1935,7 @@ header,.file{min-width:0}
       <div class="im-pv"><figure><canvas id="imBefore"></canvas><figcaption>Vorher</figcaption></figure><figure><canvas id="imAfter"></canvas><figcaption>Nachher</figcaption></figure></div>
       <div class="im-nav"><button class="ib" id="imPrev" type="button" title="Vorherige Seite"><svg class="ph" aria-hidden="true"><use href="#ph-caret-left"/></svg></button><span id="imPvL" data-noi18n></span><button class="ib" id="imNext" type="button" title="Nächste Seite"><svg class="ph" aria-hidden="true"><use href="#ph-caret-right"/></svg></button></div></div>
     <div class="pr-row"><span class="pr-l">Verbessern</span><div class="seg" id="imFx"><button type="button" data-v="orig">Original</button><button type="button" data-v="doc">Dokument</button><button type="button" data-v="bw">Schwarzweiß</button></div></div>
-    <label class="tgl"><input type="checkbox" id="imDeskew" role="switch" checked><span class="knob"></span><span class="tl">Schief fotografierte Blätter gerade ausrichten</span></label>
+    <label class="tgl"><input type="checkbox" id="imDeskew" role="switch" aria-label="Schief fotografierte Blätter gerade ausrichten" checked><span class="knob"></span><span class="tl">Schief fotografierte Blätter gerade ausrichten</span></label>
     <div class="pr-row im-files"><span class="pr-l">Format</span><div class="seg" id="imFmt"><button type="button" data-v="a4">A4</button><button type="button" data-v="img">Wie das Bild</button></div></div>
     <div class="pr-row im-files"><span class="pr-l">Rand</span><div class="seg" id="imMargin"><button type="button" data-v="none">Ohne</button><button type="button" data-v="s">Schmal</button><button type="button" data-v="m">Normal</button></div></div>
     <div class="pr-row im-files"><span class="pr-l">Ziel</span><div class="seg" id="imDest"><button type="button" data-v="new">Neue PDF</button><button type="button" data-v="append">An diese PDF anhängen</button></div></div>
@@ -1951,7 +1951,7 @@ header,.file{min-width:0}
     <div class="pr-row"><span class="pr-l">Name</span><input type="text" id="ffName" class="sp-in" maxlength="100" autocomplete="off" spellcheck="false"></div>
     <div class="pr-row ff-o"><span class="pr-l">Einträge</span><textarea id="ffOpts" class="sp-in ff-ta" rows="4" placeholder="Eine Möglichkeit pro Zeile" spellcheck="false"></textarea></div>
     <div class="pr-row ff-v"><span class="pr-l">Vorgabe</span><input type="text" id="ffVal" class="sp-in" maxlength="2000" autocomplete="off" placeholder="Optional"></div>
-    <label class="tgl ff-c"><input type="checkbox" id="ffChk" role="switch"><span class="knob"></span><span class="tl">Schon angekreuzt</span></label>
+    <label class="tgl ff-c"><input type="checkbox" id="ffChk" role="switch" aria-label="Schon angekreuzt"><span class="knob"></span><span class="tl">Schon angekreuzt</span></label>
     <p class="pw-err" id="ffErr"></p>
     <p class="hint">Beim Speichern wird daraus ein echtes PDF-Formularfeld, das jedes Programm ausfüllen kann. Der Name erscheint dort als Feldname.</p>
     <div class="ab-btns asr-btns"><button class="btn pg-del" id="ffDel" type="button">Löschen</button><span class="lk-sp"></span><button class="btn" id="ffNo" type="button">Abbrechen</button><button class="btn primary" id="ffOk" type="button">Fertig</button></div>
@@ -1983,11 +1983,11 @@ header,.file{min-width:0}
         <div class="dg-opts">
           <div class="pr-row dg-o dg-chart"><span class="pr-l">Art</span><div class="seg" id="dgCt"><button type="button" data-v="col">Säulen</button><button type="button" data-v="bar">Balken</button><button type="button" data-v="line">Linie</button><button type="button" data-v="pie">Kreisdiagramm</button></div></div>
           <div class="pr-row dg-o dg-chart dg-nsd"><span class="pr-l">Titel</span><input type="text" id="dgTitle" class="sp-in" maxlength="200" autocomplete="off" placeholder="Optional"></div>
-          <div class="dg-o dg-chart"><label class="tgl"><input type="checkbox" id="dgVals" role="switch" checked><span class="knob"></span><span class="tl">Werte anzeigen</span></label></div>
-          <div class="dg-o dg-mind"><label class="tgl"><input type="checkbox" id="dgMono" role="switch"><span class="knob"></span><span class="tl">Schwarzweiß (für den Druck)</span></label></div>
+          <div class="dg-o dg-chart"><label class="tgl"><input type="checkbox" id="dgVals" role="switch" aria-label="Werte anzeigen" checked><span class="knob"></span><span class="tl">Werte anzeigen</span></label></div>
+          <div class="dg-o dg-mind"><label class="tgl"><input type="checkbox" id="dgMono" role="switch" aria-label="Schwarzweiß (für den Druck)"><span class="knob"></span><span class="tl">Schwarzweiß (für den Druck)</span></label></div>
           <div class="pr-row dg-o dg-logic"><span class="pr-l">Symbole</span><div class="seg" id="dgSym"><button type="button" data-v="iec">DIN / IEC</button><button type="button" data-v="ansi">ANSI (US)</button></div></div>
           <div class="pr-row dg-o dg-logic"><span class="pr-l">Schreibweise</span><div class="seg" id="dgNota"><button type="button" data-v="tech">A·B + C̅</button><button type="button" data-v="logic">A ∧ B ∨ ¬C</button></div></div>
-          <div class="dg-o dg-logic dg-tg"><label class="tgl"><input type="checkbox" id="dgCirc" role="switch" checked><span class="knob"></span><span class="tl">Schaltung</span></label><label class="tgl"><input type="checkbox" id="dgTab" role="switch" checked><span class="knob"></span><span class="tl">Wahrheitstabelle</span></label><label class="tgl"><input type="checkbox" id="dgSimp" role="switch" checked><span class="knob"></span><span class="tl">Vereinfachung</span></label><label class="tgl"><input type="checkbox" id="dgSimpC" role="switch"><span class="knob"></span><span class="tl">Vereinfachte Schaltung zeichnen</span></label></div>
+          <div class="dg-o dg-logic dg-tg"><label class="tgl"><input type="checkbox" id="dgCirc" role="switch" aria-label="Schaltung" checked><span class="knob"></span><span class="tl">Schaltung</span></label><label class="tgl"><input type="checkbox" id="dgTab" role="switch" aria-label="Wahrheitstabelle" checked><span class="knob"></span><span class="tl">Wahrheitstabelle</span></label><label class="tgl"><input type="checkbox" id="dgSimp" role="switch" aria-label="Vereinfachung" checked><span class="knob"></span><span class="tl">Vereinfachung</span></label><label class="tgl"><input type="checkbox" id="dgSimpC" role="switch" aria-label="Vereinfachte Schaltung zeichnen"><span class="knob"></span><span class="tl">Vereinfachte Schaltung zeichnen</span></label></div>
           <div class="pr-row dg-o dg-nsd"><span class="pr-l">Zweige</span><div class="seg" id="dgYn"><button type="button" data-v="jn">ja / nein</button><button type="button" data-v="tf">wahr / falsch</button></div></div>
         </div>
       </div>
@@ -2001,8 +2001,8 @@ header,.file{min-width:0}
     <div class="ip-h"><h2 id="prT">Drucken</h2><button class="ib" id="prX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <div class="pr-row"><span class="pr-l">Seiten</span><div class="seg" id="prWhich"><button type="button" data-v="all">Alle</button><button type="button" data-v="cur">Aktuelle Seite</button><button type="button" data-v="sel">Auswahl</button></div></div>
     <input type="text" id="prRange" placeholder="z. B. 1-3, 5" autocomplete="off" spellcheck="false" hidden>
-    <label class="tgl"><input type="checkbox" id="prMarks" role="switch" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
-    <label class="tgl" id="prNotesRow"><input type="checkbox" id="prNotes" role="switch"><span class="knob"></span><span class="tl">Notizen als letzte Seite</span></label>
+    <label class="tgl"><input type="checkbox" id="prMarks" role="switch" aria-label="Mit Beschriftungen, Formularen und Unterschriften" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
+    <label class="tgl" id="prNotesRow"><input type="checkbox" id="prNotes" role="switch" aria-label="Notizen als letzte Seite"><span class="knob"></span><span class="tl">Notizen als letzte Seite</span></label>
     <div class="pr-row"><span class="pr-l">Qualität</span><div class="seg" id="prQ"><button type="button" data-v="150">Schnell</button><button type="button" data-v="200">Normal</button><button type="button" data-v="300">Fein</button></div></div>
     <p class="hint" id="prInfo"></p>
     <div class="ab-btns asr-btns"><button class="btn" id="prNo" type="button">Abbrechen</button><button class="btn primary" id="prGo" type="button">Drucken</button></div>
@@ -7884,7 +7884,7 @@ function cmpClose(){const v=document.getElementById('cmpView');if(!v||v.hidden)r
   if(CMP.docB){try{pdfClose(CMP.docB)}catch(e){}CMP.docB=null}CMP.ch=[]}
 function cmpView(){let v=document.getElementById('cmpView');if(v)return v;v=document.createElement('div');v.id='cmpView';v.className='cmp';v.hidden=true;v.setAttribute('role','dialog');v.setAttribute('aria-label',tr('PDFs vergleichen'));
   v.innerHTML='<div class="cmp-h"><b class="cmp-t">'+tr('Vergleich')+'</b><span class="cmp-sum" id="cmpSum"></span><span class="lk-sp"></span>'+
-    '<label class="tgl cmp-sync"><input type="checkbox" id="cmpSync" role="switch" checked><span class="knob"></span><span class="tl">'+tr('Gleichzeitig scrollen')+'</span></label>'+
+    '<label class="tgl cmp-sync"><input type="checkbox" id="cmpSync" role="switch" aria-label="'+tr('Gleichzeitig scrollen')+'" checked><span class="knob"></span><span class="tl">'+tr('Gleichzeitig scrollen')+'</span></label>'+
     '<button type="button" class="btn" id="cmpPrev">'+tr('Vorherige')+'</button><button type="button" class="btn" id="cmpNext">'+tr('Nächste')+'</button><button type="button" class="ib" id="cmpX" title="'+tr('Schließen (Esc)')+'"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>'+
     '<div class="cmp-b"><div class="cmp-col"><div class="cmp-n del" id="cmpNA" data-noi18n></div><div class="cmp-s" id="cmpA"></div></div><div class="cmp-col"><div class="cmp-n ins" id="cmpNB" data-noi18n></div><div class="cmp-s" id="cmpB"></div></div><div class="cmp-list" id="cmpList" data-noi18n></div></div>';
   document.body.appendChild(v);
@@ -8630,7 +8630,7 @@ function nightSet(on){NIGHT=!!on;document.documentElement.classList.toggle('nigh
 // geteilte Ansicht: zweite Spalte (nur lesen) mit diesem Dokument, einem anderen Tab oder einer Datei
 const SPV={on:false,pc:null,src:'self',doc:null,own:false,sync:true,lock:0,t:0};
 function spvEl(){let el=document.getElementById('spvPane');if(el)return el;el=document.createElement('div');el.id='spvPane';el.className='spv';el.hidden=true;
-  el.innerHTML='<div class="spv-h"><select id="spvSrc" aria-label="'+tr('Inhalt der zweiten Spalte')+'"></select><label class="tgl spv-sync"><input type="checkbox" id="spvSync" role="switch" checked><span class="knob"></span><span class="tl">'+tr('Mitscrollen')+'</span></label>'+
+  el.innerHTML='<div class="spv-h"><select id="spvSrc" aria-label="'+tr('Inhalt der zweiten Spalte')+'"></select><label class="tgl spv-sync"><input type="checkbox" id="spvSync" role="switch" aria-label="'+tr('Mitscrollen')+'" checked><span class="knob"></span><span class="tl">'+tr('Mitscrollen')+'</span></label>'+
     '<button type="button" class="ib" id="spvX" title="'+tr('Geteilte Ansicht schließen')+'"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div><div class="spv-b" id="spvBody"></div><input type="file" id="spvIn" accept="application/pdf,.pdf" hidden>';
   $('#wrap').appendChild(el);
   $('#spvX').onclick=()=>spvOpen(false);$('#spvSync').onchange=e=>{SPV.sync=e.target.checked;if(SPV.sync)spvFollow()};

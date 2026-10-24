@@ -284,6 +284,15 @@ else {
   ok('Altes Design ohne Text-Leisten-Schlüssel lädt mit Standardreihenfolge', await ev("design.qbar==='l'&&design.qbarOrder.join()===QB_IDS.join()&&design.qbarHide.length===0&&design.qbarStyle==='panel'") === true);
   // Seite ohne DOM (P.el fehlt) bringt Layout und Zoom nicht zum Absturz
   ok('Layout mit Seite ohne DOM stürzt nicht ab', await ev("(()=>{const n=S.pages.length;S.pages.push({w:100,h:100,objs:[]});let ok=true;try{layout()}catch(e){ok=false}S.pages.length=n;return ok})()") === true);
+  // Bei <= 1060 px sind Schalter-Beschriftungen ausgeblendet; die Schalter behalten einen Namen (aria-label)
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1000, height: 900, deviceScaleFactor: 1, mobile: false });
+  await sleep(300);
+  ok('Schalter: Beschriftung bei 1000 px ausgeblendet', await ev("getComputedStyle(document.querySelector('#autoHdr .tl')).display==='none'") === true);
+  ok('Schalter: alle haben einen Namen bei 1000 px', await ev("[...document.querySelectorAll('input[role=switch]')].every(i=>(i.getAttribute('aria-label')||'').trim().length>0)") === true);
+  const axNodes = (await cdp('Accessibility.getFullAXTree', {})).result.nodes;
+  ok('Schalter im Barrierefreiheitsbaum bei 1000 px: „Auto“ benannt', axNodes.some(n => n.role && n.role.value === 'switch' && n.name && n.name.value === 'Auto'));
+  await cdp('Emulation.clearDeviceMetricsOverride', {});
+  await sleep(300);
   // Datei-Menü ist in niedrigen Fenstern nicht abgeschnitten: Mausrad und Pfeiltasten erreichen „Drucken“
   const ctxBox = "(()=>{const c=document.getElementById('ctx'),r=c.getBoundingClientRect();return [r.top,r.bottom,innerHeight,c.scrollHeight>c.clientHeight]})()";
   const lastIn = "(()=>{const c=document.getElementById('ctx').getBoundingClientRect(),b=[...document.querySelectorAll('#ctx button')].pop().getBoundingClientRect();return b.top>=c.top&&b.bottom<=c.bottom&&b.bottom<=innerHeight})()";
