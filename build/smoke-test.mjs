@@ -258,6 +258,20 @@ else {
   ok('Text-Leiste: neue Reihenfolge ist gespeichert', await ev("JSON.parse(localStorage.getItem('pdfwerkbank:design')).qbarOrder[1]==='font'") === true);
   await ev("document.querySelector('#dQbStyle [data-v=contrast]').click()");
   ok('Text-Leiste: Stil Kontrast wirkt sofort und wird gespeichert', await ev("document.documentElement.dataset.qbstyle==='contrast'&&JSON.parse(localStorage.getItem('pdfwerkbank:design')).qbarStyle==='contrast'") === true);
+  // Echter Mausklick auf den Schalter eines Text-Leisten-Knopfs (Schalter ist ein <label>, nicht nur ein Span)
+  const qbSw = "document.querySelector('#dQbItems input[data-id=\"bold\"]').closest('label').querySelector('.knob')";
+  const clickSw = async () => { const p = await ev(`(()=>{const k=${qbSw};k.scrollIntoView({block:'center'});const b=k.getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: 1 }); await sleep(300); };
+  await clickSw();
+  ok('Text-Leiste: echter Mausklick auf Schalter blendet Knopf aus', await ev("design.qbarHide.includes('bold')&&document.querySelector('#dQbItems input[data-id=\"bold\"]').checked===false") === true);
+  await clickSw();
+  ok('Text-Leiste: zweiter Mausklick blendet Knopf wieder ein', await ev("!design.qbarHide.includes('bold')&&document.querySelector('#dQbItems input[data-id=\"bold\"]').checked===true") === true);
+  await ev("document.querySelector('#dQbItems input[data-id=\"bold\"]').focus()");
+  await key(' ', 'Space', 32, ' ');
+  await sleep(300);
+  ok('Text-Leiste: Leertaste am Schalter blendet Knopf aus', await ev("design.qbarHide.includes('bold')") === true);
+  await key(' ', 'Space', 32, ' ');
+  await sleep(300);
+  ok('Text-Leiste: Leertaste blendet Knopf wieder ein', await ev("!design.qbarHide.includes('bold')") === true);
   await ev("setLang('en')");
   ok('Text-Leiste im Design-Dialog: englische Beschriftung ohne deutsche Reste', await ev("(()=>{const els=[...new Set(['#dQbItems','#dQbItems *','.qbprev','.qbprev *','#dQbStyle','#dQbStyle *','#dQbReset'].flatMap(s=>[...document.querySelectorAll(s)]))];return els.every(e=>[e.childNodes.length===1&&e.childNodes[0].nodeType===3?e.textContent:'',e.getAttribute('aria-label')||'',e.title||''].every(t=>!/[äöüß]|Schriftart|Schriftgröße|Fett|Unterstreichen|Listen|Einrücken|Schriftfarbe|Löschen|Nach |Knöpfe|Stil|zurücksetzen|Standard|Getönt|Kontrast|Klein|Mittel|Groß|Aufz|Nummer|Unterpunkt|Ebene|Textfeld/.test(t)))})()") === true);
   await ev("setLang('de')");

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-dB1E/Wukmoyn96Nw+FOFf/2Sa299zLNmxWLujQQ37fk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4VDWHJuaagGqKur2Gejls14XlyiS2txLYSbvgUbmm/Q=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4477,7 +4477,7 @@ function qbRender(focus){const L=$('#dQbItems'),ord=design.qbarOrder,hide=design
     const ic=document.createElement('span');ic.className='tb-ic';ic.innerHTML=QB_ICON[id];
     const tx=document.createElement('span');tx.className='tb-tx';const nm=document.createElement('b');nm.id='qbN-'+id;nm.textContent=tr(QB_NAME[id]);tx.appendChild(nm);
     const arrow=(d,label,icon)=>{const b=document.createElement('button');b.type='button';b.className='ib';b.dataset.id=id;b.dataset.d=d;b.title=label;b.setAttribute('aria-label',label);b.innerHTML=PH(icon);b.disabled=d<0?n===0:n===ord.length-1;b.onclick=()=>qbMove(id,d);return b};
-    const sw=document.createElement('span');sw.className='tgl';const inp=document.createElement('input');inp.type='checkbox';inp.setAttribute('role','switch');inp.dataset.id=id;inp.checked=on;inp.disabled=on&&nVis===1;inp.setAttribute('aria-label',tr(QB_NAME[id]));inp.onchange=()=>qbToggle(id,inp.checked);
+    const sw=document.createElement('label');sw.className='tgl';const inp=document.createElement('input');inp.type='checkbox';inp.setAttribute('role','switch');inp.dataset.id=id;inp.checked=on;inp.disabled=on&&nVis===1;inp.setAttribute('aria-label',tr(QB_NAME[id]));inp.onchange=()=>qbToggle(id,inp.checked);
     const kn=document.createElement('span');kn.className='knob';sw.append(inp,kn);
     r.append(ic,tx,arrow(-1,tr('Nach oben'),'caret-up'),arrow(1,tr('Nach unten'),'caret-down'),sw);L.appendChild(r)});
   const pv=$('.qbprev');pv.innerHTML=`<div class="edbar">${qbBar(ord,hide)}</div>`;
