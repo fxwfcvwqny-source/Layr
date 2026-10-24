@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8iLcNETYUy/xCoKFi2e1J56jfzF5RHrwQU3B0zkG6zM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-vl1JMJG71EjeR+gFN1nie6dgLg8pamlyVeMlMGwKvec=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6484,10 +6484,14 @@ async function rebuildPages(entries,msg,focus){
   const snap=docSnap();
   // Gezeichnete Seiten und Vorschau-Bilder bleiben erhalten, damit der Umbau nicht leer aufblitzt (gedrehte und leere Seiten nicht)
   const used=new Set(),keep=entries.map(en=>{if(en.blank||en.rot||used.has(en.i))return null;used.add(en.i);const P=S.pages[en.i];return P&&{pdf:P.pdf,th:P.thumbBase}});
+  const fo=focus!=null&&S.pages[focus]&&S.pages[focus].el,fr=fo&&fo.getBoundingClientRect(),vr=viewer.getBoundingClientRect(),seen=!!fr&&fr.bottom>vr.top&&fr.top<vr.bottom;
   await openPdf(bytes,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true,keep});
   if(S.bytes===b0){toast(tr('Die Seiten konnten nicht neu aufgebaut werden.'));return false}
   H.u.push(snap);H.r=[];capDocHist();
-  updUndo();markDirty();if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);return true;
+  updUndo();markDirty();
+  // War die Seite sichtbar, bleibt sie an ihrer Stelle stehen (kein Sprung, kein Aufpoppen)
+  if(seen){const P=S.pages[focus];if(P&&P.el)viewer.scrollTop+=P.el.getBoundingClientRect().top-fr.top}
+  else if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);return true;
   }finally{rbBusy=false}
 }
 let thumbsOn=false,thumbGen=0,thT=0;
