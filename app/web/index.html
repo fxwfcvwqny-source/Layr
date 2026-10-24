@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-OphRAOEtbpZ4mhM+p7X/bwgmBZ+q9g5JhxNvHv0qqww=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lePQZ5qo2vxooJ4QLd55IFCVOLFpiNqSUSVSTGW7ZoI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2066,6 +2066,7 @@ function motionOff(){return document.documentElement.dataset.motion==='off'||mat
 /* Offene Fenster (Dialoge, Studio, Menü): solange eins offen ist, ist die App inert; Fokus kehrt zum Auslöser zurück */
 const isOverlay=el=>el.classList.contains('modal')||el.id==='studio'||el.id==='ctx';
 function syncModal(){try{const open=[...document.querySelectorAll('.modal'),document.getElementById('studio')].some(m=>m&&!m.hidden&&!m._ah);document.getElementById('app').inert=open}catch(e){}}
+document.querySelectorAll('.modal,#studio').forEach(m=>new MutationObserver(syncModal).observe(m,{attributes:true,attributeFilter:['hidden','class']}));
 function leaveOverlay(el){syncModal();const b=el._opener;el._opener=null;
   if(b&&b.isConnected&&(el.contains(document.activeElement)||document.activeElement===document.body))try{b.focus({preventScroll:true})}catch(e){}}
 function animHide(el){if(!el||el.hidden)return;const off=motionOff(),tok={};el._ah=tok;if(isOverlay(el))leaveOverlay(el);
