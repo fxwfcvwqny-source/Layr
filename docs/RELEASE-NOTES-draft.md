@@ -16,6 +16,7 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Faster theme switch: transitions are only suspended when the theme really changes.
 - Update install: while a download runs, a refused terminal install shows the download state instead of doing nothing.
 - Update check: a stuck check ends after a timeout.
+- Tab moves focus normally again; hiding all bars is now Ctrl+. (changeable in the shortcut list).
 
 ## Removed
 

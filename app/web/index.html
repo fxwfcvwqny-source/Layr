@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+wNF9qh2OzLlgP1Xizv7yAQ9iBdRFgYmt+znJzardV0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XHtt5LAybQqhWCdspsh7HgiT5eLwhpfIkiKZEElvexU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1491,7 +1491,7 @@ header,.file{min-width:0}
       <label class="tgl" id="autoHdr" title="Automatisch speichern ein/aus"><input type="checkbox" id="autoSaveHdr" role="switch"><span class="knob"></span><span class="tl">Auto</span></label>
       <button class="btn primary" id="bSave" title="Speichern (Strg+S) · Speichern unter: Strg+Umschalt+S"><svg class="ph" aria-hidden="true"><use href="#ph-floppy-disk"/></svg>Speichern</button>
       <button class="ib hdr-moved" id="bThumbs" aria-pressed="false" title="Seitenvorschau ein/aus"><svg class="ph" aria-hidden="true"><use href="#ph-rows"/></svg></button>
-      <button class="ib hdr-moved" id="bTglTools" aria-pressed="true" title="Werkzeugleiste ein/aus (Tab blendet alle Leisten aus)"><svg class="ph" aria-hidden="true"><use href="#ph-app-window"/></svg></button>
+      <button class="ib hdr-moved" id="bTglTools" aria-pressed="true" title="Werkzeugleiste ein/aus (Strg+. blendet alle Leisten aus)"><svg class="ph" aria-hidden="true"><use href="#ph-app-window"/></svg></button>
       <button class="ib hide-sm hdr-moved" id="bTglSide" aria-pressed="true" title="Seitenleiste ein/aus"><svg class="ph" aria-hidden="true"><use href="#ph-sidebar-simple"/></svg></button>
       <button class="ib hmb" id="bViewMenu" aria-haspopup="menu" aria-expanded="false" title="Ansicht: Leisten, Seitenvorschau, Zoom"><svg class="ph" aria-hidden="true"><use href="#ph-squares-four"/></svg><svg class="hm-c ph" aria-hidden="true"><use href="#ph-caret-down"/></svg></button>
       <button class="ib" id="bMic" aria-pressed="false" title="Diktieren (Strg+Umschalt+D)" hidden><svg class="ph" aria-hidden="true"><use href="#ph-microphone"/></svg></button>
@@ -2078,7 +2078,7 @@ const I18N_EN={
 'PDF öffnen (Strg+O)':'Open PDF (Ctrl+O)','Speichern (Strg+S) · Speichern unter: Strg+Umschalt+S':'Save (Ctrl+S) · Save as: Ctrl+Shift+S',
 'Neues Blatt oder leere Seiten hinzufügen (Strg+Alt+N)':'New sheet or add blank pages (Ctrl+Alt+N)','Mehrere PDFs zusammenführen':'Merge several PDFs',
 'Rückgängig (Strg+Z)':'Undo (Ctrl+Z)','Wiederholen (Strg+Y)':'Redo (Ctrl+Y)','Verkleinern (Strg+-)':'Zoom out (Ctrl+-)','Vergrößern (Strg++)':'Zoom in (Ctrl++)','An Breite anpassen':'Fit to width',
-'Automatisch speichern ein/aus':'Auto-save on/off','Seitenvorschau ein/aus':'Page thumbnails on/off','Werkzeugleiste ein/aus (Tab blendet alle Leisten aus)':'Toolbar on/off (Tab hides all bars)',
+'Automatisch speichern ein/aus':'Auto-save on/off','Seitenvorschau ein/aus':'Page thumbnails on/off','Werkzeugleiste ein/aus (Strg+. blendet alle Leisten aus)':'Toolbar on/off (Ctrl+. hides all bars)','Leisten ein/aus':'Bars on/off',
 'Seitenleiste ein/aus':'Side panel on/off','Personalisieren':'Personalize','Optionen':'Options','Notizen (N)':'Notes (N)','PDF hier ablegen':'Drop PDF here',
 '✓ Gespeichert':'✓ Saved','● Nicht gespeichert':'● Not saved','Speichert …':'Saving …','Seite – / –':'Page – / –','Seitenvorschau':'Page thumbnails','Eigenschaften':'Properties','Werkzeuge':'Tools',
 // Werkzeuge
@@ -6355,7 +6355,6 @@ addEventListener('keydown',e=>{
   if(ED&&ED.eng&&t!==ED.eng.sink&&!(t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|number|search|email|url|)$/.test(t.type))))){if(edForward(e))return}
   if(t&&(t.tagName==='TEXTAREA'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|number|search|email|url|)$/.test(t.type))))return;
   if(t&&t.tagName==='SELECT'&&!mod)return;
-  if(k==='tab'&&!mod&&!e.altKey&&$('#newDlg').hidden&&$('#mergeDlg').hidden){e.preventDefault();const hide=!(bars.tools||bars.side)?false:true;setBars(!hide,!hide);return}
   if(mod&&!e.altKey&&k==='tab'){e.preventDefault();tabStep(e.shiftKey?-1:1);return}
   if(mod&&!e.altKey&&(k==='pagedown'||k==='pageup')){e.preventDefault();tabStep(k==='pagedown'?1:-1);return}
   if(mod&&!e.altKey&&!e.shiftKey&&k==='w'){e.preventDefault();if(TABS.length>1)tabClose(TAB);return}
@@ -6635,6 +6634,7 @@ const KB_DEF=[
   {id:'tabNext',g:'Ansicht',n:'Nächster Tab',def:'Ctrl+Tab',run:()=>tabStep(1),native:true},
   {id:'tabPrev',g:'Ansicht',n:'Vorheriger Tab',def:'Ctrl+Shift+Tab',run:()=>tabStep(-1),native:true},
   {id:'tabClose',g:'Ansicht',n:'Tab schließen',def:'Ctrl+W',run:()=>{if(TABS.length>1)tabClose(TAB)},native:true},
+  {id:'bars',g:'Ansicht',n:'Leisten ein/aus',def:'Ctrl+.',run:()=>{const hide=!(bars.tools||bars.side)?false:true;setBars(!hide,!hide)}},
   ...TOOLS.filter(t=>t&&t!=='-'&&t.k).map(t=>({id:'tool:'+t.id,g:'Werkzeuge',n:t.n,def:t.k,run:()=>kbRunTool(t.id),native:t.bar!==false}))];
 let KB_USER={};try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:keys')||'{}');for(const[a,c]of Object.entries(j))if(KB_DEF.some(x=>x.id===a)&&typeof c==='string'&&c.length<40)KB_USER[a]=c}catch(e){}
 const kbGet=a=>Object.prototype.hasOwnProperty.call(KB_USER,a.id)?KB_USER[a.id]:a.def;
