@@ -26,7 +26,7 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 ## New
 
 - Copy and paste annotation objects (text boxes, symbols, shapes, arrows) with Ctrl+C / Ctrl+V.
-- Copy PDF text with the normal select tool: drag over PDF text (I-beam cursor), Ctrl+C copies; the separate text select tool (`Y`) is gone.
+- Copy PDF text with the normal select tool: drag over PDF text (I-beam cursor), Ctrl+C copies; hold Alt to lasso over text; the separate text select tool (`Y`) is gone.
 - Line labels: lines and arrows can carry a label (double click); one-click presets for `«include»` and `«extend»`.
 - Arrows: several arrows on the same side of a shape are spread apart automatically; fixed anchor points (3 per side) on rectangular shapes.
 - Lock objects (right click): a locked object keeps its position and size; optional setting to let clicks pass through locked objects so other symbols can be placed on top.
