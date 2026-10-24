@@ -1,4 +1,4 @@
-# Layr 3.8.5 (draft release notes)
+# Layr 3.8.6 (draft release notes)
 
 Work in progress on branch `fix/mic-and-updater`. This file is updated while the work goes on and is meant to become the release notes.
 
