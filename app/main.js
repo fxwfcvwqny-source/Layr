@@ -446,7 +446,7 @@ handle('spell-download', async (_e, lang) => {
 // latest.yml / latest-linux.yml (gleiche Veröffentlichung) und installiert ihn: Windows still über den Installer,
 // AppImage durch Austausch der Datei, .deb über pkexec (Ubuntu fragt nach dem Passwort).
 // Zum Testen kann LAYR_UPDATE_FEED auf einen Server auf diesem Rechner (127.0.0.1) zeigen; andere Adressen werden ignoriert.
-const FEED = /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(process.env.LAYR_UPDATE_FEED || '') ? process.env.LAYR_UPDATE_FEED : null;
+const FEED = !app.isPackaged && /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(process.env.LAYR_UPDATE_FEED || '') ? process.env.LAYR_UPDATE_FEED : null;
 const API_LATEST = FEED ? `${FEED}/repos/${REPO}/releases/latest` : `https://api.github.com/repos/${REPO}/releases/latest`;
 const DL_PREFIX = FEED ? `${FEED}/${REPO}/releases/download/` : `https://github.com/${REPO}/releases/download/`;
 const UPD_DIR = () => path.join(app.getPath('userData'), 'updates');
@@ -648,7 +648,7 @@ app.on('will-quit', () => { if (installOnQuit && pending) { asrKill(); installNo
 // Spracherkennung NVIDIA Parakeet TDT 0.6B v3 (CC BY 4.0) über sherpa-onnx (Apache-2.0). Läuft komplett auf diesem Rechner.
 // Das Modellpaket kommt nur nach ausdrücklicher Zustimmung von der GitHub-Seite des sherpa-onnx-Projekts und wird gegen feste
 // Prüfsummen geprüft (Paket und jede einzelne Datei), bevor Layr es benutzt.
-const ASR_TEST = /^http:\/\/(127\.0\.0\.1|localhost):\d+\/[\w./-]+$/.test(process.env.LAYR_ASR_URL || '') ? process.env.LAYR_ASR_URL : null;
+const ASR_TEST = !app.isPackaged && /^http:\/\/(127\.0\.0\.1|localhost):\d+\/[\w./-]+$/.test(process.env.LAYR_ASR_URL || '') ? process.env.LAYR_ASR_URL : null;
 const ASR_PKG = {
   url: ASR_TEST || 'https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2',
   size: 487170055, sha256: '5793d0fd397c5778d2cf2126994d58e9d56b1be7c04d13c7a15bb1b4eafb16bf',
