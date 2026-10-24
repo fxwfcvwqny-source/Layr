@@ -265,6 +265,8 @@ else {
   const qbSw = "document.querySelector('#dQbItems input[data-id=\"bold\"]').closest('label').querySelector('.knob')";
   const clickSw = async () => { await ev(`${qbSw}.scrollIntoView({block:'center',behavior:'instant'})`); await sleep(500); const p = await ev(`(()=>{const b=${qbSw}.getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p[0], y: p[1] }); await sleep(100); for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: 1 }); await sleep(300); };
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1024, height: 700, deviceScaleFactor: 1, mobile: false }); // kleines CI-Fenster nachstellen
+  await ev("(()=>{const d=document.getElementById('langDlg');if(d&&!d.hidden)d.hidden=true})()"); // auf langsamen Läufern erscheint der Erststart-Sprachdialog erst spät und deckt die Seite ab
+  await waitFor("!document.querySelector('#app').inert");
   await sleep(300);
   await clickSw();
   const hidOk = await waitFor("design.qbarHide.includes('bold')&&document.querySelector('#dQbItems input[data-id=\"bold\"]').checked===false");
