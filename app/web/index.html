@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-k+CI4oUjiMd3Mfj2h+45uOrbfUSWkI+pnP4NHHReiLc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-dB1E/Wukmoyn96Nw+FOFf/2Sa299zLNmxWLujQQ37fk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4951,7 +4951,7 @@ if(!S.tasks)S.tasks=[];renderTasks();
 function showUpd(r,manual){updShow(r,manual)}
 (async()=>{const W=window.werkbank;if(!W||!W.appInfo)return;let info;try{info=await W.appInfo()}catch(e){return}
   $('#dAbout').hidden=false;$('#bInfo').hidden=false;$('#dAboutLink').hidden=false;$('#abVer').textContent='Version '+info.version+' · '+(info.platform==='win32'?'Windows':info.platform==='darwin'?'macOS':'Linux');
-  if(info.store){$('#upAuto').closest('label').hidden=true;$('#upNow').hidden=true;$('#abGh').hidden=true;$('#upHint').hidden=true;$('#upNow').closest('.ab-btns').hidden=true;$('#storeHint').hidden=false;if(info.platform==='linux')$('#storeHint').textContent=tr('Updates kommen über Flathub.');return} // Store-Version: keine eigene Update-Suche, der Store aktualisiert
+  if(info.store){$('#upAuto').closest('label').hidden=true;$('#upNow').hidden=true;$('#abGh').hidden=true;$('#upHint').hidden=true;$('#upNow').closest('.ab-btns').hidden=true;$('#storeHint').hidden=false;if(info.platform==='linux')$('#storeHint').textContent='Updates kommen über Flathub.';return} // Store-Version: keine eigene Update-Suche, der Store aktualisiert
   const auto=$('#upAuto');let on=true;try{on=localStorage.getItem('pdfwerkbank:updates')!=='0'}catch(e){}auto.checked=on;
   auto.onchange=()=>{try{localStorage.setItem('pdfwerkbank:updates',auto.checked?'1':'0')}catch(e){}toast(auto.checked?'Layr sucht ab jetzt selbst nach Updates.':'Automatische Update-Suche aus.')};
   $('#abGh').onclick=()=>W.openRelease('https://github.com/'+info.repo+'/releases/latest');
