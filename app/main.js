@@ -160,7 +160,7 @@ else {
         Array.isArray(d.mediaTypes) && d.mediaTypes.length > 0 && d.mediaTypes.every(t => t === 'audio'));
     });
     session.defaultSession.setPermissionCheckHandler((wc, perm, _origin, details) => perm === 'clipboard-sanitized-write' ||
-      (perm === 'media' && micArmed && !!win && !win.isDestroyed() && wc === win.webContents && !!details && details.mediaType === 'audio'));
+      (perm === 'media' && micArmed && !!win && !win.isDestroyed() && wc === win.webContents && !!details && samePage(details.requestingUrl) && details.mediaType === 'audio'));
     session.defaultSession.on('will-download', e => e.preventDefault());
     // Die Rechtschreibprüfung macht Layr selbst (Hunspell, lokal). Chromiums eigene Prüfung bleibt aus und lädt nichts von Google.
     try { session.defaultSession.setSpellCheckerEnabled(false); session.defaultSession.setSpellCheckerLanguages([]); session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://127.0.0.1:9/'); } catch (e) {}
