@@ -540,7 +540,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 :root[data-bars="contrast"]{--bar:#1b2129;--bar-ink:#e8edf2;--bar-muted:#9aa6b2;--bar-line:#2d3640;--bar-hover:#28313b}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"])[data-bars="contrast"]{--bar:#05070a;--bar-ink:#eef2f6;--bar-muted:#8b96a2;--bar-line:#171c22;--bar-hover:#12171d}}
 :root[data-theme="dark"][data-bars="contrast"]{--bar:#05070a;--bar-ink:#eef2f6;--bar-muted:#8b96a2;--bar-line:#171c22;--bar-hover:#12171d}
-:root[data-bars="accent"]{--bar:var(--accent);--bar-ink:var(--on-accent);--bar-muted:color-mix(in srgb,var(--on-accent) 72%,transparent);--bar-line:color-mix(in srgb,var(--on-accent) 22%,transparent);--bar-hover:color-mix(in srgb,var(--on-accent) 15%,transparent)}
+:root[data-bars="accent"]{--bar:var(--accent);--bar-ink:var(--on-accent);--bar-muted:color-mix(in srgb,var(--on-accent) 90%,transparent);--bar-line:color-mix(in srgb,var(--on-accent) 22%,transparent);--bar-hover:color-mix(in srgb,var(--on-accent) 15%,transparent)}
 :root[data-bars]:not([data-bars="standard"]) :is(header,.tools,.panel,.thumbs){--panel:var(--bar);--ink:var(--bar-ink);--muted:var(--bar-muted);--line:var(--bar-line);--hover:var(--bar-hover);--fill:color-mix(in srgb,var(--ink) 12%,var(--panel));--fill-hover:color-mix(in srgb,var(--ink) 16%,var(--panel));color:var(--ink)}
 :root[data-bars="accent"] :is(header,.tools,.panel,.thumbs),:root[data-bars="custom"].bars-dark :is(header,.tools,.panel,.thumbs),:root[data-bars="contrast"] :is(header,.tools,.panel,.thumbs){--accent-soft:color-mix(in srgb,var(--bar-ink) 16%,transparent)}
 :root[data-bars="accent"] :is(header,.tools,.panel,.thumbs){--accent:var(--on-accent)}

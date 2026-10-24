@@ -1,4 +1,4 @@
-# Layr 3.8.6 (draft release notes)
+# Layr 3.8.7 (draft release notes)
 
 Work in progress on branch `fix/mic-and-updater`. This file is updated while the work goes on and is meant to become the release notes.
 
@@ -61,6 +61,7 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 
 ## Known limits
 
+- Bar colour 'Accent' with light accent colours (orange, coral, gold, green) has reduced text contrast in some places; the default bar styles are fine.
 - Bookmarks (outlines) are still lost when pages are rebuilt (pdf-lib has no API for them).
 - Older Layr versions place an arrow end with a fixed anchor (`t1`, ...) at the centre of the shape.
 - The text layer is not available in split view and presentation mode.
