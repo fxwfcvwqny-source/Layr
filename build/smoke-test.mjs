@@ -248,6 +248,14 @@ else {
   ok('Text-Leiste: ausgeblendeter Fett-Knopf ist unsichtbar, Fett und Strg+B wirken trotzdem', await ev("(()=>{design.qbarHide=['bold'];newText(0,120,200);ED.eng.put('Hallo');const vis=document.querySelector('.edbar [data-a=bold]').getClientRects().length>0;ED.set({bold:true});const a=ED.o.bold===true;ED.set({bold:false});document.querySelector('.tbx-in').dispatchEvent(new KeyboardEvent('keydown',{key:'b',ctrlKey:true,bubbles:true}));const c=ED.o.bold===true;closeEditor();design.qbarHide=[];return !vis&&a&&c})()") === true);
   // Text-Leiste im Design-Dialog: Tastatur verschiebt Knöpfe, Fokus bleibt am Pfeil
   const key = async (k, code, vk, text) => { await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: k, code, windowsVirtualKeyCode: vk, text }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: k, code, windowsVirtualKeyCode: vk }); };
+  // Stärke-Regler: die Wertanzeige hält die Breite (sonst springt der Regler unter dem Zeiger), Pfeiltasten gehören dem Regler
+  await ev("S.pages[0].objs.push({type:'rect',x:300,y:620,w:120,h:60,color:'#000000',lw:1,fill:'none',oid:'lwR'});redraw(0);setSel({p:0,o:S.pages[0].objs.find(o=>o.oid==='lwR')})");
+  const lwWidths = await ev("(()=>{const el=document.getElementById('lw'),w=new Set();for(const v of [2,2.5,10.5,16,0.5,3]){el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));w.add(Math.round(el.getBoundingClientRect().width*10))}return [...w]})()");
+  ok('Stärke-Regler: Breite bleibt bei jedem Wert gleich', Array.isArray(lwWidths) && lwWidths.length === 1, lwWidths);
+  await ev("(()=>{const el=document.getElementById('lw');el.value=2;el.dispatchEvent(new Event('input',{bubbles:true}));window.__lwx=S.sel.o.x;el.focus()})()");
+  await key('ArrowRight', 'ArrowRight', 39);
+  ok('Stärke-Regler: Pfeiltaste ändert den Wert, nicht die Objektposition', await ev("document.getElementById('lw').value==='2.5'&&S.sel.o.x===window.__lwx") === true);
+  await ev("setSel(null);document.activeElement&&document.activeElement.blur()");
   await ev("studioOpen(true)");
   await sleep(400);
   await ev("document.querySelector('#dQbar [data-v=l]').focus()");

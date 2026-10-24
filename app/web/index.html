@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-iOel9H0jQHQZbfmwS49Zm6rTf52BJCMpGA4iUodQTD0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XB61kDwFW+keFNiJsc1IZcZLso2rjcCbJPS8mjuM1HA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -349,6 +349,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 input[type=range]:hover::-webkit-slider-thumb,input[type=range]:active::-webkit-slider-thumb{transform:scale(1.12)}
 input[type=range]:disabled{opacity:.45;cursor:default}
 .val{font:500 12px var(--f-mono);min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+#lwV{min-width:7ch}
 .seg{display:flex;border:1px solid transparent;background:var(--fill);border-radius:var(--r);overflow:hidden;width:100%}
 .seg button{flex:1;border:0;background:transparent;padding:6px 4px;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:4px}
 .seg button+button{border-left:1px solid transparent}
@@ -6440,6 +6441,7 @@ addEventListener('keydown',e=>{
   const t=e.target,k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey;
   if(editorEl)dbg('key '+e.key+' @'+desc(t));
   if(e.key==='Alt')S.pages.forEach(P=>{if(P.ink)P.ink.style.pointerEvents=''});
+  if(t&&t.tagName==='INPUT'&&t.type==='range'&&e.key.startsWith('Arrow'))return; // Pfeiltasten gehören dem fokussierten Regler, nicht dem Objekt
   // Sicherheitsnetz: Textfeld offen, aber Fokus woanders -> Tasten trotzdem ins Textfeld
   if(ED&&ED.eng&&t!==ED.eng.sink&&!(t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|number|search|email|url|)$/.test(t.type))))){if(edForward(e))return}
   if(t&&(t.tagName==='TEXTAREA'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|number|search|email|url|)$/.test(t.type))))return;
