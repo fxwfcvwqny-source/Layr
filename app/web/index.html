@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-RhFeedEiM+4zLI7ft9YY929XuWXUEgKSaqG5OmeG9C0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-rXqrptxTh2s3EawnuvClqvwVGfKHnX64xP1N0WGN2JY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4217,7 +4217,7 @@ function attachInk(P,i){
   P.el.addEventListener('pointermove',e=>{if(ink.style.pointerEvents!=='none'||e.buttons||e.pointerType==='touch')return;if(e.altKey||!tlSpanAt(P,e.clientX,e.clientY)||blockAt(e.clientX,e.clientY))ink.style.pointerEvents=''});
   P.el.addEventListener('pointerleave',e=>{if(!e.buttons)ink.style.pointerEvents=''});
   P.el.addEventListener('pointerdown',e=>{if(e.button!==0||!P.tl||!P.tl.contains(e.target))return;
-    if(e.altKey){ink.style.pointerEvents='';return}
+    if(e.altKey){ink.style.pointerEvents='';e.preventDefault();return}
     if(e.target===P.tl){ink.style.pointerEvents='';e.preventDefault();return}
     if(editorEl)closeEditor();if(S.sel)setSel(null)});
   ink.addEventListener('dblclick',e=>{
@@ -6348,6 +6348,7 @@ const KEYS={v:'select',p:'pen',m:'marker',e:'eraser',t:'text',l:'line',a:'arrow'
 addEventListener('keydown',e=>{
   const t=e.target,k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey;
   if(editorEl)dbg('key '+e.key+' @'+desc(t));
+  if(e.key==='Alt')S.pages.forEach(P=>{if(P.ink)P.ink.style.pointerEvents=''});
   // Sicherheitsnetz: Textfeld offen, aber Fokus woanders -> Tasten trotzdem ins Textfeld
   if(ED&&ED.eng&&t!==ED.eng.sink&&!(t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|number|search|email|url|)$/.test(t.type))))){if(edForward(e))return}
   if(t&&(t.tagName==='TEXTAREA'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|number|search|email|url|)$/.test(t.type))))return;

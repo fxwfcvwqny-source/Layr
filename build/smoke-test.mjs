@@ -174,6 +174,13 @@ else {
   await mv(mid[0], mid[1]); await sleep(150);
   await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: mid[0] + 1, y: mid[1], button: 'none', buttons: 0, modifiers: 1 }); await sleep(150);
   ok('Alt über Text: Ink bleibt aktiv', await inkNone() === '', await inkNone());
+  // Alt allein (ohne Mausbewegung) über Text: Ink wird wieder frei, sonst markiert Ziehen Text statt Lasso
+  await mv(mid[0], mid[1]);
+  for (let k = 0; k < 40 && (await inkNone()) !== 'none'; k++) await sleep(50);
+  const altPre = await inkNone();
+  await ev("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Alt'}))");
+  const altPost = await inkNone();
+  ok('Alt-Taste ohne Mausbewegung über Text: Ink wieder aktiv', altPre === 'none' && altPost === '', { altPre, altPost });
   // Rechtsklick auf gesperrtes Objekt über Text öffnet das Objektmenü (Klicks gehen durch)
   await ev("S.pages[0].objs.push({type:'rect',x:50,y:120,w:400,h:60,color:'#000000',lw:1,fill:'white',locked:true,oid:'hvL'});redraw(0);lockPassOn=true;window.__om=0;window.__omOrig=objMenu;objMenu=()=>{window.__om++}");
   await mv(mid[0], mid[1]); await sleep(150);
