@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XB61kDwFW+keFNiJsc1IZcZLso2rjcCbJPS8mjuM1HA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-j6hq3V0F43pJVCkTrWxxK1XmJVjxQ7QXVrscpVctKCU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6120,10 +6120,10 @@ function tblMenu(i,o,r,c,x,y){ctx.innerHTML='';const add=(t,f,dis)=>{const b=doc
   add('Zeile löschen',()=>tblDelete(o,'r',r),o.rows<=1);add('Spalte löschen',()=>tblDelete(o,'c',c),o.cols<=1);
   add('Zelleninhalt leeren',()=>{o.cells[r][c]=''},!(o.cells[r]&&o.cells[r][c]));
   add(o.locked?'Entsperren':'Position sperren',()=>{if(o.locked)delete o.locked;else o.locked=true});
-  showEl(ctx);const b=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-b.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-b.height-8)+'px'}
+  showEl(ctx);ctx.style.left=Math.min(x,innerWidth-ctx.offsetWidth-8)+'px';ctx.style.top=Math.min(y,innerHeight-ctx.offsetHeight-8)+'px'}
 function objMenu(i,o,x,y){ctx.innerHTML='';const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr(o.locked?'Entsperren':'Position sperren');b.onclick=()=>{closeMenu();pushHist();if(o.locked)delete o.locked;else o.locked=true;redraw(i);markDirty()};ctx.appendChild(b);
   if(rotOf(o)){const g=document.createElement('button');g.setAttribute('role','menuitem');g.textContent=tr('Gerade ausrichten');g.onclick=()=>{closeMenu();pushHist();delete o.rot;textClamp(o,S.pages[i],false);redraw(i);markDirty()};ctx.appendChild(g)}
-  showEl(ctx);const r=ctx.getBoundingClientRect();ctx.style.left=Math.min(x,innerWidth-r.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-r.height-8)+'px'}
+  showEl(ctx);ctx.style.left=Math.min(x,innerWidth-ctx.offsetWidth-8)+'px';ctx.style.top=Math.min(y,innerHeight-ctx.offsetHeight-8)+'px'}
 
 /* ---------- 3.2: Tabs, Satzanfänge groß, Tabellen-Leiste ---------- */
 /* Tabs: Jede geöffnete Datei ist ein Tab. Der aktive Tab lebt in S; die anderen liegen als Schnappschuss im Speicher.
@@ -6618,8 +6618,8 @@ function pageMenu(i,x,y){
   for(const it of items){if(it==='-'){ctx.appendChild(document.createElement('hr'));continue}
     const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=it[0];b.disabled=!!it[2];if(it[3])b.className=it[3];
     b.onclick=()=>{closeMenu();it[1]()};ctx.appendChild(b)}
-  showEl(ctx);const r=ctx.getBoundingClientRect();
-  ctx.style.left=Math.min(x,innerWidth-r.width-8)+'px';ctx.style.top=Math.min(y,innerHeight-r.height-8)+'px';
+  showEl(ctx);
+  ctx.style.left=Math.min(x,innerWidth-ctx.offsetWidth-8)+'px';ctx.style.top=Math.min(y,innerHeight-ctx.offsetHeight-8)+'px';
 }
 addEventListener('pointerdown',e=>{if(!ctx.hidden&&!ctx.contains(e.target))closeMenu()},true);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!ctx.hidden){closeMenu();e.stopImmediatePropagation()}},true);
