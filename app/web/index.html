@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Kjz6UzpwoIAmSMRvdlXUQK8/trmn8uMPtmFiT3c+spc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-wp4F7DSHsOMT4eb3RjSb1ZarmiarVYlbNIXuTZqkkq8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6416,7 +6416,10 @@ const barT={};
 function barAnim(key,el,apply,hide,outMs,instant){clearTimeout(barT[key]);
   if(instant||motionOff()||innerWidth<=860||!el){if(el)el.classList.remove('bar-out','bar-in');apply(hide);return}
   if(hide){el.classList.remove('bar-in');el.classList.add('bar-out');barT[key]=setTimeout(()=>apply(true),outMs)}
-  else{el.classList.remove('bar-out','bar-in');apply(false);void el.offsetWidth;el.classList.add('bar-in');barT[key]=setTimeout(()=>el.classList.remove('bar-in'),1100)}}
+  else{el.classList.remove('bar-out','bar-in');apply(false);void el.offsetWidth;el.classList.add('bar-in');
+    /* bar-in ends with the last child's stagger; 2000 ms fallback if no animationend fires */
+    const last=[...el.children].filter(c=>c.matches('.tool,hr')).pop()||el,t=setTimeout(()=>el.classList.remove('bar-in'),2000);barT[key]=t;
+    last.addEventListener('animationend',function f(e){if(e.target!==last)return;last.removeEventListener('animationend',f);if(barT[key]!==t)return;clearTimeout(t);el.classList.remove('bar-in')})}}
 function setBars(tools,side,instant){const a=$('#app'),pt=bars.tools,ps=bars.side;bars.tools=tools;bars.side=side;
   if(pt!==tools||instant)barAnim('tools',$('#tools'),h=>{a.classList.toggle('no-tools',h);if(!h)requestAnimationFrame(()=>moveToolInd())},!tools,300,instant);
   if(ps!==side||instant)barAnim('panel',$('#panel'),h=>a.classList.toggle('no-panel',h),!side,280,instant);
