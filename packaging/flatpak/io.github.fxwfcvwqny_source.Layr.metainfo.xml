@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.fxwfcvwqny_source.Layr</id>
+  <name>Layr</name>
+  <summary>PDFs beschriften, zeichnen, Notizen und Diagramme</summary>
+  <summary xml:lang="en">Annotate, draw and take notes on PDFs</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <developer id="io.github.fxwfcvwqny_source">
+    <name>Ismail G.</name>
+  </developer>
+  <launchable type="desktop-id">io.github.fxwfcvwqny_source.Layr.desktop</launchable>
+  <description>
+    <p>Layr ist eine Desktop-App zum Beschriften, Zeichnen und Kommentieren von PDF-Dateien. Textfelder, Stift und Markierer, Formen, Tabellen, Organigramme, Netzwerkdiagramme, Notizen mit Aufgaben, Unterschriften und Formularfelder sind dabei. Alles läuft lokal auf deinem Computer; Layr lädt keine Dokumente hoch.</p>
+    <p>Die Diktierfunktion arbeitet offline mit einem Spracherkennungsmodell, das beim ersten Einschalten einmalig heruntergeladen wird. Die Texterkennung (OCR) läuft ebenfalls auf deinem Computer.</p>
+    <p>Die Flatpak-Version prüft nicht selbst auf Updates. Updates kommen über Flathub.</p>
+    <ul>
+      <li>Textfelder, Schriften, Listen und Tabellen</li>
+      <li>Stift und Markierer mit Formerkennung</li>
+      <li>Symbole, Organigramme, Netzwerkdiagramme, Rack-Planer, Codeblöcke</li>
+      <li>Formularfelder ausfüllen und selbst anlegen, Unterschriften</li>
+      <li>Rechtschreibprüfung (Deutsch und Englisch), Schwärzen, Seitenzahlen und Wasserzeichen</li>
+    </ul>
+  </description>
+  <description xml:lang="en">
+    <p>Layr is a desktop app to annotate, draw on and comment PDF files. It offers text boxes, pen and highlighter with shape recognition, shapes, tables, org charts, network diagrams, notes with tasks, signatures and form fields. Everything runs locally on your computer; Layr does not upload your documents.</p>
+    <p>Dictation works offline with a speech model that is downloaded once when you first turn it on. Text recognition (OCR) also runs on your computer.</p>
+    <p>The Flatpak version does not check for updates itself. Updates come through Flathub.</p>
+    <ul>
+      <li>Text boxes, fonts, lists and tables</li>
+      <li>Pen and highlighter with shape recognition</li>
+      <li>Symbols, org charts, network and rack diagrams, code blocks</li>
+      <li>Fill in and create PDF form fields, signatures</li>
+      <li>Spell checking (German and English), redaction, page numbers and watermarks</li>
+    </ul>
+  </description>
+  <url type="homepage">https://github.com/fxwfcvwqny-source/Layr</url>
+  <url type="bugtracker">https://github.com/fxwfcvwqny-source/Layr/issues</url>
+  <url type="vcs-browser">https://github.com/fxwfcvwqny-source/Layr</url>
+  <provides>
+    <mediatype>application/pdf</mediatype>
+  </provides>
+  <content_rating type="oars-1.1"/>
+  <!-- (prüfen): tag v3.8.6 must exist before the screenshot URL resolves -->
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/fxwfcvwqny-source/Layr/v3.8.6/docs/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="3.8.6" date="2026-10-24">
+      <description>
+        <p>Text bar settings in the design dialog, focus handling in dialogs, page move without flicker, Ctrl+. on more keyboard layouts, Flatpak build.</p>
+      </description>
+    </release>
+  </releases>
+</component>
