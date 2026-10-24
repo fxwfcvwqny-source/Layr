@@ -1,4 +1,4 @@
-# Layr 3.8.4 (draft release notes)
+# Layr 3.8.5 (draft release notes)
 
 Work in progress on branch `fix/mic-and-updater`. This file is updated while the work goes on and is meant to become the release notes.
 
@@ -37,6 +37,9 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Text rotation snaps to 15 degree steps (hold Alt for a free angle) and shows the angle while rotating; "Straighten" (double click on the handle or context menu) resets it.
 - Outline docking points on all shapes: 12 per round or polygon shape, 3 per side on rectangles.
 - Split view: columns line up (same scale and spacing).
+
+- Security: Electron 44.9.3 (fixes a known certificate advisory); update and download test switches only work in unpackaged builds; the microphone permission check also verifies the page origin; reserved Windows file names are rejected; only the three newest local crash reports are kept.
+- Microsoft Store preparation: a Store build mode switches the self-updater off (updates come through the Store); `docs/STORE.md`, `PRIVACY.md`, listing texts and an unsigned AppX workflow are included. The GitHub version is unchanged.
 
 ## Design
 
