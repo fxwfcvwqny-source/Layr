@@ -21,11 +21,12 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 
 - The "clear page" button (it also removed locked objects).
 - The measure tool (`G`, "Messen"). Measure lines already in a document stay as they are.
+- The separate text select tool (`Y`). Its job is done by the select tool now.
 
 ## New
 
 - Copy and paste annotation objects (text boxes, symbols, shapes, arrows) with Ctrl+C / Ctrl+V.
-- Text select tool (`Y`): select text of the PDF with the mouse and copy it (uses the pdf.js text layer; works on rotated pages).
+- Copy PDF text with the normal select tool: drag over PDF text (I-beam cursor), Ctrl+C copies; the separate text select tool (`Y`) is gone.
 - Line labels: lines and arrows can carry a label (double click); one-click presets for `«include»` and `«extend»`.
 - Arrows: several arrows on the same side of a shape are spread apart automatically; fixed anchor points (3 per side) on rectangular shapes.
 - Lock objects (right click): a locked object keeps its position and size; optional setting to let clicks pass through locked objects so other symbols can be placed on top.
