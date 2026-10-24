@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-GlDy6pj26RVysDHTavfNTbcozHS3YZisMmfIbXyPKvs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4zM64YGIgHm5gYSyLGvhLKtItu2U8Ow7+yxrVNkQYv4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2101,9 +2101,9 @@ function showEl(el){if(!el)return;const was=el.hidden||!!el._ah;el._ah=null;el.c
     if(el.classList.contains('modal')&&!el.contains(document.activeElement)){const f=[...el.querySelectorAll('button,input,select,textarea,[tabindex]')].find(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);f&&f.focus({preventScroll:true})}
   }finally{syncModal()}}
 /* Tab bleibt im obersten offenen Fenster */
-addEventListener('keydown',e=>{if(e.key!=='Tab'||document.activeElement.tagName==='TEXTAREA')return;
+addEventListener('keydown',e=>{if(e.key!=='Tab')return;const a=document.activeElement;if(a.tagName==='TEXTAREA'&&(a.classList.contains('sink')||a.id==='cdText'||a.id==='dgSrc'))return;
   const m=[...document.querySelectorAll('.modal'),document.getElementById('studio')].filter(x=>x&&!x.hidden&&!x._ah).pop();if(!m)return;
-  const F=[...m.querySelectorAll('a[href],button,input,select,textarea,[tabindex]')].filter(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);if(!F.length)return;
+  const F=[...m.querySelectorAll('a[href],button,input,select,textarea,[tabindex]')].filter(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length&&!x.closest('[inert]'));if(!F.length)return;
   const i=F.indexOf(document.activeElement);
   if(i<0||(e.shiftKey?i===0:i===F.length-1)){e.preventDefault();F[e.shiftKey?F.length-1:0].focus()}},true);
 /* ---------- Sprache: Deutsch ist die Grundlage, Englisch wird live darübergelegt ---------- */
