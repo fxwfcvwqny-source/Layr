@@ -68,7 +68,9 @@ else {
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1901, height: 900, deviceScaleFactor: 1, mobile: false });
   ok('Werkzeug- und Kopfzeilen-Icons auf ganzen Pixeln (1901 px)', await ev(snapOk) === true);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false }); // das neue Layout gilt erst ab 1200 px, das CI-Fenster kann kleiner sein
   ok('Schwebende Werkzeugleiste: Seitenleisten beginnen nicht unter der Leiste', await ev("(()=>{const r=document.documentElement,old=r.dataset.tbstyle;r.dataset.tbstyle='float';const t=document.querySelector('.tools').getBoundingClientRect().top,a=document.querySelector('.thumbs').getBoundingClientRect().top,b=document.querySelector('.panel').getBoundingClientRect().top;old===undefined?delete r.dataset.tbstyle:r.dataset.tbstyle=old;return a<=t+1&&b<=t+1})()") === true);
+  await cdp('Emulation.clearDeviceMetricsOverride', {});
   ok('PDF-Text aus dem Worker',await ev('S.doc.getPage(1).then(p=>p.getTextContent()).then(t=>t.items.map(x=>x.str).join(" "))').then(t => /Rauchtest Router/.test(String(t))));
   await ev("document.getElementById('langDlg').hidden=true"); // Erststart-Sprachdialog ist modal und sperrt die App; der Test arbeitet ohne ihn
   ok('Text auswählen: Textebene vorhanden', await ev("(async()=>{setTool('select');let s=[];for(let k=0;k<50&&!s.length;k++){await new Promise(r=>setTimeout(r,200));s=[...S.pages[0].el.querySelectorAll('.textLayer span')]}const hit=s.some(x=>x.textContent.includes('Router'));const under=S.pages[0].tl.nextSibling===S.pages[0].ink;getSelection().selectAllChildren(S.pages[0].el.querySelector('.textLayer'));const sel=String(getSelection()).includes('Router');setTool('pen');const gone=!document.querySelector('.textLayer');setTool('select');return hit&&under&&sel&&gone})()", 20000));
