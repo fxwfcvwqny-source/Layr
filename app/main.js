@@ -6,7 +6,7 @@ const zlib = require('zlib');
 const { spawn } = require('child_process');
 const REPO = 'fxwfcvwqny-source/Layr';   // öffentliche Seite für Downloads und Updates
 // Microsoft-Store-Version (MSIX): eigene Updates aus, kein Netz für Updates. Nur schaltet Funktionen ab, daher nicht an isPackaged gebunden.
-const STORE = process.windowsStore === true || process.env.LAYR_STORE_TEST === '1';
+const STORE = process.windowsStore === true || process.env.LAYR_STORE_TEST === '1' || (process.platform === 'linux' && require('fs').existsSync('/.flatpak-info')); // Flatpak: Updates kommen über Flathub
 const path = require('path');
 const fs = require('fs');
 // Linux: Einstellungen und Zwischenspeicher immer im selben Ordner wie bisher (.deb und AppImage teilen sie sich)

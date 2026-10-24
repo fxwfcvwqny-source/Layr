@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-55FAOORSMFQuM/8zdCczYwPch/d69ozVqmhv/E7WwUA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-CsZcQmuc5SNHhul7PCAe0tkOcCrAn3JprjrlIcZzeUM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2175,7 +2175,7 @@ const I18N_EN={
 'Meldungen':'Notifications','Akzent':'Accent','Glas':'Glass','Eigene Meldungsfarbe wählen':'Choose custom notification colour','Unten mittig':'Bottom centre','Unten rechts':'Bottom right','Oben':'Top',
 'Anzeigedauer':'Display time','Kurz':'Short','Lang':'Long','Test-Meldung zeigen':'Show test notification',
 'Bewegung':'Motion','Animationen an':'Animations on','Aus':'Off','Alles auf Standard':'Reset everything','Alles wieder auf Standard.':'Everything is back to default.',
-'Updates kommen über den Microsoft Store.':'Updates come through the Microsoft Store.','Layr & Updates':'Layr & updates','Automatisch nach Updates suchen':'Check for updates automatically','Jetzt suchen':'Check now','Downloads & Neuigkeiten':'Downloads & news',
+'Updates kommen über den Microsoft Store.':'Updates come through the Microsoft Store.','Updates kommen über Flathub.':'Updates come through Flathub.','Layr & Updates':'Layr & updates','Automatisch nach Updates suchen':'Check for updates automatically','Jetzt suchen':'Check now','Downloads & Neuigkeiten':'Downloads & news',
 'Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.':'Layr only asks the public GitHub page for the latest version number. No files, notes or data are sent.',
 'Layr sucht ab jetzt selbst nach Updates.':'Layr will now check for updates on its own.','Automatische Update-Suche aus.':'Automatic update check off.','Noch keine Version veröffentlicht.':'No version published yet.',
 'Update-Suche hat nicht geklappt. Keine Verbindung. Bitte Internet prüfen.':'The update check failed. No connection. Please check the internet.','Update verfügbar':'Update available','Für diese Version nicht mehr erinnern':'Don’t remind me about this version',
@@ -4892,7 +4892,7 @@ if(!S.tasks)S.tasks=[];renderTasks();
 function showUpd(r,manual){updShow(r,manual)}
 (async()=>{const W=window.werkbank;if(!W||!W.appInfo)return;let info;try{info=await W.appInfo()}catch(e){return}
   $('#dAbout').hidden=false;$('#bInfo').hidden=false;$('#dAboutLink').hidden=false;$('#abVer').textContent='Version '+info.version+' · '+(info.platform==='win32'?'Windows':info.platform==='darwin'?'macOS':'Linux');
-  if(info.store){$('#upAuto').closest('label').hidden=true;$('#upNow').hidden=true;$('#abGh').hidden=true;$('#upHint').hidden=true;$('#upNow').closest('.ab-btns').hidden=true;$('#storeHint').hidden=false;return} // Store-Version: keine eigene Update-Suche, der Store aktualisiert
+  if(info.store){$('#upAuto').closest('label').hidden=true;$('#upNow').hidden=true;$('#abGh').hidden=true;$('#upHint').hidden=true;$('#upNow').closest('.ab-btns').hidden=true;$('#storeHint').hidden=false;if(info.platform==='linux')$('#storeHint').textContent=tr('Updates kommen über Flathub.');return} // Store-Version: keine eigene Update-Suche, der Store aktualisiert
   const auto=$('#upAuto');let on=true;try{on=localStorage.getItem('pdfwerkbank:updates')!=='0'}catch(e){}auto.checked=on;
   auto.onchange=()=>{try{localStorage.setItem('pdfwerkbank:updates',auto.checked?'1':'0')}catch(e){}toast(auto.checked?'Layr sucht ab jetzt selbst nach Updates.':'Automatische Update-Suche aus.')};
   $('#abGh').onclick=()=>W.openRelease('https://github.com/'+info.repo+'/releases/latest');

@@ -47,6 +47,7 @@ else {
   // LAYR_STORE_TEST=1: Store-Modus. Ohne Variable muss die Store-Sperre aus sein; mit ihr greift keine Update-Abfrage.
   const store = process.env.LAYR_STORE_TEST === '1';
   ok(`Store-Modus ${store ? 'an' : 'aus'}`, info && info.store === store, info && info.store);
+  ok('app-info liefert die Plattform', !!info && info.platform === process.platform, info && info.platform);
   if (store) {
     const upd = await ev('werkbank.checkUpdate()');
     ok('Store: Update-Abfrage ohne Netz abgelehnt', !!upd && upd.error === 'store' && Object.keys(upd).length === 1, upd);
