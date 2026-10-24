@@ -154,6 +154,23 @@ else {
   ok('Werkzeugleiste: sichtbare Werkzeuge zeigen Icons mit Fläche', await ev("(()=>{const v=[...document.querySelectorAll('#tools .tool')].filter(b=>b.offsetWidth>0).map(b=>b.querySelector('svg')).filter(Boolean);return v.length>0&&v.every(e=>e.getBBox().width>0)})()") === true);
   ok('Alle Icon-Namen aus HM_IC, TB_HDR und TOOLS haben ein Symbol im Sprite', await ev("(()=>{const t=[...Object.values(HM_IC),...TB_HDR.map(x=>x.ic),...TOOLS.filter(x=>x!=='-').flatMap(x=>[...String(x.i).matchAll(/#((?:ph|ly)-[a-z0-9-]+)/g)].map(m=>m[1]))];return t.length>0&&t.every(n=>!!document.getElementById(/^(ph|ly)-/.test(n)?n:'ph-'+n))})()") === true);
   ok('Messen-Werkzeug entfernt, Werkzeugleiste baut sich auf', await ev("(()=>!TOOLS.some(t=>t&&t.id==='measure')&&!document.querySelector('.tool[data-t=measure]')&&document.querySelectorAll('#tools .tool').length>5)()") === true);
+  // Textebene: schneller Werkzeugwechsel darf keinen doppelten Text erzeugen
+  await ev("setTool('pen');setTool('select');setTool('pen');setTool('select')");
+  await sleep(1500);
+  ok('Textebene nach schnellem Werkzeugwechsel: Text genau einmal', await ev("(S.pages[0].tl.textContent.match(/Router/g)||[]).length===1") === true);
+  // Seite ohne Ink-Layer (PDF lädt noch) darf Werkzeugwechsel und Esc nicht stören
+  ok('Werkzeugwechsel und Esc mit Seite ohne Ink-Layer werfen nicht', await ev("(()=>{S.pages.push({objs:[],w:1,h:1});try{setTool('pen');setTool('select');window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));return true}finally{S.pages.pop()}})()") === true);
+  // Alt gedrückt: Ink bleibt aktiv, Lasso über Text möglich
+  await mv(mid[0], mid[1]); await sleep(150);
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: mid[0] + 1, y: mid[1], button: 'none', buttons: 0, modifiers: 1 }); await sleep(150);
+  ok('Alt über Text: Ink bleibt aktiv', await inkNone() === '', await inkNone());
+  // Rechtsklick auf gesperrtes Objekt über Text öffnet das Objektmenü (Klicks gehen durch)
+  await ev("S.pages[0].objs.push({type:'rect',x:50,y:120,w:400,h:60,color:'#000000',lw:1,fill:'white',locked:true,oid:'hvL'});redraw(0);lockPassOn=true;window.__om=0;window.__omOrig=objMenu;objMenu=()=>{window.__om++}");
+  await mv(mid[0], mid[1]); await sleep(150);
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: mid[0], y: mid[1], button: 'right', buttons: 2, clickCount: 1 });
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: mid[0], y: mid[1], button: 'right', buttons: 0, clickCount: 1 }); await sleep(300);
+  ok('Rechtsklick auf gesperrtes Objekt über Text öffnet Objektmenü', await ev("window.__om>0") === true);
+  await ev("objMenu=window.__omOrig;lockPassOn=false;S.pages[0].objs=S.pages[0].objs.filter(o=>o.oid!=='hvL');setSel(null);redraw(0)");
   ok('Werkzeug Text auswählen (Y) entfernt', await ev("!TOOLS.some(t=>t&&t.id==='textsel')&&!document.querySelector('.tool[data-t=textsel]')&&!('y' in KEYS)") === true);
   // Gespeicherte Einstellungen mit dem alten Werkzeug dürfen nicht stören
   await ev("localStorage.setItem('pdfwerkbank:toolbar',JSON.stringify({hidden:['textsel'],known:['textsel']}));localStorage.setItem('pdfwerkbank:keys',JSON.stringify({'tool:textsel':'Y'}));location.reload()");

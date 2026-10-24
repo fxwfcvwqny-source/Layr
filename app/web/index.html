@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8yedgBKbAEiHrFHzKnGKFsNWnsY81x8bfWQSaBvOwgo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HA09fQZyjtbWNUAJTnyse1g2VG/baFiPUPLUN7+wlpA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -278,6 +278,7 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 }
 .page{--user-unit:1;--total-scale-factor:calc(var(--scale-factor,1)*var(--user-unit));--scale-round-x:1px;--scale-round-y:1px}
 .page .textLayer{display:none}
+.page .pno{user-select:none}
 .mode-select .page .textLayer{display:block}
 .editor{position:absolute;z-index:5;min-width:40px;min-height:1.4em;padding:0 2px;margin:0;border:1.5px dashed var(--accent);background:rgba(255,255,255,.92);font-family:var(--f-ui);line-height:1.25;resize:none;overflow:hidden;white-space:pre;outline:none;color:#000}
 .tbx{position:absolute;z-index:6;border:1px solid var(--accent);border-radius:2px;cursor:move;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent);touch-action:none}
@@ -2306,7 +2307,7 @@ const I18N_EN={
 'Befehl kopieren':'Copy command','Terminal öffnen':'Open terminal','Befehl kopiert.':'Command copied.',
 'Im Terminal dein Passwort eingeben. Layr startet danach neu.':'Enter your password in the terminal. Layr restarts afterwards.',
 'Kein Terminal gefunden. Bitte den Befehl kopieren und im Terminal ausführen.':'No terminal found. Please copy the command and run it in a terminal.',
-'Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Über PDF-Text ziehen markiert ihn, Strg+C kopiert. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, drag a rectangle to select everything it touches (like on the desktop). In the shape tools, a click on an annotation is enough to move it. Drag over PDF text to select it, Ctrl+C copies. Back here: Esc, V or right-click.',
+'Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Über PDF-Text ziehen markiert ihn, Strg+C kopiert. Alt gedrückt: Lasso auch über Text. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, drag a rectangle to select everything it touches (like on the desktop). In the shape tools, a click on an annotation is enough to move it. Drag over PDF text to select it, Ctrl+C copies. Hold Alt: lasso over text too. Back here: Esc, V or right-click.',
 'Auswählen mit Rechteck. Noch einmal klicken: umkreisen.':'Select with a rectangle. Click again: circle to select.','Auswählen durch Umkreisen. Noch einmal klicken: Rechteck.':'Select by circling. Click again: rectangle.',
 'Zelle bearbeiten':'Edit cell','Zeile darüber einfügen':'Insert row above','Zeile darunter einfügen':'Insert row below','Spalte links einfügen':'Insert column left','Spalte rechts einfügen':'Insert column right',
 'Zeile löschen':'Delete row','Spalte löschen':'Delete column','Zelleninhalt leeren':'Clear cell',
@@ -2639,7 +2640,7 @@ const S={tool:'select',color:'#1b1f24',lw:2,fs:14,orient:'h',bold:false,dash:fal
 /* ---------- Icons ---------- */
 const PH=n=>'<svg class="ph" aria-hidden="true"><use href="#'+(n.startsWith('ly-')?'':'ph-')+n+'"/></svg>';
 const TOOLS=[
-  {id:'select',k:'V',n:'Auswählen',i:PH('ly-cursor'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Über PDF-Text ziehen markiert ihn, Strg+C kopiert. Zurück hierher: Esc, V oder Rechtsklick.'},
+  {id:'select',k:'V',n:'Auswählen',i:PH('ly-cursor'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Über PDF-Text ziehen markiert ihn, Strg+C kopiert. Alt gedrückt: Lasso auch über Text. Zurück hierher: Esc, V oder Rechtsklick.'},
   '-',
   {id:'pen',k:'P',n:'Stift',i:PH('pencil-simple'),h:'Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.'},
   {id:'marker',k:'M',n:'Textmarker',i:PH('highlighter'),h:'Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.'},
@@ -2795,7 +2796,7 @@ function setTool(id){
   if(id==='lasso')id='select';
   if(S.tool==='marker'&&id!=='marker'&&S.color===MARKER_DEF)setColor(S._prevColor||'#1b1f24',true);
   if(id==='marker'&&S.tool!=='marker'){S._prevColor=S.color;if(!['#ffd60a','#4ade80','#38bdf8','#f472b6'].includes(S.color))setColor(MARKER_DEF,true)}
-  if(S.tool==='select'&&id!=='select'){if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();S.pages.forEach(P=>{P.ink.style.pointerEvents='';if(P.tl){P.tl.remove();P.tl=null}})}
+  if(S.tool==='select'&&id!=='select'){if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();S.pages.forEach(P=>{if(P.ink)P.ink.style.pointerEvents='';if(P.tl){P.tl.remove();P.tl=null}})}
   S.tool=id;closeEditor();
   if(id!=='select'&&id!=='lasso')setSel(null);
   document.querySelectorAll('.tool').forEach(b=>{if(b.dataset.t!=='ruler')b.setAttribute('aria-pressed',b.dataset.t===id)});tbSync();moveToolInd();try{ffBar()}catch(e){}
@@ -3820,8 +3821,11 @@ function inTL(n){const e=n&&(n.nodeType===1?n:n.parentElement);return !!(e&&e.cl
 // Textzeile unter dem Mauszeiger (Spans der Textebene, keine Marker-Hüllen)
 function tlSpanAt(P,cx,cy){return !!P.tl&&document.elementsFromPoint(cx,cy).some(el=>el.tagName==='SPAN'&&P.tl.contains(el)&&!el.classList.contains('markedContent'))}
 // Textebene (pdf.js) nur für sichtbare Seiten, erst im Auswählen-Werkzeug; Zoom über --scale-factor
-async function tlBuild(i){const P=S.pages[i],doc=S.doc;if(!P||P.tl||!doc)return;P.tl=document.createElement('div');P.tl.className='textLayer';P.el.insertBefore(P.tl,P.ink);P.tl.addEventListener('contextmenu',e=>{e.preventDefault()});P.tl.addEventListener('dragstart',e=>e.preventDefault());
-  try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P)return;const vp=pg.getViewport({scale:1});P.tl.style.setProperty('--total-scale-factor',`calc(var(--scale-factor,1)*${vp.userUnit||1})`);await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:P.tl,viewport:vp}).render()}catch(e){if(P.tl){P.tl.remove();P.tl=null}}}
+async function tlBuild(i){const P=S.pages[i],doc=S.doc;if(!P||P.tl||!doc)return;const tl=P.tl=document.createElement('div');tl.className='textLayer';P.el.insertBefore(tl,P.ink);
+  // Rechtsklick auf Text geht an den Ink-Layer (Objektmenü); die Textebene selbst bleibt ohne Kontextmenü
+  tl.addEventListener('contextmenu',e=>{e.preventDefault();if(P.ink){P.ink.style.pointerEvents='';P.ink.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY,button:2,buttons:e.buttons}))}});tl.addEventListener('dragstart',e=>e.preventDefault());
+  // Nach jedem await nur weiterarbeiten, wenn diese Ebene noch die aktuelle ist (sonst entstünde doppelter Text)
+  try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P||P.tl!==tl)return;const vp=pg.getViewport({scale:1});tl.style.setProperty('--total-scale-factor',`calc(var(--scale-factor,1)*${vp.userUnit||1})`);await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:tl,viewport:vp}).render()}catch(e){if(P.tl===tl){tl.remove();P.tl=null}}}
 
 /* ---------- Verlauf & Zwischenspeicher ---------- */
 const H={u:[],r:[]};
@@ -4066,6 +4070,13 @@ function scaleItem(t,g,f,sx,sy){if(!g)return;switch(g.type){
 function attachInk(P,i){
   const ink=P.ink;let st=null;
   const toPt=(cx,cy)=>{const r=ink.getBoundingClientRect();return[(cx-r.left)/S.zoom,(cy-r.top)/S.zoom]};
+  // Auswählen-Werkzeug: was liegt unter dem Zeiger (Griff, Tabellenrand, Objekt, Gruppe)? Für Cursor und Textfreigabe gemeinsam
+  const selCur=(cx,cy)=>{const[x,y]=toPt(cx,cy),tol=6/S.zoom,mine=S.sel&&S.sel.p===i;
+    const k=mine?handleAt(S.sel.o,x,y,tol):null;if(k)return CURS[k];
+    if(mine&&S.sel.o.type==='table'){const tb=tblBorderAt(S.sel.o,x,y,tol);if(tb)return tb[0]==='c'?'col-resize':'row-resize'}
+    if(P.objs.some(o=>hit(o,x,y,tol)))return'move';
+    if(mine&&S.sel.o.type==='group'&&inBox(S.sel.o,x,y,tol))return'move';
+    return''};
   const qsFire=s=>{if(st!==s||s.qs||!S.draft||S.draft.p!==i||S.draft.o.type!=='pen')return;const r=QS.detect(S.draft.o.pts);if(!r)return;const b=qsBuild(r,S.draft.o);if(!b)return;
     const g=S.draft.o,D=S.draft;D.o=b.o;const bb=bbox(b.o);s.qs={k:b.k,orig:JSON.parse(JSON.stringify(b.o)),anchor:s.lp||[s.x,s.y],c:[bb.x+bb.w/2,bb.y+bb.h/2]};
     if(!motionOff()){D.ghost=g;D.t0=performance.now();const step=()=>{if(S.draft!==D||!D.ghost){redraw(i);return}redraw(i);requestAnimationFrame(step)};requestAnimationFrame(step)}else redraw(i);
@@ -4128,15 +4139,14 @@ function attachInk(P,i){
   ink.addEventListener('pointermove',e=>{
     if(!st){
       let cur='';if(S.sel&&S.sel.p===i&&['symbol','rect','ellipse'].includes(S.tool)){const[x,y]=toPt(e.clientX,e.clientY),k=handleAt(S.sel.o,x,y,6/S.zoom);if(k)cur=CURS[k];else if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,6/S.zoom))cur='move'}
-      else if(S.tool==='select'||S.tool==='text'){const[x,y]=toPt(e.clientX,e.clientY),tol=6/S.zoom;
-        const k=S.sel&&S.sel.p===i&&(S.tool==='select'||S.sel.o.type==='text')?handleAt(S.sel.o,x,y,tol):null;
+      else if(S.tool==='select'){cur=selCur(e.clientX,e.clientY)}
+      else if(S.tool==='text'){const[x,y]=toPt(e.clientX,e.clientY),tol=6/S.zoom;
+        const k=S.sel&&S.sel.p===i&&S.sel.o.type==='text'?handleAt(S.sel.o,x,y,tol):null;
         if(k)cur=CURS[k];
-        else if(S.tool==='select'){if(P.objs.some(o=>hit(o,x,y,tol)))cur='move'}
         else{const o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tol));if(o)cur=nearBorder(o,x,y,tol)?'move':'text'}}
-      if(S.tool==='select'&&S.sel&&S.sel.p===i&&S.sel.o.type==='table'){const[x,y]=toPt(e.clientX,e.clientY),tb=tblBorderAt(S.sel.o,x,y,6/S.zoom);if(tb&&!handleAt(S.sel.o,x,y,6/S.zoom))cur=tb[0]==='c'?'col-resize':'row-resize'}
-      if(!cur&&S.sel&&S.sel.p===i&&(S.tool==='lasso'||(S.tool==='select'&&S.sel.o.type==='group'))){const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,k=handleAt(S.sel.o,x,y,tl);cur=k?CURS[k]:inBox(S.sel.o,x,y,tl)?'move':''}
+      if(!cur&&S.sel&&S.sel.p===i&&S.tool==='lasso'){const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,k=handleAt(S.sel.o,x,y,tl);cur=k?CURS[k]:inBox(S.sel.o,x,y,tl)?'move':''}
       ink.style.cursor=cur;
-      if(!cur&&S.tool==='select'&&!editorEl&&!e.buttons&&e.pointerType!=='touch'&&tlSpanAt(P,e.clientX,e.clientY))ink.style.pointerEvents='none';return}const sp=st.snap?snapPt(st.snap,e.clientX,e.clientY):[e.clientX,e.clientY];let [x,y]=toPt(...sp);st.moved=st.moved||Math.hypot(x-st.x,y-st.y)>2/S.zoom;st.lp=[x,y];st.lc=[e.clientX,e.clientY];
+      if(!cur&&S.tool==='select'&&!editorEl&&!e.buttons&&!e.altKey&&e.pointerType!=='touch'&&tlSpanAt(P,e.clientX,e.clientY))ink.style.pointerEvents='none';return}const sp=st.snap?snapPt(st.snap,e.clientX,e.clientY):[e.clientX,e.clientY];let [x,y]=toPt(...sp);st.moved=st.moved||Math.hypot(x-st.x,y-st.y)>2/S.zoom;st.lp=[x,y];st.lc=[e.clientX,e.clientY];
     if(st.marq){const L=S.lasso;if(!L)return;if(L.rect)L.pts=[[st.x,st.y],[x,st.y],[x,y],[st.x,y]];else{const l=L.pts[L.pts.length-1];if(Math.hypot(x-l[0],y-l[1])>1.5/S.zoom)L.pts.push([x,y])}redraw(i);return}
     const d=S.draft&&S.draft.o;
     switch(st.selDrag?'select':S.tool){
@@ -4203,10 +4213,11 @@ function attachInk(P,i){
     if(st)clearTimeout(st.qsT);qsTagHide();if(S.lasso){S.lasso=null;redraw(i)}if(S.draft){S.draft=null;redraw(i)}st=null;setTool('select')});
   ink.addEventListener('pointerup',end);ink.addEventListener('pointercancel',end);
   // Liegt der Ink-Layer über dem Text (Hover auf Text), reagiert die Seite selbst: Text nimmt die Maus, sonst kommt sie zurück an den Ink
-  const blockAt=(cx,cy)=>{if(S.tool!=='select')return false;const[x,y]=toPt(cx,cy),tol=6/S.zoom;return !!((S.sel&&S.sel.p===i&&handleAt(S.sel.o,x,y,tol))||P.objs.some(o=>hit(o,x,y,tol)))};
-  P.el.addEventListener('pointermove',e=>{if(ink.style.pointerEvents!=='none'||e.buttons||e.pointerType==='touch')return;if(!tlSpanAt(P,e.clientX,e.clientY)||blockAt(e.clientX,e.clientY))ink.style.pointerEvents=''});
+  const blockAt=(cx,cy)=>S.tool==='select'&&selCur(cx,cy)!=='';
+  P.el.addEventListener('pointermove',e=>{if(ink.style.pointerEvents!=='none'||e.buttons||e.pointerType==='touch')return;if(e.altKey||!tlSpanAt(P,e.clientX,e.clientY)||blockAt(e.clientX,e.clientY))ink.style.pointerEvents=''});
   P.el.addEventListener('pointerleave',e=>{if(!e.buttons)ink.style.pointerEvents=''});
-  P.el.addEventListener('pointerdown',e=>{if(!P.tl||!P.tl.contains(e.target))return;
+  P.el.addEventListener('pointerdown',e=>{if(e.button!==0||!P.tl||!P.tl.contains(e.target))return;
+    if(e.altKey){ink.style.pointerEvents='';return}
     if(e.target===P.tl){ink.style.pointerEvents='';e.preventDefault();return}
     if(editorEl)closeEditor();if(S.sel)setSel(null)});
   ink.addEventListener('dblclick',e=>{
@@ -6357,7 +6368,7 @@ addEventListener('keydown',e=>{
   else if(mod&&k==='-'){e.preventDefault();zoomTo(S.zoom/1.2)}
   else if(mod)return;
   else if(k==='delete'||k==='backspace'){if(S.sel){e.preventDefault();delSel()}}
-  else if(k==='escape'){if(FD.open&&!S.sel)closeFind();setSel(null);S.pages.forEach(P=>P.ink.style.pointerEvents='');if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(S.tool!=='select')setTool('select')}
+  else if(k==='escape'){if(FD.open&&!S.sel)closeFind();setSel(null);S.pages.forEach(P=>{if(P.ink)P.ink.style.pointerEvents=''});if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(S.tool!=='select')setTool('select')}
   else if(k==='u')toggleRuler();
   else if(S.sel&&e.key.startsWith('Arrow')){e.preventDefault();if(S.sel.o.locked)return;pushHist();const d=e.shiftKey?10:1;moveObj(S.sel.o,k==='arrowleft'?-d:k==='arrowright'?d:0,k==='arrowup'?-d:k==='arrowdown'?d:0);redraw(S.sel.p);markDirty()}
   else if(k==='n'&&!e.altKey&&!e.shiftKey)notesOpen();
