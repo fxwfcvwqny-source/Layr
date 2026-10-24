@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-O7HxTpQLL8qiOMoGzEh3IqR81oyziM4SNyMTTQ9BRC0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-wMrIw2gkDgMyS6h6JqbUOxOI2vZLoxPSY7+M12Yob34=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3749,9 +3749,9 @@ function handles(o){
   const hs=[{k:'tl',x:b.x,y:b.y},{k:'tr',x:b.x+b.w,y:b.y},{k:'bl',x:b.x,y:b.y+b.h},{k:'br',x:b.x+b.w,y:b.y+b.h}];
   if((o.type==='text'&&o.orient==='h')||o.type==='table'){const near=(v,E)=>E.slice(1,-1).some(e=>Math.abs(e-v)<12/S.zoom);
     // table: a mid handle that would sit on an inner line moves to the middle of the longest free part of that edge
-    const freeMid=E=>{let s=E[0],e=E[1];for(let i=1;i<E.length-1;i++)if(E[i+1]-E[i]>e-s){s=E[i];e=E[i+1]}return(s+e)/2};
+    const freeMid=E=>{let s=E[0],e=E[1];for(let i=1;i<E.length-1;i++)if(E[i+1]-E[i]>e-s){s=E[i];e=E[i+1]}return e-s<24/S.zoom?null:(s+e)/2};
     for(const m of[{k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2},{k:'mt',x:b.x+b.w/2,y:b.y},{k:'mb',x:b.x+b.w/2,y:b.y+b.h}]){
-      if(o.type==='table'){const hz=m.k==='mt'||m.k==='mb';if(near(hz?m.x:m.y,hz?tblCols(o):tblRows(o))){if(hz)m.x=freeMid(tblCols(o));else m.y=freeMid(tblRows(o))}}
+      if(o.type==='table'){const hz=m.k==='mt'||m.k==='mb';if(near(hz?m.x:m.y,hz?tblCols(o):tblRows(o))){const f=freeMid(hz?tblCols(o):tblRows(o));if(f==null)continue;if(hz)m.x=f;else m.y=f}}
       hs.push(m)}}
   // shortcut: resize cursors stay axis-aligned on rotated boxes, upgrade if users complain
   if(o.type==='text'&&o.orient==='h'){const cx=b.x+b.w/2,cy=b.y+b.h/2,d=22/S.zoom;hs.push({k:'rot',x:cx,y:b.y-d});if(o.rot)for(const h of hs)[h.x,h.y]=rotP(h.x,h.y,cx,cy,o.rot)}
@@ -4851,7 +4851,7 @@ const QB_GRP={font:0,size:1,bold:2,ul:2,lists:3,indent:3,col:3,del:3}; // a sepa
 const qbSan=d=>{const known=a=>Array.isArray(a)?[...new Set(a.filter(x=>QB_IDS.includes(x)))]:[];
   const o=known(d.qbarOrder),h=known(d.qbarHide);
   return{...d,qbarOrder:[...o,...QB_IDS.filter(x=>!o.includes(x))],qbarHide:h.length<QB_IDS.length?h:[],qbar:['s','m','l'].includes(d.qbar)?d.qbar:'m',qbarStyle:['panel','tint','contrast'].includes(d.qbarStyle)?d.qbarStyle:'panel'}};
-// Keeps only known design values (dialog option buttons, accent list); anything else falls back to DDEF. Custom colours must be #rrggbb.
+// Resets invalid values of known design keys to DDEF (dialog option buttons, accent list); unknown keys are left alone. Custom colours must be #rrggbb.
 const dSan=d=>{const o={...d},opts=id=>[...document.querySelectorAll('#'+id+' button')].map(b=>b.dataset.v);
   for(const [id,k] of DKEYS)if(!opts(id).includes(o[k]))o[k]=DDEF[k];
   if(o.accent!=='custom'&&!ACCENTS.some(a=>a[0]===o.accent))o.accent=DDEF.accent;

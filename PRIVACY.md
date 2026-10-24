@@ -9,11 +9,13 @@ Layr ist eine Desktop-App für PDF-Dateien. Layr hat kein Konto, keine Telemetri
 - **Auf deinem Gerät:** Geöffnete PDFs, Notizen, Einstellungen, Unterschriften, dein eigenes Wörterbuch und die Liste „Zuletzt geöffnet“ bleiben auf deinem Gerät.
 - **Automatisch gespeichert:** Neue und zusammengeführte Dokumente speichert Layr automatisch (Schalter „Automatisch speichern“, standardmäßig an) im Ordner „Dokumente“ oder im zuletzt benutzten Ordner. Der Name ist frei, vorhandene Dateien werden nie ersetzt. Geöffnete Dateien speichert Layr an ihrem Ort. Der Schalter schaltet das ab.
 - **Mikrofon:** Layr nimmt nur auf, solange du das Diktieren selbst startest. Die Spracherkennung läuft lokal mit sherpa-onnx. Audio und erkannter Text verlassen das Gerät nicht.
-- **Netzzugriff:** Die Store- und Flatpak-Version nutzen das Netz nur auf deine Aktion hin; die GitHub-Version prüft zusätzlich selbst auf Updates (abschaltbar). Downloads gibt es in jeder Version nur in zwei Fällen, und nur wenn du sie auslöst:
+- **Netzzugriff:** Wenn du es auslöst, lädt Layr in zwei Fällen Dateien herunter:
   1. Deutsches Wörterbuch laden: von registry.npmjs.org (ca. 1 MB).
   2. Sprachmodell laden: von github.com, Projekt k2-fsa/sherpa-onnx (ca. 490 MB).
 
   Der Server sieht dabei deine IP-Adresse und die Kennung „Layr“ als User-Agent. Jede Datei wird vor der Nutzung mit einer Prüfsumme (SHA-512 bzw. SHA-256) geprüft.
+
+  Die Store- und die Flatpak-Version verbinden sich nur in diesen zwei Fällen mit dem Internet. Die GitHub-Version sucht außerdem selbst nach Updates und lädt sie herunter, wenn du im Update-Hinweis auf „Jetzt installieren“ klickst oder „Updates selbst installieren“ eingeschaltet ist (standardmäßig an). Beides lässt sich abschalten, siehe Hinweis unten.
 - **Absturzberichte** bleiben lokal im Benutzerordner von Layr. Layr lädt sie nie hoch.
 - **Löschen:** Layr speichert nichts außerhalb deines Geräts. Das Sprachmodell kannst du unter Einstellungen › Schreiben & Rechtschreibung › Diktieren entfernen. Mit dem Deinstallieren entfernst du die App. Deine PDF-Dateien bleiben unverändert.
 - **Kontakt:** layrdev@outlook.de
@@ -27,11 +29,13 @@ Layr is a desktop app for PDF files. Layr has no account, no telemetry and no ad
 - **On your device:** Opened PDFs, notes, settings, signatures, your own dictionary and the “Recently opened” list stay on your device.
 - **Saved automatically:** New and merged documents are saved automatically by Layr (switch “Auto-save”, on by default) to the Documents folder or the last used folder. The name is free, and existing files are never replaced. Opened files are saved in their place. The switch turns this off.
 - **Microphone:** Layr records only while you start dictation yourself. Speech recognition runs locally with sherpa-onnx. Audio and recognised text never leave the device.
-- **Network access:** The Store and Flatpak versions use the network only on your action; the GitHub version additionally checks for updates by itself (can be switched off). Downloads in every version happen in two cases, and only if you trigger them:
+- **Network access:** When you trigger it, Layr downloads files in two cases:
   1. Download the German dictionary: from registry.npmjs.org (about 1 MB).
   2. Download the speech model: from github.com, project k2-fsa/sherpa-onnx (about 490 MB).
 
   The server sees your IP address and the identifier “Layr” as user agent. Every file is checked against a checksum (SHA-512 or SHA-256) before use.
+
+  The Store and Flatpak versions connect to the internet only in these two cases. The GitHub version also checks for updates by itself and downloads them when you click “Install now” in the update notice or when “Install updates automatically” is on (on by default). Both can be switched off, see the note below.
 - **Crash reports** stay local in Layr's user folder. Layr never uploads them.
 - **Deletion:** Layr stores nothing outside your device. You can remove the speech model under Settings › Writing & Spelling › Dictation. Uninstalling removes the app. Your PDF files stay unchanged.
 - **Contact:** layrdev@outlook.de
