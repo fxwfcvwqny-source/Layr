@@ -392,7 +392,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .acc[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
 .hint{font-size:12px;color:var(--muted);line-height:1.45;margin:0}
 .danger{color:var(--danger)}
-.modal{position:fixed;inset:0;background:rgba(10,16,22,.45);display:grid;place-items:center;z-index:90;padding:16px}
+.modal{position:fixed;inset:0;background:rgba(10,16,22,.45);display:grid;place-items:safe center;overflow-y:auto;z-index:90;padding:16px}
 .card{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:calc(var(--r) + 2px);box-shadow:var(--shadow);width:min(420px,100%);padding:16px;display:flex;flex-direction:column;gap:14px}
 .card h2{margin:0;font-size:15px;font-weight:600}
 .card .lbl{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
