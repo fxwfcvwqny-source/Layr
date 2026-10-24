@@ -45,9 +45,10 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - New interface icons (Phosphor Icons, MIT) in toolbar, menus, dialogs and the text bar; the UML/IT symbols on the page are unchanged.
 - Icons use the Phosphor bold weight for crisp lines on scaled Windows displays.
 - Text quick bar shows the colour at the caret and has a size setting.
-- Bigger text select icon; smaller default text quick bar.
+- Smaller default text quick bar.
 - Sharper symbol tiles on scaled displays; the More button uses three plain dots.
 - Buttons, segmented controls, selects and text fields use filled surfaces instead of 1 px outlines; checkboxes and sliders are drawn by the app. Edges stay sharp on scaled Windows displays.
+- Redrawn pixel-grid icons for select, ellipse, split view and the More tools button; toolbar and header icons are snapped to whole pixels so lines stay crisp.
 
 ## Known limits
 
