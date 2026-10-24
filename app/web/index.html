@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xD9ReEoz9s7Vu/A7Ur7BL5Fbp2oIrARC8lsNgAKoi9U=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Ym3VhUOAuX4yFHmWUF3PS3QHwpz3ZjLJgAct2MKxeWw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6465,7 +6465,7 @@ addEventListener('keydown',e=>{
 });
 if(!window.werkbank)addEventListener('beforeunload',e=>{if(S.dirty&&!S.sample){e.preventDefault();e.returnValue=''}});
 let toastT=0;function toast(msg,err){let t=$('.toast');if(!t){t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=msg;showEl(t);t.classList.remove('run');void t.offsetWidth;clearTimeout(toastT);
-  if(err){const x=document.createElement('button');x.type='button';x.className='toast-x';x.textContent='×';x.title=tr('Schließen');x.setAttribute('aria-label',tr('Schließen'));x.onclick=()=>{clearTimeout(toastT);animHide(t)};t.appendChild(x);return}
+  if(err){const m=document.createElement('span');m.textContent=msg;const x=document.createElement('button');x.type='button';x.className='toast-x';x.textContent='×';x.title=tr('Schließen');x.setAttribute('aria-label',tr('Schließen'));x.onclick=()=>{clearTimeout(toastT);animHide(t)};t.replaceChildren(m,x);return}
   let ms=5200;try{ms={short:3000,normal:5200,long:9000}[design.toastDur]||5200}catch(e){}t.style.setProperty('--tdur',ms+'ms');t.classList.add('run');toastT=setTimeout(()=>animHide(t),ms)}
 {const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)} /* leere Live-Region von Anfang an: die erste Meldung wird angesagt */
 
