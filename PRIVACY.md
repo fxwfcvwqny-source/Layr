@@ -9,7 +9,7 @@ Layr ist eine Desktop-App für PDF-Dateien. Layr hat kein Konto, keine Telemetri
 - **Auf deinem Gerät:** Geöffnete PDFs, Notizen, Einstellungen, Unterschriften, dein eigenes Wörterbuch und die Liste „Zuletzt geöffnet“ bleiben auf deinem Gerät.
 - **Automatisch gespeichert:** Neue und zusammengeführte Dokumente speichert Layr automatisch (Schalter „Automatisch speichern“, standardmäßig an) im Ordner „Dokumente“ oder im zuletzt benutzten Ordner. Der Name ist frei, vorhandene Dateien werden nie ersetzt. Geöffnete Dateien speichert Layr an ihrem Ort. Der Schalter schaltet das ab.
 - **Mikrofon:** Layr nimmt nur auf, solange du das Diktieren selbst startest. Die Spracherkennung läuft lokal mit sherpa-onnx. Audio und erkannter Text verlassen das Gerät nicht.
-- **Netzzugriff nur auf deine Aktion hin:** Layr verbindet sich nur in zwei Fällen, und nur wenn du sie auslöst:
+- **Netzzugriff:** Die Store- und Flatpak-Version nutzen das Netz nur auf deine Aktion hin; die GitHub-Version prüft zusätzlich selbst auf Updates (abschaltbar). Downloads gibt es in jeder Version nur in zwei Fällen, und nur wenn du sie auslöst:
   1. Deutsches Wörterbuch laden: von registry.npmjs.org (ca. 1 MB).
   2. Sprachmodell laden: von github.com, Projekt k2-fsa/sherpa-onnx (ca. 490 MB).
 
@@ -27,7 +27,7 @@ Layr is a desktop app for PDF files. Layr has no account, no telemetry and no ad
 - **On your device:** Opened PDFs, notes, settings, signatures, your own dictionary and the “Recently opened” list stay on your device.
 - **Saved automatically:** New and merged documents are saved automatically by Layr (switch “Auto-save”, on by default) to the Documents folder or the last used folder. The name is free, and existing files are never replaced. Opened files are saved in their place. The switch turns this off.
 - **Microphone:** Layr records only while you start dictation yourself. Speech recognition runs locally with sherpa-onnx. Audio and recognised text never leave the device.
-- **Network access only when you ask for it:** Layr connects to the internet in two cases, and only if you trigger them:
+- **Network access:** The Store and Flatpak versions use the network only on your action; the GitHub version additionally checks for updates by itself (can be switched off). Downloads in every version happen in two cases, and only if you trigger them:
   1. Download the German dictionary: from registry.npmjs.org (about 1 MB).
   2. Download the speech model: from github.com, project k2-fsa/sherpa-onnx (about 490 MB).
 
