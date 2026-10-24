@@ -41,14 +41,14 @@
     <mediatype>application/pdf</mediatype>
   </provides>
   <content_rating type="oars-1.1"/>
-  <!-- (prüfen): tag v3.8.6 must exist before the screenshot URL resolves -->
+  <!-- (prüfen): tag v3.8.7 must exist before the screenshot URL resolves -->
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/fxwfcvwqny-source/Layr/v3.8.6/docs/screenshot.png</image>
+      <image>https://raw.githubusercontent.com/fxwfcvwqny-source/Layr/v3.8.7/docs/screenshot.png</image>
     </screenshot>
   </screenshots>
   <releases>
-    <release version="3.8.6" date="2026-10-24">
+    <release version="3.8.7" date="2026-10-24">
       <description>
         <p>Text bar settings in the design dialog, focus handling in dialogs, page move without flicker, Ctrl+. on more keyboard layouts, Flatpak build.</p>
       </description>

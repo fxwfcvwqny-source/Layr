@@ -4,7 +4,7 @@ Status: vorbereitet, noch nicht gebaut und nicht bei Flathub eingereicht.
 
 ## Was vorbereitet ist
 
-- `packaging/flatpak/io.github.fxwfcvwqny_source.Layr.yml`: Manifest. Baut nicht aus dem Quellcode, sondern übernimmt das released `.deb` (`Layr-3.8.6-amd64.deb`) und legt es nach `/app/layr`.
+- `packaging/flatpak/io.github.fxwfcvwqny_source.Layr.yml`: Manifest. Baut nicht aus dem Quellcode, sondern übernimmt das released `.deb` (`Layr-3.8.7-amd64.deb`) und legt es nach `/app/layr`.
 - `packaging/flatpak/io.github.fxwfcvwqny_source.Layr.metainfo.xml`: AppStream-Datei (DE/EN).
 - `packaging/flatpak/layr.sh`: Startskript (setzt `TMPDIR` und startet über `zypak-wrapper`).
 - Die App erkennt Flatpak (`/.flatpak-info`) und verhält sich wie die Store-Version: keine eigene Update-Prüfung. Updates kommen über Flathub.
@@ -35,7 +35,7 @@ flatpak-builder --repo=repo --force-clean build-dir io.github.fxwfcvwqny_source.
 flatpak-builder-lint repo repo
 ```
 
-Den SHA-256-Wert des `.deb` vorher eintragen: `sha256sum Layr-3.8.6-amd64.deb`.
+Den SHA-256-Wert des `.deb` vorher eintragen: `sha256sum Layr-3.8.7-amd64.deb`.
 
 ## Manuelle Tests vor dem Einreichen
 
@@ -58,9 +58,9 @@ Den SHA-256-Wert des `.deb` vorher eintragen: `sha256sum Layr-3.8.6-amd64.deb`.
 
 ## Offen
 
-- Der v3.8.6-Release ist noch ein Entwurf. Die URL im Manifest funktioniert erst, wenn du ihn veröffentlichst. Der veröffentlichte `.deb` muss byte-gleich zum geprüften Entwurf sein (SHA-256 `0741e3bd…47bb`); baust du neu, trage den neuen Wert ein.
-- `sha256` im Manifest ist eingetragen (aus dem Entwurf `v3.8.6` berechnet). Das `.deb` enthält nur ein 512-px-Symbol, deshalb installiert das Manifest nur dieses. Flathub verlangt mindestens 128 px (prüfen).
+- Der v3.8.7-Release ist noch ein Entwurf. Die URL im Manifest funktioniert erst, wenn du ihn veröffentlichst. Der veröffentlichte `.deb` muss byte-gleich zum geprüften Entwurf sein (SHA-256 `e46f252c…2ce7`); baust du neu, trage den neuen Wert ein.
+- `sha256` im Manifest ist eingetragen (aus dem Entwurf `v3.8.7` berechnet). Das `.deb` enthält nur ein 512-px-Symbol, deshalb installiert das Manifest nur dieses. Flathub verlangt mindestens 128 px (prüfen).
 - Laufzeit-Version (`25.08`) und Electron-BaseApp-Version sind nicht geprüft.
 - Pfade im `.deb` (`opt/Layr`, `usr/share/applications/layr.desktop`, Icons) sind nicht geprüft.
-- Screenshot-URL zeigt auf den Tag `v3.8.6`, der noch nicht existiert.
-- Die Metainfo-Release-Notizen gelten für 3.8.6 mit Datum 2026-10-24.
+- Screenshot-URL zeigt auf den Tag `v3.8.7`, der noch nicht existiert.
+- Die Metainfo-Release-Notizen gelten für 3.8.7 mit Datum 2026-10-24.
