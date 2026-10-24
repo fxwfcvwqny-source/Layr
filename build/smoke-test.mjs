@@ -305,6 +305,7 @@ else {
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1000, height: 900, deviceScaleFactor: 1, mobile: false });
   await sleep(300);
   ok('Schalter: Beschriftung bei 1000 px ausgeblendet', await ev("getComputedStyle(document.querySelector('#autoHdr .tl')).display==='none'") === true);
+  ok('Schalter in Dialogen und Bedienfeld behalten ihre Beschriftung bei 1000 px', await ev("['#exMarks','#qShape'].every(s=>getComputedStyle(document.querySelector(s).closest('.tgl').querySelector('.tl')).display!=='none')") === true);
   ok('Schalter: alle haben einen Namen bei 1000 px', await ev("[...document.querySelectorAll('input[role=switch]')].every(i=>(i.getAttribute('aria-label')||'').trim().length>0)") === true);
   const axNodes = (await cdp('Accessibility.getFullAXTree', {})).result.nodes;
   ok('Schalter im Barrierefreiheitsbaum bei 1000 px: „Auto“ benannt', axNodes.some(n => n.role && n.role.value === 'switch' && n.name && n.name.value === 'Auto'));
