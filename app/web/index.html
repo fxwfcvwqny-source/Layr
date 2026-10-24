@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Hh5H6fduAYhtjrX+RL1TPF5XHHzKlh/NhWgec0dIVtk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-17Tdy8/wqcC4BQQ1tQEnDVAFBzDvPNfz6WuVLZIWVaQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3804,6 +3804,8 @@ async function renderPage(i,g){
   try{await page.render({canvasContext:cv.getContext('2d'),viewport:vp,annotationMode:pdfjsLib.AnnotationMode.ENABLE_FORMS}).promise}catch(e){return}
   if(g!==renderGen)return;P.el.replaceChild(cv,P.pdf);P.pdf=cv;
 }
+// Textzeile unter dem Mauszeiger (Spans der Textebene, keine Marker-Hüllen)
+function tlSpanAt(P,cx,cy){return !!P.tl&&document.elementsFromPoint(cx,cy).some(el=>el.tagName==='SPAN'&&P.tl.contains(el)&&!el.classList.contains('markedContent'))}
 // Textebene (pdf.js) nur für sichtbare Seiten, erst im Werkzeug „Text auswählen“; Zoom über --scale-factor
 async function tlBuild(i){const P=S.pages[i],doc=S.doc;if(!P||P.tl||!doc)return;P.tl=document.createElement('div');P.tl.className='textLayer';P.el.insertBefore(P.tl,P.ink);P.tl.addEventListener('contextmenu',e=>{e.preventDefault()});P.tl.addEventListener('dragstart',e=>e.preventDefault());
   try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P)return;const vp=pg.getViewport({scale:1});P.tl.style.setProperty('--total-scale-factor',`calc(var(--scale-factor,1)*${vp.userUnit||1})`);await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:P.tl,viewport:vp}).render()}catch(e){if(P.tl){P.tl.remove();P.tl=null}}}
@@ -4120,7 +4122,8 @@ function attachInk(P,i){
         else{const o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tol));if(o)cur=nearBorder(o,x,y,tol)?'move':'text'}}
       if(S.tool==='select'&&S.sel&&S.sel.p===i&&S.sel.o.type==='table'){const[x,y]=toPt(e.clientX,e.clientY),tb=tblBorderAt(S.sel.o,x,y,6/S.zoom);if(tb&&!handleAt(S.sel.o,x,y,6/S.zoom))cur=tb[0]==='c'?'col-resize':'row-resize'}
       if(!cur&&S.sel&&S.sel.p===i&&(S.tool==='lasso'||(S.tool==='select'&&S.sel.o.type==='group'))){const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,k=handleAt(S.sel.o,x,y,tl);cur=k?CURS[k]:inBox(S.sel.o,x,y,tl)?'move':''}
-      ink.style.cursor=cur;return}const sp=st.snap?snapPt(st.snap,e.clientX,e.clientY):[e.clientX,e.clientY];let [x,y]=toPt(...sp);st.moved=st.moved||Math.hypot(x-st.x,y-st.y)>2/S.zoom;st.lp=[x,y];st.lc=[e.clientX,e.clientY];
+      ink.style.cursor=cur;
+      if(!cur&&S.tool==='select'&&!editorEl&&!e.buttons&&e.pointerType!=='touch'&&tlSpanAt(P,e.clientX,e.clientY))ink.style.pointerEvents='none';return}const sp=st.snap?snapPt(st.snap,e.clientX,e.clientY):[e.clientX,e.clientY];let [x,y]=toPt(...sp);st.moved=st.moved||Math.hypot(x-st.x,y-st.y)>2/S.zoom;st.lp=[x,y];st.lc=[e.clientX,e.clientY];
     if(st.marq){const L=S.lasso;if(!L)return;if(L.rect)L.pts=[[st.x,st.y],[x,st.y],[x,y],[st.x,y]];else{const l=L.pts[L.pts.length-1];if(Math.hypot(x-l[0],y-l[1])>1.5/S.zoom)L.pts.push([x,y])}redraw(i);return}
     const d=S.draft&&S.draft.o;
     switch(st.selDrag?'select':S.tool){
@@ -4186,6 +4189,13 @@ function attachInk(P,i){
     {const[x,y]=toPt(e.clientX,e.clientY),t=6/S.zoom,o=!st&&!S.draft&&[...P.objs].reverse().find(o=>o.type!=='deco'&&(hit(o,x,y,t)||(o.locked&&inBox(o,x,y,t))));if(o){objMenu(i,o,e.clientX,e.clientY);return}}
     if(st)clearTimeout(st.qsT);qsTagHide();if(S.lasso){S.lasso=null;redraw(i)}if(S.draft){S.draft=null;redraw(i)}st=null;setTool('select')});
   ink.addEventListener('pointerup',end);ink.addEventListener('pointercancel',end);
+  // Liegt der Ink-Layer über dem Text (Hover auf Text), reagiert die Seite selbst: Text nimmt die Maus, sonst kommt sie zurück an den Ink
+  const blockAt=(cx,cy)=>{if(S.tool!=='select')return false;const[x,y]=toPt(cx,cy),tol=6/S.zoom;return !!((S.sel&&S.sel.p===i&&handleAt(S.sel.o,x,y,tol))||P.objs.some(o=>hit(o,x,y,tol)))};
+  P.el.addEventListener('pointermove',e=>{if(ink.style.pointerEvents!=='none'||e.buttons||e.pointerType==='touch')return;if(!tlSpanAt(P,e.clientX,e.clientY)||blockAt(e.clientX,e.clientY))ink.style.pointerEvents=''});
+  P.el.addEventListener('pointerleave',e=>{if(!e.buttons)ink.style.pointerEvents=''});
+  P.el.addEventListener('pointerdown',e=>{if(!P.tl||!P.tl.contains(e.target))return;
+    if(e.target===P.tl){ink.style.pointerEvents='';e.preventDefault();return}
+    if(editorEl)closeEditor();if(S.sel)setSel(null)});
   ink.addEventListener('dblclick',e=>{
     if(!['select','rect','ellipse','table','symbol'].includes(S.tool))return;const[x,y]=toPt(e.clientX,e.clientY);
     if(S.sel&&S.sel.p===i&&rotOf(S.sel.o)&&handleAt(S.sel.o,x,y,6/S.zoom)==='rot'){pushHist();delete S.sel.o.rot;textClamp(S.sel.o,P,false);redraw(i);markDirty();return}
@@ -6334,7 +6344,7 @@ addEventListener('keydown',e=>{
   else if(mod&&k==='-'){e.preventDefault();zoomTo(S.zoom/1.2)}
   else if(mod)return;
   else if(k==='delete'||k==='backspace'){if(S.sel){e.preventDefault();delSel()}}
-  else if(k==='escape'){if(FD.open&&!S.sel)closeFind();setSel(null);if(S.tool!=='select')setTool('select')}
+  else if(k==='escape'){if(FD.open&&!S.sel)closeFind();setSel(null);S.pages.forEach(P=>P.ink.style.pointerEvents='');if(S.tool!=='select')setTool('select')}
   else if(k==='u')toggleRuler();
   else if(S.sel&&e.key.startsWith('Arrow')){e.preventDefault();if(S.sel.o.locked)return;pushHist();const d=e.shiftKey?10:1;moveObj(S.sel.o,k==='arrowleft'?-d:k==='arrowright'?d:0,k==='arrowup'?-d:k==='arrowdown'?d:0);redraw(S.sel.p);markDirty()}
   else if(k==='n'&&!e.altKey&&!e.shiftKey)notesOpen();

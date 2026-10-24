@@ -35,6 +35,7 @@ else {
     if (j.result && j.result.exceptionDetails) return { error: (j.result.exceptionDetails.exception || {}).description || j.result.exceptionDetails.text };
     return j.result && j.result.result ? j.result.result.value : undefined;
   };
+  const cdp = (method, params) => new Promise(r => { pend.set(++id, r); ws.send(JSON.stringify({ id, method, params })); });
   for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof openPdf==='function'&&typeof PDFLib==='object'") === true) break; await sleep(500); }
   const info = await ev('werkbank.appInfo()');
   ok('Version', info && info.version === version, info);
@@ -45,7 +46,43 @@ else {
   ok('PDF öffnen und zeichnen', Array.isArray(open) && open[0] === 1, open);
   ok('PDF-Text aus dem Worker', await ev('S.doc.getPage(1).then(p=>p.getTextContent()).then(t=>t.items.map(x=>x.str).join(" "))').then(t => /Rauchtest Router/.test(String(t))));
   ok('Text auswählen: Textebene vorhanden', await ev("(async()=>{setTool('select');let s=[];for(let k=0;k<50&&!s.length;k++){await new Promise(r=>setTimeout(r,200));s=[...S.pages[0].el.querySelectorAll('.textLayer span')]}const hit=s.some(x=>x.textContent.includes('Router'));const under=S.pages[0].tl.nextSibling===S.pages[0].ink;getSelection().selectAllChildren(S.pages[0].el.querySelector('.textLayer'));const sel=String(getSelection()).includes('Router');setTool('pen');const gone=!document.querySelector('.textLayer');setTool('select');return hit&&under&&sel&&gone})()", 20000));
-  ok('Text auswählen: Textebene nach Drehen wieder da', await ev("(async()=>{rotatePages([0],90);let s=[];for(let k=0;k<50&&!s.length;k++){await new Promise(r=>setTimeout(r,200));s=[...S.pages[0].el.querySelectorAll('.textLayer span')]}const hit=s.some(x=>x.textContent.includes('Router'));rotatePages([0],-90);return hit})()", 20000));
+  ok('Text auswählen: Textebene nach Drehen wieder da', await ev("(async()=>{rotatePages([0],90);let s=[];for(let k=0;k<50&&!s.length;k++){await new Promise(r=>setTimeout(r,200));s=[...S.pages[0].el.querySelectorAll('.textLayer span')]}const hit=s.some(x=>x.textContent.includes('Router'));for(let k=0;k<50&&rbBusy;k++)await new Promise(r=>setTimeout(r,100));rotatePages([0],-90);for(let k=0;k<50&&(rbBusy||!S.pages[0].tl);k++)await new Promise(r=>setTimeout(r,100));for(let k=0;k<50&&!S.pages[0].el.querySelector('.textLayer span');k++)await new Promise(r=>setTimeout(r,200));const b=[...S.pages[0].el.querySelectorAll('.textLayer span')].find(x=>x.textContent.includes('Router')).getBoundingClientRect();return hit&&b.width>b.height})()", 20000));
+  // Hover-Umschaltung im Auswählen-Werkzeug: Text nimmt die Maus, freie Fläche und Objekte bleiben bedienbar
+  await ev("document.getElementById('langDlg').hidden=true"); // Sprachdialog würde den Mauszeiger abfangen
+  const hv = await ev("(()=>{const P=S.pages[0],r=P.el.getBoundingClientRect(),s=[...P.el.querySelectorAll('.textLayer span')].find(x=>x.textContent.includes('Router'));if(!s)return null;const b=s.getBoundingClientRect(),vb=Math.min(r.bottom,innerHeight);return {sp:[b.left,b.top,b.right,b.bottom],emp:[r.left+r.width*0.5,r.top+(vb-r.top)*0.8],pg:[r.left,r.top,r.width,r.height],z:S.zoom}})()");
+  const mv = (x, y, b = 0) => cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y, button: b ? 'left' : 'none', buttons: b });
+  const pressAt = (x, y) => cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', buttons: 1, clickCount: 1 });
+  const dragTo = (x, y) => cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y, button: 'left', buttons: 1 });
+  const releaseAt = (x, y) => cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', buttons: 0, clickCount: 1 });
+  const inkNone = () => ev("S.pages[0].ink.style.pointerEvents");
+  const sp = hv.sp, mid = [(sp[0] + sp[2]) / 2, (sp[1] + sp[3]) / 2];
+  await mv(mid[0], mid[1]); await sleep(150);
+  const n1 = await inkNone();
+  ok('Hover über Text: Ink lässt die Maus zum Text durch', n1 === 'none', n1);
+  await pressAt(sp[0] + 2, mid[1]); await dragTo(sp[2] - 2, mid[1]); await releaseAt(sp[2] - 2, mid[1]); await sleep(150);
+  ok('Ziehen über Text markiert Text, Auswahl enthält Router', await ev("String(getSelection()).includes('Router')") === true);
+  await mv(hv.emp[0], hv.emp[1]); await sleep(150);
+  const n2 = await inkNone();
+  ok('Leere Seitenfläche: Ink wieder aktiv', n2 === '', n2);
+  await ev("S.pages[0].objs.push({type:'rect',x:300,y:500,w:150,h:100,color:'#000000',lw:1,fill:'none',oid:'hvR'});redraw(0)");
+  const Z = hv.z, pg = hv.pg;
+  await pressAt(pg[0] + 280 * Z, pg[1] + 480 * Z); await dragTo(pg[0] + 470 * Z, pg[1] + 630 * Z); await releaseAt(pg[0] + 470 * Z, pg[1] + 630 * Z); await sleep(150);
+  ok('Lasso auf freier Fläche wählt Objekt aus', await ev("(()=>{const R=S.pages[0].objs.find(o=>o.oid==='hvR');return !!S.sel&&selItems().includes(R)})()") === true);
+  await mv(mid[0], mid[1]); await sleep(150);
+  await ev("S.pages[0].objs.push({type:'rect',x:50,y:120,w:400,h:60,color:'#000000',lw:1,fill:'white',oid:'hvW'});redraw(0)");
+  await mv(mid[0] + 1, mid[1]); await sleep(150);
+  ok('Objekt über Text: Ink bleibt aktiv', await inkNone() === '', await inkNone());
+  await pressAt(mid[0], mid[1]); await releaseAt(mid[0], mid[1]); await sleep(150);
+  ok('Klick auf Objekt über Text wählt es aus', await ev("(()=>{const W=S.pages[0].objs.find(o=>o.oid==='hvW');return !!S.sel&&selItems().includes(W)})()") === true);
+  await mv(mid[0], mid[1]); await sleep(150);
+  await ev("setTool('pen')");
+  const pb = await ev("S.pages[0].objs.length");
+  await pressAt(hv.emp[0], hv.emp[1]); await dragTo(hv.emp[0] + 40, hv.emp[1] + 20); await releaseAt(hv.emp[0] + 40, hv.emp[1] + 20); await sleep(150);
+  ok('Stift nach Hover über Text zeichnet', await ev(`S.pages[0].objs.length===${pb}+1&&S.pages[0].objs[S.pages[0].objs.length-1].type==='pen'`) === true);
+  await ev(`setTool('select');S.pages[0].objs.length=${pb};S.pages[0].objs=S.pages[0].objs.filter(o=>!['hvR','hvW'].includes(o.oid));redraw(0)`);
+  await mv(mid[0], mid[1]); await sleep(150);
+  await ev("S.pages[0].el.dispatchEvent(new PointerEvent('pointerleave',{buttons:0}))");
+  ok('Seite verlassen: Ink wieder aktiv', await inkNone() === '', await inkNone());
   ok('Text auswählen: Drehregel für gedrehte Seiten', await ev("(()=>{const d=document.createElement('div');d.className='textLayer';d.dataset.mainRotation='90';document.body.appendChild(d);const t=getComputedStyle(d).transform;d.remove();return t.startsWith('matrix')})()") === true);
   const out = await ev("(async()=>{S.pages[0].objs.push({type:'text',x:72,y:300,text:'Kopierbarer Text',fs:16,color:'#1b1f24',orient:'h',lw:0,spans:[{a:0,b:9,color:'#d62828'}]});redraw(0);const out=await buildOutput();const d=await pdfOpen(out.slice());const t=await (await d.getPage(1)).getTextContent();return t.items.map(x=>x.str).join('|')})()", 60000);
   ok('Speichern mit kopierbarem Text', /Kopierbarer Text/.test(String(out)), String(out).slice(-80));
