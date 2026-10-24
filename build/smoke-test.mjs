@@ -256,6 +256,9 @@ else {
   ok('Text-Leiste: neue Reihenfolge ist gespeichert', await ev("JSON.parse(localStorage.getItem('pdfwerkbank:design')).qbarOrder[1]==='font'") === true);
   await ev("document.querySelector('#dQbStyle [data-v=contrast]').click()");
   ok('Text-Leiste: Stil Kontrast wirkt sofort und wird gespeichert', await ev("document.documentElement.dataset.qbstyle==='contrast'&&JSON.parse(localStorage.getItem('pdfwerkbank:design')).qbarStyle==='contrast'") === true);
+  await ev("setLang('en')");
+  ok('Text-Leiste im Design-Dialog: englische Beschriftung ohne deutsche Reste', await ev("(()=>{const els=[...new Set(['#dQbItems','#dQbItems *','.qbprev','.qbprev *','#dQbStyle','#dQbStyle *','#dQbReset'].flatMap(s=>[...document.querySelectorAll(s)]))];return els.every(e=>[e.childNodes.length===1&&e.childNodes[0].nodeType===3?e.textContent:'',e.getAttribute('aria-label')||'',e.title||''].every(t=>!/[äöüß]|Schriftart|Schriftgröße|Fett|Unterstreichen|Listen|Einrücken|Schriftfarbe|Löschen|Nach |Knöpfe|Stil|zurücksetzen|Standard|Getönt|Kontrast|Klein|Mittel|Groß|Aufz|Nummer|Unterpunkt|Ebene|Textfeld/.test(t)))})()") === true);
+  await ev("setLang('de')");
   await ev("document.querySelector('#dQbReset').click();studioOpen(false)");
   // Text-Leiste: Einstellungen werden bereinigt, alte Design-Daten laden ohne Fehler
   ok('Text-Leiste: ungültige Einstellungen werden bereinigt', await ev("(()=>{const d=qbSan({qbarOrder:['x','bold','bold'],qbarHide:QB_IDS.slice(),qbar:'zz',qbarStyle:'zz'});return d.qbarOrder.join()==='bold,font,size,ul,lists,indent,col,del'&&d.qbarHide.length===0&&d.qbar==='m'&&d.qbarStyle==='panel'})()") === true);
