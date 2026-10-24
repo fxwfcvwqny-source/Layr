@@ -127,8 +127,8 @@ function copyLatestDump() {
     const dst = path.join(app.getPath('userData'), `absturz-${new Date().toISOString().replace(/[:.]/g, '-')}.dmp`);
     fs.copyFileSync(src, dst); crashLog('Absturzbericht gespeichert: ' + path.basename(dst));
     // Nur die 3 neuesten Kopien behalten
-    try { const ud = app.getPath('userData'); const old = fs.readdirSync(ud).filter(n => /^absturz-.*\.dmp$/.test(n)).map(n => [fs.statSync(path.join(ud, n)).mtimeMs, n]).sort((a, b) => b[0] - a[0]);
-      for (const [, n] of old.slice(3)) fs.unlinkSync(path.join(ud, n)); } catch (e) { crashLog('Alte Absturzberichte nicht entfernt: ' + e.message); }
+    try { const ud = app.getPath('userData'); const old = fs.readdirSync(ud).filter(n => /^absturz-.*\.dmp$/.test(n)).sort().reverse();
+      for (const n of old.slice(3)) fs.unlinkSync(path.join(ud, n)); } catch (e) { crashLog('Alte Absturzberichte nicht entfernt: ' + e.message); }
   } catch (e) { crashLog('Absturzbericht nicht kopiert: ' + e.message); }
 }
 
