@@ -5,6 +5,8 @@ const crypto = require('crypto');
 const zlib = require('zlib');
 const { spawn } = require('child_process');
 const REPO = 'fxwfcvwqny-source/Layr';   // öffentliche Seite für Downloads und Updates
+// Microsoft-Store-Version (MSIX): eigene Updates aus, kein Netz für Updates. Nur schaltet Funktionen ab, daher nicht an isPackaged gebunden.
+const STORE = process.windowsStore === true || process.env.LAYR_STORE_TEST === '1';
 const path = require('path');
 const fs = require('fs');
 // Linux: Einstellungen und Zwischenspeicher immer im selben Ordner wie bisher (.deb und AppImage teilen sie sich)
@@ -344,9 +346,10 @@ const cmpVer = (a, b) => { const x = String(a).split('.').map(n => parseInt(n, 1
 const pickAsset = assets => { const L = (assets || []).map(a => ({ n: String(a.name || ''), u: String(a.browser_download_url || '') }));
   const f = process.platform === 'win32' ? L.find(a => /setup.*\.exe$/i.test(a.n)) : (L.find(a => /\.deb$/i.test(a.n)) || L.find(a => /\.appimage$/i.test(a.n)));
   return f && f.u.startsWith(DL_PREFIX) ? f.u : null; };
-handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO, installLang: installLang() }));
+handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO, installLang: installLang(), store: STORE }));
 listen('set-lang', (_e, l) => { uiLang = l === 'en' ? 'en' : 'de'; try { fs.writeFileSync(langFile(), uiLang); } catch (e) {} });
 handle('check-update', async () => {
+  if (STORE) return { error: 'store' };
   try {
     const r = await net.fetch(API_LATEST, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' }, signal: AbortSignal.timeout(30000) });
     if (!r.ok) return { error: r.status };
@@ -462,6 +465,7 @@ function sigOk(text, sigText) {
 }
 let lastRel = null, pending = null, dlBusy = false, installOnQuit = false, relaunchAfter = false;
 function pkgType() {
+  if (STORE) return null;
   if (process.platform === 'win32') return 'nsis';
   if (process.platform === 'linux') {
     if (process.env.APPIMAGE) return 'appimage';

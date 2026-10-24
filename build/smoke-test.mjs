@@ -39,6 +39,15 @@ else {
   for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof openPdf==='function'&&typeof PDFLib==='object'") === true) break; await sleep(500); }
   const info = await ev('werkbank.appInfo()');
   ok('Version', info && info.version === version, info);
+  // LAYR_STORE_TEST=1: Store-Modus. Ohne Variable muss die Store-Sperre aus sein; mit ihr greift keine Update-Abfrage.
+  const store = process.env.LAYR_STORE_TEST === '1';
+  ok(`Store-Modus ${store ? 'an' : 'aus'}`, info && info.store === store, info && info.store);
+  if (store) {
+    const upd = await ev('werkbank.checkUpdate()');
+    ok('Store: Update-Abfrage ohne Netz abgelehnt', !!upd && upd.error === 'store' && Object.keys(upd).length === 1, upd);
+    const st = await ev('werkbank.updState()');
+    ok('Store: kein Selbst-Update', !!st && st.canInstall === false, st);
+  }
   ok('pdf.js 6 geladen', String(await ev('pdfjsLib.version')).startsWith('6.'));
   ok('Content-Security-Policy aktiv', /wasm-unsafe-eval/.test(String(await ev("(document.querySelector('meta[http-equiv=\"Content-Security-Policy\"]')||{}).content"))));
   ok('Fremder Inline-Code gesperrt', await ev("new Promise(r=>{const s=document.createElement('script');s.textContent='window.__inl=1';document.head.appendChild(s);setTimeout(()=>r(window.__inl===undefined),300)})") === true);
