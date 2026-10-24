@@ -65,6 +65,8 @@ Download the file for your system from the [latest release](https://github.com/f
 | Ubuntu / Debian | `Layr-<version>-amd64.deb` | Double-click, or `sudo apt install ./Layr-<version>-amd64.deb` |
 | Any Linux | `Layr-<version>-x86_64.AppImage` | Make it executable (`chmod +x`) and double-click. Nothing gets installed. |
 
+Flatpak (in preparation, not yet on Flathub): see [docs/FLATPAK.md](docs/FLATPAK.md).
+
 **Windows SmartScreen:** the installer is not code-signed, so Windows may show *"Windows protected your PC"* the first time. Click **More info → Run anyway**.
 
 **Updates** (*Settings* ⚙ at the top right → *Layr & updates*): Layr checks this page for a newer version and installs it by itself: the new installer is downloaded in the background and installed when you restart or quit Layr. Before that, Layr checks the release's update description against a digital signature (Ed25519, the public key is built into Layr) and the file against the SHA-512 checksum in that signed description. If anything doesn't match, nothing is installed and Layr only offers the download page. On Ubuntu with the `.deb` package, Ubuntu asks for your password to install it; if no password window appears, Layr can open a terminal for the installation instead. Both can be turned off under *Settings → Layr & updates*.
