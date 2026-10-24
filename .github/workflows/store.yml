@@ -1,0 +1,45 @@
+# Baut das AppX-Paket für den Microsoft Store (von Hand gestartet). Das Paket wird hier NICHT signiert: der Store signiert es beim Hochladen.
+# Vor dem Bau startet ein Rauchtest im Store-Modus (LAYR_STORE_TEST=1). Es werden keine Geheimnisse gebraucht.
+name: Store
+
+# Nur von Hand starten.
+on:
+  workflow_dispatch:
+
+# Nur lesen; es gibt keine Schreibrechte und kein Veröffentlichen.
+permissions:
+  contents: read
+
+jobs:
+  appx:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+      - name: Store-Identität prüfen (Platzhalter verhindern den Bau)
+        run: |
+          node -e "const a=require('./package.json').build.appx;if([a.identityName,a.publisher,a.publisherDisplayName].some(v=>/REPLACE/.test(String(v)))){console.error('build.appx in package.json enthält noch REPLACE-Platzhalter. Zuerst die Werte aus Partner Center eintragen (siehe docs/STORE.md).');process.exit(1)}"
+      - name: GitHub-Abhängigkeiten über HTTPS laden
+        run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+      - run: npm ci --no-audit --no-fund
+      - name: Rauchtest im Store-Modus (Programm starten und Kernfunktionen prüfen)
+        run: |
+          npx electron-builder --win --x64 --dir --publish never
+          node build/smoke-test.mjs dist/win-unpacked/Layr.exe
+        env:
+          LAYR_STORE_TEST: '1'
+      - name: AppX-Paket bauen (unsigniert, der Store signiert)
+        run: npx electron-builder --win appx --x64 --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Paket als Artefakt hochladen
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Layr-Store-appx
+          path: dist/*.appx
+          if-no-files-found: error
+          retention-days: 14
