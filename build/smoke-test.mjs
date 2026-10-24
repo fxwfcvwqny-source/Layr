@@ -263,11 +263,14 @@ else {
   ok('Text-Leiste: Stil Kontrast wirkt sofort und wird gespeichert', await ev("document.documentElement.dataset.qbstyle==='contrast'&&JSON.parse(localStorage.getItem('pdfwerkbank:design')).qbarStyle==='contrast'") === true);
   // Echter Mausklick auf den Schalter eines Text-Leisten-Knopfs (Schalter ist ein <label>, nicht nur ein Span)
   const qbSw = "document.querySelector('#dQbItems input[data-id=\"bold\"]').closest('label').querySelector('.knob')";
-  const clickSw = async () => { const p = await ev(`(()=>{const k=${qbSw};k.scrollIntoView({block:'center'});const b=k.getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: 1 }); await sleep(300); };
+  const clickSw = async () => { await ev(`${qbSw}.scrollIntoView({block:'center',behavior:'instant'})`); await sleep(500); const p = await ev(`(()=>{const b=${qbSw}.getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: 1 }); await sleep(300); };
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1024, height: 700, deviceScaleFactor: 1, mobile: false }); // kleines CI-Fenster nachstellen
+  await sleep(300);
   await clickSw();
   ok('Text-Leiste: echter Mausklick auf Schalter blendet Knopf aus', await ev("design.qbarHide.includes('bold')&&document.querySelector('#dQbItems input[data-id=\"bold\"]').checked===false") === true);
   await clickSw();
   ok('Text-Leiste: zweiter Mausklick blendet Knopf wieder ein', await ev("!design.qbarHide.includes('bold')&&document.querySelector('#dQbItems input[data-id=\"bold\"]').checked===true") === true);
+  await cdp('Emulation.clearDeviceMetricsOverride', {});
   await ev("document.querySelector('#dQbItems input[data-id=\"bold\"]').focus()");
   await key(' ', 'Space', 32, ' ');
   await sleep(300);
