@@ -206,6 +206,25 @@ else {
   ok('Rechtsklick auf gesperrtes Objekt über Text öffnet Objektmenü', await ev("window.__om>0") === true);
   await ev("objMenu=window.__omOrig;lockPassOn=false;S.pages[0].objs=S.pages[0].objs.filter(o=>o.oid!=='hvL');setSel(null);redraw(0)");
   ok('Werkzeug Text auswählen (Y) entfernt', await ev("!TOOLS.some(t=>t&&t.id==='textsel')&&!document.querySelector('.tool[data-t=textsel]')&&!('y' in KEYS)") === true);
+  // Seitenleiste: Seite verschieben baut die Vorschau ohne leere Bilder und ohne Verlust der Bilder neu auf
+  const thWas = await ev('thumbsOn');
+  await ev("(async()=>{const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);for(let k=1;k<=6;k++)d.addPage([595,842]).drawText('P'+k,{x:72,y:700,size:40,font:f});await openPdf(await d.save(),'Blaettern.pdf');S.pages[2].objs.push({type:'rect',x:100,y:300,w:150,h:100,color:'#000000',lw:1,fill:'none',oid:'mv'});redraw(2);return S.pages.length})()");
+  await ev("(async()=>{if(thumbsOn)toggleThumbs(false);await new Promise(r=>setTimeout(r,400));toggleThumbs(true);return true})()");
+  ok('Seitenleiste: Vorschau fertig', await waitFor("S.pages.length===6&&S.pages.every(P=>P.thumbBase)", 8000));
+  const mo = await ev('motionOff()');
+  ok('Seitenleiste: Einblend-Klasse nach der Animation entfernt', mo === true || await waitFor("!$('#thumbs').classList.contains('bar-in')", 2500), mo);
+  ok('Seitenleiste: alle Seiten gerendert', await waitFor("[...document.querySelectorAll('#pages canvas.pdf')].every(c=>c.width!==300||c.height!==150)", 8000));
+  await ev("(()=>{window.__smp={on:true,blank:0,nob:0};const f=()=>{const n=[...document.querySelectorAll('#pages canvas.pdf')].filter(c=>c.width===300&&c.height===150).length,m=S.pages.filter(P=>P.el&&!P.thumbBase).length;window.__smp.blank=Math.max(window.__smp.blank,n);window.__smp.nob=Math.max(window.__smp.nob,m);if(window.__smp.on)requestAnimationFrame(f)};requestAnimationFrame(f);return true})()");
+  const mvU = await ev("(async()=>{const u=H.u.length;TM.sel=2;thMove(1);await thFlush();await new Promise(r=>setTimeout(r,500));return [u,H.u.length]})()");
+  const sm = await ev("(()=>{window.__smp.on=false;return {blank:window.__smp.blank,nob:window.__smp.nob}})()");
+  ok('Seitenleiste: Verschieben zeigt keine leeren Seitenbilder', sm.blank === 0, sm);
+  ok('Seitenleiste: keine Vorschau verliert ihr Bild beim Verschieben', sm.nob === 0, sm);
+  ok('Seitenleiste: verschobene Seite steht auf Position 4', await ev("S.doc.getPage(4).then(p=>p.getTextContent()).then(t=>t.items.map(x=>x.str).join(' ').includes('P3'))") === true);
+  ok('Seitenleiste: Objekt wandert mit seiner Seite', await ev("S.pages[3].objs.some(o=>o.oid==='mv')") === true);
+  ok('Seitenleiste: Verschieben ist genau ein Rückgängig-Schritt', mvU[1] - mvU[0] === 1, mvU);
+  await ev("undo()");
+  ok('Seitenleiste: Rückgängig stellt Seite 3 mit Objekt wieder her', await waitFor("(async()=>{const t=await (await S.doc.getPage(3)).getTextContent();return t.items.map(x=>x.str).join(' ').includes('P3')&&S.pages[2].objs.some(o=>o.oid==='mv')})()", 8000));
+  await ev(`toggleThumbs(${thWas})`);
   // Gespeicherte Einstellungen mit dem alten Werkzeug dürfen nicht stören
   await ev("localStorage.setItem('pdfwerkbank:toolbar',JSON.stringify({hidden:['textsel'],known:['textsel']}));localStorage.setItem('pdfwerkbank:keys',JSON.stringify({'tool:textsel':'Y'}));location.reload()");
   await sleep(4000);
