@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xNxjwTrwtV/CcKV+ugDtSF7eGRH7e4q+fEAAMHTnzE8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8yedgBKbAEiHrFHzKnGKFsNWnsY81x8bfWQSaBvOwgo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2736,6 +2736,18 @@ function tbSeps(){let seen=false,last=null;for(const el of tb.children){if(el===
 function tbHdrSeps(){const g=$('header .grp');if(!g)return;let seen=false,last=null;
   for(const el of g.children){if(el.classList.contains('sep')){el.classList.add('tb-off');if(seen){last=el;seen=false}continue}
     if(getComputedStyle(el).display!=='none'){if(last){last.classList.remove('tb-off');last=null}seen=true}}}
+// Toolbar and header icons: shift each by its sub-pixel offset so the strokes land on whole pixels
+let SNAP_RAF=0;
+function snapIcons(){SNAP_RAF=0;const ic=[...document.querySelectorAll('#tools svg.ph,header svg.ph')];
+  for(const s of ic)s.style.translate='';
+  const d=ic.map(s=>{const b=s.getBoundingClientRect();return b.width?[s,Math.round(b.left)-b.left,Math.round(b.top)-b.top]:null}).filter(Boolean);
+  for(const[s,dx,dy]of d)s.style.translate=(Math.abs(dx)>.01?dx:0)+'px '+(Math.abs(dy)>.01?dy:0)+'px';
+  snapMO.takeRecords()}
+function snapQ(){if(!SNAP_RAF)SNAP_RAF=requestAnimationFrame(snapIcons)}
+const snapMO=new MutationObserver(snapQ), HDR=document.querySelector('header');
+for(const el of [tb,HDR]){snapMO.observe(el,{subtree:true,childList:true,attributes:true,characterData:true});new ResizeObserver(snapQ).observe(el);el.addEventListener('transitionend',snapQ);el.addEventListener('animationend',snapQ)}
+new MutationObserver(snapQ).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-density','data-tbstyle']});
+addEventListener('resize',snapQ);document.fonts.ready.then(snapQ);
 function tbApply(){for(const b of tb.querySelectorAll('.tool[data-t]')){const id=b.dataset.t;if(id==='more')continue;b.classList.toggle('tb-off',tbIsHid(id))}
   tbSeps();for(const h of TB_HDR)for(const id of h.els){const el=document.getElementById(id);if(el)el.classList.toggle('tb-off',tbIsHid(h.id))}
   try{tbHdrSeps()}catch(e){}tbSync();requestAnimationFrame(()=>{try{moveToolInd()}catch(e){}})}
