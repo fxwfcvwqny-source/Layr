@@ -80,14 +80,19 @@ else {
   const dragTo = (x, y) => cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y, button: 'left', buttons: 1 });
   const releaseAt = (x, y) => cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', buttons: 0, clickCount: 1 });
   const inkNone = () => ev("S.pages[0].ink.style.pointerEvents");
+  // Maus wie ein Nutzer: Bewegung mit 1 px Zittern, bis der Ink-Layer den gewünschten Zustand hat (max. 5 s)
+  const pointUntil = async (x, y, want, extra = {}) => { const t0 = Date.now(); for (let k = 0; Date.now() - t0 < 5000; k++) { await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: x + (k % 2), y, button: 'none', buttons: 0, ...extra }); if (await ev(`S.pages[0].ink.style.pointerEvents===${JSON.stringify(want)}`) === true) return true; await sleep(50); } return false; };
+  const hoverText = (x, y, want = 'none') => pointUntil(x, y, want);
+  // Zustand vor jedem Textauswahl-Test zurücksetzen: Auswahl, Editor, Textauswahl; Maus in die Ecke, Textebene wieder da
+  const resetText = async () => { await ev("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));getSelection().removeAllRanges();closeEditor();setSel(null);setTool('select')"); await mv(5, 5); await waitFor("!!(S.pages[0].tl&&S.pages[0].tl.querySelector('span'))"); };
   const sp = hv.sp, mid = [(sp[0] + sp[2]) / 2, (sp[1] + sp[3]) / 2];
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents==='none'");
+  await hoverText(mid[0], mid[1]);
   const n1 = await inkNone();
   ok('Hover über Text: Ink lässt die Maus zum Text durch', n1 === 'none', n1);
   await pressAt(sp[0] + 2, mid[1]); await dragTo(sp[2] - 2, mid[1]); await releaseAt(sp[2] - 2, mid[1]);
   await waitFor("String(getSelection()).includes('Router')");
   ok('Ziehen über Text markiert Text, Auswahl enthält Router', await ev("String(getSelection()).includes('Router')") === true);
-  await mv(hv.emp[0], hv.emp[1]); await waitFor("S.pages[0].ink.style.pointerEvents===''");
+  await hoverText(hv.emp[0], hv.emp[1], '');
   const n2 = await inkNone();
   ok('Leere Seitenfläche: Ink wieder aktiv', n2 === '', n2);
   await ev("S.pages[0].objs.push({type:'rect',x:300,y:500,w:150,h:100,color:'#000000',lw:1,fill:'none',oid:'hvR'});redraw(0)");
@@ -95,14 +100,14 @@ else {
   await pressAt(pg[0] + 280 * Z, pg[1] + 480 * Z); await dragTo(pg[0] + 470 * Z, pg[1] + 630 * Z); await releaseAt(pg[0] + 470 * Z, pg[1] + 630 * Z);
   await waitFor("(()=>{const R=S.pages[0].objs.find(o=>o.oid==='hvR');return !!S.sel&&selItems().includes(R)})()");
   ok('Lasso auf freier Fläche wählt Objekt aus', await ev("(()=>{const R=S.pages[0].objs.find(o=>o.oid==='hvR');return !!S.sel&&selItems().includes(R)})()") === true);
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents==='none'");
+  await hoverText(mid[0], mid[1]);
   await ev("S.pages[0].objs.push({type:'rect',x:50,y:120,w:400,h:60,color:'#000000',lw:1,fill:'white',oid:'hvW'});redraw(0)");
-  await mv(mid[0] + 1, mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents===''");
+  await hoverText(mid[0] + 1, mid[1], '');
   ok('Objekt über Text: Ink bleibt aktiv', await inkNone() === '', await inkNone());
   await pressAt(mid[0], mid[1]); await releaseAt(mid[0], mid[1]);
   await waitFor("(()=>{const W=S.pages[0].objs.find(o=>o.oid==='hvW');return !!S.sel&&selItems().includes(W)})()");
   ok('Klick auf Objekt über Text wählt es aus', await ev("(()=>{const W=S.pages[0].objs.find(o=>o.oid==='hvW');return !!S.sel&&selItems().includes(W)})()") === true);
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents===''");
+  await hoverText(mid[0], mid[1], '');
   await ev("setTool('pen')");
   const pb = await ev("S.pages[0].objs.length");
   await pressAt(hv.emp[0], hv.emp[1]); await dragTo(hv.emp[0] + 40, hv.emp[1] + 20); await releaseAt(hv.emp[0] + 40, hv.emp[1] + 20);
@@ -110,19 +115,20 @@ else {
   ok('Stift nach Hover über Text zeichnet', await ev(`S.pages[0].objs.length===${pb}+1&&S.pages[0].objs[S.pages[0].objs.length-1].type==='pen'`) === true);
   await ev(`setTool('select');S.pages[0].objs.length=${pb};S.pages[0].objs=S.pages[0].objs.filter(o=>!['hvR','hvW'].includes(o.oid));redraw(0)`);
   await waitFor("!!(S.pages[0].tl&&S.pages[0].tl.querySelector('span'))");
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents==='none'");
+  await hoverText(mid[0], mid[1]);
   await ev("S.pages[0].el.dispatchEvent(new PointerEvent('pointerleave',{buttons:0}))");
   await waitFor("S.pages[0].ink.style.pointerEvents===''");
   ok('Seite verlassen: Ink wieder aktiv', await inkNone() === '', await inkNone());
   // Objekt und Textauswahl schließen sich aus; Esc und Strg+A arbeiten auf der Textauswahl
+  await resetText();
   await ev("S.pages[0].objs.push({type:'rect',x:300,y:500,w:150,h:100,color:'#000000',lw:1,fill:'none',oid:'hvR'});redraw(0);setSel({p:0,o:S.pages[0].objs.find(o=>o.oid==='hvR')})");
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents==='none'");
+  await hoverText(mid[0], mid[1]);
   await pressAt(sp[0] + 2, mid[1]); await dragTo(sp[2] - 2, mid[1]); await releaseAt(sp[2] - 2, mid[1]);
   await waitFor("S.sel===null&&String(getSelection()).includes('Router')");
   ok('Textauswahl hebt Objektauswahl auf', await ev("S.sel===null&&String(getSelection()).includes('Router')") === true);
   await ev("setSel({p:0,o:S.pages[0].objs.find(o=>o.oid==='hvR')})");
   ok('Objektauswahl hebt Textauswahl auf', await ev("String(getSelection())===''") === true);
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents==='none'");
+  await hoverText(mid[0], mid[1]);
   await pressAt(sp[0] + 2, mid[1]); await dragTo(sp[2] - 2, mid[1]); await releaseAt(sp[2] - 2, mid[1]);
   await waitFor("String(getSelection()).includes('Router')");
   await ev("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}))");
@@ -187,19 +193,21 @@ else {
   ok('Textebene nach schnellem Werkzeugwechsel: Text genau einmal', await ev("(S.pages[0].tl.textContent.match(/Router/g)||[]).length===1") === true);
   // Seite ohne Ink-Layer (PDF lädt noch) darf Werkzeugwechsel und Esc nicht stören
   ok('Werkzeugwechsel und Esc mit Seite ohne Ink-Layer werfen nicht', await ev("(()=>{S.pages.push({objs:[],w:1,h:1});try{setTool('pen');setTool('select');window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));return true}finally{S.pages.pop()}})()") === true);
+  await resetText();
   // Alt gedrückt: Ink bleibt aktiv, Lasso über Text möglich
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents==='none'");
-  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: mid[0] + 1, y: mid[1], button: 'none', buttons: 0, modifiers: 1 }); await waitFor("S.pages[0].ink.style.pointerEvents===''");
+  await hoverText(mid[0], mid[1]);
+  await pointUntil(mid[0] + 1, mid[1], '', { modifiers: 1 });
   ok('Alt über Text: Ink bleibt aktiv', await inkNone() === '', await inkNone());
   // Alt allein (ohne Mausbewegung) über Text: Ink wird wieder frei, sonst markiert Ziehen Text statt Lasso
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents==='none'");
+  await hoverText(mid[0], mid[1]);
   const altPre = await inkNone();
   await ev("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Alt'}))");
   const altPost = await inkNone();
   ok('Alt-Taste ohne Mausbewegung über Text: Ink wieder aktiv', altPre === 'none' && altPost === '', { altPre, altPost });
   // Rechtsklick auf gesperrtes Objekt über Text öffnet das Objektmenü (Klicks gehen durch)
+  await resetText();
   await ev("S.pages[0].objs.push({type:'rect',x:50,y:120,w:400,h:60,color:'#000000',lw:1,fill:'white',locked:true,oid:'hvL'});redraw(0);lockPassOn=true;window.__om=0;window.__omOrig=objMenu;objMenu=()=>{window.__om++}");
-  await mv(mid[0], mid[1]); await waitFor("S.pages[0].ink.style.pointerEvents==='none'");
+  await hoverText(mid[0], mid[1]);
   await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: mid[0], y: mid[1], button: 'right', buttons: 2, clickCount: 1 });
   await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: mid[0], y: mid[1], button: 'right', buttons: 0, clickCount: 1 });
   await waitFor("window.__om>0");
