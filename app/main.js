@@ -43,7 +43,7 @@ const listen = (ch, fn) => ipcMain.on(ch, (e, ...a) => { if (okSender(e)) fn(e, 
 // Externe Links: nur https auf die eigene GitHub-Seite
 const okExternal = u => { try { const x = new URL(u); return x.protocol === 'https:' && x.hostname === 'github.com' && !x.username && !x.password && (x.pathname === '/' + REPO || x.pathname.startsWith('/' + REPO + '/')); } catch (e) { return false; } };
 // Namen aus der Oberfläche sind nur Namen, nie Pfade
-const safeBase = n => { let b = path.basename(String(n || '').replace(/\\/g, '/')).replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\.pdf$/i, '').replace(/^[.\s]+/, '').trim().slice(0, 200); if (/^(con|prn|aux|nul|com\d|lpt\d)(\.|$)/i.test(b)) b = ''; if (!b) b = 'Dokument'; return b + '.pdf'; };
+const safeBase = n => { let b = path.basename(String(n || '').replace(/\\/g, '/')).replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\.pdf$/i, '').replace(/^[.\s]+/, '').trim().slice(0, 200); if (/^(con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³]|conin\$|conout\$)\s*(\.|$)/i.test(b)) b = ''; if (!b) b = 'Dokument'; return b + '.pdf'; };
 // Gespeichert werden nur echte PDF-Daten
 const isPdfBytes = d => d instanceof Uint8Array && d.length >= 8 && d.length <= 2e9 && d[0] === 0x25 && d[1] === 0x50 && d[2] === 0x44 && d[3] === 0x46 && d[4] === 0x2d;
 const isPdfPath = p => { try { return typeof p === 'string' && path.isAbsolute(p) && /\.pdf$/i.test(p) && fs.statSync(p).isFile(); } catch (e) { return false; } };
