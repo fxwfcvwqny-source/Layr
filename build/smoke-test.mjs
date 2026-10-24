@@ -58,6 +58,9 @@ else {
   ok('pdf.js 6 geladen', String(await ev('pdfjsLib.version')).startsWith('6.'));
   ok('Content-Security-Policy aktiv', /wasm-unsafe-eval/.test(String(await ev("(document.querySelector('meta[http-equiv=\"Content-Security-Policy\"]')||{}).content"))));
   ok('Fremder Inline-Code gesperrt', await ev("new Promise(r=>{const s=document.createElement('script');s.textContent='window.__inl=1';document.head.appendChild(s);setTimeout(()=>r(window.__inl===undefined),300)})") === true);
+  // Automatisch speichern aus: der Test schreibt keine Dateien in den Benutzerordner (Dokumente, zuletzt genutzter Ordner)
+  await ev("localStorage.setItem('pdfwerkbank:autosave','0');S.autoSave=false");
+  ok('Rauchtest: automatisches Speichern ist aus', await ev('S.autoSave===false') === true);
   const open = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);d.addPage([595,842]).drawText('Rauchtest Router 10.0.0.1',{x:72,y:700,size:18,font:f});await openPdf(await d.save(),'Rauchtest.pdf');await new Promise(r=>setTimeout(r,1500));return [S.pages.length,!!S.pages[0].pdf]})()");
   ok('PDF öffnen und zeichnen', Array.isArray(open) && open[0] === 1, open);
   // Werkzeug- und Kopfzeilen-Icons liegen nach dem Laden und nach Größenänderung auf ganzen Pixeln
