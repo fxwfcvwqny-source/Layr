@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4DO1vT+TMPKij6Jhxa4iXhf4YQZRwkOHDG2rW29zCdE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Z4itXt1dy1kLmpAUUeN2nTkO15igrSoPC99x55xofJE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -545,6 +545,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 :root[data-bars="contrast"] :is(header,.tools,.panel,.thumbs),:root[data-bars="custom"].bars-dark :is(header,.tools,.panel,.thumbs){--accent:var(--a-d);--on-accent:#0b0f14}
 :root[data-bars="custom"]:not(.bars-dark) :is(header,.tools,.panel,.thumbs){--accent:var(--a-l);--on-accent:#fff}
 #dLight{grid-template-columns:repeat(4,minmax(0,1fr))}
+:root[data-bars="contrast"] header{--danger:#ff8a80}:root[data-bars="accent"] header{--danger:var(--bar-ink)}
 :root[data-bars="accent"] header .btn.primary{background:var(--on-accent);border-color:var(--on-accent);color:var(--bar);box-shadow:none}
 :root[data-bars="accent"] .panel .seg button[aria-pressed="true"],:root[data-bars="accent"] .panel .cat[aria-pressed="true"]{color:var(--bar-ink)}
 /* Schwebende Werkzeugleiste */
@@ -566,6 +567,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .tool svg,.ib svg,.btn svg{transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
 .brand .logo{transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
 header .pill{transition:background .2s,color .2s,border-color .2s}
+#hdrSave{color:var(--accent)}#hdrSave.unsaved{color:var(--danger)}
 .panel .sec{transition:background .2s}
 /* ---------- Animationen ---------- */
 @keyframes lyr-fade{from{opacity:0}to{opacity:1}}
@@ -4751,7 +4753,7 @@ let autoT=0,autoBusy=false;
 S.rev=0;S.autoSave=true;try{S.autoSave=localStorage.getItem('pdfwerkbank:autosave')!=='0'}catch(e){}
 function setSaveState(text){{const ns=document.getElementById('ntState');if(ns){ns.textContent=S.dirty?'Wird mit dem PDF gespeichert …':'Im PDF gespeichert';ns.classList.toggle('dirty',!!S.dirty)}}const el=$('#saveState'),hs=$('#hdrSave');if(!el)return;
   if(hs){const was=hs.dataset.st,now=text?'busy':S.dirty?'dirty':'saved';hs.dataset.st=now;if(now==='saved'&&was==='busy')popEl(hs);
-    hs.hidden=!S.bytes||S.sample;hs.textContent=text?'Speichert …':S.dirty?'● Nicht gespeichert':'✓ Gespeichert';hs.style.color=S.dirty&&!text?'var(--danger)':'var(--accent)'}
+    hs.hidden=!S.bytes||S.sample;hs.textContent=text?'Speichert …':S.dirty?'● Nicht gespeichert':'✓ Gespeichert';hs.classList.toggle('unsaved',!!S.dirty&&!text)}
   if(text){el.textContent=text;return}
   el.textContent=!window.werkbank?'Beschriftungen werden im Browser zwischengespeichert.':!S.autoSave?'Automatisch speichern ist aus.':S.dirty?'Ungespeicherte Änderungen …':(S.savedName?`Automatisch gespeichert in „${S.savedName}“.`:'Speichert automatisch in die geöffnete Datei.')}
 function scheduleAutoSave(){if(!window.werkbank||!S.autoSave||S.sample||!S.bytes)return;clearTimeout(autoT);autoT=setTimeout(autoSaveNow,2500)}
