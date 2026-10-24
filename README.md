@@ -96,6 +96,10 @@ Download the file for your system from the [latest release](https://github.com/f
 
 Found a security problem? Please open an issue without details and ask for a private contact.
 
+## Microsoft Store
+
+A separate Store build (MSIX/AppX) is prepared: no in-app updates, Store-specific listing texts and privacy policy. See [docs/STORE.md](docs/STORE.md) for the steps to publish it, [PRIVACY.md](PRIVACY.md) for privacy and [docs/store-listing](docs/store-listing) for the listing texts. The GitHub version (installer, AppImage, .deb) is unchanged.
+
 ## Building from source
 
 Requires [Node.js](https://nodejs.org/) 22 or newer.
