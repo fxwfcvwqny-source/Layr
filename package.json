@@ -83,6 +83,26 @@
       "displayLanguageSelector": true,
       "include": "build/installer.nsh"
     },
+    "appx": {
+      "identityName": "REPLACE_WITH_PARTNER_CENTER_PACKAGE_IDENTITY_NAME",
+      "publisher": "CN=REPLACE-WITH-PARTNER-CENTER-PUBLISHER-ID",
+      "publisherDisplayName": "REPLACE_WITH_PUBLISHER_DISPLAY_NAME",
+      "applicationId": "Layr",
+      "displayName": "Layr",
+      "backgroundColor": "transparent",
+      "languages": [
+        "de-DE",
+        "en-US"
+      ],
+      "addAutoLaunchExtension": false,
+      "showNameOnTiles": false,
+      "artifactName": "Layr-${version}-Store.${ext}",
+      "capabilities": [
+        "microphone"
+      ],
+      "minVersion": "10.0.17763.0",
+      "maxVersionTested": "10.0.22621.0"
+    },
     "linux": {
       "target": [
         "AppImage",
