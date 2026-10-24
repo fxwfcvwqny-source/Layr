@@ -282,6 +282,8 @@ else {
   await sleep(4000);
   for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof applyDesign==='function'") === true) break; await sleep(500); }
   ok('Altes Design ohne Text-Leisten-Schlüssel lädt mit Standardreihenfolge', await ev("design.qbar==='l'&&design.qbarOrder.join()===QB_IDS.join()&&design.qbarHide.length===0&&design.qbarStyle==='panel'") === true);
+  // Seite ohne DOM (P.el fehlt) bringt Layout und Zoom nicht zum Absturz
+  ok('Layout mit Seite ohne DOM stürzt nicht ab', await ev("(()=>{const n=S.pages.length;S.pages.push({w:100,h:100,objs:[]});let ok=true;try{layout()}catch(e){ok=false}S.pages.length=n;return ok})()") === true);
   // Datei-Menü ist in niedrigen Fenstern nicht abgeschnitten: Mausrad und Pfeiltasten erreichen „Drucken“
   const ctxBox = "(()=>{const c=document.getElementById('ctx'),r=c.getBoundingClientRect();return [r.top,r.bottom,innerHeight,c.scrollHeight>c.clientHeight]})()";
   const lastIn = "(()=>{const c=document.getElementById('ctx').getBoundingClientRect(),b=[...document.querySelectorAll('#ctx button')].pop().getBoundingClientRect();return b.top>=c.top&&b.bottom<=c.bottom&&b.bottom<=innerHeight})()";

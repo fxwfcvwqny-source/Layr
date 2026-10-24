@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-5937hRStlxL4daI+dUnoalWfXCxhyVa82cJjprbeMOU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZqiSro59S8v3Pd72oI2EofMi5RQLJjYxM4l0oGktaoM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3809,7 +3809,7 @@ function buildPages(){
 }
 function layout(){try{decoEnsure()}catch(e){}
   const k=DPR();
-  S.pages.forEach((P,i)=>{const W=Math.max(1,Math.round(P.w*S.zoom*k)),Hh=Math.max(1,Math.round(P.h*S.zoom*k));P.el.style.width=(W/k)+'px';P.el.style.height=(Hh/k)+'px';P.el.style.setProperty('--scale-factor',S.zoom);P.ink.width=W;P.ink.height=Hh;redraw(i)});
+  S.pages.forEach((P,i)=>{if(!P.el||!P.ink)return;const W=Math.max(1,Math.round(P.w*S.zoom*k)),Hh=Math.max(1,Math.round(P.h*S.zoom*k));P.el.style.width=(W/k)+'px';P.el.style.height=(Hh/k)+'px';P.el.style.setProperty('--scale-factor',S.zoom);P.ink.width=W;P.ink.height=Hh;redraw(i)});
   try{spvZoom()}catch(e){}
   {const a=$('#addPageCard'),L=S.pages[S.pages.length-1];if(a&&L)a.style.width=Math.max(220,L.w*S.zoom)+'px'}
   $('#bFit').textContent=Math.round(S.zoom*100)+' %';
@@ -3846,7 +3846,7 @@ let renderGen=0;
 async function renderAll(){
   if(!S.doc)return;const g=++renderGen;
   // sichtbare Seiten zuerst
-  const order=S.pages.map((_,i)=>i);const vr=viewer.getBoundingClientRect();
+  const order=S.pages.map((_,i)=>i).filter(i=>S.pages[i].el);const vr=viewer.getBoundingClientRect();
   order.sort((a,b)=>Math.abs(S.pages[a].el.getBoundingClientRect().top-vr.top)-Math.abs(S.pages[b].el.getBoundingClientRect().top-vr.top));
   for(const i of order){if(g!==renderGen)return;await renderPage(i,g)}
 }
@@ -3856,7 +3856,7 @@ async function renderPage(i,g){
   {const v1=page.getViewport({scale:1}),W=P.ink&&P.ink.width;if(W&&Math.abs(v1.width-P.w)<1&&Math.abs(v1.height-P.h)<1)vp=page.getViewport({scale:W/v1.width})}
   cv.width=P.ink&&P.ink.width&&Math.abs(Math.round(vp.width)-P.ink.width)<=1?P.ink.width:Math.round(vp.width);cv.height=P.ink&&P.ink.height&&Math.abs(Math.round(vp.height)-P.ink.height)<=1?P.ink.height:Math.round(vp.height);
   try{await page.render({canvasContext:cv.getContext('2d'),viewport:vp,annotationMode:pdfjsLib.AnnotationMode.ENABLE_FORMS}).promise}catch(e){return}
-  if(g!==renderGen)return;P.el.replaceChild(cv,P.pdf);P.pdf=cv;
+  if(g!==renderGen||!P.el||!P.pdf)return;P.el.replaceChild(cv,P.pdf);P.pdf=cv;
 }
 // Liegt der Anker einer Textauswahl in einer Textebene?
 function inTL(n){const e=n&&(n.nodeType===1?n:n.parentElement);return !!(e&&e.closest('.textLayer'))}
