@@ -238,7 +238,13 @@ else {
   await sleep(4000);
   for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof openPdf==='function'") === true) break; await sleep(500); }
   ok('Alte Werkzeug-Einstellung (textsel) stört nicht: Werkzeugleiste baut sich auf', await ev("document.querySelectorAll('#tools .tool').length>5&&!document.querySelector('.tool[data-t=textsel]')&&typeof setTool==='function'") === true);
+  // Text-Leiste: Einstellungen werden bereinigt, alte Design-Daten laden ohne Fehler
+  ok('Text-Leiste: ungültige Einstellungen werden bereinigt', await ev("(()=>{const d=qbSan({qbarOrder:['x','bold','bold'],qbarHide:QB_IDS.slice(),qbar:'zz',qbarStyle:'zz'});return d.qbarOrder.join()==='bold,font,size,ul,lists,indent,col,del'&&d.qbarHide.length===0&&d.qbar==='m'&&d.qbarStyle==='panel'})()") === true);
+  await ev("localStorage.setItem('pdfwerkbank:design',JSON.stringify({qbar:'l'}));location.reload()");
+  await sleep(4000);
+  for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof applyDesign==='function'") === true) break; await sleep(500); }
+  ok('Altes Design ohne Text-Leisten-Schlüssel lädt mit Standardreihenfolge', await ev("design.qbar==='l'&&design.qbarOrder.join()===QB_IDS.join()&&design.qbarHide.length===0&&design.qbarStyle==='panel'") === true);
   ws.close();
-  console.log(failed ? `${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
+  console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
   done(failed ? 1 : 0);
 }
