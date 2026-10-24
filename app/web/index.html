@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Z4itXt1dy1kLmpAUUeN2nTkO15igrSoPC99x55xofJE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-55FAOORSMFQuM/8zdCczYwPch/d69ozVqmhv/E7WwUA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -354,6 +354,7 @@ input[type=range]:disabled{opacity:.45;cursor:default}
 .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
 select{height:30px;border:1px solid transparent;border-radius:6px;background:var(--fill);padding:0 6px;flex:1;min-width:0}
 .seg button:hover:not([aria-pressed="true"]){background:var(--fill-hover)}
+.seg>button:focus-visible{outline-offset:-2px}
 :where(.panel,.modal,.notes) :where(input[type=text],input[type=number],input[type=search],input[type=password],textarea){border:1px solid transparent;border-radius:var(--r-s);background:var(--fill);color:var(--ink)}
 .btn:disabled,.fontbtn:disabled,select:disabled{opacity:.45;cursor:default}
 .chk{display:flex;align-items:center;gap:6px;font-size:13px}
@@ -679,6 +680,8 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 :root[data-toastpos="br"] .toast{left:auto;right:calc(24px + env(safe-area-inset-right,0px));--tx:0px}
 :root[data-toastpos="tc"] .toast{bottom:auto;top:calc(112px + env(safe-area-inset-top,0px));--td:-1}
 .toast.run::after{background:color-mix(in srgb,var(--toast-ink,var(--panel)) 45%,transparent);animation-duration:var(--tdur,5.2s)}
+:root .toast:empty{padding:0;background:none;box-shadow:none;border:0;opacity:0;pointer-events:none}
+.toast .toast-x{margin-left:12px;border:0;background:none;color:inherit;font:inherit;font-size:16px;line-height:1;cursor:pointer;padding:0 2px}
 @keyframes lyr-toast{from{opacity:0;transform:translate(var(--tx),calc(14px*var(--td))) scale(.96)}to{opacity:1;transform:translate(var(--tx),0)}}
 @keyframes lyr-toast-out{from{opacity:1;transform:translate(var(--tx),0)}to{opacity:0;transform:translate(var(--tx),calc(10px*var(--td))) scale(.97)}}
 .barb.tst span i:nth-child(1){top:auto;left:16%;right:16%;bottom:5px;height:9px;border-radius:3px;background:var(--b);box-shadow:0 1px 3px rgba(0,0,0,.28),inset 0 0 0 1px rgba(127,127,127,.25)}
@@ -855,6 +858,7 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 @keyframes lyr-find-out{to{opacity:0;transform:translateY(-8px) scale(.97)}}
 .findbar>svg{width:16px;height:16px;color:var(--muted);flex:none}
 .findbar input{width:min(230px,38vw);height:30px;border:0;background:transparent;color:var(--ink);font:500 14px var(--f-ui);outline:none;padding:0 6px}
+.findbar input::placeholder{color:var(--muted)}
 .findbar .fcount{font-size:12px;color:var(--muted);white-space:nowrap;min-width:54px;text-align:right;font-variant-numeric:tabular-nums;padding-right:4px}
 .findbar .fcount.none{color:var(--danger)}
 .findbar .fsep{width:1px;height:20px;background:var(--line);margin:0 3px}
@@ -1595,7 +1599,7 @@ header,.file{min-width:0}
       <h3>Auswahl</h3>
       <div class="row"><button class="btn" id="bDup">Duplizieren</button><button class="btn" id="bDel">Löschen</button></div>
       <div class="row"><button class="btn" id="bFront">Nach vorne</button><button class="btn" id="bBack">Nach hinten</button></div>
-      <div class="al-row" id="alRow" role="group" aria-label="Ausrichten"><button type="button" class="ib al-b" data-a="l" title="Links ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-left"/></svg></button><button type="button" class="ib al-b" data-a="ch" title="Waagrecht zentrieren"><svg class="ph" aria-hidden="true"><use href="#ph-align-center-horizontal"/></svg></button><button type="button" class="ib al-b" data-a="r" title="Rechts ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-right"/></svg></button><button type="button" class="ib al-b" data-a="t" title="Oben ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-top"/></svg></button><button type="button" class="ib al-b" data-a="cv" title="Senkrecht zentrieren"><svg class="ph" aria-hidden="true"><use href="#ph-align-center-vertical"/></svg></button><button type="button" class="ib al-b" data-a="b" title="Unten ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-bottom"/></svg></button><span class="al-sep"></span><button type="button" class="ib al-b" data-a="dh" title="Waagrecht verteilen"><svg class="ph" aria-hidden="true"><use href="#ph-columns"/></svg></button><button type="button" class="ib al-b" data-a="dv" title="Senkrecht verteilen"><svg class="ph" aria-hidden="true"><use href="#ph-rows"/></svg></button></div>
+      <div class="al-row" id="alRow" role="group" aria-label="Ausrichten"><button type="button" class="ib al-b" data-a="l" title="Links ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-left"/></svg></button><button type="button" class="ib al-b" data-a="ch" title="Waagerecht zentrieren"><svg class="ph" aria-hidden="true"><use href="#ph-align-center-horizontal"/></svg></button><button type="button" class="ib al-b" data-a="r" title="Rechts ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-right"/></svg></button><button type="button" class="ib al-b" data-a="t" title="Oben ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-top"/></svg></button><button type="button" class="ib al-b" data-a="cv" title="Senkrecht zentrieren"><svg class="ph" aria-hidden="true"><use href="#ph-align-center-vertical"/></svg></button><button type="button" class="ib al-b" data-a="b" title="Unten ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-bottom"/></svg></button><span class="al-sep"></span><button type="button" class="ib al-b" data-a="dh" title="Waagerecht verteilen"><svg class="ph" aria-hidden="true"><use href="#ph-columns"/></svg></button><button type="button" class="ib al-b" data-a="dv" title="Senkrecht verteilen"><svg class="ph" aria-hidden="true"><use href="#ph-rows"/></svg></button></div>
       <p class="hint" id="alHint"></p>
     </div>
     </div>
@@ -2174,7 +2178,7 @@ const I18N_EN={
 'Updates kommen über den Microsoft Store.':'Updates come through the Microsoft Store.','Layr & Updates':'Layr & updates','Automatisch nach Updates suchen':'Check for updates automatically','Jetzt suchen':'Check now','Downloads & Neuigkeiten':'Downloads & news',
 'Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.':'Layr only asks the public GitHub page for the latest version number. No files, notes or data are sent.',
 'Layr sucht ab jetzt selbst nach Updates.':'Layr will now check for updates on its own.','Automatische Update-Suche aus.':'Automatic update check off.','Noch keine Version veröffentlicht.':'No version published yet.',
-'Update-Suche hat nicht geklappt. Bist du online?':'The update check failed. Are you online?','Update verfügbar':'Update available','Für diese Version nicht mehr erinnern':'Don’t remind me about this version',
+'Update-Suche hat nicht geklappt. Keine Verbindung. Bitte Internet prüfen.':'The update check failed. No connection. Please check the internet.','Update verfügbar':'Update available','Für diese Version nicht mehr erinnern':'Don’t remind me about this version',
 'Eine neue Version steht zum Download bereit.':'A new version is ready to download.','Der Download startet im Browser. Danach den Installer öffnen.':'The download starts in your browser. Open the installer afterwards.',
 'Sprache':'Language',
 // Notizen
@@ -2280,7 +2284,7 @@ const I18N_EN={
 'Rechtschreibung prüfen':'Check spelling','Deutsch + Englisch':'German + English','Deutsch':'German','Englisch':'English','Deutsches Wörterbuch laden':'Download German dictionary',
 'Wörterbücher werden geladen …':'Loading dictionaries …','Für Deutsch fehlt ein Wörterbuch. Layr kann es einmalig herunterladen (ca. 1 MB, aus dem öffentlichen npm-Verzeichnis, geprüft).':'A German dictionary is missing. Layr can download it once (about 1 MB, from the public npm registry, verified).',
 'Deutsch wird in der Desktop-App geprüft. Hier prüft Layr Englisch.':'German is checked in the desktop app. Here Layr checks English.','Das Wörterbuch ließ sich nicht laden.':'The dictionary could not be loaded.',
-'Lädt …':'Loading …','Download hat nicht geklappt. Bist du online?':'Download failed. Are you online?','Deutsches Wörterbuch installiert. Layr prüft jetzt auch Deutsch.':'German dictionary installed. Layr now checks German too.',
+'Lädt …':'Loading …','Download hat nicht geklappt. Keine Verbindung. Bitte Internet prüfen.':'Download failed. No connection. Please check the internet.','Deutsches Wörterbuch installiert. Layr prüft jetzt auch Deutsch.':'German dictionary installed. Layr now checks German too.',
 'Keine Vorschläge':'No suggestions','Zum Wörterbuch hinzufügen':'Add to dictionary','Ignorieren':'Ignore',
 'Klicken zum Umbenennen (F2)':'Click to rename (F2)','Dateiname':'File name','Umbenennen hat nicht geklappt.':'Renaming failed.',
 'Updates selbst installieren':'Install updates automatically','Jetzt installieren':'Install now',
@@ -2365,7 +2369,7 @@ const I18N_EN={
 'Zum Entpacken fehlt das Programm „bzip2“. Im Terminal installieren: sudo apt install bzip2':'The program “bzip2” is missing for unpacking. Install it in a terminal: sudo apt install bzip2',
 'Die geladene Datei stimmt nicht mit der erwarteten Prüfsumme überein und wurde gelöscht. Bitte später noch einmal versuchen.':'The downloaded file does not match the expected checksum and was deleted. Please try again later.',
 'Die Einrichtung läuft schon.':'Setup is already running.','Das Entpacken hat nicht geklappt.':'Unpacking failed.',
-'Der Download hat nicht geklappt. Bitte die Internetverbindung prüfen.':'The download failed. Please check the internet connection.',
+'Der Download hat nicht geklappt. Keine Verbindung. Bitte Internet prüfen.':'The download failed. No connection. Please check the internet.',
 'Diktieren ist eingerichtet. Einfach sprechen – Strg+Umschalt+D beendet.':'Dictation is set up. Just speak – Ctrl+Shift+D stops.',
 'Sprachmodell NVIDIA Parakeet v3 ist eingerichtet (belegt ':'Speech model NVIDIA Parakeet v3 is set up (uses ','). Erkannt wird nur auf diesem Rechner.':'). Recognition runs only on this computer.',
 'Wird gerade eingerichtet …':'Being set up …','Noch nicht eingerichtet. Einmaliger Download: ':'Not set up yet. One-time download: ',
@@ -2518,8 +2522,8 @@ const I18N_EN={
 'Mit einer geöffneten Datei:':'With an open file:','Andere Fassung wählen':'Choose other version','Vergleich':'Comparison','Gleichzeitig scrollen':'Scroll together','Vorherige':'Previous','Nächste':'Next',
 'Vergleicht':'Comparing','Liest Text':'Reading text','Keine der beiden PDFs enthält Text (gescannt?). Erst „Text erkennen“ nutzen.':'Neither PDF contains text (scanned?). Use “Recognize text” first.',
 '1 Änderung':'1 change',' Änderungen':' changes','Kein Unterschied im Text.':'No difference in the text.','Vergleichen hat nicht geklappt: ':'Comparing failed: ',
-'Ausrichten':'Align','Links ausrichten':'Align left','Waagrecht zentrieren':'Center horizontally','Rechts ausrichten':'Align right','Oben ausrichten':'Align top','Senkrecht zentrieren':'Center vertically',
-'Unten ausrichten':'Align bottom','Waagrecht verteilen':'Distribute horizontally','Senkrecht verteilen':'Distribute vertically','Objekte auswählen (Umschalt-Klick oder Rahmen ziehen).':'Select objects (Shift-click or drag a frame).',
+'Ausrichten':'Align','Links ausrichten':'Align left','Waagerecht zentrieren':'Center horizontally','Rechts ausrichten':'Align right','Oben ausrichten':'Align top','Senkrecht zentrieren':'Center vertically',
+'Unten ausrichten':'Align bottom','Waagerecht verteilen':'Distribute horizontally','Senkrecht verteilen':'Distribute vertically','Objekte auswählen (Umschalt-Klick oder Rahmen ziehen).':'Select objects (Shift-click or drag a frame).',
 'Ein Objekt: wird auf der Seite ausgerichtet.':'One object: aligned on the page.',' Objekte: an der Auswahl ausrichten.':' objects: aligned to the selection.',
 'Diagramm aus Text':'Diagram from text','Mindmap, Diagramm, Logik, Struktogramm':'Mind map, chart, logic, structogram',
 'Mindmap, Diagramm aus einer Tabelle, Logikschaltung mit Wahrheitstabelle oder Struktogramm – aus ein paar Zeilen Text. Doppelklick bearbeitet es.':'Mind map, chart from a table, logic circuit with truth table or structogram – from a few lines of text. Double-click to edit.',
@@ -4736,7 +4740,7 @@ async function save(saveAs){
     const dl=window.claude&&window.claude.use?await window.claude.use('downloads').catch(()=>null):null;
     if(dl){
       try{await dl.save({filename:name,data:new Blob([out],{type:'application/pdf'})});clean();toast(`„${name}“ gespeichert. Das Original ist unverändert.`);return true}
-      catch(e){if(e&&e.code!=='declined')toast('Speichern ging hier nicht. Öffne die HTML-Datei direkt im Browser, dort klappt es immer.');return false}
+      catch(e){if(e&&e.code!=='declined')toast('Speichern ging hier nicht. Öffne die HTML-Datei direkt im Browser, dort klappt es immer.',1);return false}
     }
     if(window.werkbank){const r=await werkbank.save(name,out,saveAs||(S.isNew&&!S.savedName));if(r){clean();S.savedName=r;setSaveState();toast(`Gespeichert in „${r}“.`)}return!!r}
     if(window.showSaveFilePicker&&window.self===window.top){
@@ -4747,7 +4751,7 @@ async function save(saveAs){
     clean();
     toast(window.self!==window.top?`„${name}“ wird heruntergeladen. Falls in dieser Vorschau nichts passiert: Die HTML-Datei direkt im Browser öffnen, dort klappt das Speichern immer.`:`„${name}“ liegt jetzt in deinem Download-Ordner. Das Original ist unverändert.`);
     return true;
-  }catch(e){console.error(e);toast('Speichern hat nicht geklappt: '+(e.message||e));return false}
+  }catch(e){console.error(e);toast('Speichern hat nicht geklappt: '+(e.message||e),1);return false}
 }
 /* ---------- Automatisch speichern (nur in der Linux-App) ---------- */
 let autoT=0,autoBusy=false;
@@ -4893,7 +4897,7 @@ function showUpd(r,manual){updShow(r,manual)}
   auto.onchange=()=>{try{localStorage.setItem('pdfwerkbank:updates',auto.checked?'1':'0')}catch(e){}toast(auto.checked?'Layr sucht ab jetzt selbst nach Updates.':'Automatische Update-Suche aus.')};
   $('#abGh').onclick=()=>W.openRelease('https://github.com/'+info.repo+'/releases/latest');
   let busy=false;const run=async manual=>{if(busy)return;busy=true;const b=$('#upNow');if(manual)b.disabled=true;
-    try{const r=await W.checkUpdate();if(!r||r.error){if(manual)toast(r&&r.error===404?'Noch keine Version veröffentlicht.':'Update-Suche hat nicht geklappt. Bist du online?');return}
+    try{const r=await W.checkUpdate();if(!r||r.error){if(manual)toast(r&&r.error===404?'Noch keine Version veröffentlicht.':'Update-Suche hat nicht geklappt. Keine Verbindung. Bitte Internet prüfen.');return}
       try{localStorage.setItem('pdfwerkbank:updT',String(Date.now()))}catch(e){}
       if(r.newer)showUpd(r,manual);else if(manual)toast('Du hast die neueste Version ('+info.version+').')}
     finally{busy=false;b.disabled=false}};
@@ -5656,7 +5660,7 @@ function spUI(){const t=$('#spOn');if(!t)return;t.checked=SP.on;$('#spLang').val
   $('#spGet').onclick=async()=>{const b=$('#spGet');b.disabled=true;b.textContent=tr('Lädt …');
     let r=null;try{r=await werkbank.spellDownload('de')}catch(e){}
     b.disabled=false;b.textContent=tr('Deutsches Wörterbuch laden');
-    if(!r||!r.ok){toast(tr('Download hat nicht geklappt. Bist du online?'));return}
+    if(!r||!r.ok){toast(tr('Download hat nicht geklappt. Keine Verbindung. Bitte Internet prüfen.'));return}
     SP.st.de='idle';await spLoad('de');if(SP.eng.de)toast(tr('Deutsches Wörterbuch installiert. Layr prüft jetzt auch Deutsch.'))};
   spUI()}}
 setTimeout(()=>{spEnsure();spNotes()},400);
@@ -6271,7 +6275,7 @@ function asrErrText(r){const e=String(r&&r.error||'');
     :e==='hash'||e==='size'?tr('Die geladene Datei stimmt nicht mit der erwarteten Prüfsumme überein und wurde gelöscht. Bitte später noch einmal versuchen.')
     :e==='busy'?tr('Die Einrichtung läuft schon.')
     :e==='unpack'?tr('Das Entpacken hat nicht geklappt.')
-    :tr('Der Download hat nicht geklappt. Bitte die Internetverbindung prüfen.')}
+    :tr('Der Download hat nicht geklappt. Keine Verbindung. Bitte Internet prüfen.')}
 function asrDlgOpen(v,auto){const d=document.getElementById('asrDlg');if(!d)return;
   if(v){DICT.after=auto!==false;$('#asrAsk').hidden=asrBusy;$('#asrRun').hidden=!asrBusy;$('#asrErr').hidden=true;
     werkbank.asrState().then(st=>{if(st){$('#asrSz').textContent=asrMB(st.download);$('#asrSz2').textContent=asrMB(st.unpacked)}}).catch(()=>{});
@@ -6403,7 +6407,10 @@ addEventListener('keydown',e=>{
   else if(KEYS[k])setTool(KEYS[k]);
 });
 if(!window.werkbank)addEventListener('beforeunload',e=>{if(S.dirty&&!S.sample){e.preventDefault();e.returnValue=''}});
-let toastT=0;function toast(msg){let t=$('.toast');if(!t){t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=msg;showEl(t);t.classList.remove('run');void t.offsetWidth;let ms=5200;try{ms={short:3000,normal:5200,long:9000}[design.toastDur]||5200}catch(e){}t.style.setProperty('--tdur',ms+'ms');t.classList.add('run');clearTimeout(toastT);toastT=setTimeout(()=>animHide(t),ms)}
+let toastT=0;function toast(msg,err){let t=$('.toast');if(!t){t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=msg;showEl(t);t.classList.remove('run');void t.offsetWidth;clearTimeout(toastT);
+  if(err){const x=document.createElement('button');x.type='button';x.className='toast-x';x.textContent='×';x.title=tr('Schließen');x.setAttribute('aria-label',tr('Schließen'));x.onclick=()=>{clearTimeout(toastT);animHide(t)};t.appendChild(x);return}
+  let ms=5200;try{ms={short:3000,normal:5200,long:9000}[design.toastDur]||5200}catch(e){}t.style.setProperty('--tdur',ms+'ms');t.classList.add('run');toastT=setTimeout(()=>animHide(t),ms)}
+{const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)} /* leere Live-Region von Anfang an: die erste Meldung wird angesagt */
 
 /* ---------- Neues Blatt & Seiten anhängen ---------- */
 const FMT={a4p:[595.28,841.89],a4l:[841.89,595.28],a3l:[1190.55,841.89]};
@@ -6427,7 +6434,7 @@ segBind('nFmt',v=>{if(NS.mode==='add')NS.fmtAdd=v;else NS.fmt=v;nSync()});
 segBind('nBg',v=>{NS.bg=v;nSync()});segBind('nPaper',v=>{NS.paper=v;nSync()});segBind('nPos',v=>{NS.pos=v;nSync()});
 function openNewDlg(mode,pos){const cp=curPage()+1,canAdd=!!(S.bytes&&!S.sample);
   nd.querySelector('#nMode [data-v=add]').disabled=!canAdd;
-  $('#nAddSub').textContent=canAdd?`In „${S.name}“ einfügen`:'Erst eine PDF öffnen';
+  $('#nAddSub').textContent=canAdd?`In „${S.name}“ einfügen`:'Erst eine PDF öffnen';$('#nAddSub').title=canAdd?S.name:'';
   $('#nFmt').querySelector('[data-v=like]').textContent='Wie Seite '+cp;$('#nPos').querySelector('[data-v=after]').textContent='Nach Seite '+cp;
   if(mode)NS.mode=mode;if(NS.mode==='add'&&!canAdd)NS.mode='doc';if(pos)NS.pos=pos;$('#nPages').value=1;nSync();
   showEl(nd);setTimeout(()=>{if(NS.mode==='doc')$('#nName').select();else $('#nOk').focus()},0)}
@@ -6882,7 +6889,7 @@ async function exRun(){const P=exPages();if(!P||EX.busy)return;EX.busy=true;exUI
       const bl=await new Promise(r=>cv.toBlob(r,mime,.9));cv.width=cv.height=0;files.push({name:`${b}-${tr('Seite')}-${String(P[n]+1).padStart(w,'0')}.${ext}`,data:new Uint8Array(await bl.arrayBuffer())})}
     EX.busy=false;go.textContent=tr('Speichern');animHide($('#exDlg'));
     if(files.length===1)await exBytes(files[0].name,files[0].data,mime);else await exBytes(`${b}-${tr('Seiten')}.zip`,zipStore(files),'application/zip')}
-  catch(e){console.error(e);toast(tr('Exportieren hat nicht geklappt: ')+(e&&e.message||e))}
+  catch(e){console.error(e);toast(tr('Exportieren hat nicht geklappt: ')+(e&&e.message||e),1)}
   finally{EX.busy=false;go.textContent=tr('Speichern');exUI();if(own)pdfClose(doc)}}
 {const d=$('#exDlg');$('#exX').onclick=exClose;$('#exNo').onclick=exClose;$('#exGo').onclick=exRun;
   d.addEventListener('pointerdown',e=>{if(e.target===d)exClose()});d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();exClose()}else if(e.key==='Enter'&&e.target.id==='exRange'){e.preventDefault();exRun()}});
