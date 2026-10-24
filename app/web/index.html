@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-17Tdy8/wqcC4BQQ1tQEnDVAFBzDvPNfz6WuVLZIWVaQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-9lT5JiTsG0gkd7kDXE846cRwdpjwpPZvHW4aIPwpEEI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2784,7 +2784,7 @@ function setTool(id){
   if(id==='lasso')id='select';
   if(S.tool==='marker'&&id!=='marker'&&S.color===MARKER_DEF)setColor(S._prevColor||'#1b1f24',true);
   if(id==='marker'&&S.tool!=='marker'){S._prevColor=S.color;if(!['#ffd60a','#4ade80','#38bdf8','#f472b6'].includes(S.color))setColor(MARKER_DEF,true)}
-  if(S.tool==='select'&&id!=='select'){const sl=getSelection(),an=sl.anchorNode;if(an&&(an.nodeType===1?an:an.parentElement)?.closest('.textLayer'))sl.removeAllRanges();S.pages.forEach(P=>{P.ink.style.pointerEvents='';if(P.tl){P.tl.remove();P.tl=null}})}
+  if(S.tool==='select'&&id!=='select'){if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();S.pages.forEach(P=>{P.ink.style.pointerEvents='';if(P.tl){P.tl.remove();P.tl=null}})}
   S.tool=id;closeEditor();
   if(id!=='select'&&id!=='lasso')setSel(null);
   document.querySelectorAll('.tool').forEach(b=>{if(b.dataset.t!=='ruler')b.setAttribute('aria-pressed',b.dataset.t===id)});tbSync();moveToolInd();try{ffBar()}catch(e){}
@@ -3804,6 +3804,8 @@ async function renderPage(i,g){
   try{await page.render({canvasContext:cv.getContext('2d'),viewport:vp,annotationMode:pdfjsLib.AnnotationMode.ENABLE_FORMS}).promise}catch(e){return}
   if(g!==renderGen)return;P.el.replaceChild(cv,P.pdf);P.pdf=cv;
 }
+// Liegt der Anker einer Textauswahl in einer Textebene?
+function inTL(n){const e=n&&(n.nodeType===1?n:n.parentElement);return !!(e&&e.closest('.textLayer'))}
 // Textzeile unter dem Mauszeiger (Spans der Textebene, keine Marker-Hüllen)
 function tlSpanAt(P,cx,cy){return !!P.tl&&document.elementsFromPoint(cx,cy).some(el=>el.tagName==='SPAN'&&P.tl.contains(el)&&!el.classList.contains('markedContent'))}
 // Textebene (pdf.js) nur für sichtbare Seiten, erst im Werkzeug „Text auswählen“; Zoom über --scale-factor
@@ -3826,7 +3828,7 @@ function markDirty(){try{spvDocChanged()}catch(e){}try{rdBar()}catch(e){}try{if(
 
 /* ---------- Auswahl ---------- */
 let selAnim=null;
-function setSel(sel){const prev=S.sel;S.sel=sel;if(prev)redraw(prev.p);
+function setSel(sel){const prev=S.sel;S.sel=sel;if(sel&&inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(prev)redraw(prev.p);
   if(sel&&(!prev||prev.o!==sel.o)&&!motionOff()){const a={o:sel.o,p:sel.p,t0:performance.now()};selAnim=a;
     const step=()=>{if(selAnim!==a)return;redraw(a.p);if(performance.now()-a.t0<300)requestAnimationFrame(step);else{selAnim=null;redraw(a.p)}};requestAnimationFrame(step)}
   if(sel){redraw(sel.p);syncControls(sel.o)}try{updTblUI()}catch(e){}try{ffBar()}catch(e){}try{alUI()}catch(e){}}
@@ -6338,13 +6340,13 @@ addEventListener('keydown',e=>{
   else if(mod&&k==='f'){e.preventDefault();openFind()}
   else if(mod&&k==='n'&&e.altKey){e.preventDefault();openNewDlg()}
   else if(mod&&k==='d'){e.preventDefault();dupSel()}
-  else if(mod&&k==='a'&&S.tool==='textsel'){e.preventDefault();const L=pagesEl.querySelectorAll('.textLayer');if(L.length){const r=document.createRange();r.setStartBefore(L[0]);r.setEndAfter(L[L.length-1]);getSelection().removeAllRanges();getSelection().addRange(r)}}
+  else if(mod&&k==='a'&&inTL(getSelection().anchorNode)){e.preventDefault();const L=pagesEl.querySelectorAll('.textLayer');if(L.length){const r=document.createRange();r.setStartBefore(L[0]);r.setEndAfter(L[L.length-1]);getSelection().removeAllRanges();getSelection().addRange(r)}}
   else if(mod&&k==='a'){e.preventDefault();const i=S.sel?S.sel.p:curPage(),P=S.pages[i];if(P&&P.objs.length){if(S.tool!=='select'&&S.tool!=='lasso')setTool('select');selectItems(i,P.objs.slice())}}
   else if(mod&&(k==='+'||k==='=')){e.preventDefault();zoomTo(S.zoom*1.2)}
   else if(mod&&k==='-'){e.preventDefault();zoomTo(S.zoom/1.2)}
   else if(mod)return;
   else if(k==='delete'||k==='backspace'){if(S.sel){e.preventDefault();delSel()}}
-  else if(k==='escape'){if(FD.open&&!S.sel)closeFind();setSel(null);S.pages.forEach(P=>P.ink.style.pointerEvents='');if(S.tool!=='select')setTool('select')}
+  else if(k==='escape'){if(FD.open&&!S.sel)closeFind();setSel(null);S.pages.forEach(P=>P.ink.style.pointerEvents='');if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(S.tool!=='select')setTool('select')}
   else if(k==='u')toggleRuler();
   else if(S.sel&&e.key.startsWith('Arrow')){e.preventDefault();if(S.sel.o.locked)return;pushHist();const d=e.shiftKey?10:1;moveObj(S.sel.o,k==='arrowleft'?-d:k==='arrowright'?d:0,k==='arrowup'?-d:k==='arrowdown'?d:0);redraw(S.sel.p);markDirty()}
   else if(k==='n'&&!e.altKey&&!e.shiftKey)notesOpen();

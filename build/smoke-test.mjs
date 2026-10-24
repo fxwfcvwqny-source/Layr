@@ -83,6 +83,21 @@ else {
   await mv(mid[0], mid[1]); await sleep(150);
   await ev("S.pages[0].el.dispatchEvent(new PointerEvent('pointerleave',{buttons:0}))");
   ok('Seite verlassen: Ink wieder aktiv', await inkNone() === '', await inkNone());
+  // Objekt und Textauswahl schließen sich aus; Esc und Strg+A arbeiten auf der Textauswahl
+  await ev("S.pages[0].objs.push({type:'rect',x:300,y:500,w:150,h:100,color:'#000000',lw:1,fill:'none',oid:'hvR'});redraw(0);setSel({p:0,o:S.pages[0].objs.find(o=>o.oid==='hvR')})");
+  await mv(mid[0], mid[1]); await sleep(150);
+  await pressAt(sp[0] + 2, mid[1]); await dragTo(sp[2] - 2, mid[1]); await releaseAt(sp[2] - 2, mid[1]); await sleep(150);
+  ok('Textauswahl hebt Objektauswahl auf', await ev("S.sel===null&&String(getSelection()).includes('Router')") === true);
+  await ev("setSel({p:0,o:S.pages[0].objs.find(o=>o.oid==='hvR')})");
+  ok('Objektauswahl hebt Textauswahl auf', await ev("String(getSelection())===''") === true);
+  await mv(mid[0], mid[1]); await sleep(150);
+  await pressAt(sp[0] + 2, mid[1]); await dragTo(sp[2] - 2, mid[1]); await releaseAt(sp[2] - 2, mid[1]); await sleep(150);
+  await ev("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}))");
+  ok('Esc hebt Textauswahl auf', await ev("String(getSelection())===''") === true);
+  await ev("getSelection().selectAllChildren(S.pages[0].tl)");
+  await ev("window.dispatchEvent(new KeyboardEvent('keydown',{key:'a',ctrlKey:true}))");
+  ok('Strg+A in Textauswahl wählt Text, nicht Objekte', await ev("String(getSelection()).includes('Router')&&S.sel===null") === true);
+  await ev("getSelection().removeAllRanges();setTool('pen');setTool('select');S.pages[0].objs=S.pages[0].objs.filter(o=>o.oid!=='hvR');setSel(null);redraw(0)");
   ok('Text auswählen: Drehregel für gedrehte Seiten', await ev("(()=>{const d=document.createElement('div');d.className='textLayer';d.dataset.mainRotation='90';document.body.appendChild(d);const t=getComputedStyle(d).transform;d.remove();return t.startsWith('matrix')})()") === true);
   const out = await ev("(async()=>{S.pages[0].objs.push({type:'text',x:72,y:300,text:'Kopierbarer Text',fs:16,color:'#1b1f24',orient:'h',lw:0,spans:[{a:0,b:9,color:'#d62828'}]});redraw(0);const out=await buildOutput();const d=await pdfOpen(out.slice());const t=await (await d.getPage(1)).getTextContent();return t.items.map(x=>x.str).join('|')})()", 60000);
   ok('Speichern mit kopierbarem Text', /Kopierbarer Text/.test(String(out)), String(out).slice(-80));
