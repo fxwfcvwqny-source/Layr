@@ -241,6 +241,20 @@ else {
   // Text-Leiste: Standard wie früher; ausgeblendeter Knopf bleibt funktionsfähig
   ok('Text-Leiste: Standard zeigt 8 Knöpfe in alter Reihenfolge mit 3 Trennern', await ev("(()=>{design.qbarOrder=QB_IDS.slice();design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar');const r=[bar.querySelectorAll(':scope>.edsep').length,[...bar.querySelectorAll('[data-a]')].filter(b=>!b.closest('.edoff')).map(b=>b.dataset.a).join()];closeEditor();return r[0]===3&&r[1]==='font,dn,up,bold,ul,lb,ln,out,in,col,del'})()") === true);
   ok('Text-Leiste: ausgeblendeter Fett-Knopf ist unsichtbar, Fett und Strg+B wirken trotzdem', await ev("(()=>{design.qbarHide=['bold'];newText(0,120,200);ED.eng.put('Hallo');const vis=document.querySelector('.edbar [data-a=bold]').getClientRects().length>0;ED.set({bold:true});const a=ED.o.bold===true;ED.set({bold:false});document.querySelector('.tbx-in').dispatchEvent(new KeyboardEvent('keydown',{key:'b',ctrlKey:true,bubbles:true}));const c=ED.o.bold===true;closeEditor();design.qbarHide=[];return !vis&&a&&c})()") === true);
+  // Text-Leiste im Design-Dialog: Tastatur verschiebt Knöpfe, Fokus bleibt am Pfeil
+  const key = async (k, code, vk, text) => { await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: k, code, windowsVirtualKeyCode: vk, text }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: k, code, windowsVirtualKeyCode: vk }); };
+  await ev("studioOpen(true)");
+  await sleep(400);
+  await ev("document.querySelector('#dQbar [data-v=l]').focus()");
+  const isDown = "document.activeElement===document.querySelector('#dQbItems [data-id=\"font\"][data-d=\"1\"]')";
+  for (let i = 0; i < 6 && (await ev(isDown)) !== true; i++) await key('Tab', 'Tab', 9);
+  ok('Text-Leiste: Tab erreicht „Nach unten“ der Schriftart-Zeile', await ev(isDown) === true);
+  await key('Enter', 'Enter', 13, '\r');
+  await sleep(300);
+  ok('Text-Leiste: Enter verschiebt die Schriftart um eine Stelle', await ev("design.qbarOrder[1]==='font'") === true);
+  ok('Text-Leiste: Fokus bleibt am Pfeil der verschobenen Zeile', await ev("document.activeElement.dataset.id==='font'&&document.activeElement.dataset.d==='1'") === true);
+  ok('Text-Leiste: neue Reihenfolge ist gespeichert', await ev("JSON.parse(localStorage.getItem('pdfwerkbank:design')).qbarOrder[1]==='font'") === true);
+  await ev("document.querySelector('#dQbReset').click();studioOpen(false)");
   // Text-Leiste: Einstellungen werden bereinigt, alte Design-Daten laden ohne Fehler
   ok('Text-Leiste: ungültige Einstellungen werden bereinigt', await ev("(()=>{const d=qbSan({qbarOrder:['x','bold','bold'],qbarHide:QB_IDS.slice(),qbar:'zz',qbarStyle:'zz'});return d.qbarOrder.join()==='bold,font,size,ul,lists,indent,col,del'&&d.qbarHide.length===0&&d.qbar==='m'&&d.qbarStyle==='panel'})()") === true);
   await ev("localStorage.setItem('pdfwerkbank:design',JSON.stringify({qbar:'l'}));location.reload()");

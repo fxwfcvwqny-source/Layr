@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4TeyK5HjUUXhHN8yOynXPhMYkhQ5PADVdVIJa/gDIZA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xgjiqg7IQPLhH/cCIDvuuirsAyjz+IR15E5f5ZfXKrM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1470,6 +1470,11 @@ header,.file{min-width:0}
 .edcol .cbar{width:16px;height:4px;border-radius:1px;box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent)}
 .edpal{border-radius:var(--r)}
 .edbar .edsw{border-radius:var(--r-s)}
+.qbprev{margin:6px 0 10px;padding:12px;border-radius:var(--r);background:color-mix(in srgb,var(--ink) 4%,transparent);overflow-x:auto}
+.qbprev .edbar{position:static;width:max-content}
+.qbItems{display:flex;flex-direction:column;gap:2px}
+.qbItems .tb-r{cursor:default}
+.qbItems .ib{width:28px;height:28px}
 @media (forced-colors:active){.seg,.seg button+button,.fontbtn,.btn,select:not(.fm),input:not(.fm),textarea:not(.fm){border-color:ButtonText!important}}
 @media (forced-colors:active){input[type=range]::-webkit-slider-runnable-track,input[type=range]::-webkit-slider-thumb{background:ButtonText}}
 @media (forced-colors:active){#swatches .sw,.acc{forced-color-adjust:none}.tgl .knob{border:1px solid ButtonText}.tgl input:checked+.knob{background:Highlight}.tool[aria-pressed=true]{outline:2px solid Highlight}}
@@ -2018,6 +2023,9 @@ header,.file{min-width:0}
       <span class="lbl">Ecken</span><div class="seg" id="dCorners"><button data-v="square">Eckig</button><button data-v="round">Abgerundet</button><button data-v="pill">Sehr rund</button></div>
       <span class="lbl">Werkzeuge</span><div class="seg" id="dDensity"><button data-v="compact">Kompakt</button><button data-v="normal">Normal</button><button data-v="large">Groß</button></div>
       <span class="lbl">Text-Leiste</span><div class="seg" id="dQbar"><button data-v="s">Klein</button><button data-v="m">Mittel</button><button data-v="l">Groß</button></div>
+      <div class="qbprev" aria-hidden="true" inert></div>
+      <span class="lbl">Knöpfe</span><div class="qbItems" id="dQbItems"></div>
+      <button class="btn" id="dQbReset" style="align-self:flex-start">Text-Leiste zurücksetzen</button>
       <div class="seg" id="dToolbar"><button data-v="center">Mittig</button><button data-v="left">Links</button></div></section>
     <section><h3>Meldungen</h3><div class="bars" id="dToast"><button type="button" class="barb tst" data-v="standard" style="--b:var(--ink)"><span><i></i></span>Standard</button><button type="button" class="barb tst" data-v="light" style="--b:var(--panel)"><span><i></i></span>Hell</button><button type="button" class="barb tst" data-v="accent" style="--b:var(--accent)"><span><i></i></span>Akzent</button><button type="button" class="barb tst" data-v="glass" style="--b:color-mix(in srgb,var(--panel) 55%,transparent)"><span><i></i></span>Glas</button><button type="button" class="barb tst" data-v="custom" style="--b:var(--panel)"><span><i></i></span>Eigene</button></div>
       <label class="cust" for="dToastC"><input type="color" id="dToastC" value="#2457c5"> Eigene Meldungsfarbe wählen</label>
@@ -4453,6 +4461,24 @@ const QB_HTML={
 function qbBar(order,hide){const vis=order.filter(id=>!hide.includes(id)),off=order.filter(id=>hide.includes(id));let h='',prev=null;
   for(const id of vis){if(prev!==null&&QB_GRP[id]!==QB_GRP[prev])h+='<span class="edsep"></span>';h+=QB_HTML[id];prev=id}
   return h+'<span class="edoff" hidden>'+off.map(id=>QB_HTML[id]).join('')+'</span>'}
+const QB_NAME={font:'Schriftart',size:'Schriftgröße',bold:'Fett',ul:'Unterstreichen',lists:'Listen',indent:'Einrücken',col:'Schriftfarbe',del:'Löschen'};
+const QB_ICON={font:PH('text-aa'),size:PH('text-t'),bold:'<b>B</b>',ul:'<u>U</u>',lists:PH('list-bullets'),indent:PH('text-indent'),col:PH('palette'),del:PH('trash')};
+// Dialog: live preview, one row per button (order arrows and visibility switch); focus = selector to keep focus on after re-render
+function qbRender(focus){const L=$('#dQbItems'),ord=design.qbarOrder,hide=design.qbarHide,nVis=ord.length-hide.length;
+  L.textContent='';
+  ord.forEach((id,n)=>{const on=!hide.includes(id),r=document.createElement('div');r.className='tb-r';r.setAttribute('role','group');r.setAttribute('aria-labelledby','qbN-'+id);
+    const ic=document.createElement('span');ic.className='tb-ic';ic.innerHTML=QB_ICON[id];
+    const tx=document.createElement('span');tx.className='tb-tx';const nm=document.createElement('b');nm.id='qbN-'+id;nm.textContent=tr(QB_NAME[id]);tx.appendChild(nm);
+    const arrow=(d,label,icon)=>{const b=document.createElement('button');b.type='button';b.className='ib';b.dataset.id=id;b.dataset.d=d;b.title=label;b.setAttribute('aria-label',label);b.innerHTML=PH(icon);b.disabled=d<0?n===0:n===ord.length-1;b.onclick=()=>qbMove(id,d);return b};
+    const sw=document.createElement('span');sw.className='tgl';const inp=document.createElement('input');inp.type='checkbox';inp.setAttribute('role','switch');inp.dataset.id=id;inp.checked=on;inp.disabled=on&&nVis===1;inp.setAttribute('aria-label',tr(QB_NAME[id]));inp.onchange=()=>qbToggle(id,inp.checked);
+    const kn=document.createElement('span');kn.className='knob';sw.append(inp,kn);
+    r.append(ic,tx,arrow(-1,tr('Nach oben'),'caret-up'),arrow(1,tr('Nach unten'),'caret-down'),sw);L.appendChild(r)});
+  const pv=$('.qbprev');pv.innerHTML=`<div class="edbar">${qbBar(ord,hide)}</div>`;
+  pv.querySelector('.edfont span').textContent=fontName(S.font);pv.querySelector('.edfs').value=S.fs;
+  if(focus){const e=L.querySelector(focus);if(e&&!e.disabled)e.focus()}}
+function qbMove(id,d){const o=design.qbarOrder.slice(),n=o.indexOf(id),t=n+d;if(t<0||t>=o.length)return;[o[n],o[t]]=[o[t],o[n]];design.qbarOrder=o;applyDesign(true);
+  qbRender(`[data-id="${id}"][data-d="${t===0||t===o.length-1?-d:d}"]`)}
+function qbToggle(id,vis){design.qbarHide=vis?design.qbarHide.filter(x=>x!==id):[...design.qbarHide,id];applyDesign(true);qbRender(`input[data-id="${id}"]`)}
 function openTextEditor(i,o,isNew,at){
   if(at&&rotOf(o)){const r=S.pages[i].ink.getBoundingClientRect(),z=S.zoom,q=rotP((at[0]-r.left)/z,(at[1]-r.top)/z,...tCtr(o),-o.rot);at=[r.left+q[0]*z,r.top+q[1]*z,at[2]]}
   closeEditor();const P=S.pages[i];const before=isNew?null:snapshot(),origJson=JSON.stringify(o),startText=o.text;
@@ -4840,7 +4866,9 @@ $('#dBars [data-v=custom]').addEventListener('click',()=>{if(!design.barsC)$('#d
 {const live=rafLast(v=>{design.accentC=v;design.accent='custom';$('#dAccent .custom').style.setProperty('--c',v);applyDesign(false)});$('#dAccC').addEventListener('input',e=>live(e.target.value));$('#dAccC').addEventListener('change',()=>applyDesign(true))}
 if(design.accentC)$('#dAccent .custom').style.setProperty('--c',design.accentC);
 for(const [id,k] of DKEYS)$('#'+id).querySelectorAll('button').forEach(b=>b.onclick=()=>{design[k]=b.dataset.v;applyDesign(true)});
-$('#dReset').onclick=()=>{design={...DDEF};applyDesign(true);toast('Alles wieder auf Standard.')};
+$('#dReset').onclick=()=>{design={...DDEF};applyDesign(true);qbRender();toast('Alles wieder auf Standard.')};
+$('#dQbReset').onclick=()=>{Object.assign(design,{qbarOrder:DDEF.qbarOrder.slice(),qbarHide:DDEF.qbarHide.slice(),qbarStyle:DDEF.qbarStyle});applyDesign(true);qbRender()};
+qbRender();
 {const TM=['So sehen deine Meldungen jetzt aus.','Gespeichert: '+(S.name||'Neues Blatt.pdf'),'Seite 2 hinzugefügt.','Formerkennung: Kreis erkannt.'];let tn=0;
   const demo=()=>toast(TM[tn++%TM.length]);$('#dToastTest').onclick=demo;
   for(const id of ['dToast','dToastPos','dToastDur'])$('#'+id).addEventListener('click',e=>{if(e.target.closest('button'))setTimeout(()=>{if(!(id==='dToast'&&design.toast==='custom'&&!design.toastC))toast('So sehen deine Meldungen jetzt aus.')},40)});
