@@ -293,6 +293,18 @@ else {
   ok('Schalter im Barrierefreiheitsbaum bei 1000 px: „Auto“ benannt', axNodes.some(n => n.role && n.role.value === 'switch' && n.name && n.name.value === 'Auto'));
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   await sleep(300);
+  // Seitenleiste: kein horizontaler Scrollbalken bei 1000 px, hell und dunkel
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1000, height: 900, deviceScaleFactor: 1, mobile: false });
+  await ev("toggleThumbs(true)");
+  await sleep(800);
+  for (const th of ['light', 'dark']) {
+    await ev(`document.documentElement.dataset.theme='${th}'`);
+    await sleep(200);
+    ok(`Seitenleiste 1000 px ${th}: kein horizontaler Scrollbalken`, await ev("(()=>{const t=document.querySelector('.thumbs');return t.offsetHeight-t.clientHeight<=0})()") === true);
+  }
+  await ev("applyDesign(true)");
+  await cdp('Emulation.clearDeviceMetricsOverride', {});
+  await sleep(300);
   // Datei-Menü ist in niedrigen Fenstern nicht abgeschnitten: Mausrad und Pfeiltasten erreichen „Drucken“
   const ctxBox = "(()=>{const c=document.getElementById('ctx'),r=c.getBoundingClientRect();return [r.top,r.bottom,innerHeight,c.scrollHeight>c.clientHeight]})()";
   const lastIn = "(()=>{const c=document.getElementById('ctx').getBoundingClientRect(),b=[...document.querySelectorAll('#ctx button')].pop().getBoundingClientRect();return b.top>=c.top&&b.bottom<=c.bottom&&b.bottom<=innerHeight})()";
