@@ -17,6 +17,10 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Update install: while a download runs, a refused terminal install shows the download state instead of doing nothing.
 - Update check: a stuck check ends after a timeout.
 - Tab moves focus normally again; hiding all bars is now Ctrl+. (changeable in the shortcut list).
+- Tab no longer hides the bars (use Ctrl+.). Ctrl+. also works on layouts where "." needs Shift (e.g. AZERTY).
+- Page move without flicker.
+- Dialog focus handling: Tab stays inside open dialogs (also from text fields); focus returns to the button that opened a dialog, also when it is closed directly.
+- Flatpak detection: the Flatpak version, like the Store version, runs without its own update check.
 
 ## Removed
 

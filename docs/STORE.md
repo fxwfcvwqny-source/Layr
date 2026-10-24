@@ -7,7 +7,6 @@ Anleitung für dich als Herausgeber. Die Schritte in Partner Center und auf GitH
 ## Was du noch liefern musst
 
 - Microsoft-Entwicklerkonto (Partner Center), einmalig mit Registrierungsgebühr und Identitätsprüfung.
-- Namensprüfung: ob „Layr PDF“ im Store frei ist.
 - Die Identitätswerte aus Partner Center (Schritt 2).
 - Support-Adresse: `layrdev@outlook.de` (steht in `PRIVACY.md` und in den Store-Texten).
 - Screenshots (siehe `store-listing/screenshots/README.md`).
@@ -83,6 +82,7 @@ Mit dem Windows App Certification Kit das Paket prüfen: `appcert.exe reset`, da
 
 - Die Store-Version übernimmt beim ersten Start einmalig Einstellungen und die Liste der zuletzt geöffneten Dateien aus einer bestehenden Installation von der GitHub-Seite (MSIX-Copy-on-write von `%APPDATA%\Layr`). Danach bleiben ihre Änderungen im Paket. Das Deinstallieren der Store-Version entfernt nur ihre eigenen Daten.
 - Die Store-Version hat keine eigene Update-Suche. Updates kommen nur über den Store.
+- **Ctrl+. (Leisten ein/aus):** Auf Layouts, bei denen „.“ Umschalt braucht (z. B. AZERTY), ist die Taste Ctrl+Umschalt+. und löst dieselbe Aktion aus. Auf US-Layouts löst Ctrl+Umschalt+. ebenfalls Ctrl+. aus. Eigene Belegungen bleiben unberührt.
 - Die GitHub-Version (NSIS-Installer, AppImage, .deb) bleibt unverändert und behält ihre Updates.
 - Windows fragt beim ersten Start nicht nach der PDF-Zuordnung. Layr erscheint unter „Öffnen mit“ bzw. in den Einstellungen unter „Standard-Apps“. Oder Windows fragt, wenn der Nutzer das nächste Mal eine PDF öffnet.
 - Das Paket entsteht nur auf Windows (Workflow). Auf Linux lässt es sich nicht bauen.
