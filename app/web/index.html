@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lePQZ5qo2vxooJ4QLd55IFCVOLFpiNqSUSVSTGW7ZoI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4DO1vT+TMPKij6Jhxa4iXhf4YQZRwkOHDG2rW29zCdE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5237,7 +5237,7 @@ function openPgDlg(focus){if(!S.doc||!S.pages.length)return;closeEditor();closeM
   PGdrag=null;cancelAnimationFrame(PGauto);cancelAnimationFrame(PGraf);PGauto=PGraf=0;pgGrid.classList.remove('dragging');
   PG=S.pages.map((_,i)=>({i,rot:0,u:++PGuid,sel:i===focus,dup:false}));PGlast=focus!=null?focus:-1;pgGrid.innerHTML='';pgGrid.classList.remove('settled');
   PG.forEach((p,k)=>{const el=pgTile(p);el.style.setProperty('--i',Math.min(k,18));pgGrid.appendChild(el)});pgSync();showEl(pgDlg);
-  const gen=++PGgen;requestAnimationFrame(()=>{pgRender(gen);const f=focus!=null&&pgGrid.children[focus];if(f)f.scrollIntoView({block:'nearest'})});setTimeout(()=>$('#pgOk').focus(),60)}
+  const gen=++PGgen;requestAnimationFrame(()=>{pgRender(gen);const f=focus!=null&&pgGrid.children[focus];if(f)f.scrollIntoView({block:'nearest'})});setTimeout(()=>(pgGrid.querySelector('.pgt.sel')||pgGrid.querySelector('.pgt')||$('#pgCancel')).focus(),60)}
 function closePgDlg(){PGgen++;PGdrag=null;cancelAnimationFrame(PGauto);cancelAnimationFrame(PGraf);PGauto=PGraf=0;pgGrid.classList.remove('dragging');animHide(pgDlg)}
 async function pgApply(){if(!pgChanged()){closePgDlg();return}const entries=PG.map(p=>({i:p.i,rot:p.rot}));
   $('#pgOk').disabled=true;pgGrid.style.pointerEvents='none';
