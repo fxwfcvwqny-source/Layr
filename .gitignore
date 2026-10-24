@@ -6,3 +6,8 @@ Thumbs.db
 .env
 *.pem
 *.key
+*.pfx
+*.p12
+*.cer
+.env.*
+CLAUDE.local.md
