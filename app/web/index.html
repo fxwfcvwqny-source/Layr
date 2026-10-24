@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XHtt5LAybQqhWCdspsh7HgiT5eLwhpfIkiKZEElvexU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-OphRAOEtbpZ4mhM+p7X/bwgmBZ+q9g5JhxNvHv0qqww=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2063,13 +2063,29 @@ pdfjsLib.GlobalWorkerOptions.workerSrc='pdfjs/pdf.worker.min.mjs';
 const $=s=>document.querySelector(s);
 /* Ausblenden mit kurzer Schließen-Animation; ohne Bewegung sofort */
 function motionOff(){return document.documentElement.dataset.motion==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches}
-function animHide(el){if(!el||el.hidden)return;if(motionOff()){el.hidden=true;return}const tok={};el._ah=tok;el.classList.add('closing');
-  const fin=e=>{if(e&&e.target!==el)return;if(el._ah!==tok)return;el._ah=null;el.classList.remove('closing');el.hidden=true;el.removeEventListener('animationend',fin)};
+/* Offene Fenster (Dialoge, Studio, Menü): solange eins offen ist, ist die App inert; Fokus kehrt zum Auslöser zurück */
+const isOverlay=el=>el.classList.contains('modal')||el.id==='studio'||el.id==='ctx';
+function syncModal(){try{const open=[...document.querySelectorAll('.modal'),document.getElementById('studio')].some(m=>m&&!m.hidden&&!m._ah);document.getElementById('app').inert=open}catch(e){}}
+function leaveOverlay(el){syncModal();const b=el._opener;el._opener=null;
+  if(b&&b.isConnected&&(el.contains(document.activeElement)||document.activeElement===document.body))try{b.focus({preventScroll:true})}catch(e){}}
+function animHide(el){if(!el||el.hidden)return;const off=motionOff(),tok={};el._ah=tok;if(isOverlay(el))leaveOverlay(el);
+  if(off){el._ah=null;el.hidden=true;syncModal();return}el.classList.add('closing');
+  const fin=e=>{if(e&&e.target!==el)return;if(el._ah!==tok)return;el._ah=null;el.classList.remove('closing');el.hidden=true;el.removeEventListener('animationend',fin);syncModal()};
   el.addEventListener('animationend',fin);setTimeout(()=>fin(),340)}
-function showEl(el){if(!el)return;el._ah=null;el.classList.remove('closing');el.hidden=false;
-  if(el.classList.contains('modal')&&typeof lastPt!=='undefined'){const c=el.querySelector('.card');if(c){const r=c.getBoundingClientRect(),near=Date.now()-lastPt.t<1500;
-    c.style.transformOrigin=near?`${lastPt.x-r.left}px ${lastPt.y-r.top}px`:'50% 40%'}}
-  if(typeof segAll==='function')requestAnimationFrame(segAll)}
+function showEl(el){if(!el)return;const was=el.hidden||!!el._ah;el._ah=null;el.classList.remove('closing');el.hidden=false;
+  try{
+    if(isOverlay(el)&&was)el._opener=document.activeElement;
+    if(el.classList.contains('modal')&&typeof lastPt!=='undefined'){const c=el.querySelector('.card');if(c){const r=c.getBoundingClientRect(),near=Date.now()-lastPt.t<1500;
+      c.style.transformOrigin=near?`${lastPt.x-r.left}px ${lastPt.y-r.top}px`:'50% 40%'}}
+    if(typeof segAll==='function')requestAnimationFrame(segAll);
+    if(el.classList.contains('modal')&&!el.contains(document.activeElement)){const f=[...el.querySelectorAll('button,input,select,textarea,[tabindex]')].find(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);f&&f.focus({preventScroll:true})}
+  }finally{syncModal()}}
+/* Tab bleibt im obersten offenen Fenster */
+addEventListener('keydown',e=>{if(e.key!=='Tab'||document.activeElement.tagName==='TEXTAREA')return;
+  const m=[...document.querySelectorAll('.modal'),document.getElementById('studio')].filter(x=>x&&!x.hidden&&!x._ah).pop();if(!m)return;
+  const F=[...m.querySelectorAll('a[href],button,input,select,textarea,[tabindex]')].filter(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);if(!F.length)return;
+  const i=F.indexOf(document.activeElement);
+  if(i<0||(e.shiftKey?i===0:i===F.length-1)){e.preventDefault();F[e.shiftKey?F.length-1:0].focus()}},true);
 /* ---------- Sprache: Deutsch ist die Grundlage, Englisch wird live darübergelegt ---------- */
 const I18N_EN={
 // Kopfleiste & allgemeine Knöpfe
@@ -5516,8 +5532,8 @@ function fixAcroForm(src,out){try{const{PDFName,PDFDict,PDFRef}=PDFLib;const N=n
   if(!fields.length)return;const af=out.context.obj({});af.set(N('Fields'),out.context.obj(fields));const da=af0.get(N('DA'));if(da&&!(da instanceof PDFRef))af.set(N('DA'),da);
   out.catalog.set(N('AcroForm'),out.context.register(af))}catch(e){console.warn('Formular',e)}}
 /* Esc schließt das offene Fenster auch dann, wenn der Fokus gerade nicht darin liegt */
-addEventListener('keydown',e=>{if(e.key!=='Escape')return;const m=[...document.querySelectorAll('.modal')].find(m=>!m.hidden&&!m._ah);if(!m||m.contains(document.activeElement))return;
-  const x=m.querySelector('#sigX,#ipX,#pgX,#nCancel,#mCancel,#prX,#tbX,#dcX,#exX,#shX,#rdX,#ocrX,#rkX,#cdX,#lkX,#pwX,#pwsX,#sxX,#imX,#ffX,#cmpX0,#dgX');if(x){e.preventDefault();e.stopImmediatePropagation();x.click()}},true);
+addEventListener('keydown',e=>{if(e.key!=='Escape')return;const m=[...document.querySelectorAll('.modal'),document.getElementById('studio')].find(m=>m&&!m.hidden&&!m._ah);if(!m||m.contains(document.activeElement))return;
+  const x=m.querySelector('.ip-h .ib:last-child,#nCancel,#mCancel,#stClose');if(x){e.preventDefault();e.stopImmediatePropagation();x.click()}},true);
 
 /* ---------- Rechtschreibprüfung ----------
    Echtes Hunspell (WebAssembly), komplett offline. Englisch liegt bei; Deutsch kommt aus dem Wörterbuch des
