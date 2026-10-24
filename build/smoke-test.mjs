@@ -282,6 +282,28 @@ else {
   await sleep(4000);
   for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof applyDesign==='function'") === true) break; await sleep(500); }
   ok('Altes Design ohne Text-Leisten-Schlüssel lädt mit Standardreihenfolge', await ev("design.qbar==='l'&&design.qbarOrder.join()===QB_IDS.join()&&design.qbarHide.length===0&&design.qbarStyle==='panel'") === true);
+  // Datei-Menü ist in niedrigen Fenstern nicht abgeschnitten: Mausrad und Pfeiltasten erreichen „Drucken“
+  const ctxBox = "(()=>{const c=document.getElementById('ctx'),r=c.getBoundingClientRect();return [r.top,r.bottom,innerHeight,c.scrollHeight>c.clientHeight]})()";
+  const lastIn = "(()=>{const c=document.getElementById('ctx').getBoundingClientRect(),b=[...document.querySelectorAll('#ctx button')].pop().getBoundingClientRect();return b.top>=c.top&&b.bottom<=c.bottom&&b.bottom<=innerHeight})()";
+  for (const [w, h] of [[1280, 720], [1366, 705]]) {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false });
+    await sleep(300);
+    await ev("document.getElementById('bFileMenu').click()");
+    await sleep(500);
+    const box = await ev(ctxBox);
+    ok(`Datei-Menü ${w}x${h}: passt ins Fenster und scrollt`, Array.isArray(box) && box[0] >= 0 && box[1] <= box[2] && box[3] === true, box);
+    const p = await ev("(()=>{const c=document.getElementById('ctx').getBoundingClientRect();return [c.left+c.width/2,c.top+c.height/2]})()");
+    await cdp('Input.dispatchMouseEvent', { type: 'mouseWheel', x: p[0], y: p[1], deltaX: 0, deltaY: 3000 });
+    await sleep(500);
+    ok(`Datei-Menü ${w}x${h}: Mausrad erreicht letzten Eintrag`, await ev(lastIn) === true);
+    await ev("document.getElementById('ctx').scrollTop=0;[...document.querySelectorAll('#ctx button')][0].focus()");
+    await key('End', 'End', 35);
+    await sleep(200);
+    ok(`Datei-Menü ${w}x${h}: Ende-Taste erreicht letzten Eintrag`, await ev(lastIn) === true);
+    await ev("closeMenu()");
+    await sleep(500);
+  }
+  await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
   done(failed ? 1 : 0);

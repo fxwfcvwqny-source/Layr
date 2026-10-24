@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4VDWHJuaagGqKur2Gejls14XlyiS2txLYSbvgUbmm/Q=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-5937hRStlxL4daI+dUnoalWfXCxhyVa82cJjprbeMOU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -58,7 +58,8 @@ button{cursor:pointer}
 .th.sel{outline:2px solid var(--accent);outline-offset:-2px}
 .th-bar{position:sticky;top:0;z-index:1;align-self:stretch;display:flex;justify-content:center;gap:6px;padding:2px 0 4px;background:var(--panel);border-bottom:1px solid var(--line)}
 .th-bar .ib{width:28px;height:28px}.th-bar .ib svg{width:16px;height:16px}
-.ctx{position:fixed;z-index:95;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:4px;min-width:220px;display:flex;flex-direction:column}
+.ctx{position:fixed;z-index:95;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:4px;min-width:220px;display:flex;flex-direction:column;max-height:calc(100vh - 16px);overflow-y:auto}
+.ctx>*{flex-shrink:0}
 .ctx button{border:0;background:transparent;text-align:left;padding:7px 10px;border-radius:6px;font-size:13px}
 .ctx button:hover:not(:disabled){background:var(--hover)}
 .ctx button:disabled{opacity:.4;cursor:default}
@@ -6860,7 +6861,7 @@ function hmOpen(btn,items,title){if(!ctx.hidden&&!ctx._ah&&ctx._owner===btn){clo
     if(chk){const sw=document.createElement('span');sw.className='hm-sw';sw.setAttribute('aria-hidden','true');b.appendChild(sw);b.setAttribute('aria-checked',it.get()?'true':'false')}
     b.onclick=()=>{if(chk){it.run();setTimeout(()=>b.setAttribute('aria-checked',it.get()?'true':'false'),0);return}closeMenu();it.run()};ctx.appendChild(b)}
   showEl(ctx);btn.setAttribute('aria-expanded','true');const r=btn.getBoundingClientRect(),w=ctx.offsetWidth,left=clamp(r.right-w,8,innerWidth-w-8);
-  ctx.style.left=left+'px';ctx.style.top=(r.bottom+8)+'px';ctx.style.setProperty('--hm-ox',Math.round(r.left+r.width/2-left)+'px');
+  ctx.style.left=left+'px';ctx.style.top=Math.min(r.bottom+8,innerHeight-ctx.offsetHeight-8)+'px';ctx.style.setProperty('--hm-ox',Math.round(r.left+r.width/2-left)+'px');
   const f=ctx.querySelector('button');f&&f.focus({preventScroll:true})}
 ctx.addEventListener('keydown',e=>{if(!ctx.classList.contains('hm'))return;const B=[...ctx.querySelectorAll('button')];const i=B.indexOf(document.activeElement);
   if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const nb=B[(i+(e.key==='ArrowDown'?1:-1)+B.length)%B.length];nb&&nb.focus()}
