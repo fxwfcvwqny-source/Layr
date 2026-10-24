@@ -48,11 +48,18 @@ Ein unsigniertes Paket lässt sich nicht einfach installieren. Zwei Wege, beide 
 
 **b) Selbstsigniertes Testzertifikat:**
 
-1. Das Zertifikat muss zum Herausgeber passen. Dafür `publisher` in `package.json` lokal auf den Betreff des Zertifikats setzen. Diese Änderung nicht committen.
-2. Zertifikat erstellen (PowerShell): `New-SelfSignedCertificate -Type Codesigning -Subject "CN=…" -CertStoreLocation Cert:\CurrentUser\My`
-3. Das `.pfx` **außerhalb des Repos** speichern (z. B. `C:\Users\<du>\Documents\layr-testcert\`). Niemals ins Repo kopieren oder committen.
-4. Das Zertifikat in „Vertrauenswürdige Personen“ importieren.
-5. Mit `signtool sign /fd SHA256 /a /f <pfad>\test.pfx /p <passwort> Layr-<Version>-Store.appx` signieren und mit `Add-AppxPackage` installieren.
+1. Das Zertifikat muss zum Herausgeber passen. Dafür `publisher` in `package.json` lokal auf einen Testwert setzen, z. B. `CN=Layr Test`. Diese Änderung nicht committen.
+2. Zertifikat erstellen, Betreff **exakt** wie `publisher` (PowerShell). Es liegt nur im Zertifikatsspeicher, nicht als Datei: `$c = New-SelfSignedCertificate -Type Codesigning -Subject "CN=Layr Test" -CertStoreLocation Cert:\CurrentUser\My`
+3. Nur das öffentliche Zertifikat exportieren, kein `.pfx` und kein Passwort: `Export-Certificate -Cert $c -FilePath "$env:TEMP\layr-test.cer"`
+4. Die `.cer` als Administrator in „Vertrauenswürdige Personen“ importieren: `Import-Certificate -FilePath "$env:TEMP\layr-test.cer" -CertStoreLocation Cert:\LocalMachine\TrustedPeople`
+5. Mit dem Daumenabdruck signieren. Der Schlüssel bleibt im Zertifikatsspeicher: `signtool sign /fd SHA256 /sha1 <Thumbprint> Layr-<Version>-Store.appx`. Den Daumenabdruck liefert `$c.Thumbprint`. Dann mit `Add-AppxPackage` installieren.
+6. Aufräumen nach dem Test (in derselben PowerShell-Sitzung):
+   - `Remove-Item Cert:\CurrentUser\My\$($c.Thumbprint)`
+   - `Remove-Item Cert:\LocalMachine\TrustedPeople\$($c.Thumbprint)`
+   - `Remove-Item "$env:TEMP\layr-test.cer"`
+   - Die lokale `publisher`-Änderung in `package.json` zurücknehmen.
+
+Nichts Schlüsselartiges (kein `.pfx`, kein Passwort, kein Zertifikat) gehört ins Repo.
 
 ## 5. Optional: Zertifizierungstest (WACK)
 
@@ -61,7 +68,7 @@ Mit dem Windows App Certification Kit das Paket prüfen: `appcert.exe reset`, da
 ## 6. Einreichung in Partner Center
 
 1. **Preise und Verfügbarkeit:** Kostenlos. Märkte nach Wunsch.
-2. **Eigenschaften:** Kategorie **Produktivität**. **Datenschutzerklärung-URL:** `https://raw.githubusercontent.com/fxwfcvwqny-source/Layr/main/PRIVACY.md` (alternativ die GitHub-Seite mit `/blob/main/PRIVACY.md`). **Support-Kontakt:** deine Support-Adresse.
+2. **Eigenschaften:** Kategorie **Produktivität**. **Datenschutzerklärung-URL:** `https://github.com/fxwfcvwqny-source/Layr/blob/main/PRIVACY.md` (lesbare Seite). **Support-Kontakt:** deine Support-Adresse.
 3. **Altersfreigabe:** Fragebogen nach den Antworten in `docs/store-listing/de.md` bzw. `en.md` (Abschnitt Altersfreigabe). Erwartet: PEGI 3, USK 0.
 4. **Pakete:** Die Datei `Layr-<Version>-Store.appx` hochladen.
 5. **Store-Einträge:** Deutsch und Englisch aus `docs/store-listing/de.md` und `en.md` eintragen (Kurz- und Langbeschreibung, Funktionen, Suchbegriffe, Neuerungen, Bildunterschriften). Screenshots hochladen.
