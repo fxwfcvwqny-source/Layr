@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-SORFgBmDuA6V/86mdbUvYzxTDk2Y1InAILph57tDf2Q=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8iLcNETYUy/xCoKFi2e1J56jfzF5RHrwQU3B0zkG6zM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3782,7 +3782,7 @@ function buildPages(){
   TLO&&TLO.disconnect();TLO=new IntersectionObserver(es=>{for(const e of es){const i=+e.target.dataset.i,P=S.pages[i];if(!P)continue;P.vis=e.isIntersecting;if(P.vis&&S.tool==='select')tlBuild(i);if(!P.vis&&P.tl&&!(getSelection().rangeCount&&getSelection().containsNode(P.tl,true))){P.tl.remove();P.tl=null}}},{root:viewer,rootMargin:'800px'});
   S.pages.forEach((P,i)=>{
     const el=document.createElement('div');el.className='page';el.dataset.i=i;TLO.observe(el);
-    const pdf=document.createElement('canvas');pdf.className='pdf';
+    const pdf=(P.keep&&P.keep.pdf)||document.createElement('canvas');pdf.className='pdf';
     const ink=document.createElement('canvas');ink.className='ink';
     const no=document.createElement('span');no.className='pno';no.textContent=(i+1);
     el.append(pdf,ink,no);pagesEl.appendChild(el);
@@ -4612,6 +4612,7 @@ async function openPdf(bytes,name,opt={}){
   if(S.doc)pdfClose(S.doc);renderGen++;S.doc=doc;S.bytes=bytes;S.crypt=crypt;crBadge();if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
   S.cards=opt.cards!==undefined?(opt.cards?lkSan(opt.cards):null):(opt.keepHist?S.cards:null);
   S.pages=[];for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});S.pages.push({w:vp.width,h:vp.height,objs:[]})}
+  if(opt.keep)opt.keep.forEach((k,i)=>k&&S.pages[i]&&(S.pages[i].keep=k));
   $('#fname').textContent=name;$('#fname').title=name+' · '+tr('Klicken zum Umbenennen (F2)');editingObj=null;
   {let nv='';if(opt.notes!=null)nv=opt.notes;else if(opt.keepHist)nv=S.notes||'';else if(!opt.isNew&&!opt.sample){try{nv=localStorage.getItem(storeKey()+':notes')||''}catch(e){}}notesSet(nv);let tv=[];if(opt.tasks!=null)tv=opt.tasks;else if(opt.keepHist)tv=S.tasks||[];else if(!opt.isNew&&!opt.sample){try{tv=JSON.parse(localStorage.getItem(storeKey()+':tasks')||'[]')}catch(e){}}tasksSet(tv);tasksMigrate()}
   if(opt.objs)sanPages(opt.objs,S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));
@@ -6481,7 +6482,9 @@ async function rebuildPages(entries,msg,focus){
   // Striche erst nach dem Speichern aus dem Seitenstand holen, sonst gehen Striche verloren, die während des Speicherns gezeichnet wurden
   const objs=entries.map(en=>{if(en.blank)return[];const P0=S.pages[en.i];return rotObjs(JSON.parse(JSON.stringify(P0.objs,(k,v)=>k==='_editing'?undefined:v)),P0.w,P0.h,en.rot||0)});
   const snap=docSnap();
-  await openPdf(bytes,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
+  // Gezeichnete Seiten und Vorschau-Bilder bleiben erhalten, damit der Umbau nicht leer aufblitzt (gedrehte und leere Seiten nicht)
+  const used=new Set(),keep=entries.map(en=>{if(en.blank||en.rot||used.has(en.i))return null;used.add(en.i);const P=S.pages[en.i];return P&&{pdf:P.pdf,th:P.thumbBase}});
+  await openPdf(bytes,S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true,keep});
   if(S.bytes===b0){toast(tr('Die Seiten konnten nicht neu aufgebaut werden.'));return false}
   H.u.push(snap);H.r=[];capDocHist();
   updUndo();markDirty();if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);return true;
@@ -6492,13 +6495,13 @@ function toggleThumbs(on){const was=thumbsOn;thumbsOn=on==null?!thumbsOn:on;if(w
 $('#bThumbs').onclick=()=>toggleThumbs();
 async function buildThumbs(){
   TM.order=null;TM.sel=null;
-  const el=$('#thumbs');if(!thumbsOn||!S.doc)return;const g=++thumbGen;el.innerHTML='';
+  const el=$('#thumbs');if(!thumbsOn||!S.doc){S.pages.forEach(P=>delete P.keep);return}const g=++thumbGen;el.innerHTML='';
   const bar=document.createElement('div');bar.className='th-bar';bar.innerHTML=`<button class="ib" aria-label="${tr('Seite nach oben')}" title="${tr('Seite nach oben')} (Alt+↑)">${SVG_UP}</button><button class="ib" aria-label="${tr('Seite nach unten')}" title="${tr('Seite nach unten')} (Alt+↓)">${SVG_DN}</button>`;
   const[up,dn]=bar.querySelectorAll('button');up.onclick=()=>thMove(-1);dn.onclick=()=>thMove(1);bar.addEventListener('mousedown',e=>e.preventDefault());el.appendChild(bar);
   S.pages.forEach((P,i)=>{
     const b=document.createElement('button');b.className='th';b.dataset.i=i;b.style.setProperty('--i',Math.min(i,14));b.title=`Seite ${i+1} (Rechtsklick für Optionen)`;
     const c=document.createElement('canvas'),W=110,Hh=Math.round(W*P.h/P.w);c.style.width=W+'px';c.style.height=Hh+'px';c.width=W*2;c.height=Hh*2;
-    const sp=document.createElement('span');sp.textContent=i+1;b.append(c,sp);el.appendChild(b);P.thumb=c;P.thumbBase=null;drawThumb(i);
+    const sp=document.createElement('span');sp.textContent=i+1;b.append(c,sp);el.appendChild(b);P.thumb=c;P.thumbBase=P.keep?P.keep.th:null;delete P.keep;drawThumb(i);
     b.onclick=()=>{TM.sel=i;scrollToPage(i);if(innerWidth<=860)toggleThumbs(false)};b.oncontextmenu=e=>{e.preventDefault();pageMenu(i,e.clientX,e.clientY)}});
   markThumb();
   for(let i=0;i<S.pages.length;i++){
