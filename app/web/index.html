@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Ym3VhUOAuX4yFHmWUF3PS3QHwpz3ZjLJgAct2MKxeWw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-kw0v422SHllyTdt3SW2xe4gvNXPNjwOAhhyzINk6lrU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6698,8 +6698,10 @@ const KB_NAMES_DE={Ctrl:'Strg',Shift:'Umschalt',Space:'Leertaste',ArrowUp:'↑',
 const KB_NAMES_EN={Space:'Space',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→'};
 // Tastendruck → feste Schreibweise, z. B. „Ctrl+Shift+D“, „F9“, „N“
 function kbCombo(e){const k=e.key;if(!k||['Control','Shift','Alt','Meta','AltGraph','Dead','Unidentified','Process','CapsLock','NumLock','ScrollLock','OS'].includes(k))return null;
-  let key=k===' '?'Space':k.length===1?k.toUpperCase():k;if(/^Digit\d$/.test(e.code)&&(e.ctrlKey||e.altKey))key=e.code.slice(5);
-  const m=[];if(e.ctrlKey||e.metaKey)m.push('Ctrl');if(e.altKey)m.push('Alt');if(e.shiftKey&&!(k.length===1&&!/\p{L}/u.test(k)&&!(e.ctrlKey||e.altKey)))m.push('Shift');
+  /* Ctrl+. also on layouts where '.' needs Shift (AZERTY): same combo, no Shift */
+  const dot=e.code==='Period'&&(e.ctrlKey||e.metaKey)&&!e.altKey;
+  let key=dot?'.':k===' '?'Space':k.length===1?k.toUpperCase():k;if(/^Digit\d$/.test(e.code)&&(e.ctrlKey||e.altKey))key=e.code.slice(5);
+  const m=[];if(e.ctrlKey||e.metaKey)m.push('Ctrl');if(e.altKey)m.push('Alt');if(e.shiftKey&&!dot&&!(k.length===1&&!/\p{L}/u.test(k)&&!(e.ctrlKey||e.altKey)))m.push('Shift');
   m.push(key);return m.join('+')}
 const kbShow=c=>!c?tr('–'):c.split(/\+(?!$)/).map(p=>(LANG==='en'?KB_NAMES_EN:KB_NAMES_DE)[p]||p).join('+');
 const kbTool=id=>TOOLS.find(t=>t&&t.id===id);
