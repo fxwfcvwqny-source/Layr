@@ -47,6 +47,7 @@ else {
     ok('Store: Update-Abfrage ohne Netz abgelehnt', !!upd && upd.error === 'store' && Object.keys(upd).length === 1, upd);
     const st = await ev('werkbank.updState()');
     ok('Store: kein Selbst-Update', !!st && st.canInstall === false, st);
+    ok('Store: Update-Knöpfe im Dialog ausgeblendet', await ev("document.getElementById('upAuto').closest('label').hidden&&['upNow','abGh','upHint'].every(i=>document.getElementById(i).hidden)") === true);
   }
   ok('pdf.js 6 geladen', String(await ev('pdfjsLib.version')).startsWith('6.'));
   ok('Content-Security-Policy aktiv', /wasm-unsafe-eval/.test(String(await ev("(document.querySelector('meta[http-equiv=\"Content-Security-Policy\"]')||{}).content"))));

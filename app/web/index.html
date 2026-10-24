@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HA09fQZyjtbWNUAJTnyse1g2VG/baFiPUPLUN7+wlpA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-RhFeedEiM+4zLI7ft9YY929XuWXUEgKSaqG5OmeG9C0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1692,7 +1692,7 @@ header,.file{min-width:0}
       <label class="tgl big"><input type="checkbox" id="upAuto" role="switch" checked><span class="knob"></span><span class="tl">Automatisch nach Updates suchen</span></label>
       <div id="upAutoRow" class="up-row" hidden><label class="tgl big"><input type="checkbox" id="upAutoDl" role="switch" checked><span class="knob"></span><span class="tl">Updates selbst installieren</span></label><p class="hint" id="upAutoHint"></p></div>
       <div class="ab-btns"><button class="btn" id="upNow"><svg class="ph" aria-hidden="true"><use href="#ph-arrows-clockwise"/></svg>Jetzt suchen</button><button class="btn" id="abGh"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-square-out"/></svg>Downloads &amp; Neuigkeiten</button></div>
-      <p class="hint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
+      <p class="hint" id="upHint">Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.</p>
       <div id="rcRow" class="rc-row" hidden><label class="tgl big"><input type="checkbox" id="rcOn" role="switch" checked><span class="knob"></span><span class="tl">Zuletzt geöffnete Dateien merken</span></label><button class="btn" id="rcClear2">Liste leeren</button>
       <p class="hint">Die Liste liegt nur auf diesem Rechner und enthält nur Dateinamen und Ordner.</p></div></section>
   </div>
@@ -4866,6 +4866,7 @@ if(!S.tasks)S.tasks=[];renderTasks();
 function showUpd(r,manual){updShow(r,manual)}
 (async()=>{const W=window.werkbank;if(!W||!W.appInfo)return;let info;try{info=await W.appInfo()}catch(e){return}
   $('#dAbout').hidden=false;$('#bInfo').hidden=false;$('#dAboutLink').hidden=false;$('#abVer').textContent='Version '+info.version+' · '+(info.platform==='win32'?'Windows':info.platform==='darwin'?'macOS':'Linux');
+  if(info.store){$('#upAuto').closest('label').hidden=true;$('#upNow').hidden=true;$('#abGh').hidden=true;$('#upHint').hidden=true;return} // Store-Version: keine eigene Update-Suche, der Store aktualisiert
   const auto=$('#upAuto');let on=true;try{on=localStorage.getItem('pdfwerkbank:updates')!=='0'}catch(e){}auto.checked=on;
   auto.onchange=()=>{try{localStorage.setItem('pdfwerkbank:updates',auto.checked?'1':'0')}catch(e){}toast(auto.checked?'Layr sucht ab jetzt selbst nach Updates.':'Automatische Update-Suche aus.')};
   $('#abGh').onclick=()=>W.openRelease('https://github.com/'+info.repo+'/releases/latest');
