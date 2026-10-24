@@ -13,7 +13,7 @@ if (process.platform === 'linux') args.push('--no-sandbox');
 const env = { ...process.env, GTK_IM_MODULE: 'gtk-im-context-simple', XMODIFIERS: '@im=none' };
 const proc = spawn(exe, args, { env, stdio: 'ignore' });
 let failed = 0;
-const ok = (name, cond, extra) => { console.log(`${cond ? 'OK  ' : 'FAIL'} ${name}${extra !== undefined ? ' ' + JSON.stringify(extra) : ''}`); if (!cond) failed++; };
+const ok = (name, cond, extra) => { console.log(`${cond ? 'OK  ' : 'FAIL'} ${name}${extra !== undefined ? ' ' + JSON.stringify(extra) : ''}`); if (!cond) { failed++; if (process.env.GITHUB_ACTIONS) console.log(`::error title=Rauchtest::${String(name).replace(/[\r\n]/g, ' ')}${extra !== undefined ? ' ' + JSON.stringify(extra).replace(/[\r\n]/g, ' ') : ''}`); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const done = code => { try { proc.kill(); } catch (e) {} setTimeout(() => process.exit(code), 500); };
 setTimeout(() => { console.error('Zeitüberschreitung'); done(1); }, 180000);
