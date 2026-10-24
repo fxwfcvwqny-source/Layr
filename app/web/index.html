@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-BgHRQWU00b6g4TCwBAZMu+Ns7GsD0NgOhkZ3sHy07r4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-O7HxTpQLL8qiOMoGzEh3IqR81oyziM4SNyMTTQ9BRC0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4851,12 +4851,18 @@ const QB_GRP={font:0,size:1,bold:2,ul:2,lists:3,indent:3,col:3,del:3}; // a sepa
 const qbSan=d=>{const known=a=>Array.isArray(a)?[...new Set(a.filter(x=>QB_IDS.includes(x)))]:[];
   const o=known(d.qbarOrder),h=known(d.qbarHide);
   return{...d,qbarOrder:[...o,...QB_IDS.filter(x=>!o.includes(x))],qbarHide:h.length<QB_IDS.length?h:[],qbar:['s','m','l'].includes(d.qbar)?d.qbar:'m',qbarStyle:['panel','tint','contrast'].includes(d.qbarStyle)?d.qbarStyle:'panel'}};
+// Keeps only known design values (dialog option buttons, accent list); anything else falls back to DDEF. Custom colours must be #rrggbb.
+const dSan=d=>{const o={...d},opts=id=>[...document.querySelectorAll('#'+id+' button')].map(b=>b.dataset.v);
+  for(const [id,k] of DKEYS)if(!opts(id).includes(o[k]))o[k]=DDEF[k];
+  if(o.accent!=='custom'&&!ACCENTS.some(a=>a[0]===o.accent))o.accent=DDEF.accent;
+  for(const k of['accentC','barsC','toastC'])if(o[k]!==''&&!/^#[0-9a-f]{6}$/i.test(o[k]))o[k]=DDEF[k];
+  return o};
 const ACCENTS=[['petrol','Petrol','#0b6570'],['blue','Blau','#2457c5'],['indigo','Indigo','#4338ca'],['violet','Violett','#6d3fc8'],['pink','Beere','#b8336a'],['coral','Koralle','#c2412d'],['orange','Orange','#c0560a'],['gold','Gold','#a16207'],['green','Grün','#2f7d32'],['slate','Schiefer','#3d4b5c']];
-let design={...DDEF};try{Object.assign(design,JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}'));if(design.desk==='dots')design.desk='plain'}catch(e){}design=qbSan(design);
 const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar'],['dQbStyle','qbarStyle']];
+let design={...DDEF};try{Object.assign(design,JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}'));if(design.desk==='dots')design.desk='plain'}catch(e){}design=dSan(qbSan(design));
 const mixHex=(h,t)=>{const n=parseInt(h.slice(1),16),c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,'0'));return'#'+c.join('')};
 let designTheme=null; // theme of the last applyDesign call; only a real switch suspends transitions
-function applyDesign(save){const r=document.documentElement;design=qbSan(design);
+function applyDesign(save){const r=document.documentElement;design=dSan(qbSan(design));
   if(design.theme==='system')r.removeAttribute('data-theme');else r.dataset.theme=design.theme;
   for(const k of ['accent','toolbar','density','corners','desk','deskc','sheet','shadow','motion','light','dark','bars','tbstyle','qbar'])r.dataset[k]=design[k];
   r.dataset.qbstyle=design.qbarStyle;

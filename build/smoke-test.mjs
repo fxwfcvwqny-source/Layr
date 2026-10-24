@@ -295,6 +295,9 @@ else {
   await ev("document.querySelector('#dQbReset').click();studioOpen(false)");
   // Text-Leiste: Einstellungen werden bereinigt, alte Design-Daten laden ohne Fehler
   ok('Text-Leiste: ungültige Einstellungen werden bereinigt', await ev("(()=>{const d=qbSan({qbarOrder:['x','bold','bold'],qbarHide:QB_IDS.slice(),qbar:'zz',qbarStyle:'zz'});return d.qbarOrder.join()==='bold,font,size,ul,lists,indent,col,del'&&d.qbarHide.length===0&&d.qbar==='m'&&d.qbarStyle==='panel'})()") === true);
+  // Gespeicherte Design-Werte: unbekannte Werte fallen auf den Standard, gültige bleiben
+  ok('Design: unbekannte gespeicherte Werte fallen auf Standard', await ev("(()=>{const g=Object.fromEntries(DKEYS.map(([,k])=>[k,'zz']));Object.assign(g,{accent:'nope',accentC:'red',barsC:null,toastC:'#12'});const d=dSan({...DDEF,...g});return DKEYS.every(([,k])=>d[k]===DDEF[k])&&d.accent===DDEF.accent&&d.accentC===''&&d.barsC===''&&d.toastC===''})()") === true);
+  ok('Design: gültige Werte bleiben', await ev("(()=>{const d=dSan({...DDEF,theme:'dark',accent:'custom',accentC:'#0b6570',bars:'custom',barsC:'#1b2129',corners:'pill'});return d.theme==='dark'&&d.accent==='custom'&&d.accentC==='#0b6570'&&d.bars==='custom'&&d.barsC==='#1b2129'&&d.corners==='pill'})()") === true);
   await ev("localStorage.setItem('pdfwerkbank:design',JSON.stringify({qbar:'l'}));location.reload()");
   await sleep(4000);
   for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof applyDesign==='function'") === true) break; await sleep(500); }
