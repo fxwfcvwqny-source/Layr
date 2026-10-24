@@ -28,8 +28,8 @@ modules:
       - install -Dm644 ${FLATPAK_ID}.metainfo.xml /app/share/metainfo/${FLATPAK_ID}.metainfo.xml
     sources:
       - type: file
-        url: https://github.com/fxwfcvwqny-source/Layr/releases/download/v3.8.7/Layr-3.8.7-amd64.deb
-        sha256: e46f252c2eb533b75693a314ff480fc760252ce93e037cbe0bbd6ab83c202ce7 # SHA-256 of the 3.8.7 build; the published asset must be byte-identical (do not rebuild after taking it)
+        url: https://github.com/fxwfcvwqny-source/Layr/releases/download/v3.8.8/Layr-3.8.8-amd64.deb
+        sha256: 308f17b82afb7cd7936789cf70221fc00870b25053f83a82b2b784c15c1f6541 # SHA-256 of the 3.8.8 build; the published asset must be byte-identical (do not rebuild after taking it)
         dest-filename: layr.deb
         x-checker-data:
           type: json
