@@ -71,10 +71,10 @@ Mit dem Windows App Certification Kit das Paket prüfen: `appcert.exe reset`, da
 
 ## Bekannte Grenzen
 
-- Die Store-Version hat einen eigenen Datenordner. Sie und die Installation von der GitHub-Seite teilen keine Einstellungen.
+- Die Store-Version übernimmt beim ersten Start einmalig Einstellungen und die Liste der zuletzt geöffneten Dateien aus einer bestehenden Installation von der GitHub-Seite (MSIX-Copy-on-write von `%APPDATA%\Layr`). Danach bleiben ihre Änderungen im Paket. Das Deinstallieren der Store-Version entfernt nur ihre eigenen Daten.
 - Die Store-Version hat keine eigene Update-Suche. Updates kommen nur über den Store.
 - Die GitHub-Version (NSIS-Installer, AppImage, .deb) bleibt unverändert und behält ihre Updates.
-- Die Dateizuordnung für PDF fragt Windows beim ersten Start selbst ab.
+- Windows fragt beim ersten Start nicht nach der PDF-Zuordnung. Layr erscheint unter „Öffnen mit“ bzw. in den Einstellungen unter „Standard-Apps“. Oder Windows fragt, wenn der Nutzer das nächste Mal eine PDF öffnet.
 - Das Paket entsteht nur auf Windows (Workflow). Auf Linux lässt es sich nicht bauen.
 - Logos sind aus `build/icon.png` erzeugt (`build/make-appx-assets.mjs`). Eine Prüfung durch den Store steht noch aus.
 
