@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-kw0v422SHllyTdt3SW2xe4gvNXPNjwOAhhyzINk6lrU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-k+CI4oUjiMd3Mfj2h+45uOrbfUSWkI+pnP4NHHReiLc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1473,7 +1473,8 @@ header,.file{min-width:0}
 :root[data-qbstyle="tint"] .edbar{background:color-mix(in srgb,var(--accent) 8%,var(--panel));--accent-soft:color-mix(in srgb,var(--accent) 16%,var(--panel))}
 :root[data-qbstyle="contrast"] .edbar{--panel:#1b2129;--ink:#f2f4f7;--muted:#aeb7c2;--line:#4a5361;--hover:#2c333d;--accent:#8fd3dc;--accent-soft:#2c4a52;background:var(--panel);color:var(--ink);border-color:var(--panel)}
 :root[data-qbstyle="contrast"] .edbar .edfs{color:var(--ink)}
-.qbprev{margin:6px 0 10px;padding:12px;border-radius:var(--r);background:color-mix(in srgb,var(--ink) 4%,transparent);overflow-x:auto}
+.qbsub{margin:14px 0 2px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.qbprev{margin:6px 0 10px;padding:12px;border-radius:var(--r);background:color-mix(in srgb,var(--ink) 4%,transparent);overflow:hidden}
 .qbprev .edbar{position:static;width:max-content}
 .qbItems{display:flex;flex-direction:column;gap:2px}
 .qbItems .tb-r{cursor:default}
@@ -2025,12 +2026,13 @@ header,.file{min-width:0}
     <section><h3>Oberfläche</h3>
       <span class="lbl">Ecken</span><div class="seg" id="dCorners"><button data-v="square">Eckig</button><button data-v="round">Abgerundet</button><button data-v="pill">Sehr rund</button></div>
       <span class="lbl">Werkzeuge</span><div class="seg" id="dDensity"><button data-v="compact">Kompakt</button><button data-v="normal">Normal</button><button data-v="large">Groß</button></div>
+      <h4 class="qbsub">Text-Leiste</h4>
       <span class="lbl">Text-Leiste</span><div class="seg" id="dQbar"><button data-v="s">Klein</button><button data-v="m">Mittel</button><button data-v="l">Groß</button></div>
-      <span class="lbl">Stil</span><div class="seg" id="dQbStyle"><button data-v="panel">Standard</button><button data-v="tint">Getönt</button><button data-v="contrast">Kontrast</button></div>
+      <span class="lbl">Text-Leiste: Stil</span><div class="seg" id="dQbStyle"><button data-v="panel">Standard</button><button data-v="tint">Getönt</button><button data-v="contrast">Kontrast</button></div>
       <div class="qbprev" aria-hidden="true" inert></div>
       <span class="lbl">Knöpfe</span><div class="qbItems" id="dQbItems"></div>
       <button class="btn" id="dQbReset" style="align-self:flex-start">Text-Leiste zurücksetzen</button>
-      <div class="seg" id="dToolbar"><button data-v="center">Mittig</button><button data-v="left">Links</button></div></section>
+      <span class="lbl">Werkzeugleiste</span><div class="seg" id="dToolbar"><button data-v="center">Mittig</button><button data-v="left">Links</button></div></section>
     <section><h3>Meldungen</h3><div class="bars" id="dToast"><button type="button" class="barb tst" data-v="standard" style="--b:var(--ink)"><span><i></i></span>Standard</button><button type="button" class="barb tst" data-v="light" style="--b:var(--panel)"><span><i></i></span>Hell</button><button type="button" class="barb tst" data-v="accent" style="--b:var(--accent)"><span><i></i></span>Akzent</button><button type="button" class="barb tst" data-v="glass" style="--b:color-mix(in srgb,var(--panel) 55%,transparent)"><span><i></i></span>Glas</button><button type="button" class="barb tst" data-v="custom" style="--b:var(--panel)"><span><i></i></span>Eigene</button></div>
       <label class="cust" for="dToastC"><input type="color" id="dToastC" value="#2457c5"> Eigene Meldungsfarbe wählen</label>
       <span class="lbl">Position</span><div class="seg" id="dToastPos"><button data-v="bc">Unten mittig</button><button data-v="br">Unten rechts</button><button data-v="tc">Oben</button></div>
@@ -2184,7 +2186,7 @@ const I18N_EN={
 'Schreibtisch':'Desk','Sand':'Sand','Himmel':'Sky','Salbei':'Sage','Flieder':'Lilac','Tinte':'Ink','Nachtblau':'Navy','Moos':'Moss','Wein':'Wine','Kakao':'Cocoa','Raster':'Grid','Schlicht':'Plain',
 'Blatt auf dem Bildschirm':'Sheet on screen','Mint':'Mint','Nacht':'Night','Weicher Schatten':'Soft shadow','Kräftig':'Strong','Flach':'Flat',
 'Färbt nur die Ansicht ein, zum Beispiel augenschonend oder als Nachtmodus. Die gespeicherte PDF bleibt, wie sie ist.':'Only tints the view, for example to be easier on the eyes or as a night mode. The saved PDF stays as it is.',
-'Oberfläche':'Interface','Text-Leiste':'Text bar','Text-Leiste zurücksetzen':'Reset text bar','Stil':'Look','Knöpfe':'Buttons','Unterstreichen':'Underline','Listen':'Lists','Einrücken':'Indent','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
+'Oberfläche':'Interface','Text-Leiste':'Text bar','Text-Leiste zurücksetzen':'Reset text bar','Text-Leiste: Stil':'Text bar: look','Werkzeugleiste':'Toolbar','Stil':'Look','Knöpfe':'Buttons','Unterstreichen':'Underline','Listen':'Lists','Einrücken':'Indent','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
 'Meldungen':'Notifications','Akzent':'Accent','Glas':'Glass','Eigene Meldungsfarbe wählen':'Choose custom notification colour','Unten mittig':'Bottom centre','Unten rechts':'Bottom right','Oben':'Top',
 'Anzeigedauer':'Display time','Kurz':'Short','Lang':'Long','Test-Meldung zeigen':'Show test notification',
 'Bewegung':'Motion','Animationen an':'Animations on','Aus':'Off','Alles auf Standard':'Reset everything','Alles wieder auf Standard.':'Everything is back to default.',
@@ -4479,8 +4481,11 @@ function qbRender(focus){const L=$('#dQbItems'),ord=design.qbarOrder,hide=design
     const kn=document.createElement('span');kn.className='knob';sw.append(inp,kn);
     r.append(ic,tx,arrow(-1,tr('Nach oben'),'caret-up'),arrow(1,tr('Nach unten'),'caret-down'),sw);L.appendChild(r)});
   const pv=$('.qbprev');pv.innerHTML=`<div class="edbar">${qbBar(ord,hide)}</div>`;
+  if(!pv._fit)pv._fit=new ResizeObserver(qbFit);pv._fit.observe(pv);pv._fit.observe(pv.firstElementChild);qbFit();
   pv.querySelector('.edfont span').textContent=fontName(S.font);pv.querySelector('.edfs').value=S.fs;
   if(focus){const e=L.querySelector(focus);if(e&&!e.disabled)e.focus()}}
+/* Vorschau passt in die Dialogbreite: die Leiste wird bei Bedarf verkleinert, nie gescrollt */
+function qbFit(){const p=$('.qbprev'),b=p&&p.firstElementChild;if(!b||!p.clientWidth)return;b.style.zoom='';const z=(p.clientWidth-24)/b.getBoundingClientRect().width;if(z<1)b.style.zoom=z}
 function qbMove(id,d){const o=design.qbarOrder.slice(),n=o.indexOf(id),t=n+d;if(t<0||t>=o.length)return;[o[n],o[t]]=[o[t],o[n]];design.qbarOrder=o;applyDesign(true);
   qbRender(`[data-id="${id}"][data-d="${t===0||t===o.length-1?-d:d}"]`)}
 function qbToggle(id,vis){design.qbarHide=vis?design.qbarHide.filter(x=>x!==id):[...design.qbarHide,id];applyDesign(true);qbRender(`input[data-id="${id}"]`)}
