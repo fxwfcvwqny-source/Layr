@@ -84,11 +84,11 @@
       "include": "build/installer.nsh"
     },
     "appx": {
-      "identityName": "REPLACE_WITH_PARTNER_CENTER_PACKAGE_IDENTITY_NAME",
-      "publisher": "CN=REPLACE-WITH-PARTNER-CENTER-PUBLISHER-ID",
-      "publisherDisplayName": "REPLACE_WITH_PUBLISHER_DISPLAY_NAME",
+      "identityName": "IsmailG.LayrPDF",
+      "publisher": "CN=F9218EE3-2D50-419C-8698-916A805604D4",
+      "publisherDisplayName": "Ismail G.",
       "applicationId": "Layr",
-      "displayName": "Layr",
+      "displayName": "Layr PDF",
       "backgroundColor": "transparent",
       "languages": [
         "de-DE",

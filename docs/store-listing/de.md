@@ -1,4 +1,6 @@
-# Microsoft Store: Eintrag Layr (Deutsch)
+# Microsoft Store: Eintrag Layr PDF (Deutsch)
+
+Produktname im Store: **Layr PDF** (die App selbst heißt weiter Layr). Store-ID `9NKHS6PSNHTC`, https://apps.microsoft.com/detail/9NKHS6PSNHTC. Der reservierte Name muss `displayName` in `package.json` entsprechen (`Layr PDF`).
 
 Alle Texte zum Einfügen in Partner Center.
 

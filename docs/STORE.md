@@ -1,13 +1,15 @@
-# Layr im Microsoft Store veröffentlichen
+# Layr PDF im Microsoft Store veröffentlichen
+
+Produktname im Store: **Layr PDF** (die App selbst heißt weiter Layr). Store-ID `9NKHS6PSNHTC`, Store-Seite: https://apps.microsoft.com/detail/9NKHS6PSNHTC
 
 Anleitung für dich als Herausgeber. Die Schritte in Partner Center und auf GitHub macht ihr von Hand. Nichts davon wird automatisch veröffentlicht.
 
 ## Was du noch liefern musst
 
 - Microsoft-Entwicklerkonto (Partner Center), einmalig mit Registrierungsgebühr und Identitätsprüfung.
-- Namensprüfung: ob „Layr“ im Store frei ist.
+- Namensprüfung: ob „Layr PDF“ im Store frei ist.
 - Die Identitätswerte aus Partner Center (Schritt 2).
-- Eine Support-Adresse. Sie steht als Platzhalter `<SUPPORT-CONTACT-PLACEHOLDER>` in `PRIVACY.md` und in den Store-Texten.
+- Support-Adresse: `layrdev@outlook.de` (steht in `PRIVACY.md` und in den Store-Texten).
 - Screenshots (siehe `store-listing/screenshots/README.md`).
 
 ## 1. Partner Center: Name reservieren
@@ -16,7 +18,8 @@ Menünamen in Partner Center ändern sich ab und zu. Dann sinngemäß suchen.
 
 1. Auf https://partner.microsoft.com/dashboard anmelden.
 2. **Apps und Spiele** > **Neue Produkt-Reservierung** (Neue App).
-3. Namen „Layr“ eingeben und reservieren. Das Produkt wird angelegt, das Einreichen kommt erst später.
+3. Namen „Layr PDF“ eingeben und reservieren. Produkttyp: **MSIX- oder PWA-App** (nicht „EXE oder MSI“). Das Produkt wird angelegt, das Einreichen kommt erst später.
+4. Der reservierte Name muss genau dem `displayName` in `package.json` (`build.appx`) entsprechen: `Layr PDF`.
 
 ## 2. Partner Center: Paket-Identität kopieren
 
@@ -68,7 +71,7 @@ Mit dem Windows App Certification Kit das Paket prüfen: `appcert.exe reset`, da
 ## 6. Einreichung in Partner Center
 
 1. **Preise und Verfügbarkeit:** Kostenlos. Märkte nach Wunsch.
-2. **Eigenschaften:** Kategorie **Produktivität**. **Datenschutzerklärung-URL:** `https://github.com/fxwfcvwqny-source/Layr/blob/main/PRIVACY.md` (lesbare Seite). **Support-Kontakt:** deine Support-Adresse.
+2. **Eigenschaften:** Kategorie **Produktivität**. **Datenschutzerklärung-URL:** `https://github.com/fxwfcvwqny-source/Layr/blob/main/PRIVACY.md` (lesbare Seite). **Support-Kontakt:** `layrdev@outlook.de`.
 3. **Altersfreigabe:** Fragebogen nach den Antworten in `docs/store-listing/de.md` bzw. `en.md` (Abschnitt Altersfreigabe). Erwartet: PEGI 3, USK 0.
 4. **Pakete:** Die Datei `Layr-<Version>-Store.appx` hochladen.
 5. **Store-Einträge:** Deutsch und Englisch aus `docs/store-listing/de.md` und `en.md` eintragen (Kurz- und Langbeschreibung, Funktionen, Suchbegriffe, Neuerungen, Bildunterschriften). Screenshots hochladen.

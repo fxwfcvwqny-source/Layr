@@ -15,7 +15,7 @@ Layr ist eine Desktop-App für PDF-Dateien. Layr hat kein Konto, keine Telemetri
   Der Server sieht dabei deine IP-Adresse und die Kennung „Layr“ als User-Agent. Jede Datei wird vor der Nutzung mit einer Prüfsumme (SHA-512 bzw. SHA-256) geprüft.
 - **Absturzberichte** bleiben lokal im Benutzerordner von Layr. Layr lädt sie nie hoch.
 - **Löschen:** Layr speichert nichts außerhalb deines Geräts. Das Sprachmodell kannst du unter Einstellungen › Schreiben & Rechtschreibung › Diktieren entfernen. Mit dem Deinstallieren entfernst du die App. Deine PDF-Dateien bleiben unverändert.
-- **Kontakt:** <SUPPORT-CONTACT-PLACEHOLDER>
+- **Kontakt:** layrdev@outlook.de
 
 **Hinweis zur Version von GitHub (nicht Microsoft Store):** Diese Version prüft bei Bedarf die öffentliche GitHub-API (api.github.com) auf eine neuere Versionsnummer. Dabei sieht GitHub deine IP-Adresse. Die Prüfung läuft beim Start, wenn die letzte Prüfung mehr als 6 Stunden zurückliegt, und ist standardmäßig eingeschaltet. Du kannst sie unter „Layr & Updates“ abschalten. Jede Prüfung fragt nur die API ab. `latest.yml` mit ihrer Signatur und die Installationsdatei lädt sie erst von github.com herunter, wenn du im Update-Hinweis auf „Jetzt installieren“ klickst oder „Updates selbst installieren“ eingeschaltet ist. Die Store-Version enthält diese Update-Prüfung nicht. Beim Deinstallieren bleiben in der GitHub-Version die Einstellungen erhalten.
 
@@ -32,6 +32,6 @@ Layr is a desktop app for PDF files. Layr has no account, no telemetry and no ad
   The server sees your IP address and the identifier “Layr” as user agent. Every file is checked against a checksum (SHA-512 or SHA-256) before use.
 - **Crash reports** stay local in Layr's user folder. Layr never uploads them.
 - **Deletion:** Layr stores nothing outside your device. You can remove the speech model under Settings › Writing & Spelling › Dictation. Uninstalling removes the app. Your PDF files stay unchanged.
-- **Contact:** <SUPPORT-CONTACT-PLACEHOLDER>
+- **Contact:** layrdev@outlook.de
 
 **Note on the GitHub version (not Microsoft Store):** This version checks the public GitHub API (api.github.com) for a newer version number. GitHub then sees your IP address. The check runs at startup when the last check was more than 6 hours ago, and is on by default. You can switch it off under “Layr & Updates”. Each check only queries the API. `latest.yml` with its signature and the installer file are downloaded from github.com only after you click “Install now” in the update notice, or when “Install updates automatically” is on. The Store version does not contain this update check. In the GitHub version, uninstalling keeps your settings.
