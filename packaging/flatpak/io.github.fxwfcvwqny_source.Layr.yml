@@ -19,18 +19,17 @@ modules:
     build-commands:
       - ar x layr.deb # (prüfen)
       - bsdtar -xf data.tar.* # (prüfen)
-      - cp -a opt/Layr /app/layr # (prüfen)
-      - rm -f /app/layr/resources/package-type # (prüfen)
+      - cp -a opt/Layr /app/layr
+      - rm -f /app/layr/resources/package-type
       - install -Dm755 layr.sh /app/bin/layr
-      - install -Dm644 usr/share/applications/layr.desktop /app/share/applications/${FLATPAK_ID}.desktop # (prüfen)
+      - install -Dm644 usr/share/applications/layr.desktop /app/share/applications/${FLATPAK_ID}.desktop
       - desktop-file-edit --set-key=Exec --set-value='layr %U' --set-key=Icon --set-value=${FLATPAK_ID} --set-key=MimeType --set-value=application/pdf /app/share/applications/${FLATPAK_ID}.desktop # (prüfen)
-      - install -Dm644 usr/share/icons/hicolor/256x256/apps/layr.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.png # (prüfen)
-      - install -Dm644 usr/share/icons/hicolor/512x512/apps/layr.png /app/share/icons/hicolor/512x512/apps/${FLATPAK_ID}.png # (prüfen)
+      - install -Dm644 usr/share/icons/hicolor/512x512/apps/layr.png /app/share/icons/hicolor/512x512/apps/${FLATPAK_ID}.png
       - install -Dm644 ${FLATPAK_ID}.metainfo.xml /app/share/metainfo/${FLATPAK_ID}.metainfo.xml
     sources:
       - type: file
         url: https://github.com/fxwfcvwqny-source/Layr/releases/download/v3.8.6/Layr-3.8.6-amd64.deb
-        sha256: REPLACE_WITH_SHA256_OF_DEB
+        sha256: 0741e3bde6b252e40c54bd8a2c3a8cc2707bc70829a5ff981f97936495d747bb # SHA-256 of the 3.8.6 build; the published asset must be byte-identical (do not rebuild after taking it)
         dest-filename: layr.deb
         x-checker-data:
           type: json

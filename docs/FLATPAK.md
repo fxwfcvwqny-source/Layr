@@ -58,8 +58,8 @@ Den SHA-256-Wert des `.deb` vorher eintragen: `sha256sum Layr-3.8.6-amd64.deb`.
 
 ## Offen
 
-- Der v3.8.6-Release mit dem `.deb` existiert noch nicht. Erst danach den SHA-256-Wert eintragen.
-- `sha256` in `packaging/flatpak/io.github.fxwfcvwqny_source.Layr.yml` ist noch der Platzhalter `REPLACE_WITH_SHA256_OF_DEB`.
+- Der v3.8.6-Release ist noch ein Entwurf. Die URL im Manifest funktioniert erst, wenn du ihn veröffentlichst. Der veröffentlichte `.deb` muss byte-gleich zum geprüften Entwurf sein (SHA-256 `0741e3bd…47bb`); baust du neu, trage den neuen Wert ein.
+- `sha256` im Manifest ist eingetragen (aus dem Entwurf `v3.8.6` berechnet). Das `.deb` enthält nur ein 512-px-Symbol, deshalb installiert das Manifest nur dieses. Flathub verlangt mindestens 128 px (prüfen).
 - Laufzeit-Version (`25.08`) und Electron-BaseApp-Version sind nicht geprüft.
 - Pfade im `.deb` (`opt/Layr`, `usr/share/applications/layr.desktop`, Icons) sind nicht geprüft.
 - Screenshot-URL zeigt auf den Tag `v3.8.6`, der noch nicht existiert.
