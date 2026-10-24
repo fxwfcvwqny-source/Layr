@@ -252,9 +252,13 @@ else {
   await ev("S.pages[0].objs.push({type:'rect',x:300,y:620,w:120,h:60,color:'#000000',lw:1,fill:'none',oid:'lwR'});redraw(0);setSel({p:0,o:S.pages[0].objs.find(o=>o.oid==='lwR')})");
   const lwWidths = await ev("(()=>{const el=document.getElementById('lw'),w=new Set();for(const v of [2,2.5,10.5,16,0.5,3]){el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));w.add(Math.round(el.getBoundingClientRect().width*10))}return [...w]})()");
   ok('Stärke-Regler: Breite bleibt bei jedem Wert gleich', Array.isArray(lwWidths) && lwWidths.length === 1, lwWidths);
+  await ev("(()=>{const d=document.getElementById('langDlg');if(d&&!d.hidden)d.hidden=true})()"); // der Erststart-Sprachdialog kann auf langsamen Läufern spät erscheinen und den Fokus sperren
+  await waitFor("!document.querySelector('#app').inert");
   await ev("(()=>{const el=document.getElementById('lw');el.value=2;el.dispatchEvent(new Event('input',{bubbles:true}));window.__lwx=S.sel.o.x;el.focus()})()");
+  const lwFocus = await waitFor("document.activeElement===document.getElementById('lw')");
   await key('ArrowRight', 'ArrowRight', 39);
-  ok('Stärke-Regler: Pfeiltaste ändert den Wert, nicht die Objektposition', await ev("document.getElementById('lw').value==='2.5'&&S.sel.o.x===window.__lwx") === true);
+  const lwOk = await waitFor("document.getElementById('lw').value==='2.5'&&S.sel.o.x===window.__lwx", 2000);
+  ok('Stärke-Regler: Pfeiltaste ändert den Wert, nicht die Objektposition', lwOk === true, lwOk ? undefined : await ev("JSON.stringify({focus:document.activeElement&&document.activeElement.id,val:document.getElementById('lw').value,x:S.sel&&S.sel.o.x,x0:window.__lwx,inert:!!document.querySelector('#app').inert})"));
   await ev("setSel(null);document.activeElement&&document.activeElement.blur()");
   await ev("studioOpen(true)");
   await sleep(400);
