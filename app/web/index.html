@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-eq6B+K+toPzbJXvKnPA813lF+iNzXGlhFDYjPcSUAeU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-iOel9H0jQHQZbfmwS49Zm6rTf52BJCMpGA4iUodQTD0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2595,6 +2595,7 @@ const I18N_EN={
 /* Zusammengesetzte Meldungen: Muster → Übersetzung */
 const I18N_RX=[
   [/^(\d+) Bilder eingefügt\.$/,'$1 images inserted.'],
+  [/^Beschriftungen entfernt, (\d+) gesperrte blieben\. Rückgängig mit Strg\+Z\.$/,'Annotations removed, $1 locked kept. Undo with Ctrl+Z.'],
   [/^(\d+) Seiten gedreht\. Rückgängig mit Strg\+Z\.$/,'$1 pages rotated. Undo with Ctrl+Z.'],
   [/^Seite (\d+) gedreht\. Rückgängig mit Strg\+Z\.$/,'Page $1 rotated. Undo with Ctrl+Z.'],
   [/^„(.+)“ gespeichert\. Das Original ist unverändert\.$/,'“$1” saved. The original is unchanged.'],
@@ -6608,7 +6609,7 @@ function pageMenu(i,x,y){
     ['Nach unten verschieben',()=>{TM.sel=i;thMove(1)},i===n-1],'-',
     ['Nach rechts drehen',()=>rotatePages([i],90)],['Nach links drehen',()=>rotatePages([i],-90)],['Alle Seiten drehen',()=>rotatePages(idx(n),90),n<2],'-',
     ['Seiten ordnen …',()=>openPgDlg(i)],['Seite herauslösen',()=>sxOpen([i])],'-',
-    ['Beschriftungen dieser Seite entfernen',()=>{pushHist();S.pages[i].objs=[];S.sel=null;redraw(i);markDirty();toast('Beschriftungen entfernt. Rückgängig mit Strg+Z.')},!S.pages[i].objs.length],
+    ['Beschriftungen dieser Seite entfernen',()=>{const P=S.pages[i],k=P.objs.filter(o=>o.locked).length;pushHist();P.objs=P.objs.filter(o=>o.locked);S.sel=null;redraw(i);markDirty();toast(k?`Beschriftungen entfernt, ${k} gesperrte blieben. Rückgängig mit Strg+Z.`:'Beschriftungen entfernt. Rückgängig mit Strg+Z.')},!S.pages[i].objs.some(o=>!o.locked)],
     ['Seite löschen',()=>rebuildPages(all.filter(e=>e.i!==i),`Seite ${i+1} gelöscht. Rückgängig mit Strg+Z.`,Math.max(0,i-1)),n===1,'danger'],
   ];
   ctx.innerHTML='';

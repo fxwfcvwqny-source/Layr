@@ -326,6 +326,8 @@ else {
     await ev("closeMenu()");
     await sleep(500);
   }
+  // Seitenmenü „Beschriftungen dieser Seite entfernen“ lässt gesperrte Objekte stehen und meldet ihre Zahl
+  ok('Seitenmenü: Beschriftungen entfernen lässt gesperrtes Objekt stehen', await ev("(async()=>{const P=S.pages[0],base={color:'#000000',lw:1,fill:'none'};P.objs.length=0;P.objs.push({type:'rect',x:50,y:50,w:40,h:40,...base,oid:'tLk',locked:true},{type:'rect',x:150,y:50,w:40,h:40,...base,oid:'tFr'});pageMenu(0,100,100);[...document.querySelectorAll('#ctx button')].find(x=>x.textContent==='Beschriftungen dieser Seite entfernen').click();await new Promise(r=>setTimeout(r,400));const left=P.objs.map(o=>o.oid).join();const t=document.querySelector('.toast').textContent;P.objs.length=0;return left==='tLk'&&/1 gesperrte/.test(t)})()") === true);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
