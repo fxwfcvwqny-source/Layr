@@ -551,7 +551,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 :root[data-tbstyle="float"] .tools{justify-self:center;width:max-content;max-width:calc(100% - 24px);margin:10px 12px 4px;border:1px solid var(--line);border-radius:calc(var(--r) + 2px);box-shadow:var(--shadow);padding-inline:8px}
 :root[data-tbstyle="float"] .tools>button:first-of-type,:root[data-tbstyle="float"] .tools>button:last-of-type{margin-inline:0}
 :root[data-tbstyle="float"] .tools .tool-ind{border-radius:calc(var(--r) + 2px)}
-@media (min-width:861px){:root[data-tbstyle="float"] .app{grid-template-areas:"top top top" "tabs tabs tabs" "thumbs tools panel" "thumbs view panel"}}
+@media (min-width:1200px){:root[data-tbstyle="float"] .app{grid-template-areas:"top top top" "tabs tabs tabs" "thumbs tools panel" "thumbs view panel"}}
 /* Gleitender Hintergrund für das aktive Werkzeug */
 .tools{position:relative}
 .tool-ind{position:absolute;left:0;top:50%;width:0;height:var(--tool,36px);margin-top:calc(var(--tool,36px) / -2);border-radius:var(--r);background:var(--accent-soft);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent);pointer-events:none;z-index:0;opacity:0;transition:left .18s cubic-bezier(.2,0,0,1),width .18s cubic-bezier(.2,0,0,1),opacity .15s}
