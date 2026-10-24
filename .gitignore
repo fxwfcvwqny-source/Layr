@@ -10,4 +10,5 @@ Thumbs.db
 *.p12
 *.cer
 .env.*
+!.env.example
 CLAUDE.local.md
