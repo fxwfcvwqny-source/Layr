@@ -254,6 +254,8 @@ else {
   ok('Text-Leiste: Enter verschiebt die Schriftart um eine Stelle', await ev("design.qbarOrder[1]==='font'") === true);
   ok('Text-Leiste: Fokus bleibt am Pfeil der verschobenen Zeile', await ev("document.activeElement.dataset.id==='font'&&document.activeElement.dataset.d==='1'") === true);
   ok('Text-Leiste: neue Reihenfolge ist gespeichert', await ev("JSON.parse(localStorage.getItem('pdfwerkbank:design')).qbarOrder[1]==='font'") === true);
+  await ev("document.querySelector('#dQbStyle [data-v=contrast]').click()");
+  ok('Text-Leiste: Stil Kontrast wirkt sofort und wird gespeichert', await ev("document.documentElement.dataset.qbstyle==='contrast'&&JSON.parse(localStorage.getItem('pdfwerkbank:design')).qbarStyle==='contrast'") === true);
   await ev("document.querySelector('#dQbReset').click();studioOpen(false)");
   // Text-Leiste: Einstellungen werden bereinigt, alte Design-Daten laden ohne Fehler
   ok('Text-Leiste: ungültige Einstellungen werden bereinigt', await ev("(()=>{const d=qbSan({qbarOrder:['x','bold','bold'],qbarHide:QB_IDS.slice(),qbar:'zz',qbarStyle:'zz'});return d.qbarOrder.join()==='bold,font,size,ul,lists,indent,col,del'&&d.qbarHide.length===0&&d.qbar==='m'&&d.qbarStyle==='panel'})()") === true);

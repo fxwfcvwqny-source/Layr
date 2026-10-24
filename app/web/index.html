@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xgjiqg7IQPLhH/cCIDvuuirsAyjz+IR15E5f5ZfXKrM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-P7m0I4242cVHJbsjwU2/U9Wp/l+7S84LJbHJDot1c5w=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1470,6 +1470,9 @@ header,.file{min-width:0}
 .edcol .cbar{width:16px;height:4px;border-radius:1px;box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent)}
 .edpal{border-radius:var(--r)}
 .edbar .edsw{border-radius:var(--r-s)}
+:root[data-qbstyle="tint"] .edbar{background:color-mix(in srgb,var(--accent) 8%,var(--panel));--accent-soft:color-mix(in srgb,var(--accent) 16%,var(--panel))}
+:root[data-qbstyle="contrast"] .edbar{--panel:#1b2129;--ink:#f2f4f7;--muted:#aeb7c2;--line:#4a5361;--hover:#2c333d;--accent:#8fd3dc;--accent-soft:#2c4a52;background:var(--panel);color:var(--ink);border-color:var(--panel)}
+:root[data-qbstyle="contrast"] .edbar .edfs{color:var(--ink)}
 .qbprev{margin:6px 0 10px;padding:12px;border-radius:var(--r);background:color-mix(in srgb,var(--ink) 4%,transparent);overflow-x:auto}
 .qbprev .edbar{position:static;width:max-content}
 .qbItems{display:flex;flex-direction:column;gap:2px}
@@ -2023,6 +2026,7 @@ header,.file{min-width:0}
       <span class="lbl">Ecken</span><div class="seg" id="dCorners"><button data-v="square">Eckig</button><button data-v="round">Abgerundet</button><button data-v="pill">Sehr rund</button></div>
       <span class="lbl">Werkzeuge</span><div class="seg" id="dDensity"><button data-v="compact">Kompakt</button><button data-v="normal">Normal</button><button data-v="large">Groß</button></div>
       <span class="lbl">Text-Leiste</span><div class="seg" id="dQbar"><button data-v="s">Klein</button><button data-v="m">Mittel</button><button data-v="l">Groß</button></div>
+      <span class="lbl">Stil</span><div class="seg" id="dQbStyle"><button data-v="panel">Standard</button><button data-v="tint">Getönt</button><button data-v="contrast">Kontrast</button></div>
       <div class="qbprev" aria-hidden="true" inert></div>
       <span class="lbl">Knöpfe</span><div class="qbItems" id="dQbItems"></div>
       <button class="btn" id="dQbReset" style="align-self:flex-start">Text-Leiste zurücksetzen</button>
@@ -4836,12 +4840,13 @@ const qbSan=d=>{const known=a=>Array.isArray(a)?[...new Set(a.filter(x=>QB_IDS.i
   return{...d,qbarOrder:[...o,...QB_IDS.filter(x=>!o.includes(x))],qbarHide:h.length<QB_IDS.length?h:[],qbar:['s','m','l'].includes(d.qbar)?d.qbar:'m',qbarStyle:['panel','tint','contrast'].includes(d.qbarStyle)?d.qbarStyle:'panel'}};
 const ACCENTS=[['petrol','Petrol','#0b6570'],['blue','Blau','#2457c5'],['indigo','Indigo','#4338ca'],['violet','Violett','#6d3fc8'],['pink','Beere','#b8336a'],['coral','Koralle','#c2412d'],['orange','Orange','#c0560a'],['gold','Gold','#a16207'],['green','Grün','#2f7d32'],['slate','Schiefer','#3d4b5c']];
 let design={...DDEF};try{Object.assign(design,JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}'));if(design.desk==='dots')design.desk='plain'}catch(e){}design=qbSan(design);
-const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar']];
+const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar'],['dQbStyle','qbarStyle']];
 const mixHex=(h,t)=>{const n=parseInt(h.slice(1),16),c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,'0'));return'#'+c.join('')};
 let designTheme=null; // theme of the last applyDesign call; only a real switch suspends transitions
 function applyDesign(save){const r=document.documentElement;design=qbSan(design);
   if(design.theme==='system')r.removeAttribute('data-theme');else r.dataset.theme=design.theme;
   for(const k of ['accent','toolbar','density','corners','desk','deskc','sheet','shadow','motion','light','dark','bars','tbstyle','qbar'])r.dataset[k]=design[k];
+  r.dataset.qbstyle=design.qbarStyle;
   if(design.bars==='custom'&&!design.barsC)design.barsC='#1b2129';
   if(design.bars==='custom'&&/^#[0-9a-f]{6}$/i.test(design.barsC)){const h=design.barsC,n=parseInt(h.slice(1),16),L=(.2126*((n>>16)&255)+.7152*((n>>8)&255)+.0722*(n&255))/255,dk=L<.55,ink=dk?'#eef2f6':'#17202b';
     r.style.setProperty('--bar',h);r.style.setProperty('--bar-ink',ink);r.style.setProperty('--bar-muted',`color-mix(in srgb,${ink} 62%,${h})`);r.style.setProperty('--bar-line',`color-mix(in srgb,${ink} 16%,${h})`);r.style.setProperty('--bar-hover',`color-mix(in srgb,${ink} 10%,${h})`);r.classList.toggle('bars-dark',dk)}
