@@ -1,4 +1,4 @@
-# Layr 3.8.7 (draft release notes)
+# Layr 3.8.8 (draft release notes)
 
 Work in progress on branch `fix/mic-and-updater`. This file is updated while the work goes on and is meant to become the release notes.
 
@@ -44,6 +44,8 @@ Work in progress on branch `fix/mic-and-updater`. This file is updated while the
 - Split view: columns line up (same scale and spacing).
 - Text quick bar: choose and reorder the buttons and pick a look (Design settings).
 
+- Stroke slider: the value label has a fixed width so the slider no longer jumps under the pointer; arrow keys change the slider value instead of moving the selected object.
+- Context menus (page, table, object) fit the window on the first open; page thumbnails are no longer clipped in narrow windows; table edges can be resized on every table; switches in dialogs keep their labels in narrow windows; invalid saved design values are reset to defaults.
 - Security: Electron 44.9.3 (fixes a known certificate advisory); update and download test switches only work in unpackaged builds; the microphone permission check also verifies the page origin; reserved Windows file names are rejected; only the three newest local crash reports are kept.
 - Microsoft Store preparation: a Store build mode switches the self-updater off (updates come through the Store); `docs/STORE.md`, `PRIVACY.md`, listing texts and an unsigned AppX workflow are included. The GitHub version is unchanged.
 
