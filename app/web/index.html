@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KxSQR/NNh8r4CnmN2XQD4mVASsjc5vU0uu9+LZgTVrs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-vBk140FkkkCaoZ9/rQn3ug+CENgB0Yy1FUUoyiuufjA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3871,6 +3871,17 @@ function inTL(n){const e=n&&(n.nodeType===1?n:n.parentElement);return !!(e&&e.cl
 function tlSpanAt(P,cx,cy){return !!P.tl&&document.elementsFromPoint(cx,cy).some(el=>el.tagName==='SPAN'&&P.tl.contains(el)&&!el.classList.contains('markedContent'))}
 // .selecting lets endOfContent cover the layer while dragging, so the selection cannot jump to the layer end
 for(const ev of ['pointerup','pointercancel'])document.addEventListener(ev,()=>{for(const l of document.querySelectorAll('.textLayer.selecting'))l.classList.remove('selecting')});
+// Keeps .endOfContent right behind the selection anchor (non-Firefox branch of pdf.js 6.4.299 web/text_layer_builder.js, Copyright 2014 Mozilla Foundation, Apache License 2.0)
+let tlPrev=null;
+document.addEventListener('selectionchange',()=>{
+  const sel=getSelection();
+  if(!sel.rangeCount){tlPrev=null;for(const d of document.querySelectorAll('.textLayer>.endOfContent'))d.parentNode.append(d);return}
+  const r=sel.getRangeAt(0),ms=!!tlPrev&&r.compareBoundaryPoints(Range.END_TO_END,tlPrev)===0;
+  let a=ms?r.startContainer:r.endContainer;if(a.nodeType===Node.TEXT_NODE)a=a.parentNode;
+  if(!ms&&r.endOffset===0){do{while(a&&!a.previousSibling)a=a.parentNode;a=a&&a.previousSibling}while(a&&!a.childNodes.length)}
+  const tl=a&&a.parentElement&&a.parentElement.closest('.textLayer'),eoc=tl&&tl.querySelector(':scope>.endOfContent');
+  if(eoc&&a!==eoc){a.parentElement.insertBefore(eoc,ms?a:a.nextSibling)}
+  tlPrev=r.cloneRange()});
 // Textebene (pdf.js) nur für sichtbare Seiten, erst im Auswählen-Werkzeug; Zoom über --scale-factor
 async function tlBuild(i){const P=S.pages[i],doc=S.doc;if(!P||P.tl||!doc)return;const tl=P.tl=document.createElement('div');tl.className='textLayer';P.el.insertBefore(tl,P.ink);
   // Rechtsklick auf Text geht an den Ink-Layer (Objektmenü); die Textebene selbst bleibt ohne Kontextmenü

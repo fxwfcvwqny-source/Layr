@@ -379,6 +379,17 @@ else {
   await ev("(async()=>{const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);const pg=d.addPage([595,842]);const W='lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim minim veniam quis nostrud'.split(' ');let k=0;for(let ln=0;ln<68;ln++){if(ln%9===8)continue;let s='';while(f.widthOfTextAtSize(s,9)<440)s+=W[(k++*7)%W.length]+' ';pg.drawText(s.trim(),{x:72,y:800-ln*11,size:9,font:f})}await openPdf(await d.save(),'dense.pdf');setTool('select');return 1})()");
   const eoc = await ev("(async()=>{let L=[];for(let k=0;k<50;k++){await new Promise(r=>setTimeout(r,200));L=[...document.querySelectorAll('.textLayer')];if(L.length&&L[0].querySelector('span'))break}return [L.length,L.filter(l=>l.querySelectorAll(':scope>.endOfContent').length===1).length]})()");
   ok('endOfContent in every text layer', Array.isArray(eoc) && eoc[0] > 0 && eoc[0] === eoc[1], eoc);
+  // Echter Maus-Zug von Wort-Mitte (Zeile 11) in den rechten Rand von Zeile 13 wählt wenig Text, springt nicht ans Ende der Ebene
+  const dr = await ev("(()=>{const tl=document.querySelector('.textLayer'),sp=[...tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()).map(s=>s.getBoundingClientRect());return [sp[10],sp[12],tl.getBoundingClientRect()].map(r=>r.toJSON())})()");
+  const [d1, d2, dtl] = dr, dy1 = (d1.top + d1.bottom) / 2, dy2 = (d2.top + d2.bottom) / 2, dx1 = (d1.left + d1.right) / 2;
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: dx1, y: dy1, button: 'none', buttons: 0 });
+  await sleep(250);
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: dx1, y: dy1, button: 'left', buttons: 1, clickCount: 1 });
+  for (let i = 1; i <= 12; i++) { await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: dx1 + (dtl.right - 20 - dx1) * i / 12, y: dy1 + (dy2 - dy1) * i / 12, button: 'left', buttons: 1 }); await sleep(20); }
+  await sleep(150);
+  const dlen = await ev("getSelection().toString().length");
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: dtl.right - 20, y: dy2, button: 'left', buttons: 0, clickCount: 1 });
+  ok('synthetic drag selects less than 200 characters on a dense page', dlen > 0 && dlen < 200, dlen);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
