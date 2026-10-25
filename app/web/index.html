@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-wMrIw2gkDgMyS6h6JqbUOxOI2vZLoxPSY7+M12Yob34=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Qo6fWpYJ/6bkYkdxMFGemxMIh9Kp+/aagG+gC8oDeaE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6879,7 +6879,7 @@ function hmOpen(btn,items,title){if(!ctx.hidden&&!ctx._ah&&ctx._owner===btn){clo
 ctx.addEventListener('keydown',e=>{if(!ctx.classList.contains('hm'))return;const B=[...ctx.querySelectorAll('button')];const i=B.indexOf(document.activeElement);
   if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const nb=B[(i+(e.key==='ArrowDown'?1:-1)+B.length)%B.length];nb&&nb.focus()}
   else if(e.key==='Home'||e.key==='End'){e.preventDefault();const nb=e.key==='Home'?B[0]:B[B.length-1];nb&&nb.focus()}else if(e.key==='Tab'){e.preventDefault();closeMenu()}});
-new MutationObserver(()=>{if((ctx.hidden||ctx._ah)&&ctx.classList.contains('hm')){for(const b of document.querySelectorAll('.hmb[aria-expanded="true"]'))b.setAttribute('aria-expanded','false');
+new MutationObserver(()=>{if((ctx.hidden||ctx._ah)&&ctx.classList.contains('hm')){for(const b of document.querySelectorAll('.hmb[aria-expanded="true"],.tb-more[aria-expanded="true"]'))b.setAttribute('aria-expanded','false');
   if(ctx.hidden)ctx.classList.remove('hm')}}).observe(ctx,{attributes:true,attributeFilter:['hidden','class']});
 const hmPressed=id=>{const b=document.getElementById(id);return!!b&&b.getAttribute('aria-pressed')==='true'};
 $('#bFileMenu').onclick=()=>hmOpen($('#bFileMenu'),[

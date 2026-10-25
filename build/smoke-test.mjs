@@ -351,6 +351,9 @@ else {
     await ev("closeMenu()");
     await sleep(500);
   }
+  // „Mehr“-Knopf der Werkzeugleiste: nach dem Schließen des Menüs nicht mehr expanded
+  const mehr = await ev("(async()=>{const b=document.querySelector('.tb-more');b.click();await new Promise(r=>setTimeout(r,400));const open=b.getAttribute('aria-expanded');closeMenu();await new Promise(r=>setTimeout(r,500));return [open,b.getAttribute('aria-expanded')]})()");
+  ok('Mehr nach Schließen nicht expanded', Array.isArray(mehr) && mehr[0] === 'true' && mehr[1] === 'false', mehr);
   // Objektmenü: echter Rechtsklick nahe am unteren Fensterrand bleibt beim ersten Öffnen ganz im Fenster
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
   await sleep(300);
