@@ -358,7 +358,7 @@ else {
   for (const w of [1440, 1100]) {
     await cdp('Emulation.setDeviceMetricsOverride', { width: w, height: 800, deviceScaleFactor: 1, mobile: false });
     const fl = await ev("(async()=>{const r=document.documentElement,t=document.querySelector('.tools'),o=[r.dataset.tbstyle,r.dataset.toolbar];const w=()=>new Promise(x=>setTimeout(x,300));r.dataset.tbstyle='float';r.dataset.toolbar='center';await w();const c=t.getBoundingClientRect().left;r.dataset.toolbar='left';await w();const l=t.getBoundingClientRect().left;r.dataset.tbstyle=o[0];r.dataset.toolbar=o[1];return [c,l,document.getElementById('viewer').getBoundingClientRect().left]})()");
-    ok(`Schwebende Leiste links ${w}px: ganz links`, Array.isArray(fl) && fl[1] - fl[2] < 24 && fl[0] > fl[1] + 40, fl);
+    ok(`Schwebende Leiste links ${w}px: ganz links`, Array.isArray(fl) && Math.abs(fl[1] - ((w >= 1200 ? fl[2] : 0) + 12)) < 4 && fl[0] > fl[1] + 40, fl);
   }
   // Objektmenü: echter Rechtsklick nahe am unteren Fensterrand bleibt beim ersten Öffnen ganz im Fenster
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
