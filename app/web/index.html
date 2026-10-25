@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Yw9DkACEiBhuuNgElbXP9RCoQaEEQN2AteGdUjqsmUs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-n4kngFd1evISRuskdGTgJaFCAJ/getwbBwpPy/AtcRM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -58,6 +58,8 @@ button{cursor:pointer}
 .th.sel{outline:2px solid var(--accent);outline-offset:-2px}
 .th-bar{position:sticky;top:0;z-index:1;align-self:stretch;display:flex;justify-content:center;gap:6px;padding:2px 0 4px;background:var(--panel);border-bottom:1px solid var(--line)}
 .th-bar .ib{width:28px;height:28px}.th-bar .ib svg{width:16px;height:16px}
+#tsBar{position:fixed;z-index:94;display:flex;align-items:center;gap:2px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:3px}
+#tsBar .ib{width:30px;height:30px}#tsBar .ib svg{width:18px;height:18px}
 .ctx{position:fixed;z-index:95;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:4px;min-width:220px;display:flex;flex-direction:column;max-height:calc(100vh - 16px);overflow-y:auto}
 .ctx>*{flex-shrink:0}
 .ctx button{border:0;background:transparent;text-align:left;padding:7px 10px;border-radius:6px;font-size:13px}
@@ -2048,6 +2050,7 @@ header,.file{min-width:0}
   </div>
 </aside>
 <div class="ctx" id="ctx" role="menu" hidden></div>
+<div id="tsBar" role="toolbar" aria-label="Textauswahl" hidden><button class="ib" id="tsCopy" type="button" title="Kopieren" aria-label="Kopieren"><svg class="ph" aria-hidden="true"><use href="#ph-copy"/></svg></button></div>
 <div class="modal" id="newDlg" data-mode="doc" hidden>
   <div class="card wide" role="dialog" aria-modal="true" aria-labelledby="newT">
     <h2 id="newT">Neues Blatt</h2>
@@ -2165,7 +2168,7 @@ const I18N_EN={
 'Neues Dokument':'New document','Eine eigene, neue PDF-Datei':'A separate, new PDF file','Leere Seiten einfügen':'Insert blank pages','Leere Seiten hinzufügen':'Add blank pages','Zur aktuellen PDF':'To the current PDF','Erst eine PDF öffnen':'Open a PDF first',
 'Name':'Name','Format':'Format','Seiten':'Pages','Papierfarbe':'Paper colour','Hintergrund':'Background','Position':'Position','Am Anfang':'At the beginning','Am Ende':'At the end',
 'A4 hoch':'A4 portrait','A4 quer':'A4 landscape','A3 quer':'A3 landscape','Leer':'Blank','Liniert':'Lined','Kariert':'Squared','Punkte':'Dotted','Creme':'Cream','Rosé':'Rosé','Papier':'Paper',
-'Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
+'Textauswahl':'Text selection','Kopieren':'Copy','Kopiert.':'Copied.','Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
 // Seitenmenü
 'Seite duplizieren':'Duplicate page','Nach oben':'Move up','Nach unten':'Move down','Seite löschen':'Delete page','Nach oben verschieben':'Move up','Nach unten verschieben':'Move down','Seite nach oben':'Move page up','Seite nach unten':'Move page down','Beschriftungen dieser Seite entfernen':'Remove annotations on this page',
 // Zusammenführen
@@ -2839,7 +2842,7 @@ function tbHdrItems(){const on=id=>tbIsHid(id),it=[];
 tbApply();
 try{gdApply()}catch(e){}
 function setTool(id){
-  if(id==='lasso')id='select';
+  if(id==='lasso')id='select';tsHide();
   if(S.tool==='marker'&&id!=='marker'&&S.color===MARKER_DEF)setColor(S._prevColor||'#1b1f24',true);
   if(id==='marker'&&S.tool!=='marker'){S._prevColor=S.color;if(!['#ffd60a','#4ade80','#38bdf8','#f472b6'].includes(S.color))setColor(MARKER_DEF,true)}
   if(S.tool==='select'&&id!=='select'){if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();S.pages.forEach(P=>{if(P.ink)P.ink.style.pointerEvents='';if(P.tl){P.tl.remove();P.tl=null}})}
@@ -3894,6 +3897,21 @@ async function tlBuild(i){const P=S.pages[i],doc=S.doc;if(!P||P.tl||!doc)return;
   // Nach jedem await nur weiterarbeiten, wenn diese Ebene noch die aktuelle ist (sonst entstünde doppelter Text)
   try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P||P.tl!==tl)return;const vp=pg.getViewport({scale:1});tl.style.setProperty('--total-scale-factor',`calc(var(--scale-factor,1)*${vp.userUnit||1})`);await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:tl,viewport:vp}).render();const eoc=document.createElement('div');eoc.className='endOfContent';tl.appendChild(eoc)}catch(e){if(P.tl===tl){tl.remove();P.tl=null}}}
 
+/* ---------- Auswahlleiste (tsBar): erscheint nach Textauswahl im Auswählen-Werkzeug ---------- */
+const tsBar=$('#tsBar');let tsRng=null;
+function tsHide(){if(tsBar.hidden)return;tsBar.hidden=true;tsRng=null}
+function tsShow(){const s=getSelection();if(S.tool!=='select'||!s.rangeCount||s.isCollapsed||!String(s).trim()||!inTL(s.anchorNode)){tsHide();return}
+  const r=s.getRangeAt(0),b=r.getBoundingClientRect();if(!b.width&&!b.height){tsHide();return}
+  tsRng=r.cloneRange();tsBar.hidden=false;const w=tsBar.offsetWidth,h=tsBar.offsetHeight,vw=innerWidth,vh=innerHeight;
+  let y=b.top-8-h;if(y<8)y=b.bottom+8;tsBar.style.left=Math.round(Math.max(8,Math.min(vw-w-8,b.left+b.width/2-w/2)))+'px';tsBar.style.top=Math.round(Math.max(8,Math.min(vh-h-8,y)))+'px'}
+tsBar.addEventListener('mousedown',e=>{if(e.target.type!=='color')e.preventDefault()});
+tsBar.addEventListener('pointerdown',e=>{if(e.target.type!=='color')e.preventDefault()});
+tsBar.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();tsHide();viewer.tabIndex=-1;viewer.focus({preventScroll:true})}});
+addEventListener('pointerup',e=>{if(!tsBar.contains(e.target))setTimeout(tsShow,0)});
+addEventListener('keyup',e=>{if(!tsBar.contains(e.target)&&e.key!=='Escape')tsShow()});
+document.addEventListener('selectionchange',()=>{const s=getSelection();if(!tsBar.hidden&&(!s.rangeCount||s.isCollapsed||!inTL(s.anchorNode))&&!tsBar.contains(document.activeElement))tsHide()});
+viewer.addEventListener('scroll',tsHide);
+$('#tsCopy').onclick=async()=>{const t=String(tsRng||getSelection());try{await navigator.clipboard.writeText(t)}catch(e){document.execCommand('copy')}toast(tr('Kopiert.'))};
 /* ---------- Verlauf & Zwischenspeicher ---------- */
 const H={u:[],r:[]};
 const snapshot=()=>JSON.stringify(S.pages.map(p=>p.objs),(k,v)=>k==='_editing'?undefined:v);

@@ -407,6 +407,30 @@ else {
   await sleep(100);
   const xg = await ev("(()=>{const sp=[...S.pages[1].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.toString().length,s.containsNode(sp[sp.length-1],true),s.containsNode(sp[1],false)]})()");
   ok('Zug über die Seitengrenze wählt nicht die ganze nächste Seite', Array.isArray(xg) && xg[0] > 0 && xg[0] < 1000 && xg[1] === false && xg[2] === true, xg);
+  // Selection bar: real double-click on a word shows #tsBar, Copy writes the word to the clipboard, Esc hides it
+  await ev("getSelection().removeAllRanges();viewer.scrollTop=0;setTool('select')");
+  await sleep(600);
+  const tw = await ev("(()=>{const s=[...S.pages[0].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim())[10].getBoundingClientRect();return [s.left+3,(s.top+s.bottom)/2,s.right-3]})()");
+  await cdp('Browser.grantPermissions', { permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'] });
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tw[0], y: tw[1], button: 'none', buttons: 0 });
+  await sleep(250);
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: tw[0], y: tw[1], button: 'left', buttons: 1, clickCount: 1 });
+  for (let i = 1; i <= 8; i++) { await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tw[0] + (tw[2] - tw[0]) * i / 8, y: tw[1], button: 'left', buttons: 1 }); await sleep(20); }
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: tw[2], y: tw[1], button: 'left', buttons: 0, clickCount: 1 });
+  await sleep(300);
+  const tb = await ev("(()=>{const b=$('#tsBar'),r=b.getBoundingClientRect(),q=getSelection().getRangeAt(0).getBoundingClientRect();return {vis:!b.hidden,role:b.getAttribute('role'),lbl:b.getAttribute('aria-label'),sel:String(getSelection()).trim(),inView:r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight,gap:Math.round(q.top-r.bottom)}})()");
+  ok('tsBar appears after a real drag selection', tb && tb.vis && tb.role === 'toolbar' && tb.lbl === 'Textauswahl' && tb.sel.length > 1 && tb.inView && tb.gap >= 0, tb);
+  const tc = await ev("(()=>{const b=$('#tsCopy').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()");
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tc[0], y: tc[1], button: 'none', buttons: 0 });
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: tc[0], y: tc[1], button: 'left', buttons: 1, clickCount: 1 });
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: tc[0], y: tc[1], button: 'left', buttons: 0, clickCount: 1 });
+  await sleep(300);
+  const tcp = await ev("(async()=>{let c='';try{c=await navigator.clipboard.readText()}catch(e){c='ERR '+e.message}return {c,sel:String(getSelection()).trim(),vis:!$('#tsBar').hidden}})()");
+  ok('tsBar Copy puts the selected text on the clipboard and keeps the selection', tcp && tcp.c.trim() === tb.sel && tcp.sel === tb.sel && tcp.vis, tcp);
+  await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  await sleep(200);
+  ok('tsBar hides on Esc', await ev("$('#tsBar').hidden"));
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
