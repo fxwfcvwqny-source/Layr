@@ -431,6 +431,35 @@ else {
   await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
   await sleep(200);
   ok('tsBar hides on Esc', await ev("$('#tsBar').hidden"));
+  // Selection bar Highlight: one hl object with the selected word, one undo step, colour swatch, save + reopen
+  const mouse = async (type, x, y, buttons = 0, clickCount = 1) => cdp('Input.dispatchMouseEvent', { type, x, y, button: type === 'mouseMoved' && !buttons ? 'none' : 'left', buttons, clickCount });
+  const clickAt = async ([x, y]) => { await mouse('mouseMoved', x, y); await mouse('mousePressed', x, y, 1); await mouse('mouseReleased', x, y); await sleep(250); };
+  const dragWord = async k => {
+    await ev("getSelection().removeAllRanges();viewer.scrollTop=0;setTool('select')"); await sleep(400);
+    const w = await ev(`(()=>{const s=[...S.pages[0].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim())[${k}].getBoundingClientRect();return [s.left+3,(s.top+s.bottom)/2,s.right-3]})()`);
+    await mouse('mouseMoved', w[0], w[1]); await sleep(200); await mouse('mousePressed', w[0], w[1], 1);
+    for (let i = 1; i <= 8; i++) { await mouse('mouseMoved', w[0] + (w[2] - w[0]) * i / 8, w[1], 1); await sleep(20); }
+    await mouse('mouseReleased', w[2], w[1]); await sleep(300);
+  };
+  const hlN = () => ev("S.pages.reduce((n,P)=>n+P.objs.filter(o=>o.type==='hl').length,0)");
+  const btn = id => ev(`(()=>{const b=$('${id}').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()`);
+  await ev("(async()=>{await findIndex()})()");
+  const h0 = await hlN(), u0 = await ev('H.u.length');
+  await dragWord(10);
+  const w1 = await ev("String(getSelection()).trim()");
+  await clickAt(await btn('#tsHl'));
+  const h1 = await ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl');const o=l[l.length-1];return {n:l.length,t:o&&hlText(0,o),a:o&&o.alpha,c:o&&o.color,q:o&&o.q.length,hist:H.u.length,vis:!$('#tsBar').hidden,sel:String(getSelection()),dirty:S.dirty}})()");
+  ok('tsBar Highlight creates exactly one hl object with the selected word and hides the bar', h1 && await hlN() === h0 + 1 && h1.t === w1 && h1.a === .38 && h1.c === '#ffd60a' && h1.hist === u0 + 1 && !h1.vis && h1.sel === '' && h1.dirty, [w1, h1]);
+  await ev('undo()');
+  ok('Highlight from tsBar is undone in one step', await hlN() === h0 && await ev('H.u.length') === u0);
+  await dragWord(12);
+  await clickAt(await ev("(()=>{const b=$('#tsBar .sw[data-c=\"#4ade80\"]').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()"));
+  ok('tsBar swatch click keeps the selection and bar', await ev("String(getSelection()).trim().length>1&&!$('#tsBar').hidden"));
+  await clickAt(await btn('#tsHl'));
+  const h2 = await ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl');return l[l.length-1].color})()");
+  ok('tsBar swatch sets the colour of the next highlight', h2 === '#4ade80' && await hlN() === h0 + 1, h2);
+  const rt = await ev("(async()=>{const q0=JSON.stringify(S.pages[0].objs.filter(o=>o.type==='hl').map(o=>o.q));await openPdf(await buildOutput(),'rt.pdf');const l=S.pages[0].objs.filter(o=>o.type==='hl');const same=JSON.stringify(l.map(o=>o.q))===q0&&l.length>=1;const o=l[l.length-1];const n=l.length;S.pages[0].objs=S.pages[0].objs.filter(x=>x!==o);return {same,n,c:o.color,left:S.pages[0].objs.filter(x=>x.type==='hl').length}})()", 60000);
+  ok('Saved highlight from tsBar reopens as editable hl object and can be deleted', rt && rt.same && rt.c === '#4ade80' && rt.left === rt.n - 1, rt);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
