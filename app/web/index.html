@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Qo6fWpYJ/6bkYkdxMFGemxMIh9Kp+/aagG+gC8oDeaE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KxSQR/NNh8r4CnmN2XQD4mVASsjc5vU0uu9+LZgTVrs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3869,12 +3869,14 @@ async function renderPage(i,g){
 function inTL(n){const e=n&&(n.nodeType===1?n:n.parentElement);return !!(e&&e.closest('.textLayer'))}
 // Textzeile unter dem Mauszeiger (Spans der Textebene, keine Marker-Hüllen)
 function tlSpanAt(P,cx,cy){return !!P.tl&&document.elementsFromPoint(cx,cy).some(el=>el.tagName==='SPAN'&&P.tl.contains(el)&&!el.classList.contains('markedContent'))}
+// .selecting lets endOfContent cover the layer while dragging, so the selection cannot jump to the layer end
+for(const ev of ['pointerup','pointercancel'])document.addEventListener(ev,()=>{for(const l of document.querySelectorAll('.textLayer.selecting'))l.classList.remove('selecting')});
 // Textebene (pdf.js) nur für sichtbare Seiten, erst im Auswählen-Werkzeug; Zoom über --scale-factor
 async function tlBuild(i){const P=S.pages[i],doc=S.doc;if(!P||P.tl||!doc)return;const tl=P.tl=document.createElement('div');tl.className='textLayer';P.el.insertBefore(tl,P.ink);
   // Rechtsklick auf Text geht an den Ink-Layer (Objektmenü); die Textebene selbst bleibt ohne Kontextmenü
   tl.addEventListener('contextmenu',e=>{e.preventDefault();if(P.ink){P.ink.style.pointerEvents='';P.ink.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY,button:2,buttons:e.buttons}))}});tl.addEventListener('dragstart',e=>e.preventDefault());
   // Nach jedem await nur weiterarbeiten, wenn diese Ebene noch die aktuelle ist (sonst entstünde doppelter Text)
-  try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P||P.tl!==tl)return;const vp=pg.getViewport({scale:1});tl.style.setProperty('--total-scale-factor',`calc(var(--scale-factor,1)*${vp.userUnit||1})`);await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:tl,viewport:vp}).render()}catch(e){if(P.tl===tl){tl.remove();P.tl=null}}}
+  try{const pg=await doc.getPage(i+1);if(S.doc!==doc||S.pages[i]!==P||P.tl!==tl)return;const vp=pg.getViewport({scale:1});tl.style.setProperty('--total-scale-factor',`calc(var(--scale-factor,1)*${vp.userUnit||1})`);await new pdfjsLib.TextLayer({textContentSource:pg.streamTextContent(),container:tl,viewport:vp}).render();const eoc=document.createElement('div');eoc.className='endOfContent';tl.appendChild(eoc)}catch(e){if(P.tl===tl){tl.remove();P.tl=null}}}
 
 /* ---------- Verlauf & Zwischenspeicher ---------- */
 const H={u:[],r:[]};
@@ -4268,6 +4270,7 @@ function attachInk(P,i){
   P.el.addEventListener('pointerdown',e=>{if(e.button!==0||!P.tl||!P.tl.contains(e.target))return;
     if(e.altKey){ink.style.pointerEvents='';e.preventDefault();return}
     if(e.target===P.tl){ink.style.pointerEvents='';e.preventDefault();return}
+    P.tl.classList.add('selecting');
     if(editorEl)closeEditor();if(S.sel)setSel(null)});
   ink.addEventListener('dblclick',e=>{
     if(!['select','rect','ellipse','table','symbol'].includes(S.tool))return;const[x,y]=toPt(e.clientX,e.clientY);
