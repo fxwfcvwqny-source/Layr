@@ -389,7 +389,8 @@ else {
   await sleep(150);
   const dlen = await ev("getSelection().toString().length");
   await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: dtl.right - 20, y: dy2, button: 'left', buttons: 0, clickCount: 1 });
-  ok('synthetic drag selects less than 200 characters on a dense page', dlen > 0 && dlen < 200, dlen);
+  const geo = await ev("(()=>{const sp=[...document.querySelector('.textLayer').querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.containsNode(sp[11],false),s.containsNode(sp[13],true),s.anchorNode&&s.anchorNode.parentElement===sp[10]]})()");
+  ok('synthetic drag selects less than 200 characters on a dense page', dlen > 0 && dlen < 200 && Array.isArray(geo) && geo[0] === true && geo[1] === false && geo[2] === true, [dlen, geo]);
   // Zug über die Seitengrenze: von Mitte letzter Zeile Seite 1 in Zeile 3 von Seite 2 wählt nicht die ganze Seite 2
   await ev("getSelection().removeAllRanges();viewer.scrollTop=0");
   await sleep(300);
