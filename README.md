@@ -2,11 +2,26 @@
 
 <h1 align="center">Layr</h1>
 
-<p align="center">Annotate, draw and take notes on PDFs.<br>Desktop app for <b>Windows</b> and <b>Linux</b>.</p>
+<p align="center">Annotate, draw, sign and take notes on PDFs. Local, no account needed.<br>Desktop app for <b>Windows</b> and <b>Linux</b>.</p>
+
+<p align="center">Microsoft Store and Flathub: coming soon.</p>
 
 <p align="center"><a href="https://github.com/fxwfcvwqny-source/Layr/releases/latest"><b>⬇ Download the latest version</b></a></p>
 
 ![Layr with a network diagram and the notes panel](docs/screenshot.png)
+
+## Why Layr
+
+- **Private by default** – everything stays on your device. No account, no telemetry, no tracking.
+- **Offline dictation and OCR** – speak into a text box, a table cell or the notes, and make scanned PDFs searchable. Both run completely on your computer.
+- **IT symbols and calculators** – 40+ network symbols, UML and flowcharts, plus subnet, number system and data size calculators.
+- **Editable annotations** – save over the original file, reopen it in Layr, and every annotation can still be moved or removed.
+- **Tables, forms and signatures** – drag out tables, fill in PDF forms, create your own form fields, and draw, type or scan your signature.
+- **Real redaction** – marked content is removed from the file for good, also from the hidden copy Layr keeps inside the PDF.
+
+## Privacy by design
+
+No account. No telemetry. No uploads: what you say and your PDFs never leave your computer. Updates are verified with an Ed25519 signature and a SHA-512 checksum, and the update check can be turned off. Details: [Privacy](#privacy) and [PRIVACY.md](PRIVACY.md).
 
 ## Features
 
