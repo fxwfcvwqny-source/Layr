@@ -376,9 +376,9 @@ else {
   ok('Seitenmenü: Beschriftungen entfernen lässt gesperrtes Objekt stehen', await ev("(async()=>{const P=S.pages[0],base={color:'#000000',lw:1,fill:'none'};P.objs.length=0;P.objs.push({type:'rect',x:50,y:50,w:40,h:40,...base,oid:'tLk',locked:true},{type:'rect',x:150,y:50,w:40,h:40,...base,oid:'tFr'});pageMenu(0,100,100);[...document.querySelectorAll('#ctx button')].find(x=>x.textContent==='Beschriftungen dieser Seite entfernen').click();await new Promise(r=>setTimeout(r,400));const left=P.objs.map(o=>o.oid).join();const t=document.querySelector('.toast').textContent;P.objs.length=0;return left==='tLk'&&/1 gesperrte/.test(t)})()") === true);
   // Textebene: dichte Seite öffnen, jede Textebene hat ein endOfContent
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  await ev("(async()=>{const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);const pg=d.addPage([595,842]);const W='lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim minim veniam quis nostrud'.split(' ');let k=0;for(let ln=0;ln<68;ln++){if(ln%9===8)continue;let s='';while(f.widthOfTextAtSize(s,9)<440)s+=W[(k++*7)%W.length]+' ';pg.drawText(s.trim(),{x:72,y:800-ln*11,size:9,font:f})}await openPdf(await d.save(),'dense.pdf');setTool('select');return 1})()");
+  await ev("(async()=>{const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);const W='lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim minim veniam quis nostrud'.split(' ');let k=0;for(let p=0;p<2;p++){const pg=d.addPage([595,842]);for(let ln=0;ln<68;ln++){if(ln%9===8)continue;let s='';while(f.widthOfTextAtSize(s,9)<440)s+=W[(k++*7)%W.length]+' ';pg.drawText(s.trim(),{x:72,y:800-ln*11,size:9,font:f})}}await openPdf(await d.save(),'dense.pdf');setTool('select');return 1})()");
   const eoc = await ev("(async()=>{let L=[];for(let k=0;k<50;k++){await new Promise(r=>setTimeout(r,200));L=[...document.querySelectorAll('.textLayer')];if(L.length&&L[0].querySelector('span'))break}return [L.length,L.filter(l=>l.querySelectorAll(':scope>.endOfContent').length===1).length]})()");
-  ok('endOfContent in every text layer', Array.isArray(eoc) && eoc[0] > 0 && eoc[0] === eoc[1], eoc);
+  ok('endOfContent in every text layer', Array.isArray(eoc) && eoc[0] > 1 && eoc[0] === eoc[1], eoc);
   // Echter Maus-Zug von Wort-Mitte (Zeile 11) in den rechten Rand von Zeile 13 wählt wenig Text, springt nicht ans Ende der Ebene
   const dr = await ev("(()=>{const tl=document.querySelector('.textLayer'),sp=[...tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()).map(s=>s.getBoundingClientRect());return [sp[10],sp[12],tl.getBoundingClientRect()].map(r=>r.toJSON())})()");
   const [d1, d2, dtl] = dr, dy1 = (d1.top + d1.bottom) / 2, dy2 = (d2.top + d2.bottom) / 2, dx1 = (d1.left + d1.right) / 2;
@@ -390,6 +390,22 @@ else {
   const dlen = await ev("getSelection().toString().length");
   await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: dtl.right - 20, y: dy2, button: 'left', buttons: 0, clickCount: 1 });
   ok('synthetic drag selects less than 200 characters on a dense page', dlen > 0 && dlen < 200, dlen);
+  // Zug über die Seitengrenze: von Mitte letzter Zeile Seite 1 in Zeile 3 von Seite 2 wählt nicht die ganze Seite 2
+  await ev("getSelection().removeAllRanges();viewer.scrollTop=0");
+  await sleep(300);
+  await ev("viewer.scrollTop+=S.pages[1].el.getBoundingClientRect().top-450");
+  await sleep(1500);
+  const xp = await ev("(()=>{const f=P=>[...P.tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()).map(s=>s.getBoundingClientRect().toJSON());const a=f(S.pages[0]),b=f(S.pages[1]);return [a[a.length-1],b[2]]})()");
+  const [xa, xb] = xp, xx1 = (xa.left + xa.right) / 2, xy1 = (xa.top + xa.bottom) / 2, xx2 = (xb.left + xb.right) / 2, xy2 = (xb.top + xb.bottom) / 2;
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: xx1, y: xy1, button: 'none', buttons: 0 });
+  await sleep(250);
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: xx1, y: xy1, button: 'left', buttons: 1, clickCount: 1 });
+  for (let i = 1; i <= 12; i++) { await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: xx1 + (xx2 - xx1) * i / 12, y: xy1 + (xy2 - xy1) * i / 12, button: 'left', buttons: 1 }); await sleep(20); }
+  await sleep(150);
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: xx2, y: xy2, button: 'left', buttons: 0, clickCount: 1 });
+  await sleep(100);
+  const xg = await ev("(()=>{const sp=[...S.pages[1].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.toString().length,s.containsNode(sp[sp.length-1],true),s.containsNode(sp[1],false)]})()");
+  ok('Zug über die Seitengrenze wählt nicht die ganze nächste Seite', Array.isArray(xg) && xg[0] > 0 && xg[0] < 1000 && xg[1] === false && xg[2] === true, xg);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

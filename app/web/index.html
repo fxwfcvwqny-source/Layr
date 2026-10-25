@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-vBk140FkkkCaoZ9/rQn3ug+CENgB0Yy1FUUoyiuufjA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6jrKiSbBvFAzADfAeKvZsq8YKbKrSXHqNxZ0I/iY+X0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3869,9 +3869,14 @@ async function renderPage(i,g){
 function inTL(n){const e=n&&(n.nodeType===1?n:n.parentElement);return !!(e&&e.closest('.textLayer'))}
 // Textzeile unter dem Mauszeiger (Spans der Textebene, keine Marker-Hüllen)
 function tlSpanAt(P,cx,cy){return !!P.tl&&document.elementsFromPoint(cx,cy).some(el=>el.tagName==='SPAN'&&P.tl.contains(el)&&!el.classList.contains('markedContent'))}
-// .selecting lets endOfContent cover the layer while dragging, so the selection cannot jump to the layer end
-for(const ev of ['pointerup','pointercancel'])document.addEventListener(ev,()=>{for(const l of document.querySelectorAll('.textLayer.selecting'))l.classList.remove('selecting')});
-// Keeps .endOfContent right behind the selection anchor (non-Firefox branch of pdf.js 6.4.299 web/text_layer_builder.js, Copyright 2014 Mozilla Foundation, Apache License 2.0)
+// .selecting lets endOfContent cover the layer while dragging, so the selection cannot jump to the layer end.
+// The other pages' ink layers are made transparent to the mouse during the drag, else a drag across a page boundary hits their canvas and selects that whole page.
+let tlDrag=null;
+function tlDragEnd(all){for(const l of document.querySelectorAll('.textLayer')){l.classList.remove('selecting');const d=l.querySelector(':scope>.endOfContent');if(d)l.append(d)}
+  for(const Q of S.pages)if(Q.ink&&(all||Q!==tlDrag))Q.ink.style.pointerEvents='';tlDrag=null}
+for(const ev of ['pointerup','pointercancel'])document.addEventListener(ev,()=>tlDragEnd(false));
+addEventListener('blur',()=>tlDragEnd(true));
+// Keeps .endOfContent right behind the selection anchor. Simplified from the known algorithm of pdf.js web/text_layer_builder.js (Copyright 2014 Mozilla Foundation, Apache License 2.0), written from memory, not from vendored source (pdf.min.js has no viewer text-layer builder)
 let tlPrev=null;
 document.addEventListener('selectionchange',()=>{
   const sel=getSelection();
@@ -4280,8 +4285,8 @@ function attachInk(P,i){
   P.el.addEventListener('pointerleave',e=>{if(!e.buttons)ink.style.pointerEvents=''});
   P.el.addEventListener('pointerdown',e=>{if(e.button!==0||!P.tl||!P.tl.contains(e.target))return;
     if(e.altKey){ink.style.pointerEvents='';e.preventDefault();return}
-    if(e.target===P.tl){ink.style.pointerEvents='';e.preventDefault();return}
-    P.tl.classList.add('selecting');
+    if(e.target===P.tl||e.target.classList.contains('endOfContent')){ink.style.pointerEvents='';e.preventDefault();return}
+    tlDrag=P;S.pages.forEach(Q=>{if(Q!==P&&Q.ink)Q.ink.style.pointerEvents='none';if(Q.tl)Q.tl.classList.add('selecting')});
     if(editorEl)closeEditor();if(S.sel)setSel(null)});
   ink.addEventListener('dblclick',e=>{
     if(!['select','rect','ellipse','table','symbol'].includes(S.tool))return;const[x,y]=toPt(e.clientX,e.clientY);
