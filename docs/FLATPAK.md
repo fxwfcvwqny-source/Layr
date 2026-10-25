@@ -27,7 +27,7 @@ Alle Pfade und Namen, die noch nicht gepr√ºft sind, sind im Manifest mit `# (pr√
 Voraussetzung: `flatpak`, `flatpak-builder`, `flatpak-builder-lint`.
 
 ```sh
-cd /home/user/layr/packaging/flatpak
+cd packaging/flatpak
 flatpak-builder --user --install --install-deps-from=flathub --force-clean build-dir io.github.fxwfcvwqny_source.Layr.yml
 flatpak run io.github.fxwfcvwqny_source.Layr
 flatpak-builder-lint manifest io.github.fxwfcvwqny_source.Layr.yml

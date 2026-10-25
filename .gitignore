@@ -12,3 +12,6 @@ Thumbs.db
 .env.*
 !.env.example
 CLAUDE.local.md
+
+# local drafts (marketing, landing page, plans)
+/private/

@@ -76,11 +76,11 @@ Kategorie: Produktivität / Dienstprogramme. Erwartete Einstufung: PEGI 3, USK 0
 ## Hinweise für die Prüfung (Zertifizierung)
 
 - Kein Konto und kein Login nötig.
-- Testablauf: Datei > Öffnen, dann eine PDF wählen. Die Datei bleibt unverändert, bis du speicherst.
+- Testablauf: Datei > Öffnen, dann eine PDF wählen. Automatisches Speichern ist standardmäßig an und speichert Änderungen in die geöffnete Datei (in der Kopfleiste abschaltbar); der ursprüngliche Inhalt bleibt in der PDF eingebettet.
 - Diktieren: Strg+Umschalt+D oder das Mikrofon-Symbol. Beim ersten Mal fragt Layr, ob das Sprachmodell (ca. 490 MB, github.com/k2-fsa/sherpa-onnx) geladen werden soll. Der Download wird mit einer Prüfsumme geprüft. Danach Mikrofonzugriff erlauben. Die Erkennung läuft lokal.
 - Texterkennung (OCR) läuft offline und braucht keinen Download.
 - In der Store-Version gibt es keine eigene Update-Suche. Updates kommen über den Store.
-- Kein Netzzugriff außer den beiden oben genannten Downloads.
+- Kein Netzzugriff außer den beiden oben genannten Downloads und, wenn du die deutsche Rechtschreibprüfung nutzt, einem einmaligen Wörterbuch-Download (ca. 1 MB, registry.npmjs.org).
 
 ## Begründung für runFullTrust
 

@@ -76,11 +76,11 @@ Category: Productivity / Utilities. Expected rating: PEGI 3, USK 0.
 ## Notes for certification
 
 - No account or login needed.
-- Test steps: File > Open, then pick any PDF. The file stays unchanged until you save.
+- Test steps: File > Open, then pick any PDF. Auto-save is on by default and saves changes to the opened file (switch it off in the header); the original content stays embedded in the PDF.
 - Dictation: Ctrl+Shift+D or the microphone button. The first time, Layr asks whether to download the speech model (about 490 MB, github.com/k2-fsa/sherpa-onnx). The download is checked with a checksum. Then allow microphone access. Recognition runs locally.
 - Text recognition (OCR) runs offline and needs no download.
 - The Store version has no in-app update check. Updates come through the Store.
-- No network access except the two downloads above.
+- No network access except the two downloads above and, when you use the German spell checker, a one-time dictionary download (about 1 MB, registry.npmjs.org).
 
 ## runFullTrust justification
 
