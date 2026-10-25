@@ -453,7 +453,7 @@ else {
   await ev('undo()');
   ok('Highlight from tsBar is undone in one step', await hlN() === h0 && await ev('H.u.length') === u0);
   await dragWord(12);
-  await clickAt(await ev("(()=>{const b=$('#tsBar .sw[data-c=\"#4ade80\"]').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()"));
+  await clickAt(await ev("(()=>{const b=$('#tsBar .tsw[data-c=\"#4ade80\"]').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()"));
   ok('tsBar swatch click keeps the selection and bar', await ev("String(getSelection()).trim().length>1&&!$('#tsBar').hidden"));
   await clickAt(await btn('#tsHl'));
   const h2 = await ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl');return l[l.length-1].color})()");

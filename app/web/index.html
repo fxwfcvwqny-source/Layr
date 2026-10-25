@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+A5/pvt2bjuzQQEvo0lsUh9YwgKmzuYZQi494rcanBk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pHLS9Rh8csgrDGWnUpsgyuQGAZrFaLLzjTY0qXskoRA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -59,8 +59,8 @@ button{cursor:pointer}
 .th-bar{position:sticky;top:0;z-index:1;align-self:stretch;display:flex;justify-content:center;gap:6px;padding:2px 0 4px;background:var(--panel);border-bottom:1px solid var(--line)}
 .th-bar .ib{width:28px;height:28px}.th-bar .ib svg{width:16px;height:16px}
 #tsBar{position:fixed;z-index:94;display:flex;align-items:center;gap:2px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:3px}
-#tsBar .tsSw{display:flex;align-items:center;gap:4px;padding:0 4px;border-left:1px solid var(--line);margin-left:2px}#tsBar .sw{width:20px;height:20px}#tsBar .sw[aria-pressed=true]{box-shadow:0 0 0 2px var(--ink)}#tsBar input[type=color]{width:24px;height:24px;padding:0;border:1px solid var(--line);border-radius:50%;background:none}
-@media (forced-colors:active){#tsBar .sw,#tsBar input[type=color]{forced-color-adjust:none;border-color:ButtonText}}
+#tsBar .tsSw{display:flex;align-items:center;gap:4px;padding:0 4px;border-left:1px solid var(--line);margin-left:2px}#tsBar .tsw{width:20px;height:20px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line);padding:0}#tsBar .tsw[aria-pressed=true]{box-shadow:0 0 0 2px var(--ink)}#tsBar input[type=color]{width:24px;height:24px;padding:0;border:1px solid var(--line);border-radius:50%;background:none;overflow:hidden}#tsBar input[type=color]::-webkit-color-swatch-wrapper{padding:0}#tsBar input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
+@media (forced-colors:active){#tsBar .tsw,#tsBar input[type=color]{forced-color-adjust:none;border-color:ButtonText}}
 #tsBar .ib{width:30px;height:30px}#tsBar .ib svg{width:18px;height:18px}
 .ctx{position:fixed;z-index:95;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:4px;min-width:220px;display:flex;flex-direction:column;max-height:calc(100vh - 16px);overflow-y:auto}
 .ctx>*{flex-shrink:0}
@@ -3914,8 +3914,8 @@ addEventListener('keyup',e=>{if(!tsBar.contains(e.target)&&e.key!=='Escape')tsSh
 document.addEventListener('selectionchange',()=>{const s=getSelection();if(!tsBar.hidden&&(!s.rangeCount||s.isCollapsed||!inTL(s.anchorNode))&&!tsBar.contains(document.activeElement))tsHide()});
 viewer.addEventListener('scroll',tsHide);
 let tsCol='#ffd60a';
-function tsSetCol(c){tsCol=c;tsBar.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));$('#tsColor').value=c}
-for(const[c,n]of[['#ffd60a','Gelb'],['#4ade80','Grün'],['#38bdf8','Hellblau'],['#f472b6','Rosa'],['#ea7a0b','Orange']]){const b=document.createElement('button');b.type='button';b.className='sw';b.style.background=c;b.title=n;b.setAttribute('aria-label',n);b.dataset.c=c;b.onclick=()=>tsSetCol(c);tsBar.querySelector('.tsSw').appendChild(b)}
+function tsSetCol(c){tsCol=c;tsBar.querySelectorAll('.tsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));$('#tsColor').value=c}
+for(const[c,n]of[['#ffd60a','Gelb'],['#4ade80','Grün'],['#38bdf8','Hellblau'],['#f472b6','Rosa'],['#ea7a0b','Orange']]){const b=document.createElement('button');b.type='button';b.className='tsw';b.style.background=c;b.title=n;b.setAttribute('aria-label',n);b.dataset.c=c;b.onclick=()=>tsSetCol(c);tsBar.querySelector('.tsSw').appendChild(b)}
 $('#tsColor').oninput=e=>tsSetCol(e.target.value);tsSetCol(tsCol);
 // One hl object per page from the selection's client rects; shortcut: rotated text gets axis-aligned boxes, rotated pages are not corrected
 function tsHighlight(){const r=tsRng;if(!r)return;let n=0;const pgs=[];
