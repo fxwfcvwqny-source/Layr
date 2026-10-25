@@ -555,6 +555,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 /* Schwebende Werkzeugleiste */
 :root[data-tbstyle="float"] .tools{justify-self:center;width:max-content;max-width:calc(100% - 24px);margin:10px 12px 4px;border:1px solid var(--line);border-radius:calc(var(--r) + 2px);box-shadow:var(--shadow);padding-inline:8px}
 :root[data-tbstyle="float"] .tools>button:first-of-type,:root[data-tbstyle="float"] .tools>button:last-of-type{margin-inline:0}
+:root[data-tbstyle="float"][data-toolbar="left"] .tools{justify-self:start}
 :root[data-tbstyle="float"] .tools .tool-ind{border-radius:calc(var(--r) + 2px)}
 @media (min-width:1200px){:root[data-tbstyle="float"] .app{grid-template-areas:"top top top" "tabs tabs tabs" "thumbs tools panel" "thumbs view panel"}}
 /* Gleitender Hintergrund für das aktive Werkzeug */

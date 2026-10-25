@@ -354,6 +354,12 @@ else {
   // „Mehr“-Knopf der Werkzeugleiste: nach dem Schließen des Menüs nicht mehr expanded
   const mehr = await ev("(async()=>{const b=document.querySelector('.tb-more');b.click();await new Promise(r=>setTimeout(r,400));const open=b.getAttribute('aria-expanded');closeMenu();await new Promise(r=>setTimeout(r,500));return [open,b.getAttribute('aria-expanded')]})()");
   ok('Mehr nach Schließen nicht expanded', Array.isArray(mehr) && mehr[0] === 'true' && mehr[1] === 'false', mehr);
+  // Schwebende Werkzeugleiste + „links“: Leiste sitzt links, nicht mittig (auch unter 1200 px)
+  for (const w of [1440, 1100]) {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: w, height: 800, deviceScaleFactor: 1, mobile: false });
+    const fl = await ev("(async()=>{const r=document.documentElement,t=document.querySelector('.tools'),o=[r.dataset.tbstyle,r.dataset.toolbar];const w=()=>new Promise(x=>setTimeout(x,300));r.dataset.tbstyle='float';r.dataset.toolbar='center';await w();const c=t.getBoundingClientRect().left;r.dataset.toolbar='left';await w();const l=t.getBoundingClientRect().left;r.dataset.tbstyle=o[0];r.dataset.toolbar=o[1];return [c,l,document.getElementById('viewer').getBoundingClientRect().left]})()");
+    ok(`Schwebende Leiste links ${w}px: ganz links`, Array.isArray(fl) && fl[1] - fl[2] < 24 && fl[0] > fl[1] + 40, fl);
+  }
   // Objektmenü: echter Rechtsklick nahe am unteren Fensterrand bleibt beim ersten Öffnen ganz im Fenster
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
   await sleep(300);
