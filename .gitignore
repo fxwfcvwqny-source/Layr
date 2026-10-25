@@ -3,3 +3,15 @@ dist/
 *.log
 .DS_Store
 Thumbs.db
+.env
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+.env.*
+!.env.example
+CLAUDE.local.md
+
+# local drafts (marketing, landing page, plans)
+/private/

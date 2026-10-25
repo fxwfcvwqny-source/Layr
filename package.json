@@ -1,6 +1,6 @@
 {
   "name": "layr",
-  "version": "3.7.3",
+  "version": "3.8.8",
   "description": "Layr – annotate, draw and take notes on PDFs",
   "main": "app/main.js",
   "author": {
@@ -12,7 +12,7 @@
     "sherpa-onnx-node": "1.13.8"
   },
   "devDependencies": {
-    "electron": "44.9.0",
+    "electron": "44.9.3",
     "electron-builder": "26.15.3"
   },
   "build": {
@@ -82,6 +82,26 @@
       "multiLanguageInstaller": true,
       "displayLanguageSelector": true,
       "include": "build/installer.nsh"
+    },
+    "appx": {
+      "identityName": "IsmailG.LayrPDF",
+      "publisher": "CN=F9218EE3-2D50-419C-8698-916A805604D4",
+      "publisherDisplayName": "Ismail G.",
+      "applicationId": "Layr",
+      "displayName": "Layr PDF",
+      "backgroundColor": "transparent",
+      "languages": [
+        "de-DE",
+        "en-US"
+      ],
+      "addAutoLaunchExtension": false,
+      "showNameOnTiles": false,
+      "artifactName": "Layr-${version}-Store.${ext}",
+      "capabilities": [
+        "microphone"
+      ],
+      "minVersion": "10.0.17763.0",
+      "maxVersionTested": "10.0.22621.0"
     },
     "linux": {
       "target": [

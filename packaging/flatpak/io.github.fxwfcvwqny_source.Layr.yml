@@ -1,0 +1,42 @@
+id: io.github.fxwfcvwqny_source.Layr
+runtime: org.freedesktop.Platform
+runtime-version: '25.08' # (prüfen)
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '25.08' # (prüfen)
+command: layr
+separate-locales: false
+finish-args:
+  - --share=ipc
+  - --socket=x11 # app forces X11 (app/main.js)
+  - --device=dri
+  - --socket=pulseaudio # dictation
+  - --share=network # two user-triggered downloads only
+  - --filesystem=home # rename/save next to the original, reopen recent files
+modules:
+  - name: layr
+    buildsystem: simple
+    build-commands:
+      - ar x layr.deb # (prüfen)
+      - bsdtar -xf data.tar.* # (prüfen)
+      - cp -a opt/Layr /app/layr
+      - rm -f /app/layr/resources/package-type
+      - install -Dm755 layr.sh /app/bin/layr
+      - install -Dm644 usr/share/applications/layr.desktop /app/share/applications/${FLATPAK_ID}.desktop
+      - desktop-file-edit --set-key=Exec --set-value='layr %U' --set-key=Icon --set-value=${FLATPAK_ID} --set-key=MimeType --set-value=application/pdf /app/share/applications/${FLATPAK_ID}.desktop # (prüfen)
+      - install -Dm644 usr/share/icons/hicolor/512x512/apps/layr.png /app/share/icons/hicolor/512x512/apps/${FLATPAK_ID}.png
+      - install -Dm644 ${FLATPAK_ID}.metainfo.xml /app/share/metainfo/${FLATPAK_ID}.metainfo.xml
+    sources:
+      - type: file
+        url: https://github.com/fxwfcvwqny-source/Layr/releases/download/v3.8.8/Layr-3.8.8-amd64.deb
+        sha256: 308f17b82afb7cd7936789cf70221fc00870b25053f83a82b2b784c15c1f6541 # SHA-256 of the 3.8.8 build; the published asset must be byte-identical (do not rebuild after taking it)
+        dest-filename: layr.deb
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/fxwfcvwqny-source/Layr/releases/latest
+          version-query: .tag_name | sub("^v"; "")
+          url-query: .assets[] | select(.name | endswith("-amd64.deb")) | .browser_download_url # (prüfen)
+      - type: file
+        path: io.github.fxwfcvwqny_source.Layr.metainfo.xml
+      - type: file
+        path: layr.sh

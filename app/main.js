@@ -5,6 +5,8 @@ const crypto = require('crypto');
 const zlib = require('zlib');
 const { spawn } = require('child_process');
 const REPO = 'fxwfcvwqny-source/Layr';   // öffentliche Seite für Downloads und Updates
+// Microsoft-Store-Version (MSIX): eigene Updates aus, kein Netz für Updates. Nur schaltet Funktionen ab, daher nicht an isPackaged gebunden.
+const STORE = process.windowsStore === true || process.env.LAYR_STORE_TEST === '1' || (process.platform === 'linux' && require('fs').existsSync('/.flatpak-info')); // Flatpak: Updates kommen über Flathub
 const path = require('path');
 const fs = require('fs');
 // Linux: Einstellungen und Zwischenspeicher immer im selben Ordner wie bisher (.deb und AppImage teilen sie sich)
@@ -41,7 +43,7 @@ const listen = (ch, fn) => ipcMain.on(ch, (e, ...a) => { if (okSender(e)) fn(e, 
 // Externe Links: nur https auf die eigene GitHub-Seite
 const okExternal = u => { try { const x = new URL(u); return x.protocol === 'https:' && x.hostname === 'github.com' && !x.username && !x.password && (x.pathname === '/' + REPO || x.pathname.startsWith('/' + REPO + '/')); } catch (e) { return false; } };
 // Namen aus der Oberfläche sind nur Namen, nie Pfade
-const safeBase = n => { let b = path.basename(String(n || '').replace(/\\/g, '/')).replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\.pdf$/i, '').replace(/^[.\s]+/, '').trim().slice(0, 200); if (!b) b = 'Dokument'; return b + '.pdf'; };
+const safeBase = n => { let b = path.basename(String(n || '').replace(/\\/g, '/')).replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\.pdf$/i, '').replace(/^[.\s]+/, '').trim().slice(0, 200); if (/^(con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³]|conin\$|conout\$)\s*(\.|$)/i.test(b)) b = ''; if (!b) b = 'Dokument'; return b + '.pdf'; };
 // Gespeichert werden nur echte PDF-Daten
 const isPdfBytes = d => d instanceof Uint8Array && d.length >= 8 && d.length <= 2e9 && d[0] === 0x25 && d[1] === 0x50 && d[2] === 0x44 && d[3] === 0x46 && d[4] === 0x2d;
 const isPdfPath = p => { try { return typeof p === 'string' && path.isAbsolute(p) && /\.pdf$/i.test(p) && fs.statSync(p).isFile(); } catch (e) { return false; } };
@@ -124,6 +126,9 @@ function copyLatestDump() {
     found.sort((a, b) => b[0] - a[0]); const src = found[0][1];
     const dst = path.join(app.getPath('userData'), `absturz-${new Date().toISOString().replace(/[:.]/g, '-')}.dmp`);
     fs.copyFileSync(src, dst); crashLog('Absturzbericht gespeichert: ' + path.basename(dst));
+    // Nur die 3 neuesten Kopien behalten
+    try { const ud = app.getPath('userData'); const old = fs.readdirSync(ud).filter(n => /^absturz-.*\.dmp$/.test(n)).sort().reverse();
+      for (const n of old.slice(3)) fs.unlinkSync(path.join(ud, n)); } catch (e) { crashLog('Alte Absturzberichte nicht entfernt: ' + e.message); }
   } catch (e) { crashLog('Absturzbericht nicht kopiert: ' + e.message); }
 }
 
@@ -160,7 +165,7 @@ else {
         Array.isArray(d.mediaTypes) && d.mediaTypes.length > 0 && d.mediaTypes.every(t => t === 'audio'));
     });
     session.defaultSession.setPermissionCheckHandler((wc, perm, _origin, details) => perm === 'clipboard-sanitized-write' ||
-      (perm === 'media' && micArmed && !!win && !win.isDestroyed() && wc === win.webContents && !!details && details.mediaType === 'audio'));
+      (perm === 'media' && micArmed && !!win && !win.isDestroyed() && wc === win.webContents && !!details && samePage(details.requestingUrl) && details.mediaType === 'audio'));
     session.defaultSession.on('will-download', e => e.preventDefault());
     // Die Rechtschreibprüfung macht Layr selbst (Hunspell, lokal). Chromiums eigene Prüfung bleibt aus und lädt nichts von Google.
     try { session.defaultSession.setSpellCheckerEnabled(false); session.defaultSession.setSpellCheckerLanguages([]); session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://127.0.0.1:9/'); } catch (e) {}
@@ -341,11 +346,12 @@ const cmpVer = (a, b) => { const x = String(a).split('.').map(n => parseInt(n, 1
 const pickAsset = assets => { const L = (assets || []).map(a => ({ n: String(a.name || ''), u: String(a.browser_download_url || '') }));
   const f = process.platform === 'win32' ? L.find(a => /setup.*\.exe$/i.test(a.n)) : (L.find(a => /\.deb$/i.test(a.n)) || L.find(a => /\.appimage$/i.test(a.n)));
   return f && f.u.startsWith(DL_PREFIX) ? f.u : null; };
-handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO, installLang: installLang() }));
+handle('app-info', () => ({ version: app.getVersion(), platform: process.platform, repo: REPO, installLang: installLang(), store: STORE }));
 listen('set-lang', (_e, l) => { uiLang = l === 'en' ? 'en' : 'de'; try { fs.writeFileSync(langFile(), uiLang); } catch (e) {} });
 handle('check-update', async () => {
+  if (STORE) return { error: 'store' };
   try {
-    const r = await net.fetch(API_LATEST, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' } });
+    const r = await net.fetch(API_LATEST, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Layr-Update-Check' }, signal: AbortSignal.timeout(30000) });
     if (!r.ok) return { error: r.status };
     const j = JSON.parse((await readCapped(r, 2e6)).toString('utf8')), v = String(j.tag_name || '').replace(/^v/i, '');
     if (!/^\d+\.\d+\.\d+$/.test(v)) return { error: 'keine Version' };
@@ -446,7 +452,7 @@ handle('spell-download', async (_e, lang) => {
 // latest.yml / latest-linux.yml (gleiche Veröffentlichung) und installiert ihn: Windows still über den Installer,
 // AppImage durch Austausch der Datei, .deb über pkexec (Ubuntu fragt nach dem Passwort).
 // Zum Testen kann LAYR_UPDATE_FEED auf einen Server auf diesem Rechner (127.0.0.1) zeigen; andere Adressen werden ignoriert.
-const FEED = /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(process.env.LAYR_UPDATE_FEED || '') ? process.env.LAYR_UPDATE_FEED : null;
+const FEED = !app.isPackaged && /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(process.env.LAYR_UPDATE_FEED || '') ? process.env.LAYR_UPDATE_FEED : null;
 const API_LATEST = FEED ? `${FEED}/repos/${REPO}/releases/latest` : `https://api.github.com/repos/${REPO}/releases/latest`;
 const DL_PREFIX = FEED ? `${FEED}/${REPO}/releases/download/` : `https://github.com/${REPO}/releases/download/`;
 const UPD_DIR = () => path.join(app.getPath('userData'), 'updates');
@@ -459,6 +465,7 @@ function sigOk(text, sigText) {
 }
 let lastRel = null, pending = null, dlBusy = false, installOnQuit = false, relaunchAfter = false;
 function pkgType() {
+  if (STORE) return null;
   if (process.platform === 'win32') return 'nsis';
   if (process.platform === 'linux') {
     if (process.env.APPIMAGE) return 'appimage';
@@ -472,6 +479,8 @@ function ymlEntry(yml, name) {
   const m = re.exec(yml); return m ? { sha512: m[1], size: +m[2] } : null;
 }
 function loadPending() {
+  if (STORE) return null;
+  if (dlBusy) return null;
   try { const p = JSON.parse(fs.readFileSync(path.join(UPD_DIR(), 'pending.json'), 'utf8'));
     if (p && cmpVer(p.version, app.getVersion()) > 0 && p.type === pkgType() && fs.existsSync(p.file) && path.dirname(p.file) === UPD_DIR()) return p;
   } catch (e) {}
@@ -480,7 +489,7 @@ function loadPending() {
 }
 handle('upd-state', () => { if (!pending) pending = loadPending(); const t = pkgType();
   return { type: t, canInstall: !!t, pending: pending ? { version: pending.version, notes: pending.notes || '' } : null, busy: dlBusy }; });
-async function fetchText(u, max) { if (!u.startsWith(DL_PREFIX)) throw new Error('url'); const r = await net.fetch(u, { headers: { 'User-Agent': 'Layr-Update' } }); if (!r.ok) throw new Error('http ' + r.status);
+async function fetchText(u, max) { if (!u.startsWith(DL_PREFIX)) throw new Error('url'); const r = await net.fetch(u, { headers: { 'User-Agent': 'Layr-Update' }, signal: AbortSignal.timeout(30000) }); if (!r.ok) throw new Error('http ' + r.status);
   return (await readCapped(r, max)).toString('utf8'); }
 handle('upd-download', async () => {
   const type = pkgType(); if (!type) return { error: 'unsupported' };
@@ -495,6 +504,7 @@ handle('upd-download', async () => {
   if (!sigA || !sigA.url.startsWith(DL_PREFIX)) return { error: 'unsigned' };
   dlBusy = true;
   const dir = UPD_DIR(), part = path.join(dir, asset.name + '.part'), file = path.join(dir, asset.name);
+  let idle = null;
   try {
     const yml = await fetchText(ymlA.url, 65536), sig = await fetchText(sigA.url, 4096);
     if (!sigOk(yml, sig)) throw new Error('signature');
@@ -503,24 +513,27 @@ handle('upd-download', async () => {
     try { fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
     fs.mkdirSync(dir, { recursive: true, mode: 0o700 }); try { fs.chmodSync(dir, 0o700); } catch (e) {}
     fs.writeFileSync(path.join(dir, 'release.yml'), yml, { mode: 0o600 }); fs.writeFileSync(path.join(dir, 'release.yml.sig'), sig, { mode: 0o600 });
-    const r = await net.fetch(asset.url, { headers: { 'User-Agent': 'Layr-Update' } });
+    const ctl = new AbortController(), kick = () => { clearTimeout(idle); idle = setTimeout(() => ctl.abort(), 60000); };
+    kick();
+    const r = await net.fetch(asset.url, { headers: { 'User-Agent': 'Layr-Update' }, signal: ctl.signal });
     if (!r.ok || !r.body) throw new Error('http ' + r.status);
     const h = crypto.createHash('sha512'), fd = fs.openSync(part, 'wx', 0o600); let got = 0, last = 0;
     try { const rd = r.body.getReader();
       for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.length; if (got > want.size) throw new Error('size');
-        h.update(value); fs.writeSync(fd, value);
-        if (Date.now() - last > 150 && win) { last = Date.now(); win.webContents.send('upd-progress', got, want.size); } }
+        h.update(value); fs.writeSync(fd, value); kick();
+        if (Date.now() - last > 150 && win && !win.isDestroyed()) { last = Date.now(); win.webContents.send('upd-progress', got, want.size); } }
     } finally { fs.closeSync(fd); }
     if (got !== want.size || h.digest('base64') !== want.sha512) throw new Error('hash');
     fs.renameSync(part, file);
     pending = { version: rel.version, file, type, sha512: want.sha512, notes: rel.notes };
     fs.writeFileSync(path.join(dir, 'pending.json'), JSON.stringify(pending), { mode: 0o600 });
-    if (win) win.webContents.send('upd-progress', want.size, want.size);
+    if (win && !win.isDestroyed()) win.webContents.send('upd-progress', want.size, want.size);
     return { ok: true, version: rel.version };
   } catch (e) {
     try { fs.rmSync(dir, { recursive: true, force: true }); } catch (x) {}
+    updLog('download: ' + String(e && e.message || e));
     return { error: String(e && e.message || e) };
-  } finally { dlBusy = false; }
+  } finally { clearTimeout(idle); dlBusy = false; }
 });
 // Liefert die geprüften Bytes und die Prüfsumme aus derselben, gerade geprüften Beschreibung (nichts wird danach neu gelesen)
 function pendingChecked() {
@@ -558,7 +571,10 @@ function installNow(relaunch) {
   keepLang();
   if (pending.type === 'nsis') {
     const args = ['/S', '--updated']; if (relaunch) args.push('--force-run');
-    spawn(pending.file, args, { detached: true, stdio: 'ignore' }).unref(); pending = null; return true;
+    updLog('nsis start ' + pending.version);
+    try { const p = spawn(pending.file, args, { detached: true, stdio: 'ignore' }); p.on('error', e => updLog('nsis spawn: ' + (e && e.code))); p.unref(); }
+    catch (e) { updLog('nsis spawn: ' + (e && e.code)); return false; }
+    pending = null; return true;
   }
   if (pending.type === 'appimage') {
     const target = process.env.APPIMAGE; if (!target) return false;
@@ -569,17 +585,18 @@ function installNow(relaunch) {
       const fd = fs.openSync(tmp, 'wx', 0o700);
       try { let off = 0; while (off < data.length) off += fs.writeSync(fd, data, off, data.length - off); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
       try { fs.chmodSync(tmp, 0o755); fs.renameSync(tmp, real); } catch (e) { try { fs.unlinkSync(tmp); } catch (x) {} throw e; }
-    } catch (e) { return false; }
+    } catch (e) { updLog('appimage: ' + (e && e.code)); return false; }
     try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {}
     pending = null; return true;
   }
   return false;
 }
 handle('upd-install', async (_e, auto) => {
+  if (dlBusy) return { error: 'busy' };
   if (!pending) pending = loadPending();
   if (!pending) return { error: 'nopending' };
   const chk = pendingChecked();
-  if (!chk) { pending = null; try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} return { error: 'hash' }; }
+  if (!chk) { updLog('install: hash'); pending = null; try { fs.rmSync(UPD_DIR(), { recursive: true, force: true }); } catch (e) {} return { error: 'hash' }; }
   if (auto) { installOnQuit = true; relaunchAfter = false; return { ok: true, later: true }; }
   if (pending.type === 'deb') {
     // .deb braucht Administratorrechte: pkexec zeigt die Passwortabfrage von Ubuntu.
@@ -613,6 +630,7 @@ handle('upd-install', async (_e, auto) => {
   return { ok: true };
 });
 handle('upd-terminal', async () => {
+  if (dlBusy) return { error: 'busy' };
   if (!pending) pending = loadPending();
   if (!pending || pending.type !== 'deb') return { error: 'nopending' };
   const chk = pendingChecked(); if (!chk) return { error: 'hash' };
@@ -631,14 +649,14 @@ handle('upd-terminal', async () => {
   return { ok: true };
 });
 listen('upd-auto-install', (_e, on) => { if (pending && (pending.type === 'nsis' || pending.type === 'appimage')) installOnQuit = !!on; });
-app.on('will-quit', () => { if (installOnQuit && pending) installNow(relaunchAfter); });
+app.on('will-quit', () => { if (installOnQuit && pending) { asrKill(); installNow(relaunchAfter); } });
 
 
 // ---------- Diktieren (3.3) ----------
 // Spracherkennung NVIDIA Parakeet TDT 0.6B v3 (CC BY 4.0) über sherpa-onnx (Apache-2.0). Läuft komplett auf diesem Rechner.
 // Das Modellpaket kommt nur nach ausdrücklicher Zustimmung von der GitHub-Seite des sherpa-onnx-Projekts und wird gegen feste
 // Prüfsummen geprüft (Paket und jede einzelne Datei), bevor Layr es benutzt.
-const ASR_TEST = /^http:\/\/(127\.0\.0\.1|localhost):\d+\/[\w./-]+$/.test(process.env.LAYR_ASR_URL || '') ? process.env.LAYR_ASR_URL : null;
+const ASR_TEST = !app.isPackaged && /^http:\/\/(127\.0\.0\.1|localhost):\d+\/[\w./-]+$/.test(process.env.LAYR_ASR_URL || '') ? process.env.LAYR_ASR_URL : null;
 const ASR_PKG = {
   url: ASR_TEST || 'https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2',
   size: 487170055, sha256: '5793d0fd397c5778d2cf2126994d58e9d56b1be7c04d13c7a15bb1b4eafb16bf',

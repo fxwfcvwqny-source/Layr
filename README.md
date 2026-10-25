@@ -2,11 +2,26 @@
 
 <h1 align="center">Layr</h1>
 
-<p align="center">Annotate, draw and take notes on PDFs.<br>Desktop app for <b>Windows</b> and <b>Linux</b>.</p>
+<p align="center">Annotate, draw, sign and take notes on PDFs. Local, no account needed.<br>Desktop app for <b>Windows</b> and <b>Linux</b>.</p>
+
+<p align="center">Microsoft Store and Flathub: coming soon.</p>
 
 <p align="center"><a href="https://github.com/fxwfcvwqny-source/Layr/releases/latest"><b>⬇ Download the latest version</b></a></p>
 
 ![Layr with a network diagram and the notes panel](docs/screenshot.png)
+
+## Why Layr
+
+- **Private by default** – everything stays on your device. No account, no telemetry, no tracking.
+- **Offline dictation and OCR** – speak into a text box, a table cell or the notes, and make scanned PDFs searchable. Both run completely on your computer.
+- **IT symbols and calculators** – 40+ network symbols, UML and flowcharts, plus subnet, number system and data size calculators.
+- **Editable annotations** – save over the original file, reopen it in Layr, and every annotation can still be moved or removed.
+- **Tables, forms and signatures** – drag out tables, fill in PDF forms, create your own form fields, and draw, type or scan your signature.
+- **Real redaction** – marked content is removed from the file for good, also from the hidden copy Layr keeps inside the PDF.
+
+## Privacy by design
+
+No account. No telemetry. No uploads: what you say and your PDFs never leave your computer. Updates are verified with an Ed25519 signature and a SHA-512 checksum, and the update check can be turned off. Details: [Privacy](#privacy) and [PRIVACY.md](PRIVACY.md).
 
 ## Features
 
@@ -65,6 +80,8 @@ Download the file for your system from the [latest release](https://github.com/f
 | Ubuntu / Debian | `Layr-<version>-amd64.deb` | Double-click, or `sudo apt install ./Layr-<version>-amd64.deb` |
 | Any Linux | `Layr-<version>-x86_64.AppImage` | Make it executable (`chmod +x`) and double-click. Nothing gets installed. |
 
+Flatpak (in preparation, not yet on Flathub): see [docs/FLATPAK.md](docs/FLATPAK.md).
+
 **Windows SmartScreen:** the installer is not code-signed, so Windows may show *"Windows protected your PC"* the first time. Click **More info → Run anyway**.
 
 **Updates** (*Settings* ⚙ at the top right → *Layr & updates*): Layr checks this page for a newer version and installs it by itself: the new installer is downloaded in the background and installed when you restart or quit Layr. Before that, Layr checks the release's update description against a digital signature (Ed25519, the public key is built into Layr) and the file against the SHA-512 checksum in that signed description. If anything doesn't match, nothing is installed and Layr only offers the download page. On Ubuntu with the `.deb` package, Ubuntu asks for your password to install it; if no password window appears, Layr can open a terminal for the installation instead. Both can be turned off under *Settings → Layr & updates*.
@@ -74,7 +91,7 @@ Download the file for your system from the [latest release](https://github.com/f
 - Your PDFs, notes and settings stay on your computer. Layr has no account, no telemetry and no tracking.
 - Layr only goes online for updates and for two downloads you start yourself (the German dictionary and the dictation model, see below). For updates it asks the public GitHub API for the latest version number and downloads new versions from this repository's releases. Both can be turned off.
 - Spell checking runs completely offline. Electron's built-in spell checker, which would download dictionaries from a Google server, is switched off. Only if you click *Download German dictionary* does Layr fetch that one file from the public npm registry (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
-- Dictation runs completely offline. Only when you set up dictation and click *Download and install* does Layr download the speech model (about 490 MB) once from the sherpa-onnx project's releases on GitHub and check it against fixed checksums. What you say is never uploaded. The model can be removed again under *Layr & updates*.
+- Dictation runs completely offline. Only when you set up dictation and click *Download and install* does Layr download the speech model (about 490 MB) once from the sherpa-onnx project's releases on GitHub and check it against fixed checksums. What you say is never uploaded. The model can be removed again under *Settings → Writing & spelling → Dictation*.
 - Remembered signatures and your personal dictionary stay on your computer.
 - Text recognition (OCR) runs completely on your computer: the recognition engine and the German and English language data are part of the app, nothing is uploaded.
 - For password-protected PDFs, Layr keeps nothing in its local cache: annotations and notes only end up in the encrypted file. Passwords are never stored.
@@ -95,6 +112,10 @@ Download the file for your system from the [latest release](https://github.com/f
 - Electron [fuses](https://www.electronjs.org/docs/latest/tutorial/fuses) are set: Layr can't be started as a plain Node.js interpreter, ignores `NODE_OPTIONS` and debugging switches and only runs its own integrity-checked `app.asar`.
 
 Found a security problem? Please open an issue without details and ask for a private contact.
+
+## Microsoft Store
+
+A separate Store build (MSIX/AppX) is prepared: no in-app updates, Store-specific listing texts and privacy policy. See [docs/STORE.md](docs/STORE.md) for the steps to publish it, [PRIVACY.md](PRIVACY.md) for privacy and [docs/store-listing](docs/store-listing) for the listing texts. The GitHub version (installer, AppImage, .deb) is unchanged.
 
 ## Building from source
 
