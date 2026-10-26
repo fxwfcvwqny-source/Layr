@@ -3,6 +3,7 @@
 // Aufruf: node build/smoke-test.mjs <Pfad zur Layr-Programmdatei>
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 
 const exe = process.argv[2];
 if (!exe || !fs.existsSync(exe)) { console.error('Programmdatei fehlt: ' + exe); process.exit(2); }
@@ -11,11 +12,14 @@ const PORT = 9339;
 const args = [`--remote-debugging-port=${PORT}`, '--remote-debugging-address=127.0.0.1'];
 if (process.platform === 'linux') args.push('--no-sandbox');
 const env = { ...process.env, GTK_IM_MODULE: 'gtk-im-context-simple', XMODIFIERS: '@im=none' };
+// Linux: fresh profile per run so objects stored by earlier runs (localStorage) cannot leak in; Windows keeps its profile (unverified, CI runs once)
+const profile = process.platform === 'linux' ? fs.mkdtempSync(os.tmpdir() + '/layr-smoke-') : null;
+if (profile) env.XDG_CONFIG_HOME = profile;
 const proc = spawn(exe, args, { env, stdio: 'ignore' });
 let failed = 0;
 const ok = (name, cond, extra) => { console.log(`${cond ? 'OK  ' : 'FAIL'} ${name}${extra !== undefined ? ' ' + JSON.stringify(extra) : ''}`); if (!cond) { failed++; if (process.env.GITHUB_ACTIONS) console.log(`::error title=Rauchtest::${String(name).replace(/[\r\n]/g, ' ')}${extra !== undefined ? ' ' + JSON.stringify(extra).replace(/[\r\n]/g, ' ') : ''}`); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const done = code => { try { proc.kill(); } catch (e) {} setTimeout(() => process.exit(code), 500); };
+const done = code => { try { proc.kill(); } catch (e) {} if (profile) setTimeout(() => { try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) {} }, 300); setTimeout(() => process.exit(code), 500); };
 setTimeout(() => { console.error('Zeitüberschreitung'); done(1); }, 180000);
 
 let target = null;
@@ -380,7 +384,7 @@ else {
   ok('Seitenmenü: Beschriftungen entfernen lässt gesperrtes Objekt stehen', await ev("(async()=>{const P=S.pages[0],base={color:'#000000',lw:1,fill:'none'};P.objs.length=0;P.objs.push({type:'rect',x:50,y:50,w:40,h:40,...base,oid:'tLk',locked:true},{type:'rect',x:150,y:50,w:40,h:40,...base,oid:'tFr'});pageMenu(0,100,100);[...document.querySelectorAll('#ctx button')].find(x=>x.textContent==='Beschriftungen dieser Seite entfernen').click();await new Promise(r=>setTimeout(r,400));const left=P.objs.map(o=>o.oid).join();const t=document.querySelector('.toast').textContent;P.objs.length=0;return left==='tLk'&&/1 gesperrte/.test(t)})()") === true);
   // Textebene: dichte Seite öffnen, jede Textebene hat ein endOfContent
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  await ev("(async()=>{const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);const W='lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim minim veniam quis nostrud'.split(' ');let k=0;for(let p=0;p<2;p++){const pg=d.addPage([595,842]);for(let ln=0;ln<68;ln++){if(ln%9===8)continue;let s='';while(f.widthOfTextAtSize(s,9)<440)s+=W[(k++*7)%W.length]+' ';pg.drawText(s.trim(),{x:72,y:800-ln*11,size:9,font:f})}}await openPdf(await d.save(),'dense.pdf');setTool('select');return 1})()");
+  await ev("(async()=>{for(const k of Object.keys(localStorage))if(k.startsWith('pdfwerkbank:dense.pdf:'))localStorage.removeItem(k);const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);const W='lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim minim veniam quis nostrud'.split(' ');let k=0;for(let p=0;p<2;p++){const pg=d.addPage([595,842]);for(let ln=0;ln<68;ln++){if(ln%9===8)continue;let s='';while(f.widthOfTextAtSize(s,9)<440)s+=W[(k++*7)%W.length]+' ';pg.drawText(s.trim(),{x:72,y:800-ln*11,size:9,font:f})}}await openPdf(await d.save(),'dense.pdf');setTool('select');return 1})()");
   const eoc = await ev("(async()=>{let L=[];for(let k=0;k<50;k++){await new Promise(r=>setTimeout(r,200));L=[...document.querySelectorAll('.textLayer')];if(L.length&&L[0].querySelector('span'))break}return [L.length,L.filter(l=>l.querySelectorAll(':scope>.endOfContent').length===1).length]})()");
   ok('endOfContent in every text layer', Array.isArray(eoc) && eoc[0] > 1 && eoc[0] === eoc[1], eoc);
   // Echter Maus-Zug von Wort-Mitte (Zeile 11) in den rechten Rand von Zeile 13 wählt wenig Text, springt nicht ans Ende der Ebene
