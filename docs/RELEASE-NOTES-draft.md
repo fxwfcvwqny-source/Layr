@@ -1,8 +1,44 @@
-# Layr 3.8.8 (draft release notes)
+# Layr 3.9.0 (draft release notes)
+
+Release notes for version 3.9.0.
+
+## Fixes
+
+- Text selection: the text layer has an `endOfContent` element kept behind the selection anchor, so dragging across pages no longer selects the whole next page.
+- The toolbox "More" button no longer looks permanently active; its `aria-expanded` state is reset when the menu closes or another menu opens.
+- Floating toolbar: left placement now works.
+- Quick bar: buttons missing from an older saved design are inserted at their default position instead of after Delete.
+- Double-click on a device box or its caption edits the device instead of a docked line crossing it (limited to docked lines).
+- Dark symbols stay visible in forced-colors mode.
+- Symbol tile images shrink with narrow tiles.
+- Test suite: smoke test flake fixed (isolated profile, stale `dense.pdf` objects), geometric check for dense-page drag selection, toolbar position checks.
+
+## New
+
+- Text selection bar: appears on selected PDF text with Copy and Highlight with a colour choice.
+- Text quick bar: italic (Ctrl+I) and text background colour.
+- Fixed toolbar is centred over the sheet from 1200 px window width; density Large applies from 1360 px (below that the old layout is kept).
+- Topology templates (star, ring, bus, tree, mesh) built from real devices with their own labels and docked lines; every device is editable. The bus template has a shared backbone.
+
+## Design
+
+- Symbol tiles: one label, uniform 72x48 size, no baked-in label in the image.
+- Table tile appears only under Shapes, as a 32 px icon in the symbol style.
+
+## Known limits
+
+- Rotated text gets axis-aligned highlight boxes.
+- Text background is not drawn for stacked text.
+- Old single topology symbols are not editable inside their nodes.
+- New text boxes do not inherit italic or background from the sidebar.
+- Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).
+- The text layer is not available in split view and presentation mode.
+
+# Earlier: Layr 3.8.8
 
 Release notes for version 3.8.8.
 
-## Fixes
+### Fixes
 
 - Dictation button did nothing while a text box was open: the editor was closed by the same click.
 - Updates: a failing installer start (blocked or locked file) no longer crashes the app with an error dialog; failures are written to `update-log.txt`; downloads and update checks have timeouts; a page reload during a download no longer deletes it.
@@ -22,13 +58,13 @@ Release notes for version 3.8.8.
 - Dialog focus handling: Tab stays inside open dialogs (also from text fields); focus returns to the button that opened a dialog, also when it is closed directly.
 - Flatpak detection: the Flatpak version, like the Store version, runs without its own update check.
 
-## Removed
+### Removed
 
 - The "clear page" button (it also removed locked objects).
 - The measure tool (`G`, "Messen"). Measure lines already in a document stay as they are.
 - The separate text select tool (`Y`). Its job is done by the select tool now.
 
-## New
+### New
 
 - Copy and paste annotation objects (text boxes, symbols, shapes, arrows) with Ctrl+C / Ctrl+V.
 - Copy PDF text with the normal select tool: drag over PDF text (I-beam cursor), Ctrl+C copies; hold Alt to lasso over text; the separate text select tool (`Y`) is gone.
@@ -49,7 +85,7 @@ Release notes for version 3.8.8.
 - Security: Electron 44.9.3 (fixes a known certificate advisory); update and download test switches only work in unpackaged builds; the microphone permission check also verifies the page origin; reserved Windows file names are rejected; only the three newest local crash reports are kept.
 - Microsoft Store preparation: a Store build mode switches the self-updater off (updates come through the Store); `docs/STORE.md`, `PRIVACY.md`, listing texts and an unsigned AppX workflow are included. The GitHub version is unchanged.
 
-## Design
+### Design
 
 - Calmer light and dark themes, flat surfaces without glass, no gradients and no dot grid.
 - Compact toolbar; bundled IBM Plex Sans interface font.
@@ -61,13 +97,13 @@ Release notes for version 3.8.8.
 - Buttons, segmented controls, selects and text fields use filled surfaces instead of 1 px outlines; checkboxes and sliders are drawn by the app. Edges stay sharp on scaled Windows displays.
 - Redrawn pixel-grid icons for select, ellipse, split view and the More tools button; toolbar and header icons are snapped to whole pixels so lines stay crisp.
 
-## Known limits
+### Known limits
 
 - Bar colour 'Accent' with light accent colours (orange, coral, gold, green) has reduced text contrast in some places; the default bar styles are fine.
 - Bookmarks (outlines) are still lost when pages are rebuilt (pdf-lib has no API for them).
 - Older Layr versions place an arrow end with a fixed anchor (`t1`, ...) at the centre of the shape.
 - The text layer is not available in split view and presentation mode.
 
-## Still planned before release
+### Still planned before release
 
 - Free lines and dividers in tables.
