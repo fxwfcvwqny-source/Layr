@@ -810,6 +810,7 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .langdlg .lang-card>:nth-child(2){animation-delay:.05s!important}.langdlg .lang-card>:nth-child(3){animation-delay:.1s!important}.langdlg .lang-card>:nth-child(4){animation-delay:.15s!important}.langdlg .lang-card>:nth-child(5){animation-delay:.2s!important}
 .symgrid .tpl-h{grid-column:1/-1;font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 2px 0}
 .sym.tpl canvas{width:calc(100% - 4px)}
+@media (forced-colors:active){.sym canvas,.sym.symtbl svg{forced-color-adjust:none}}
 /* 2.9: Formulare, Unterschrift, Rechtschreibung, Umbenennen, Updates */
 .formlayer{position:absolute;inset:0;pointer-events:none;z-index:3}
 .fm{position:absolute;box-sizing:border-box;margin:0;pointer-events:auto;border:1px solid rgba(48,104,214,.32);border-radius:2px;background:rgba(66,133,244,.11);color:#111;font-family:Helvetica,Arial,sans-serif;padding:0 .2em;outline:none;transition:background .15s,border-color .15s,box-shadow .15s}
