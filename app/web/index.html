@@ -379,7 +379,8 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .symPop{position:fixed;z-index:94;width:352px;max-width:calc(100vw - 16px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
 .symPop .symgrid{grid-template-columns:repeat(4,1fr);grid-auto-rows:max-content;align-content:start;overflow-y:auto;min-height:0;padding:2px}
 .sym{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink)}
-.sym canvas{width:72px;height:48px;border-radius:5px;background:color-mix(in srgb,#fff 92%,var(--panel))}
+.sym{min-width:0}
+.sym canvas{width:min(72px,100%);height:auto;aspect-ratio:3/2;border-radius:5px;background:color-mix(in srgb,#fff 92%,var(--panel))}
 .sym span{font-size:10px;line-height:1.15;text-align:center;color:var(--ink);max-width:100%;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere;hyphens:auto}
 .sym:hover{border-color:var(--accent)}
 .sym[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
@@ -808,7 +809,7 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .langdlg:not([hidden]) .lang-card>*{animation:lyr-tool-b .5s cubic-bezier(.2,.9,.3,1.2) backwards}
 .langdlg .lang-card>:nth-child(2){animation-delay:.05s!important}.langdlg .lang-card>:nth-child(3){animation-delay:.1s!important}.langdlg .lang-card>:nth-child(4){animation-delay:.15s!important}.langdlg .lang-card>:nth-child(5){animation-delay:.2s!important}
 .symgrid .tpl-h{grid-column:1/-1;font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 2px 0}
-.sym.tpl canvas{width:calc(100% - 4px);height:auto;aspect-ratio:3/2}
+.sym.tpl canvas{width:calc(100% - 4px)}
 /* 2.9: Formulare, Unterschrift, Rechtschreibung, Umbenennen, Updates */
 .formlayer{position:absolute;inset:0;pointer-events:none;z-index:3}
 .fm{position:absolute;box-sizing:border-box;margin:0;pointer-events:auto;border:1px solid rgba(48,104,214,.32);border-radius:2px;background:rgba(66,133,244,.11);color:#111;font-family:Helvetica,Arial,sans-serif;padding:0 .2em;outline:none;transition:background .15s,border-color .15s,box-shadow .15s}
@@ -958,7 +959,7 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .tblbar button:hover{border-color:var(--accent);color:var(--accent)}
 .tblbar button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 :root[data-sheet="night"] .page .tblbar{filter:none}
-.sym.symtbl svg{width:72px;height:48px;padding:8px 20px;box-sizing:border-box;border-radius:5px;background:color-mix(in srgb,#fff 92%,var(--panel));color:#2b3440}
+.sym.symtbl svg{width:min(72px,100%);height:auto;aspect-ratio:3/2;padding:8px 20px;box-sizing:border-box;border-radius:5px;background:color-mix(in srgb,#fff 92%,var(--panel));color:#2b3440}
 /* 3.3: Diktieren */
 #bMic.rec{background:var(--danger,#c2412d);color:#fff;animation:lyr-mic 1.6s ease-out infinite}
 #bMic.load svg{animation:lyr-mic-load 1s ease-in-out infinite}
