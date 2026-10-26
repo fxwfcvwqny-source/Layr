@@ -1,6 +1,6 @@
 # Layr als Flatpak
 
-Status: vorbereitet, noch nicht gebaut und nicht bei Flathub eingereicht.
+> **Status: not pursued.** Layr is not submitted to Flathub. The manifest in `packaging/flatpak/` was written with AI assistance, which Flathub's generative AI policy does not allow in manifests, and Flathub also expects a build from source and a longer development history. The files are kept only as notes and for local tests. A Flathub submission would need a hand-written manifest that builds from source.
 
 ## Was vorbereitet ist
 
