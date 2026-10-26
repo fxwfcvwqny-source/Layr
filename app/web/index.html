@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Fg4zVN8BxDh+ybSByhtKcM00TD1rdMGHGSpeQ3x47a8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-imPINVAM/zX4Y1hKmSuH1CQm7Y/HRC9pbwBBj0lBi9M=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -315,6 +315,8 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .edbar .edsw{width:22px;height:22px;min-width:0;padding:0;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
 .edbar .edsw:hover{background:inherit}
 .edbar .edsw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--accent)}
+.edbgp .edsws{grid-template-columns:repeat(5,22px)}
+.edbar .edsw-none{background:linear-gradient(135deg,var(--panel) 44%,var(--ink) 44%,var(--ink) 56%,var(--panel) 56%)}
 .edcust{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer}
 .edcust input{width:26px;height:22px;padding:0;border:1px solid var(--line);border-radius:5px;background:var(--panel)}
 .edbar button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
@@ -2195,7 +2197,7 @@ const I18N_EN={
 'Schreibtisch':'Desk','Sand':'Sand','Himmel':'Sky','Salbei':'Sage','Flieder':'Lilac','Tinte':'Ink','Nachtblau':'Navy','Moos':'Moss','Wein':'Wine','Kakao':'Cocoa','Raster':'Grid','Schlicht':'Plain',
 'Blatt auf dem Bildschirm':'Sheet on screen','Mint':'Mint','Nacht':'Night','Weicher Schatten':'Soft shadow','Kräftig':'Strong','Flach':'Flat',
 'Färbt nur die Ansicht ein, zum Beispiel augenschonend oder als Nachtmodus. Die gespeicherte PDF bleibt, wie sie ist.':'Only tints the view, for example to be easier on the eyes or as a night mode. The saved PDF stays as it is.',
-'Oberfläche':'Interface','Text-Leiste':'Text bar','Text-Leiste zurücksetzen':'Reset text bar','Text-Leiste: Stil':'Text bar: look','Werkzeugleiste':'Toolbar','Stil':'Look','Knöpfe':'Buttons','Unterstreichen':'Underline','Kursiv':'Italic','Kursiv (Strg+I)':'Italic (Ctrl+I)','Listen':'Lists','Einrücken':'Indent','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
+'Oberfläche':'Interface','Text-Leiste':'Text bar','Text-Leiste zurücksetzen':'Reset text bar','Text-Leiste: Stil':'Text bar: look','Werkzeugleiste':'Toolbar','Stil':'Look','Knöpfe':'Buttons','Unterstreichen':'Underline','Texthintergrund':'Text background','Kein Hintergrund':'No background','Kursiv':'Italic','Kursiv (Strg+I)':'Italic (Ctrl+I)','Listen':'Lists','Einrücken':'Indent','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
 'Meldungen':'Notifications','Akzent':'Accent','Glas':'Glass','Eigene Meldungsfarbe wählen':'Choose custom notification colour','Unten mittig':'Bottom centre','Unten rechts':'Bottom right','Oben':'Top',
 'Anzeigedauer':'Display time','Kurz':'Short','Lang':'Long','Test-Meldung zeigen':'Show test notification',
 'Bewegung':'Motion','Animationen an':'Animations on','Aus':'Off','Alles auf Standard':'Reset everything','Alles wieder auf Standard.':'Everything is back to default.',
@@ -4526,13 +4528,14 @@ const QB_HTML={
   lists:'<button type="button" data-a="lb" title="Aufzählung (Strg+Umschalt+8) · Tab: Unterpunkt"><svg class="ph" aria-hidden="true"><use href="#ph-list-bullets"/></svg></button><button type="button" data-a="ln" title="Nummerierung (Strg+Umschalt+7) · Tab: Unterpunkt"><svg class="ph" aria-hidden="true"><use href="#ph-list-numbers"/></svg></button>',
   indent:'<button type="button" data-a="out" title="Ebene höher (Umschalt+Tab)"><svg class="ph" aria-hidden="true"><use href="#ph-text-outdent"/></svg></button><button type="button" data-a="in" title="Unterpunkt (Tab)"><svg class="ph" aria-hidden="true"><use href="#ph-text-indent"/></svg></button>',
   col:'<span class="edcolw"><button type="button" data-a="col" class="edcol" title="Schriftfarbe" aria-haspopup="true" aria-expanded="false"><span class="ca">A</span><span class="cbar"></span></button><span class="edpal" hidden><span class="edsws"><button type="button" class="edsw" data-c="#1b1f24" title="Schwarz" style="background:#1b1f24"></button><button type="button" class="edsw" data-c="#d62828" title="Rot" style="background:#d62828"></button><button type="button" class="edsw" data-c="#1d4ed8" title="Blau" style="background:#1d4ed8"></button><button type="button" class="edsw" data-c="#15803d" title="Grün" style="background:#15803d"></button><button type="button" class="edsw" data-c="#ea7a0b" title="Orange" style="background:#ea7a0b"></button><button type="button" class="edsw" data-c="#7c3aed" title="Lila" style="background:#7c3aed"></button><button type="button" class="edsw" data-c="#0e7490" title="Petrol" style="background:#0e7490"></button><button type="button" class="edsw" data-c="#6b7280" title="Grau" style="background:#6b7280"></button></span><label class="edcust"><input type="color" class="edcin" aria-label="Eigene Farbe"> Eigene Farbe</label></span></span>',
+  bg:'<span class="edcolw"><button type="button" data-a="bg" class="edcol" title="Texthintergrund" aria-haspopup="true" aria-expanded="false"><span class="ca"><svg class="ph" aria-hidden="true"><use href="#ph-highlighter"/></svg></span><span class="cbar"></span></button><span class="edpal edbgp" hidden><span class="edsws"><button type="button" class="edsw edsw-none" data-c="" title="Kein Hintergrund"></button><button type="button" class="edsw" data-c="#ffd60a" title="Gelb" style="background:#ffd60a"></button><button type="button" class="edsw" data-c="#1b1f24" title="Schwarz" style="background:#1b1f24"></button><button type="button" class="edsw" data-c="#d62828" title="Rot" style="background:#d62828"></button><button type="button" class="edsw" data-c="#1d4ed8" title="Blau" style="background:#1d4ed8"></button><button type="button" class="edsw" data-c="#15803d" title="Grün" style="background:#15803d"></button><button type="button" class="edsw" data-c="#ea7a0b" title="Orange" style="background:#ea7a0b"></button><button type="button" class="edsw" data-c="#7c3aed" title="Lila" style="background:#7c3aed"></button><button type="button" class="edsw" data-c="#0e7490" title="Petrol" style="background:#0e7490"></button><button type="button" class="edsw" data-c="#6b7280" title="Grau" style="background:#6b7280"></button></span><label class="edcust"><input type="color" class="edcin" aria-label="Eigene Farbe"> Eigene Farbe</label></span></span>',
   del:'<button type="button" data-a="del" title="Textfeld löschen"><svg class="ph" aria-hidden="true"><use href="#ph-trash"/></svg></button>'};
 // Edit bar parts in default order; qbBar lays out the visible ones and parks hidden ones in a hidden wrapper so their nodes stay in the DOM
 function qbBar(order,hide){const vis=order.filter(id=>!hide.includes(id)),off=order.filter(id=>hide.includes(id));let h='',prev=null;
   for(const id of vis){if(prev!==null&&QB_GRP[id]!==QB_GRP[prev])h+='<span class="edsep"></span>';h+=QB_HTML[id];prev=id}
   return h+'<span class="edoff" hidden>'+off.map(id=>QB_HTML[id]).join('')+'</span>'}
-const QB_NAME={font:'Schriftart',size:'Schriftgröße',bold:'Fett',it:'Kursiv',ul:'Unterstreichen',lists:'Listen',indent:'Einrücken',col:'Schriftfarbe',del:'Löschen'};
-const QB_ICON={font:PH('text-aa'),size:PH('text-t'),bold:'<b>B</b>',it:PH('text-italic'),ul:'<u>U</u>',lists:PH('list-bullets'),indent:PH('text-indent'),col:PH('palette'),del:PH('trash')};
+const QB_NAME={font:'Schriftart',size:'Schriftgröße',bold:'Fett',it:'Kursiv',ul:'Unterstreichen',lists:'Listen',indent:'Einrücken',col:'Schriftfarbe',bg:'Texthintergrund',del:'Löschen'};
+const QB_ICON={font:PH('text-aa'),size:PH('text-t'),bold:'<b>B</b>',it:PH('text-italic'),ul:'<u>U</u>',lists:PH('list-bullets'),indent:PH('text-indent'),col:PH('palette'),bg:PH('highlighter'),del:PH('trash')};
 // Dialog: live preview, one row per button (order arrows and visibility switch); focus = selector to keep focus on after re-render
 function qbRender(focus){const L=$('#dQbItems'),ord=design.qbarOrder,hide=design.qbarHide,nVis=ord.length-hide.length;
   L.textContent='';
@@ -4559,7 +4562,7 @@ function openTextEditor(i,o,isNew,at){
   const root=document.createElement('div');root.className='tbx';
   root.innerHTML=`<div class="edbar">${qbBar(design.qbarOrder,design.qbarHide)}</div><div class="tbx-in"><div class="tsel"></div><i class="crt"></i></div><span class="edh ml" data-h="ml"></span><span class="edh mr" data-h="mr"></span><span class="edh mt" data-h="mt" title="Höhe ziehen"></span><span class="edh mb" data-h="mb" title="Höhe ziehen"></span><span class="edh br" data-h="br" title="Schriftgröße ziehen"></span>`;
   P.el.appendChild(root);
-  const area=root.querySelector('.tbx-in'),caret=root.querySelector('.crt'),selL=root.querySelector('.tsel'),fsIn=root.querySelector('.edfs'),bB=root.querySelector('[data-a=bold]'),bU=root.querySelector('[data-a=ul]'),bI=root.querySelector('[data-a=it]'),bLb=root.querySelector('[data-a=lb]'),bLn=root.querySelector('[data-a=ln]'),bF=root.querySelector('[data-a=font]'),bC=root.querySelector('[data-a=col]'),pal=root.querySelector('.edpal'),cbar=root.querySelector('.cbar'),edcin=root.querySelector('.edcin');
+  const area=root.querySelector('.tbx-in'),caret=root.querySelector('.crt'),selL=root.querySelector('.tsel'),fsIn=root.querySelector('.edfs'),bB=root.querySelector('[data-a=bold]'),bU=root.querySelector('[data-a=ul]'),bI=root.querySelector('[data-a=it]'),bLb=root.querySelector('[data-a=lb]'),bLn=root.querySelector('[data-a=ln]'),bF=root.querySelector('[data-a=font]'),bC=root.querySelector('[data-a=col]'),pal=bC.parentNode.querySelector('.edpal'),cbar=bC.querySelector('.cbar'),edcin=pal.querySelector('.edcin'),bBg=root.querySelector('[data-a=bg]'),palB=bBg.parentNode.querySelector('.edpal'),cbarB=bBg.querySelector('.cbar'),edcinB=palB.querySelector('.edcin');
   let g=hGeo(o),eng=null;
   const refresh=()=>{const z=S.zoom;g=hGeo(o);const lh=g.b.lh*z;
     root.style.left=(o.x*z-TBX_PAD-1)+'px';root.style.top=(o.y*z-TBX_PAD-1)+'px';root.style.padding=TBX_PAD+'px';
@@ -4572,12 +4575,12 @@ function openTextEditor(i,o,isNew,at){
         for(let li=pa.li;li<=pb.li;li++){const x0=li===pa.li?pa.x:0,x1=li===pb.li?pb.x:mctx.measureText(g.b.lines[li]).width+o.fs*.3;
           const d=document.createElement('b');d.style.left=x0*z+'px';d.style.top=li*lh+'px';d.style.width=Math.max(2,(x1-x0)*z)+'px';d.style.height=lh+'px';selL.appendChild(d)}}}
     {const fn=bF.firstChild;fn.textContent=fontName(o.font);const fc=FONT_MAP[o.font||''];fn.style.fontFamily=fc&&fc.css?fc.css:''}
-    if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);bI.setAttribute('aria-pressed',!!o.italic);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;
+    if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);bI.setAttribute('aria-pressed',!!o.italic);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;cbarB.style.background=o.hbg||'transparent';palB.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(o.hbg||'').toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(o.hbg))edcinB.value=o.hbg;
     root.classList.toggle('flip',o.y*z<46*({s:1,m:1.1,l:1.3}[design.qbar]||1))};
   const set=props=>{
     // Farbe bei markiertem Text: nur für die markierten Zeichen
     if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
-    keepCtr(o,()=>{for(const k of['fs','color','bold','orient','underline','italic','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k]});
+    keepCtr(o,()=>{for(const k of['fs','color','bold','orient','underline','italic','hbg','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];if(!o.hbg)delete o.hbg});
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}if('bold' in props){S.bold=o.bold;$('#bold').checked=o.bold}if('underline' in props){S.underline=!!o.underline;$('#underl').checked=!!o.underline}if('color' in props)setColor(o.color,true);textClamp(o,P,true);refresh();redraw(i)};
   eng=textEngine(area,o.text,{lists:true,onChange:st=>{keepCtr(o,()=>{shiftSpans(o,o.text,st.v);o.text=st.v});textClamp(o,P,true);refresh();redraw(i)},
@@ -4608,9 +4611,13 @@ function openTextEditor(i,o,isNew,at){
   root.querySelector('[data-a=in]').onclick=()=>{eng.indent(1);eng.focus()};root.querySelector('[data-a=out]').onclick=()=>{eng.indent(-1);eng.focus()};
   const palOpen=v=>{if(v)showEl(pal);else animHide(pal);bC.setAttribute('aria-expanded',v)};
   bC.onclick=()=>{const open=!pal.hidden&&!pal._ah;palOpen(!open);if(open)eng.focus()};
+  const palOpenB=v=>{if(v)showEl(palB);else animHide(palB);bBg.setAttribute('aria-expanded',v)};
+  bBg.onclick=()=>{const open=!palB.hidden&&!palB._ah;palOpenB(!open);if(open)eng.focus()};
+  palB.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=()=>{set({hbg:b.dataset.c});palOpenB(false);eng.focus()}});
+  {const live=rafLast(c=>set({hbg:c}));edcinB.addEventListener('input',()=>live(edcinB.value))}edcinB.addEventListener('change',()=>{palOpenB(false);eng.focus()});
   pal.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=()=>{set({color:b.dataset.c});palOpen(false);eng.focus()}});
   {const live=rafLast(c=>set({color:c}));edcin.addEventListener('input',()=>live(edcin.value))}edcin.addEventListener('change',()=>{palOpen(false);eng.focus()});
-  root.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pal.hidden){e.preventDefault();e.stopImmediatePropagation();palOpen(false);eng.focus()}},true);
+  root.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pal.hidden){e.preventDefault();e.stopImmediatePropagation();palOpen(false);eng.focus()}else if(e.key==='Escape'&&!palB.hidden){e.preventDefault();e.stopImmediatePropagation();palOpenB(false);eng.focus()}},true);
   fsIn.addEventListener('input',()=>{if(+fsIn.value>=4)set({fs:+fsIn.value})});
   fsIn.addEventListener('wheel',e=>{e.preventDefault();set({fs:o.fs+(e.deltaY<0?1:-1)})},{passive:false});
   // In den Text klicken: Cursor setzen, ziehen markiert, Doppelklick markiert ein Wort, Dreifachklick alles
@@ -4902,9 +4909,9 @@ $('#bZoomIn').onclick=()=>zoomTo(S.zoom*1.2);$('#bZoomOut').onclick=()=>zoomTo(S
 $('#bPanel').onclick=()=>$('#panel').classList.toggle('open');
 // Design-Einstellungen (nur Oberfläche, pro Gerät gemerkt)
 let _acc='';function accentCol(){return _acc||(_acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#0b6570')}
-const DDEF={theme:'system',accent:'petrol',accentC:'',toolbar:'center',density:'normal',corners:'round',desk:'plain',deskc:'standard',sheet:'white',shadow:'soft',motion:'on',light:'standard',dark:'standard',bars:'standard',barsC:'',tbstyle:'bar',toast:'standard',toastC:'',toastPos:'bc',toastDur:'normal',qbar:'m',qbarOrder:['font','size','bold','it','ul','lists','indent','col','del'],qbarHide:[],qbarStyle:'panel'};
-const QB_IDS=['font','size','bold','it','ul','lists','indent','col','del']; // text quick bar buttons in default order
-const QB_GRP={font:0,size:1,bold:2,it:2,ul:2,lists:3,indent:3,col:3,del:3}; // a separator goes between visible buttons of different groups
+const DDEF={theme:'system',accent:'petrol',accentC:'',toolbar:'center',density:'normal',corners:'round',desk:'plain',deskc:'standard',sheet:'white',shadow:'soft',motion:'on',light:'standard',dark:'standard',bars:'standard',barsC:'',tbstyle:'bar',toast:'standard',toastC:'',toastPos:'bc',toastDur:'normal',qbar:'m',qbarOrder:['font','size','bold','it','ul','lists','indent','col','bg','del'],qbarHide:[],qbarStyle:'panel'};
+const QB_IDS=['font','size','bold','it','ul','lists','indent','col','bg','del']; // text quick bar buttons in default order
+const QB_GRP={font:0,size:1,bold:2,it:2,ul:2,lists:3,indent:3,col:3,bg:3,del:3}; // a separator goes between visible buttons of different groups
 // Returns a sanitised copy of the text quick bar keys; never mutates the input
 const qbSan=d=>{const known=a=>Array.isArray(a)?[...new Set(a.filter(x=>QB_IDS.includes(x)))]:[];
   const o=known(d.qbarOrder),h=known(d.qbarHide);
@@ -5917,6 +5924,7 @@ function sanObj(o){
   if(r.alpha!=null&&!(isNum(r.alpha)&&r.alpha>0&&r.alpha<=1))delete r.alpha;
   if(r.locked!==true)delete r.locked;
   if(r.italic!==true)delete r.italic;
+  if(typeof r.hbg!=='string'||!COL_RX.test(r.hbg))delete r.hbg;
   if(r.font!=null&&!own(FONT_MAP,r.font))delete r.font;
   if(r.fs!=null&&!(isNum(r.fs)&&r.fs>=2&&r.fs<=400))r.fs=11;
   const box=()=>isNum(r.x)&&isNum(r.y)&&isNum(r.w)&&isNum(r.h);
@@ -5982,8 +5990,9 @@ function drawText(c,o){
   const line=(L,st,x,y)=>{if(!rich){c.fillStyle=o.color;c.fillText(L,x,y);ul(L,x,y);return}
     for(const[a,e,col]of spanRuns(o,st,st+L.length)){const s=L.slice(a-st,e-st),dx=a>st?c.measureText(L.slice(0,a-st)).width:0;c.fillStyle=col;c.fillText(s,x+dx,y);ul(s,x+dx,y,col)}};
   let n=0;const starts=b.lines.map((L,k)=>{const s=n;n+=L.length+wrapGap(b.lines,k);return s});
-  if(o.orient==='h')b.lines.forEach((l,i)=>line(l,starts[i],o.x,o.y+i*b.lh+off));
-  else if(o.orient==='v'){c.translate(o.x,o.y+b.h);c.rotate(-Math.PI/2);b.lines.forEach((l,i)=>line(l,starts[i],0,i*b.lh+off))}
+  const hb=(l,x,y)=>{if(!o.hbg||!l)return;c.fillStyle=o.hbg;c.fillRect(x,y,c.measureText(l).width,b.lh)}; // background behind each line, all lines before any text
+  if(o.orient==='h'){b.lines.forEach((l,i)=>hb(l,o.x,o.y+i*b.lh));b.lines.forEach((l,i)=>line(l,starts[i],o.x,o.y+i*b.lh+off))}
+  else if(o.orient==='v'){c.translate(o.x,o.y+b.h);c.rotate(-Math.PI/2);b.lines.forEach((l,i)=>hb(l,0,i*b.lh));b.lines.forEach((l,i)=>line(l,starts[i],0,i*b.lh+off))}
   else{c.textAlign='center';b.lines.forEach((l,i)=>{let k=starts[i];[...l].forEach((ch,j)=>{c.fillStyle=rich?spanColorAt(o,k):o.color;c.fillText(ch,o.x+i*b.cw+b.cw/2,o.y+j*o.fs*1.1);k+=ch.length})})}
 }
 
