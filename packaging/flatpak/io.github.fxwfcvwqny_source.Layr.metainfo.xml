@@ -48,6 +48,12 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="3.9.0" date="2026-10-26">
+      <description>
+        <p>Text selection fixes and a selection bar (copy, highlight), italic and text background in the quick bar, centred fixed toolbar, cleaner symbol tiles, editable topology templates (star, ring, bus, tree, mesh).</p>
+        <p>Textauswahl repariert, eigene Auswahlleiste (Kopieren, Markieren), Kursiv und Texthintergrund in der Schnellleiste, zentrierte feste Werkzeugleiste, aufgeräumte Symbolkacheln, bearbeitbare Topologie-Vorlagen (Stern, Ring, Bus, Baum, Masche).</p>
+      </description>
+    </release>
     <release version="3.8.8" date="2026-10-24">
       <description>
         <p>Text bar settings in the design dialog, focus handling in dialogs, page move without flicker, Ctrl+. on more keyboard layouts, Flatpak build.</p>

@@ -1,61 +1,43 @@
-# Layr 3.8.5: Testliste für Windows
+# Layr 3.9.0: Testliste für Windows
 
-Installiere `Layr-Setup-3.8.5.exe` (privater Entwurf `v3.8.5`). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
-Notiere vorab: Windows-Skalierung (Einstellungen, Anzeige) und Fenstergröße.
+Installiere `Layr-Setup-3.9.0.exe` (Entwurf `v3.9.0`). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
+Notiere vorab: Windows-Skalierung (Einstellungen, Anzeige) und Fenstergröße. Ideal: alles bei 100 %, 125 % und 150 % prüfen (Abmelden nach Änderung nicht nötig, Layr neu starten).
 
-## 1. Start und Update
-- [ ] Setup läuft durch, Layr startet, Version "3.8.5" steht unter "Layr & Updates" (Zahnrad oder Info-Knopf).
-- [ ] Beim ersten Start erscheint der Sprachdialog, danach die normale Ansicht.
-- [ ] "Jetzt nach Updates suchen" zeigt keinen Absturz und keine Fehlermeldung mit `spawn UNKNOWN`.
-- [ ] Datei `%APPDATA%\Layr\update-log.txt`: nur ansehen, keine Fehlerzeilen? (falls es sie gibt, Inhalt schicken)
+## 1. Textauswahl
+- [ ] Auf einer Seite mit viel Text von einer Seite über die Seitengrenze auf die nächste ziehen: nur der überstrichene Text wird markiert, nicht die ganze nächste Seite.
+- [ ] Nach dem Loslassen Strg+C und in Notepad einfügen: Text passt zur Markierung.
+- [ ] Nach der Markierung erscheint eine eigene Auswahlleiste mit "Kopieren": Klick kopiert den Text.
+- [ ] "Markieren" in der Leiste: Ein Klick auf eine Farbe markiert den gewählten Text sofort in dieser Farbe. Der Knopf "Markieren" nutzt danach die zuletzt gewählte Farbe. Eigene Farbe: nach Bestätigung im Farbdialog wird der Text markiert, auch wenn die Auswahl dabei verschwindet.
+- [ ] Gedrehter Text: Hervorhebung ist ein achsenparalleles Kästchen (bekannte Grenze, kein Fehler).
 
-## 2. Schärfe und Aussehen (100 %, 125 %, 150 % wenn möglich)
-- [ ] Werkzeugleiste: Cursor, Ellipse, Stift, Radierer und Text sind scharf, keine treppigen Kanten.
-- [ ] Kopfleiste: Symbole sind scharf (Rückgängig, Zoom, Suche, Split, Speichern).
-- [ ] Split-Symbol sieht nach "zwei Fenster" aus, nicht nach Pause.
-- [ ] "Mehr" zeigt den Werkzeugkasten, das Menü öffnet sich, Schwärzen steht darin.
-- [ ] Rechtes Panel: kein waagerechter Balken, nichts am rechten Rand abgeschnitten, nur ein senkrechter dünner Balken.
-- [ ] Felder (Auswahlfelder, Segment-Schalter, Knöpfe) sind gefüllt und gut sichtbar, nicht zu blass. Hell und dunkel prüfen.
-- [ ] Checkboxen (Fett, Unterstrichen, Gestrichelt): Haken ist scharf, Regler (Stärke, Größe) hat einen runden Knopf.
-- [ ] Symbol-Kacheln rechts (Symbole, Startknoten, Aktion) sind nicht pixelig.
-- [ ] Ändere die Fenstergröße mehrfach (etwas breiter, etwas schmaler): die Symbole in der Leiste bleiben scharf.
+## 2. Text-Schnellleiste
+- [ ] Textfeld anlegen: Kursiv-Knopf ist da (nicht hinter "Löschen"). Strg+I schaltet Kursiv um.
+- [ ] Texthintergrund-Farbe wählen: Hintergrund erscheint hinter dem Text. Bei gestapeltem Text fehlt er (bekannte Grenze).
+- [ ] Neues Textfeld übernimmt Kursiv/Hintergrund aus der Seitenleiste nicht (bekannte Grenze).
 
-## 3. Schwebende Werkzeugleiste
-- [ ] Einstellung "Werkzeugleiste: schwebend" an.
-- [ ] Linke Seitenleiste (Seitenvorschau) und rechtes Panel reichen bis nach oben, kein leerer Streifen, nichts abgeschnitten. (wird gerade nachgebessert, bitte trotzdem anschauen)
-- [ ] Seitenvorschau ein- und ausblenden, Panel ein- und ausblenden: nichts springt oder wird verdeckt.
+## 3. Werkzeugleiste
+- [ ] "Mehr": Knopf sieht im Ruhezustand nicht aktiv aus; nach Öffnen und Schließen des Menüs wieder normal.
+- [ ] Schwebende Leiste, Ausrichtung links: Leiste sitzt links.
+- [ ] Feste Leiste, Fenster mind. 1200 px breit: Leiste ist mittig über dem Blatt. Schmaler ziehen: Layout fällt zurück.
+- [ ] Dichte "Groß": ab 1360 px Fensterbreite wirksam, darunter alte Anordnung.
 
-## 4. Textauswahl im Cursor (V)
-- [ ] Mit dem Auswahlwerkzeug über PDF-Text ziehen: Text wird markiert, Mauszeiger ist ein I-Balken.
-- [ ] Strg+C kopiert den Text (in Notepad einfügen).
-- [ ] Doppelklick markiert ein Wort, Dreifachklick eine Zeile.
-- [ ] Auf leerer Fläche ziehen: Lasso wie bisher.
-- [ ] Alt gedrückt halten und über Text ziehen: Lasso, keine Textauswahl.
-- [ ] Auf eine eigene Beschriftung (Textfeld, Form) klicken: sie wird ausgewählt, nicht der Text darunter.
-- [ ] Rechtsklick auf ein gesperrtes Objekt über Text öffnet das Menü ("Entsperren").
-- [ ] Es gibt kein Werkzeug "Text auswählen" und keine Taste Y mehr. Messen ist auch weg.
-- [ ] PDF mit Scan (ohne Text): Lasso geht überall.
+## 4. Symbole und Topologien
+- [ ] Symbolkacheln rechts: nur eine Beschriftung, alle gleich groß, Bilder werden in schmalen Kacheln kleiner statt abgeschnitten.
+- [ ] Kachel "Tabelle" erscheint nur unter "Formen".
+- [ ] Topologien: Stern, Ring, Bus, Baum, Masche einfügen. Alle Geräte lassen sich beschriften und verschieben, Linien bleiben angedockt.
+- [ ] Bus hat eine gemeinsame Leitung (Backbone).
+- [ ] Doppelklick auf ein Gerät oder dessen Beschriftung, durch das eine Linie läuft: Gerät wird bearbeitet, nicht die Linie.
+- [ ] Doppelklick auf eine freie Linie bearbeitet die Linie wie bisher.
+- [ ] Alte einzelne Topologie-Symbole: nicht in den Knoten bearbeitbar (bekannte Grenze).
+- [ ] Dunkles Design: dunkle Symbole bleiben sichtbar.
 
-## 5. Zeichnen und Beschriften (Kern)
-- [ ] Stift, Textmarker, Radierer, Linie, Pfeil, Rechteck, Ellipse: zeichnen und verschieben klappt.
-- [ ] Textfeld: tippen, Zeilenumbruch, nicht über den Seitenrand schreiben, drehen mit dem runden Griff, mit Doppelklick gerade ausrichten.
-- [ ] Pfeil an Kreis/Form andocken: Ankerpunkte rundherum, nächster Punkt wird hervorgehoben.
-- [ ] Symbole setzen (Netzwerk, UML), Tabelle einfügen und Text hineinschreiben.
-- [ ] Rückgängig und Wiederholen (Strg+Z / Strg+Y) funktionieren.
-- [ ] Datei speichern, schließen, wieder öffnen: alles ist noch da.
-
-## 6. Weitere Funktionen
-- [ ] Diktat: Mikrofon-Knopf, Windows fragt nach dem Mikrofon, Text erscheint im Textfeld.
-- [ ] Notizenleiste rechts: Notiz anlegen, Aufgabe anhaken.
-- [ ] Geteilte Ansicht (Split): zwei Spalten beginnen auf gleicher Höhe, Mitscrollen geht.
-- [ ] Seitenübersicht (Seiten ordnen) mit vielen Seiten: kein Flackern, Seiten verschieben geht.
-- [ ] Suchen (Strg+F), Zoom, Präsentationsmodus.
-- [ ] Hell/Dunkel umschalten: kein Ruckeln.
-
-## 7. Stabilität
-- [ ] 10 Minuten normal arbeiten: kein Absturz, kein Hängen.
-- [ ] Große PDF (viele Seiten) öffnen und durchscrollen: flüssig, Text lässt sich markieren.
-- [ ] Layr schließen und neu starten: Einstellungen (Design, Leiste) sind wie vorher.
+## 5. Regression
+- [ ] PDF öffnen, zeichnen (Stift, Pfeil, Textfeld), speichern, schließen, wieder öffnen: alles noch da.
+- [ ] Diktat: Mikrofon-Knopf, Windows fragt, Text erscheint im Textfeld.
+- [ ] Geteilte Ansicht: zwei Spalten, gleiche Höhe, Mitscrollen geht (Textauswahl hier nicht verfügbar, bekannte Grenze).
+- [ ] Hell/Dunkel umschalten: kein Ruckeln, Schrift lesbar.
+- [ ] "Jetzt nach Updates suchen": keine Fehlermeldung.
+- [ ] Neustart: Einstellungen (Design, Leiste) wie vorher.
 
 ## Meldung an mich
 Schicke mir pro Fehler: Punkt aus der Liste, was du gesehen hast, Screenshot, Windows-Skalierung.

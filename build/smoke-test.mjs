@@ -3,6 +3,7 @@
 // Aufruf: node build/smoke-test.mjs <Pfad zur Layr-Programmdatei>
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 
 const exe = process.argv[2];
 if (!exe || !fs.existsSync(exe)) { console.error('Programmdatei fehlt: ' + exe); process.exit(2); }
@@ -11,11 +12,14 @@ const PORT = 9339;
 const args = [`--remote-debugging-port=${PORT}`, '--remote-debugging-address=127.0.0.1'];
 if (process.platform === 'linux') args.push('--no-sandbox');
 const env = { ...process.env, GTK_IM_MODULE: 'gtk-im-context-simple', XMODIFIERS: '@im=none' };
+// Linux: fresh profile per run so objects stored by earlier runs (localStorage) cannot leak in; Windows keeps its profile (unverified, CI runs once)
+const profile = process.platform === 'linux' ? fs.mkdtempSync(os.tmpdir() + '/layr-smoke-') : null;
+if (profile) env.XDG_CONFIG_HOME = profile;
 const proc = spawn(exe, args, { env, stdio: 'ignore' });
 let failed = 0;
 const ok = (name, cond, extra) => { console.log(`${cond ? 'OK  ' : 'FAIL'} ${name}${extra !== undefined ? ' ' + JSON.stringify(extra) : ''}`); if (!cond) { failed++; if (process.env.GITHUB_ACTIONS) console.log(`::error title=Rauchtest::${String(name).replace(/[\r\n]/g, ' ')}${extra !== undefined ? ' ' + JSON.stringify(extra).replace(/[\r\n]/g, ' ') : ''}`); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const done = code => { try { proc.kill(); } catch (e) {} setTimeout(() => process.exit(code), 500); };
+const done = code => { try { proc.kill(); } catch (e) {} if (profile) setTimeout(() => { try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) {} }, 300); setTimeout(() => process.exit(code), 500); };
 setTimeout(() => { console.error('Zeitüberschreitung'); done(1); }, 180000);
 
 let target = null;
@@ -73,6 +77,20 @@ else {
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false }); // das neue Layout gilt erst ab 1200 px, das CI-Fenster kann kleiner sein
   ok('Schwebende Werkzeugleiste: Seitenleisten beginnen nicht unter der Leiste', await ev("(()=>{const r=document.documentElement,old=r.dataset.tbstyle;r.dataset.tbstyle='float';const t=document.querySelector('.tools').getBoundingClientRect().top,a=document.querySelector('.thumbs').getBoundingClientRect().top,b=document.querySelector('.panel').getBoundingClientRect().top;old===undefined?delete r.dataset.tbstyle:r.dataset.tbstyle=old;return a<=t+1&&b<=t+1})()") === true);
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  ok('Fixed toolbar is centred over the viewer at 1440 px (panel/thumbs open and closed)', (await ev("(async()=>{const a=$('#app'),c=e=>{const b=e.getBoundingClientRect();return (b.left+b.right)/2},res=[],st=[a.classList.contains('no-panel'),a.classList.contains('show-thumbs')];for(const np of [0,1])for(const th of [0,1]){a.classList.toggle('no-panel',!!np);a.classList.toggle('show-thumbs',!!th);await new Promise(r=>setTimeout(r,700));{const bt=[...document.querySelectorAll('#tools>button')].map(e=>e.getBoundingClientRect()).filter(b=>b.width>0),v=viewer.getBoundingClientRect();res.push(Math.abs((bt[0].left+bt[bt.length-1].right)/2-(v.left+viewer.clientWidth/2))<=8)}}a.classList.toggle('no-panel',st[0]);a.classList.toggle('show-thumbs',st[1]);return res})()", 10000)).every(Boolean));
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1920, height: 900, deviceScaleFactor: 1, mobile: false });
+  ok('Fixed toolbar is centred over the viewer at 1920 px (panel/thumbs open and closed)', (await ev("(async()=>{const a=$('#app'),c=e=>{const b=e.getBoundingClientRect();return (b.left+b.right)/2},res=[],st=[a.classList.contains('no-panel'),a.classList.contains('show-thumbs')];for(const np of [0,1])for(const th of [0,1]){a.classList.toggle('no-panel',!!np);a.classList.toggle('show-thumbs',!!th);await new Promise(r=>setTimeout(r,700));{const bt=[...document.querySelectorAll('#tools>button')].map(e=>e.getBoundingClientRect()).filter(b=>b.width>0),v=viewer.getBoundingClientRect();res.push(Math.abs((bt[0].left+bt[bt.length-1].right)/2-(v.left+viewer.clientWidth/2))<=8)}}a.classList.toggle('no-panel',st[0]);a.classList.toggle('show-thumbs',st[1]);return res})()", 10000)).every(Boolean));
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1200, height: 900, deviceScaleFactor: 1, mobile: false });
+  ok('Large density: toolbar does not overflow at 1200 px with thumbs and panel open', await ev("(async()=>{const r=document.documentElement,a=$('#app'),old=r.dataset.density,s0=[a.classList.contains('no-panel'),a.classList.contains('show-thumbs')];r.dataset.density='large';a.classList.remove('no-panel');a.classList.add('show-thumbs');await new Promise(r=>setTimeout(r,700));const t=$('.tools'),o=t.scrollWidth-t.clientWidth;a.classList.toggle('no-panel',s0[0]);a.classList.toggle('show-thumbs',s0[1]);old===undefined?delete r.dataset.density:r.dataset.density=old;return o})()", 10000) <= 0);
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+  ok('Large density: toolbar does not overflow at 1280 px with thumbs and panel open', await ev("(async()=>{const r=document.documentElement,a=$('#app'),old=r.dataset.density,s0=[a.classList.contains('no-panel'),a.classList.contains('show-thumbs')];r.dataset.density='large';a.classList.remove('no-panel');a.classList.add('show-thumbs');await new Promise(r=>setTimeout(r,700));const t=$('.tools'),o=t.scrollWidth-t.clientWidth;a.classList.toggle('no-panel',s0[0]);a.classList.toggle('show-thumbs',s0[1]);old===undefined?delete r.dataset.density:r.dataset.density=old;return o})()", 10000) <= 0);
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 960, height: 540, deviceScaleFactor: 2, mobile: false });
+  ok('Symbol tile images stay inside their tiles at 960 px (panel and Netzwerk popover)', JSON.stringify(await ev("(async()=>{const old=S.cat,bad=[];const chk=tag=>{for(const b of document.querySelectorAll('.symgrid .sym')){const t=b.getBoundingClientRect();if(!t.width)continue;const c=b.querySelector('canvas,svg').getBoundingClientRect();if(c.left<t.left-.5||c.right>t.right+.5)bad.push(tag+':'+(b.dataset.s||b.title))}};for(const c of ['Formen','Netzwerk','Topologien']){S.cat=c;buildCats();await new Promise(r=>setTimeout(r,80));chk('panel '+c)}S.cat='Netzwerk';openSymPop($('#tools'));await new Promise(r=>setTimeout(r,500));chk('pop');closeSymPop();S.cat=old;buildCats();return bad})()", 15000)) === '[]');
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  ok('Symbol tile images stay inside their tiles at 1440 px (panel and Netzwerk popover)', JSON.stringify(await ev("(async()=>{const old=S.cat,bad=[];const chk=tag=>{for(const b of document.querySelectorAll('.symgrid .sym')){const t=b.getBoundingClientRect();if(!t.width)continue;const c=b.querySelector('canvas,svg').getBoundingClientRect();if(c.left<t.left-.5||c.right>t.right+.5)bad.push(tag+':'+(b.dataset.s||b.title))}};for(const c of ['Formen','Netzwerk','Topologien']){S.cat=c;buildCats();await new Promise(r=>setTimeout(r,80));chk('panel '+c)}S.cat='Netzwerk';openSymPop($('#tools'));await new Promise(r=>setTimeout(r,500));chk('pop');closeSymPop();S.cat=old;buildCats();return bad})()", 15000)) === '[]');
+  ok('Symbol tiles: uniform 72x48 icon, name at most 2 lines', JSON.stringify(await ev("(async()=>{const old=S.cat;let bad=[];for(const c of CATS){S.cat=c;buildCats();await new Promise(r=>setTimeout(r,50));for(const b of document.querySelectorAll('#symgrid .sym:not(.tpl):not(.symtbl)')){const cv=b.querySelector('canvas').getBoundingClientRect(),sp=b.querySelector('span'),lh=parseFloat(getComputedStyle(sp).lineHeight);if(Math.round(cv.width)!==72||Math.round(cv.height)!==48||sp.getBoundingClientRect().height>2*lh+1)bad.push(c+':'+b.dataset.s)}}S.cat=old;buildCats();return bad})()", 15000)) === '[]');
+  ok('Table tile only under Formen', JSON.stringify(await ev("(()=>{const old=S.cat,n=c=>{S.cat=c;buildCats();return document.querySelectorAll('#symgrid .symtbl').length},r=[n('Formen'),n('Topologien')];S.cat=old;buildCats();return r})()")) === '[1,0]');
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ok('PDF-Text aus dem Worker',await ev('S.doc.getPage(1).then(p=>p.getTextContent()).then(t=>t.items.map(x=>x.str).join(" "))').then(t => /Rauchtest Router/.test(String(t))));
   await ev("document.getElementById('langDlg').hidden=true"); // Erststart-Sprachdialog ist modal und sperrt die App; der Test arbeitet ohne ihn
@@ -244,8 +262,10 @@ else {
   for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof openPdf==='function'") === true) break; await sleep(500); }
   ok('Alte Werkzeug-Einstellung (textsel) stört nicht: Werkzeugleiste baut sich auf', await ev("document.querySelectorAll('#tools .tool').length>5&&!document.querySelector('.tool[data-t=textsel]')&&typeof setTool==='function'") === true);
   // Text-Leiste: Standard wie früher; ausgeblendeter Knopf bleibt funktionsfähig
-  ok('Text-Leiste: Standard zeigt 8 Knöpfe in alter Reihenfolge mit 3 Trennern', await ev("(()=>{design.qbarOrder=QB_IDS.slice();design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar');const r=[bar.querySelectorAll(':scope>.edsep').length,[...bar.querySelectorAll('[data-a]')].filter(b=>!b.closest('.edoff')).map(b=>b.dataset.a).join()];closeEditor();return r[0]===3&&r[1]==='font,dn,up,bold,ul,lb,ln,out,in,col,del'})()") === true);
+  ok('Text-Leiste: Standard zeigt 10 Knöpfe in Standardreihenfolge mit 3 Trennern', await ev("(()=>{design.qbarOrder=QB_IDS.slice();design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar');const r=[bar.querySelectorAll(':scope>.edsep').length,[...bar.querySelectorAll('[data-a]')].filter(b=>!b.closest('.edoff')).map(b=>b.dataset.a).join()];closeEditor();return r[0]===3&&r[1]==='font,dn,up,bold,it,ul,lb,ln,out,in,col,bg,del'})()") === true);
   ok('Text-Leiste: ausgeblendeter Fett-Knopf ist unsichtbar, Fett und Strg+B wirken trotzdem', await ev("(()=>{design.qbarHide=['bold'];newText(0,120,200);ED.eng.put('Hallo');const vis=document.querySelector('.edbar [data-a=bold]').getClientRects().length>0;ED.set({bold:true});const a=ED.o.bold===true;ED.set({bold:false});document.querySelector('.tbx-in').dispatchEvent(new KeyboardEvent('keydown',{key:'b',ctrlKey:true,bubbles:true}));const c=ED.o.bold===true;closeEditor();design.qbarHide=[];return !vis&&a&&c})()") === true);
+  ok('Kursiv: Knopf und Strg+I schalten um (auch ausgeblendet), Strg+B/U bleiben, tfont/sanObj/Verlauf stimmen', await ev("(()=>{const n0=S.pages[0].objs.length;design.qbarHide=['it','bold','ul'];newText(0,120,200);ED.eng.put('Hallo');const ta=document.querySelector('.tbx-in'),kd=(k)=>ta.dispatchEvent(new KeyboardEvent('keydown',{key:k,ctrlKey:true,bubbles:true}));const vis=document.querySelector('.edbar [data-a=it]').getClientRects().length>0;const b0=!!ED.o.bold,u0=!!ED.o.underline;kd('i');const a=ED.o.italic===true&&/^italic /.test(tfont(ED.o));kd('b');kd('u');const b=!!ED.o.bold===!b0&&!!ED.o.underline===!u0;kd('i');const c=!ED.o.italic;design.qbarHide=[];ED.set({bold:false,underline:false});closeEditor();S.pages[0].objs.length=n0;return !vis&&a&&b&&c&&sanObj({type:'text',x:1,y:1,text:'a',italic:true}).italic===true&&!('italic' in sanObj({type:'text',x:1,y:1,text:'a',italic:'yes'}))&&tfont({fs:14})==='14px '+famOf({fs:14})})()") === true);
+  ok('Kursiv: Knopf wirkt, aria-pressed folgt, zweiter Klick schaltet zurück', await ev("(()=>{const n0=S.pages[0].objs.length;design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bt=document.querySelector('.edbar [data-a=it]');bt.click();const a=ED.o.italic===true&&bt.getAttribute('aria-pressed')==='true';bt.click();const b=!ED.o.italic&&bt.getAttribute('aria-pressed')==='false';closeEditor();S.pages[0].objs.length=n0;return a&&b})()") === true);
   // Text-Leiste im Design-Dialog: Tastatur verschiebt Knöpfe, Fokus bleibt am Pfeil
   const key = async (k, code, vk, text) => { await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: k, code, windowsVirtualKeyCode: vk, text }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: k, code, windowsVirtualKeyCode: vk }); };
   // Stärke-Regler: die Wertanzeige hält die Breite (sonst springt der Regler unter dem Zeiger), Pfeiltasten gehören dem Regler
@@ -298,7 +318,9 @@ else {
   await ev("setLang('de')");
   await ev("document.querySelector('#dQbReset').click();studioOpen(false)");
   // Text-Leiste: Einstellungen werden bereinigt, alte Design-Daten laden ohne Fehler
-  ok('Text-Leiste: ungültige Einstellungen werden bereinigt', await ev("(()=>{const d=qbSan({qbarOrder:['x','bold','bold'],qbarHide:QB_IDS.slice(),qbar:'zz',qbarStyle:'zz'});return d.qbarOrder.join()==='bold,font,size,ul,lists,indent,col,del'&&d.qbarHide.length===0&&d.qbar==='m'&&d.qbarStyle==='panel'})()") === true);
+  ok('Text-Leiste: ungültige Einstellungen werden bereinigt', await ev("(()=>{const d=qbSan({qbarOrder:['x','bold','bold'],qbarHide:QB_IDS.slice(),qbar:'zz',qbarStyle:'zz'});return d.qbarOrder.join()===QB_IDS.join()&&d.qbarHide.length===0&&d.qbar==='m'&&d.qbarStyle==='panel'})()") === true);
+  ok('Text-Leiste: Knöpfe aus altem Design stehen an Standardposition (Kursiv nach Fett, Hintergrund nach Farbe), Rest bleibt', await ev("(()=>{const old=['font','size','bold','ul','lists','indent','col','del'];const a=qbSan({qbarOrder:old,qbarHide:['ul']});const b=qbSan({qbarOrder:['del','col','bold','font'],qbarHide:[]});const c=qbSan({qbarOrder:'x',qbarHide:5});return a.qbarOrder.join()==='font,size,bold,it,ul,lists,indent,col,bg,del'&&a.qbarHide.join()==='ul'&&b.qbarOrder.join()==='del,col,bg,bold,it,ul,lists,indent,font,size'&&c.qbarOrder.join()===QB_IDS.join()&&b.qbarOrder.length===QB_IDS.length})()") === true);
+  ok('Text-Leiste: kaputte gespeicherte Design-Werte brechen nichts', await ev("(()=>{const bad=[null,5,'abc',[1],{qbarOrder:{a:1},qbarHide:'it'},{qbarOrder:[null,{},'it','it'],qbarHide:[3,'zz']}];return bad.every(v=>{const d=dSan(qbSan({...DDEF,...(v&&typeof v==='object'?v:{})}));return Array.isArray(d.qbarOrder)&&d.qbarOrder.length===QB_IDS.length&&new Set(d.qbarOrder).size===QB_IDS.length&&Array.isArray(d.qbarHide)&&d.qbarHide.every(x=>QB_IDS.includes(x))})})()") === true);
   // Gespeicherte Design-Werte: unbekannte Werte fallen auf den Standard, gültige bleiben
   ok('Design: unbekannte gespeicherte Werte fallen auf Standard', await ev("(()=>{const g=Object.fromEntries(DKEYS.map(([,k])=>[k,'zz']));Object.assign(g,{accent:'nope',accentC:'red',barsC:null,toastC:'#12'});const d=dSan({...DDEF,...g});return DKEYS.every(([,k])=>d[k]===DDEF[k])&&d.accent===DDEF.accent&&d.accentC===''&&d.barsC===''&&d.toastC===''})()") === true);
   ok('Design: gültige Werte bleiben', await ev("(()=>{const d=dSan({...DDEF,theme:'dark',accent:'custom',accentC:'#0b6570',bars:'custom',barsC:'#1b2129',corners:'pill'});return d.theme==='dark'&&d.accent==='custom'&&d.accentC==='#0b6570'&&d.bars==='custom'&&d.barsC==='#1b2129'&&d.corners==='pill'})()") === true);
@@ -351,6 +373,15 @@ else {
     await ev("closeMenu()");
     await sleep(500);
   }
+  // „Mehr“-Knopf der Werkzeugleiste: nach dem Schließen des Menüs nicht mehr expanded
+  const mehr = await ev("(async()=>{const b=document.querySelector('.tb-more');b.click();await new Promise(r=>setTimeout(r,400));const open=b.getAttribute('aria-expanded');closeMenu();await new Promise(r=>setTimeout(r,500));return [open,b.getAttribute('aria-expanded')]})()");
+  ok('Mehr nach Schließen nicht expanded', Array.isArray(mehr) && mehr[0] === 'true' && mehr[1] === 'false', mehr);
+  // Schwebende Werkzeugleiste + „links“: Leiste sitzt links, nicht mittig (auch unter 1200 px)
+  for (const w of [1440, 1100]) {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: w, height: 800, deviceScaleFactor: 1, mobile: false });
+    const fl = await ev("(async()=>{const r=document.documentElement,t=document.querySelector('.tools'),o=[r.dataset.tbstyle,r.dataset.toolbar];const w=()=>new Promise(x=>setTimeout(x,300));r.dataset.tbstyle='float';r.dataset.toolbar='center';await w();const c=t.getBoundingClientRect().left;r.dataset.toolbar='left';await w();const l=t.getBoundingClientRect().left;r.dataset.tbstyle=o[0];r.dataset.toolbar=o[1];return [c,l,document.getElementById('viewer').getBoundingClientRect().left]})()");
+    ok(`Schwebende Leiste links ${w}px: ganz links`, Array.isArray(fl) && Math.abs(fl[1] - ((w >= 1200 ? fl[2] : 0) + 12)) < 4 && fl[0] > fl[1] + 40, fl);
+  }
   // Objektmenü: echter Rechtsklick nahe am unteren Fensterrand bleibt beim ersten Öffnen ganz im Fenster
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
   await sleep(300);
@@ -365,6 +396,209 @@ else {
   await sleep(400);
   // Seitenmenü „Beschriftungen dieser Seite entfernen“ lässt gesperrte Objekte stehen und meldet ihre Zahl
   ok('Seitenmenü: Beschriftungen entfernen lässt gesperrtes Objekt stehen', await ev("(async()=>{const P=S.pages[0],base={color:'#000000',lw:1,fill:'none'};P.objs.length=0;P.objs.push({type:'rect',x:50,y:50,w:40,h:40,...base,oid:'tLk',locked:true},{type:'rect',x:150,y:50,w:40,h:40,...base,oid:'tFr'});pageMenu(0,100,100);[...document.querySelectorAll('#ctx button')].find(x=>x.textContent==='Beschriftungen dieser Seite entfernen').click();await new Promise(r=>setTimeout(r,400));const left=P.objs.map(o=>o.oid).join();const t=document.querySelector('.toast').textContent;P.objs.length=0;return left==='tLk'&&/1 gesperrte/.test(t)})()") === true);
+  // Textebene: dichte Seite öffnen, jede Textebene hat ein endOfContent
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  await ev("(async()=>{for(const k of Object.keys(localStorage))if(k.startsWith('pdfwerkbank:dense.pdf:'))localStorage.removeItem(k);const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);const W='lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim minim veniam quis nostrud'.split(' ');let k=0;for(let p=0;p<2;p++){const pg=d.addPage([595,842]);for(let ln=0;ln<68;ln++){if(ln%9===8)continue;let s='';while(f.widthOfTextAtSize(s,9)<440)s+=W[(k++*7)%W.length]+' ';pg.drawText(s.trim(),{x:72,y:800-ln*11,size:9,font:f})}}await openPdf(await d.save(),'dense.pdf');setTool('select');return 1})()");
+  const eoc = await ev("(async()=>{let L=[];for(let k=0;k<50;k++){await new Promise(r=>setTimeout(r,200));L=[...document.querySelectorAll('.textLayer')];if(L.length&&L[0].querySelector('span'))break}return [L.length,L.filter(l=>l.querySelectorAll(':scope>.endOfContent').length===1).length]})()");
+  ok('endOfContent in every text layer', Array.isArray(eoc) && eoc[0] > 1 && eoc[0] === eoc[1], eoc);
+  // Echter Maus-Zug von Wort-Mitte (Zeile 11) in den rechten Rand von Zeile 13 wählt wenig Text, springt nicht ans Ende der Ebene
+  const dr = await ev("(()=>{const tl=document.querySelector('.textLayer'),sp=[...tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()).map(s=>s.getBoundingClientRect());return [sp[10],sp[12],tl.getBoundingClientRect()].map(r=>r.toJSON())})()");
+  const [d1, d2, dtl] = dr, dy1 = (d1.top + d1.bottom) / 2, dy2 = (d2.top + d2.bottom) / 2, dx1 = (d1.left + d1.right) / 2;
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: dx1, y: dy1, button: 'none', buttons: 0 });
+  await sleep(250);
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: dx1, y: dy1, button: 'left', buttons: 1, clickCount: 1 });
+  for (let i = 1; i <= 12; i++) { await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: dx1 + (dtl.right - 20 - dx1) * i / 12, y: dy1 + (dy2 - dy1) * i / 12, button: 'left', buttons: 1 }); await sleep(20); }
+  await sleep(150);
+  const dlen = await ev("getSelection().toString().length");
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: dtl.right - 20, y: dy2, button: 'left', buttons: 0, clickCount: 1 });
+  const geo = await ev("(()=>{const sp=[...document.querySelector('.textLayer').querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.containsNode(sp[11],false),s.containsNode(sp[13],true),s.anchorNode&&s.anchorNode.parentElement===sp[10],sp.slice(10,13).reduce((n,x)=>n+x.textContent.length,0)]})()");
+  ok('synthetic drag selects less than 200 characters on a dense page', Array.isArray(geo) && dlen > 0 && dlen <= geo[3] + 8 && geo[0] === true && geo[1] === false && geo[2] === true, [dlen, geo]); // bound = text of the three spans the drag touches (font independent), far below the whole layer
+  // Zug über die Seitengrenze: von Mitte letzter Zeile Seite 1 in Zeile 3 von Seite 2 wählt nicht die ganze Seite 2
+  await ev("getSelection().removeAllRanges();viewer.scrollTop=0");
+  await sleep(300);
+  await ev("viewer.scrollTop+=S.pages[1].el.getBoundingClientRect().top-450");
+  await sleep(1500);
+  const xp = await ev("(()=>{const f=P=>[...P.tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()).map(s=>s.getBoundingClientRect().toJSON());const a=f(S.pages[0]),b=f(S.pages[1]);return [a[a.length-1],b[2]]})()");
+  const [xa, xb] = xp, xx1 = (xa.left + xa.right) / 2, xy1 = (xa.top + xa.bottom) / 2, xx2 = (xb.left + xb.right) / 2, xy2 = (xb.top + xb.bottom) / 2;
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: xx1, y: xy1, button: 'none', buttons: 0 });
+  await sleep(250);
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: xx1, y: xy1, button: 'left', buttons: 1, clickCount: 1 });
+  for (let i = 1; i <= 12; i++) { await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: xx1 + (xx2 - xx1) * i / 12, y: xy1 + (xy2 - xy1) * i / 12, button: 'left', buttons: 1 }); await sleep(20); }
+  await sleep(150);
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: xx2, y: xy2, button: 'left', buttons: 0, clickCount: 1 });
+  await sleep(100);
+  const xg = await ev("(()=>{const sp=[...S.pages[1].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.toString().length,s.containsNode(sp[sp.length-1],true),s.containsNode(sp[1],false),sp.reduce((n,x)=>n+x.textContent.length,0)]})()");
+  ok('Zug über die Seitengrenze wählt nicht die ganze nächste Seite', Array.isArray(xg) && xg[0] > 0 && xg[0] < xg[3] / 2 && xg[1] === false && xg[2] === true, xg);
+  // Selection bar: real double-click on a word shows #tsBar, Copy writes the word to the clipboard, Esc hides it
+  await ev("getSelection().removeAllRanges();viewer.scrollTop=0;setTool('select')");
+  await sleep(600);
+  const tw = await ev("(()=>{const s=[...S.pages[0].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim())[10].getBoundingClientRect();return [s.left+3,(s.top+s.bottom)/2,s.right-3]})()");
+  await cdp('Browser.grantPermissions', { permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'] });
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tw[0], y: tw[1], button: 'none', buttons: 0 });
+  await sleep(250);
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: tw[0], y: tw[1], button: 'left', buttons: 1, clickCount: 1 });
+  for (let i = 1; i <= 8; i++) { await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tw[0] + (tw[2] - tw[0]) * i / 8, y: tw[1], button: 'left', buttons: 1 }); await sleep(20); }
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: tw[2], y: tw[1], button: 'left', buttons: 0, clickCount: 1 });
+  await sleep(300);
+  const tb = await ev("(()=>{const b=$('#tsBar'),r=b.getBoundingClientRect(),q=getSelection().getRangeAt(0).getBoundingClientRect();return {vis:!b.hidden,role:b.getAttribute('role'),lbl:b.getAttribute('aria-label'),sel:String(getSelection()).trim(),inView:r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight,gap:Math.round(q.top-r.bottom)}})()");
+  ok('tsBar appears after a real drag selection', tb && tb.vis && tb.role === 'toolbar' && tb.lbl === 'Textauswahl' && tb.sel.length > 1 && tb.inView && tb.gap >= 0, tb);
+  const tc = await ev("(()=>{const b=$('#tsCopy').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()");
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tc[0], y: tc[1], button: 'none', buttons: 0 });
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: tc[0], y: tc[1], button: 'left', buttons: 1, clickCount: 1 });
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: tc[0], y: tc[1], button: 'left', buttons: 0, clickCount: 1 });
+  await sleep(300);
+  const tcp = await ev("(async()=>{let c='';try{c=await navigator.clipboard.readText()}catch(e){c='ERR '+e.message}return {c,sel:String(getSelection()).trim(),vis:!$('#tsBar').hidden}})()");
+  ok('tsBar Copy puts the selected text on the clipboard and keeps the selection', tcp && tcp.c.trim() === tb.sel && tcp.sel === tb.sel && tcp.vis, tcp);
+  await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  await sleep(200);
+  ok('tsBar hides on Esc', await ev("$('#tsBar').hidden"));
+  // Selection bar Highlight: one hl object with the selected word, one undo step, colour swatch, save + reopen
+  const mouse = async (type, x, y, buttons = 0, clickCount = 1) => cdp('Input.dispatchMouseEvent', { type, x, y, button: type === 'mouseMoved' && !buttons ? 'none' : 'left', buttons, clickCount });
+  const clickAt = async ([x, y]) => { await mouse('mouseMoved', x, y); await mouse('mousePressed', x, y, 1); await mouse('mouseReleased', x, y); await sleep(250); };
+  const dragWord = async k => {
+    await ev("getSelection().removeAllRanges();viewer.scrollTop=0;setTool('select')"); await sleep(400);
+    const w = await ev(`(()=>{const s=[...S.pages[0].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim())[${k}].getBoundingClientRect();return [s.left+3,(s.top+s.bottom)/2,s.right-3]})()`);
+    await mouse('mouseMoved', w[0], w[1]); await sleep(200); await mouse('mousePressed', w[0], w[1], 1);
+    for (let i = 1; i <= 8; i++) { await mouse('mouseMoved', w[0] + (w[2] - w[0]) * i / 8, w[1], 1); await sleep(20); }
+    await mouse('mouseReleased', w[2], w[1]); await sleep(300);
+  };
+  const hlN = () => ev("S.pages.reduce((n,P)=>n+P.objs.filter(o=>o.type==='hl').length,0)");
+  const btn = id => ev(`(()=>{const b=$('${id}').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()`);
+  await ev("(async()=>{await findIndex()})()");
+  const h0 = await hlN(), u0 = await ev('H.u.length');
+  await dragWord(10);
+  const w1 = await ev("String(getSelection()).trim()");
+  await clickAt(await btn('#tsHl'));
+  const h1 = await ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl');const o=l[l.length-1];return {n:l.length,t:o&&hlText(0,o),a:o&&o.alpha,c:o&&o.color,q:o&&o.q.length,hist:H.u.length,vis:!$('#tsBar').hidden,sel:String(getSelection()),dirty:S.dirty}})()");
+  ok('tsBar Highlight creates exactly one hl object with the selected word and hides the bar', h1 && await hlN() === h0 + 1 && h1.t === w1 && h1.a === .38 && h1.c === '#ffd60a' && h1.hist === u0 + 1 && !h1.vis && h1.sel === '' && h1.dirty, [w1, h1]);
+  await ev('undo()');
+  ok('Highlight from tsBar is undone in one step', await hlN() === h0 && await ev('H.u.length') === u0);
+  // Swatch click highlights the selection at once in that colour (one hl, pixel sampled), and the Highlight button then reuses it
+  const hlPix = () => ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl'),o=l[l.length-1];if(!o)return null;const k=S.pages[0].ink,z=S.zoom,sx=k.width/(k.getBoundingClientRect().width/z)/z,d=k.getContext('2d').getImageData(Math.round((o.x+o.w/2)*z*sx),Math.round((o.y+o.h/2)*z*sx),1,1).data;return [d[0],d[1],d[2],d[3]]})()");
+  const near = (p, c) => p && Math.abs(p[0] - parseInt(c.slice(1, 3), 16)) < 90 && Math.abs(p[1] - parseInt(c.slice(3, 5), 16)) < 90 && Math.abs(p[2] - parseInt(c.slice(5, 7), 16)) < 90 && p[3] > 0;
+  await dragWord(12);
+  await clickAt(await ev("(()=>{const b=$('#tsBar .tsw[data-c=\"#4ade80\"]').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()"));
+  const h2 = await ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl');return l[l.length-1].color})()");
+  const px2 = await hlPix();
+  ok('tsBar swatch click creates exactly one hl in that colour at once', h2 === '#4ade80' && await hlN() === h0 + 1 && await ev("$('#tsBar').hidden") && near(px2, '#4ade80'), [h2, px2]);
+  await dragWord(14);
+  await clickAt(await btn('#tsHl'));
+  const h2b = await ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl');return l[l.length-1].color})()");
+  ok('tsBar Highlight button after a swatch uses the remembered colour', h2b === '#4ade80' && await hlN() === h0 + 2, h2b);
+  await ev('undo()');
+  // Custom colour: window blur + collapsed selection between picker open and confirm must not lose the selection
+  await dragWord(16);
+  await ev("(()=>{const c=$('#tsColor');c.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));c.focus();window.dispatchEvent(new Event('blur'));getSelection().removeAllRanges();c.value='#ff0000';c.dispatchEvent(new Event('input',{bubbles:true}));c.dispatchEvent(new Event('change',{bubbles:true}))})()");
+  await sleep(250);
+  const px3 = await hlPix();
+  ok('tsBar custom colour survives blur and a collapsed selection: one hl in that colour', await hlN() === h0 + 2 && await ev("S.pages[0].objs.filter(o=>o.type==='hl').pop().color") === '#ff0000' && near(px3, '#ff0000'), px3);
+  await ev('undo()');
+  await ev("tsSetCol('#ffd60a')");
+  const rt = await ev("(async()=>{const q0=JSON.stringify(S.pages[0].objs.filter(o=>o.type==='hl').map(o=>o.q));await openPdf(await buildOutput(),'rt.pdf');const l=S.pages[0].objs.filter(o=>o.type==='hl');const same=JSON.stringify(l.map(o=>o.q))===q0&&l.length>=1;const o=l[l.length-1];const n=l.length;S.pages[0].objs=S.pages[0].objs.filter(x=>x!==o);return {same,n,c:o.color,left:S.pages[0].objs.filter(x=>x.type==='hl').length}})()", 60000);
+  ok('Saved highlight from tsBar reopens as editable hl object and can be deleted', rt && rt.same && rt.c === '#4ade80' && rt.left === rt.n - 1, rt);
+  await dragWord(14);
+  await key('Tab', 'Tab', 9); await sleep(150);
+  ok('tsBar: Tab from the page focuses the first bar button', await ev("document.activeElement&&document.activeElement.id==='tsHl'&&!$('#tsBar').hidden") === true);
+  await key('ArrowRight', 'ArrowRight', 39); await sleep(100);
+  ok('tsBar: ArrowRight moves to the next bar button', await ev("document.activeElement&&document.activeElement.id==='tsCopy'") === true);
+  await key('Escape', 'Escape', 27); await sleep(200);
+  ok('tsBar: Esc hides the bar and returns focus to the viewer', await ev("$('#tsBar').hidden&&document.activeElement===viewer") === true);
+  // A line taller than half the text layer (long line on a /Rotate 90 page) must still be highlighted
+  await ev("getSelection().removeAllRanges();viewer.scrollTop=0;setTool('select')"); await sleep(400);
+  await ev("(()=>{const t=S.pages[0].tl,s=document.createElement('span');s.id='tallProbe';s.textContent='TallProbe';s.style.cssText='position:absolute;left:10px;top:0;white-space:nowrap;line-height:1;font-size:'+Math.round(t.getBoundingClientRect().height*.6)+'px';t.insertBefore(s,t.firstChild);const r=document.createRange();r.selectNodeContents(s);const g=getSelection();g.removeAllRanges();g.addRange(r);tsShow()})()");
+  const tallN = await hlN();
+  await clickAt(await btn('#tsHl'));
+  ok('tsBar Highlight also works for a line taller than half the text layer', await hlN() === tallN + 1, [tallN, await hlN()]);
+  await ev("document.getElementById('tallProbe').remove();undo()");
+  const itR = await ev("(async()=>{const o={type:'text',x:72,y:400,text:'Kursivtest Suche',fs:18,color:'#1b1f24',orient:'h',lw:0,italic:true};S.pages[0].objs.push(o);redraw(0);const out=await buildOutput();const d=await pdfOpen(out.slice());const t=(await (await d.getPage(1)).getTextContent()).items.map(x=>x.str).join('|');S.pages[0].objs=S.pages[0].objs.filter(x=>x!==o);await openPdf(out,'it.pdf');const l=S.pages[0].objs.filter(x=>x.type==='text'&&x.text==='Kursivtest Suche');const r={t:/Kursivtest Suche/.test(t),n:l.length,it:l[0]&&l[0].italic===true};S.pages[0].objs=S.pages[0].objs.filter(x=>!l.includes(x));return r})()", 60000);
+  ok('Kursiv: gespeichert, durchsuchbar, wieder bearbeitbar', itR && itR.t && itR.n === 1 && itR.it === true, itR);
+  ok('Kursiv: txtCapture liest Schriftgröße aus kursiver Schrift', await ev("(()=>{const cv=document.createElement('canvas');cv.width=cv.height=200;const c=cv.getContext('2d');const T=txtCapture(c,1);drawText(c,{type:'text',x:5,y:5,text:'Abc',fs:14,color:'#000',orient:'h',italic:true,bold:true});T.stop();return T.runs.length===1&&T.runs[0].fs===14&&T.runs[0].t==='Abc'})()") === true);
+  ok('Hintergrund: sanObj nimmt Farben an, lehnt url(x) und Nicht-Strings ab', await ev("(()=>{const f=h=>sanObj({type:'text',x:1,y:1,text:'a',hbg:h});return f('#ffd60a').hbg==='#ffd60a'&&f('rgb(1,2,3)').hbg==='rgb(1,2,3)'&&!('hbg' in f('url(x)'))&&!('hbg' in f(5))&&!('hbg' in f(''))})()") === true);
+  ok('Hintergrund: Zeichnen füllt die Zeilen hinter dem Text (Pixelprobe), ohne Hintergrund bleibt es leer', await ev("(()=>{const px=(o)=>{const cv=document.createElement('canvas');cv.width=cv.height=200;const c=cv.getContext('2d');drawText(c,o);return[...c.getImageData(o.x+1,o.y+1,1,1).data]};const base={type:'text',x:20,y:20,text:'Hallo\\nWelt',fs:20,color:'#000000',orient:'h',lw:0};const a=px({...base,hbg:'#ffd60a'}),b=px(base);const v=px({...base,orient:'v',hbg:'#ffd60a'});return a.join()==='255,214,10,255'&&b[3]===0&&v.join()==='255,214,10,255'})()") === true);
+  ok('Hintergrund: ungültige Farbe zzz macht den Text nicht unsichtbar, sanObj entfernt sie, bei gestapeltem Text gibt es keinen Hintergrund', await ev("(()=>{const cv=document.createElement('canvas');cv.width=cv.height=100;const c=cv.getContext('2d');drawText(c,{type:'text',x:5,y:5,text:'HHH',fs:30,color:'#000000',orient:'h',lw:0,hbg:'zzz'});const d=c.getImageData(0,0,100,100).data;let dark=0;for(let i=3;i<d.length;i+=4)if(d[i]>200)dark++;const f=o=>sanObj({type:'text',x:1,y:1,text:'a',...o});return dark>50&&!('hbg' in f({hbg:'zzz'}))&&!('hbg' in f({hbg:'#ffd60a',orient:'stack'}))&&f({hbg:'#ffd60a'}).hbg==='#ffd60a'})()") === true);
+  ok('Hintergrund: Palette der Schriftfarbe und des Hintergrunds überlappen nie, Knopf bei gestapeltem Text gesperrt', await ev("(()=>{const n0=S.pages[0].objs.length;design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar'),pc=bar.querySelector('[data-a=col]').parentNode.querySelector('.edpal'),pb=bar.querySelector('.edbgp');bar.querySelector('[data-a=col]').click();bar.querySelector('[data-a=bg]').click();const a=pc.hidden||!!pc._ah;const b=!pb.hidden;bar.querySelector('[data-a=col]').click();const c=pb.hidden||!!pb._ah;ED.o.orient='stack';ED.set({});const d=bar.querySelector('[data-a=bg]').disabled;closeEditor();S.pages[0].objs.length=n0;return a&&b&&c&&d})()") === true);
+  ok('Hintergrund: Knopf, Farbfeld, Keine, Rückgängig und Esc; Palette der Schriftfarbe bleibt unabhängig', await ev("(()=>{const n0=S.pages[0].objs.length;design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar'),bt=bar.querySelector('[data-a=bg]');bt.click();const open=!bar.querySelectorAll('.edpal')[1].hidden||!bar.querySelector('.edbgp').hidden;const sw=bar.querySelector('.edbgp .edsw[data-c=\"#ffd60a\"]');sw.click();const a=ED.o.hbg==='#ffd60a'&&sw.getAttribute('aria-pressed')==='true'&&ED.o.color===S.color;bar.querySelector('.edbgp .edsw-none').click();const b=!('hbg' in ED.o);const colOk=bar.querySelector('.edpal:not(.edbgp)').querySelectorAll('.edsw').length===8;closeEditor();S.pages[0].objs.length=n0;return open&&a&&b&&colOk})()") === true);
+  const bgR = await ev("(async()=>{const o={type:'text',x:72,y:430,text:'Hintergrundtest',fs:18,color:'#1b1f24',orient:'h',lw:0,italic:true,hbg:'#ffd60a'};S.pages[0].objs.push(o);redraw(0);const out=await buildOutput();const d=await pdfOpen(out.slice());const pg=await d.getPage(1);const vp=pg.getViewport({scale:1});const cv=document.createElement('canvas');cv.width=Math.ceil(vp.width);cv.height=Math.ceil(vp.height);await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;const pxl=(x,y)=>[...cv.getContext('2d').getImageData(x,y,1,1).data];const pdfPx=pxl(72+2,430+2);S.pages[0].objs=S.pages[0].objs.filter(x=>x!==o);await openPdf(out,'bg.pdf');const l=S.pages[0].objs.filter(x=>x.type==='text'&&x.text==='Hintergrundtest');const r={pdfPx,n:l.length,hbg:l[0]&&l[0].hbg,it:l[0]&&l[0].italic};const cv2=document.createElement('canvas');cv2.width=cv2.height=600;if(l[0]){const c2=cv2.getContext('2d');drawText(c2,l[0]);r.objPx=[...c2.getImageData(l[0].x+2,l[0].y+2,1,1).data]}S.pages[0].objs=S.pages[0].objs.filter(x=>!l.includes(x));return r})()", 60000);
+  ok('Hintergrund: gespeichert und neu geöffnet: Gelb sichtbar, Objekt bearbeitbar mit Kursiv und Hintergrund', bgR && bgR.n === 1 && bgR.hbg === '#ffd60a' && bgR.it === true && bgR.objPx && bgR.objPx.join() === '255,214,10,255' && Math.abs(bgR.pdfPx[0] - 255) < 6 && Math.abs(bgR.pdfPx[1] - 214) < 6 && bgR.pdfPx[2] < 20, bgR);
+  // Topology templates: every device carries its own editable label; a device wins over a line crossing its caption
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  await ev(`window.tpPt=o=>{const s=SYM[o.sym],fs=o.fs||11;return[o.x+o.w/2,s.below?o.y+o.h+2+fs*.7:o.y+o.h/2]};
+  window.tpScr=p=>{const P=S.pages[0];P.el.scrollIntoView({block:'start'});viewer.scrollTop+=P.el.getBoundingClientRect().top+p[1]*S.zoom-450;const r=P.el.getBoundingClientRect();return[r.left+p[0]*S.zoom,r.top+p[1]*S.zoom]};
+  window.tpSet=objs=>{const P=S.pages[0];P.objs.length=0;P.objs.push(...objs);setTool('select');redraw(0);return objs.length};
+  window.tpEsc=()=>{closeEditor();setSel(null)}`);
+  const tpDbl = async o => { const p = await ev(`tpScr(tpPt(S.pages[0].objs[${o}]))`); await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p[0], y: p[1], button: 'none', buttons: 0 }); await sleep(60);
+    for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n }); await sleep(150); };
+  const tpSave = await ev("(window.tpOld=S.pages[0].objs.slice(),1)");
+  const tpKeys = await ev('TOPO_TPL.map(t=>t.k)');
+  ok('Topologien: five templates (star, ring, bus, tree, mesh) shown in fillSym', JSON.stringify(tpKeys) === '["topo_star","topo_ring","topo_bus","topo_tree","topo_mesh"]' && await ev("(()=>{const o=S.cat;S.cat='Topologien';buildCats();const n=document.querySelectorAll('#symgrid .sym.tpl').length,s=document.querySelectorAll('#symgrid .sym:not(.tpl)').length;S.cat='Netzwerk';buildCats();const m=document.querySelectorAll('#symgrid .sym.tpl').length;S.cat=o;buildCats();return n===5&&s>=8&&m===5})()") === true);
+  for (const k of tpKeys) {
+    await ev(`tpSet(orgFit(TOPO_TPL.find(t=>t.k==='${k}').b(),S.pages[0],40,1.5))`); await sleep(200);
+    const idx = await ev("S.pages[0].objs.map((o,i)=>o.type==='sym'&&o.label?i:-1).filter(i=>i>=0)");
+    let good = 0;
+    for (const i of idx) { await tpDbl(i); if (await ev(`!!editorEl&&editingObj===S.pages[0].objs[${i}]`) === true) good++; await ev('tpEsc()'); await sleep(80); }
+    ok(`Topologien ${k}: all ${idx.length} labelled devices open the label editor by double-click`, idx.length >= 5 && good === idx.length, { n: idx.length, good });
+  }
+  ok('Topologien: Bus has one long backbone with four drop lines docked to it', await ev("(()=>{const o=TOPO_TPL.find(t=>t.k==='topo_bus').b(),bb=o.find(x=>x.sym==='hub'),ls=o.filter(x=>x.type==='line');return bb.w>=400&&ls.length===4&&ls.every(l=>l.link.a===bb.oid||l.link.b===bb.oid)})()") === true);
+  await ev(`tpSet(orgFit(TOPO_TPL[0].b(),S.pages[0],40,1.5))`); await sleep(200);
+  await tpDbl(0); await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await ev('tpEsc()'); await sleep(100);
+  ok('Topologien: typing into a device label is saved in the object', await ev("S.pages[0].objs[0].label.endsWith('Z')") === true, await ev('S.pages[0].objs[0].label'));
+  // priority: a docked line across a device caption must not steal the double-click; free lines and label-less symbols keep their own editing
+  const mkRect = "const R=(id,x,y)=>({type:'rect',oid:id,x,y,w:30,h:20,color:'#1b2a3a',lw:1,fill:'none',dash:false});const L=(a,b,y,x1,x2,extra)=>Object.assign({type:'line',x1,y1:y,x2,y2:y,color:'#1b2a3a',lw:1.2,dash:false,elbow:false,start:'none',end:'none'},extra||{});";
+  const dblAt = async pt => { const p = await ev(`tpScr(${JSON.stringify(pt)})`); await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p[0], y: p[1], button: 'none', buttons: 0 }); await sleep(60);
+    for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n }); await sleep(150); };
+  const nObj = await ev('S.pages[0].objs.length');
+  const cut = () => ev(`(S.pages[0].objs.length=${nObj},redraw(0),1)`);
+  await ev(`(()=>{${mkRect}const P=S.pages[0],d=P.objs[0],p=tpPt(d);P.objs.push(R('tA',d.x-80,p[1]-10),R('tB',d.x+d.w+50,p[1]-10),L(0,0,p[1],0,0,{link:{a:'tA',b:'tB'}}));redraw(0)})()`);
+  await tpDbl(0);
+  ok('Topologien: double-click on a device caption crossed by a docked line edits the device label', await ev('!!editorEl&&editingObj===S.pages[0].objs[0]') === true);
+  await ev('tpEsc()'); await cut();
+  await ev(`(()=>{${mkRect}const P=S.pages[0],d=P.objs[0],p=tpPt(d);P.objs.push(L(0,0,p[1],d.x-30,d.x+d.w+30,{label:'Notiz',end:'arrow'}));redraw(0)})()`);
+  await tpDbl(0);
+  ok('Topologien: a free arrow with its own label over a device still edits the arrow label', await ev('!!editorEl&&editingObj===S.pages[0].objs[S.pages[0].objs.length-1]') === true);
+  await ev('tpEsc()'); await cut();
+  await ev(`(()=>{${mkRect}const P=S.pages[0],q={type:'sym',sym:'question',label:'?',x:10,y:10,w:20,h:20,color:'#1b2a3a',lw:1.2,fill:'none',fs:11};P.objs.push(q,R('qA',-60,12),R('qB',70,12),L(0,0,20,0,0,{link:{a:'qA',b:'qB'}}));redraw(0)})()`);
+  await dblAt(await ev('[20,20]'));
+  ok('Topologien: a docked line crossing a question mark is still editable', await ev('!!editorEl&&editingObj===S.pages[0].objs[S.pages[0].objs.length-1]&&editingObj.type===\'line\'') === true);
+  await ev('tpEsc()'); await cut();
+  await ev(`(()=>{${mkRect}const P=S.pages[0],d=P.objs[0],p=tpPt(d);P.objs.push(L(0,0,p[1],d.x-30,d.x+d.w+30))})()`);
+  const lp = await ev("(()=>{const P=S.pages[0],d=P.objs[0],l=P.objs[P.objs.length-1];return[d.x-20,l.y1]})()");
+  await dblAt(lp);
+  ok('Topologien: double-click on the line itself still edits the line label', await ev('!!editorEl&&editingObj===S.pages[0].objs[S.pages[0].objs.length-1]') === true);
+  await ev('tpEsc()');
+  await ev("(S.pages[0].objs.length=0,S.pages[0].objs.push(...window.tpOld),redraw(0),1)");
+  // Sheet colour: the rendered sheet pixel must match the chosen option, in both app themes, with page night mode off, and after reload
+  {
+    const sheetPx = async () => {
+      const r = await ev("(()=>{const b=document.querySelector('.page').getBoundingClientRect();return [Math.round(b.left+12),Math.round(b.top+12)]})()");
+      const shot = await cdp('Page.captureScreenshot', { format: 'png' });
+      return ev(`(async()=>{const bin=atob("${shot.result.data}");const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const bm=await createImageBitmap(new Blob([u]));const c=document.createElement('canvas');c.width=bm.width;c.height=bm.height;const x=c.getContext('2d');x.drawImage(bm,0,0);return Array.from(x.getImageData(${r[0]},${r[1]},1,1).data).slice(0,3)})()`);
+    };
+    const lum = p => (p[0] + p[1] + p[2]) / 3;
+    const want = { white: p => lum(p) > 235, paper: p => lum(p) > 225 && p[2] < p[0], gray: p => lum(p) > 225 && p[2] > p[0], mint: p => lum(p) > 225 && p[1] > p[0], night: p => lum(p) < 60 };
+    await ev("(document.documentElement.classList.remove('night'),1)");
+    for (const theme of ['light', 'dark']) {
+      await ev(`document.querySelector('#dTheme [data-v=${theme}]').click()`);
+      for (const v of Object.keys(want)) {
+        await ev(`document.querySelector('#dSheet [data-v=${v}]').click()`); await sleep(400);
+        const px = await sheetPx();
+        ok(`Sheet colour "${v}" matches its label (${theme} app)`, want[v](px) && await ev(`document.querySelector('#dSheet [aria-pressed=true]').dataset.v==='${v}'`) === true, px);
+      }
+    }
+    // page night mode on: sheet "Nacht" must stay dark (was inverted twice = light)
+    await ev("(document.documentElement.classList.add('night'),1)"); await sleep(300);
+    await ev("document.querySelector('#dSheet [data-v=night]').click()"); await sleep(400);
+    const npx = await sheetPx();
+    ok('Sheet colour "night" stays dark with page night mode on', lum(npx) < 60, npx);
+    await ev("(document.documentElement.classList.remove('night'),1)");
+    // persistence after reload (startup path)
+    await ev("document.querySelector('#dSheet [data-v=paper]').click()");
+    await ev('location.reload()'); await sleep(2500);
+    for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof openPdf==='function'&&typeof PDFLib==='object'") === true) break; await sleep(500); }
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'sheet.pdf');return 1})()"); await sleep(1200);
+    const rpx = await sheetPx();
+    ok('Sheet colour persists after reload', want.paper(rpx) && await ev("document.querySelector('#dSheet [aria-pressed=true]').dataset.v==='paper'") === true, rpx);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
