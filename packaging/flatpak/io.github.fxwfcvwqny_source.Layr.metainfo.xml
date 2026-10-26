@@ -41,10 +41,9 @@
     <mediatype>application/pdf</mediatype>
   </provides>
   <content_rating type="oars-1.1"/>
-  <!-- (prüfen): tag v3.8.8 must exist before the screenshot URL resolves -->
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/fxwfcvwqny-source/Layr/v3.8.8/docs/screenshot.png</image>
+      <image>https://raw.githubusercontent.com/fxwfcvwqny-source/Layr/v3.9.0/docs/screenshot.png</image>
     </screenshot>
   </screenshots>
   <releases>
