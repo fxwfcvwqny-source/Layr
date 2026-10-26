@@ -411,8 +411,8 @@ else {
   await sleep(150);
   const dlen = await ev("getSelection().toString().length");
   await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: dtl.right - 20, y: dy2, button: 'left', buttons: 0, clickCount: 1 });
-  const geo = await ev("(()=>{const sp=[...document.querySelector('.textLayer').querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.containsNode(sp[11],false),s.containsNode(sp[13],true),s.anchorNode&&s.anchorNode.parentElement===sp[10]]})()");
-  ok('synthetic drag selects less than 200 characters on a dense page', dlen > 0 && dlen < 200 && Array.isArray(geo) && geo[0] === true && geo[1] === false && geo[2] === true, [dlen, geo]);
+  const geo = await ev("(()=>{const sp=[...document.querySelector('.textLayer').querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.containsNode(sp[11],false),s.containsNode(sp[13],true),s.anchorNode&&s.anchorNode.parentElement===sp[10],sp.slice(10,13).reduce((n,x)=>n+x.textContent.length,0)]})()");
+  ok('synthetic drag selects less than 200 characters on a dense page', Array.isArray(geo) && dlen > 0 && dlen <= geo[3] + 8 && geo[0] === true && geo[1] === false && geo[2] === true, [dlen, geo]); // bound = text of the three spans the drag touches (font independent), far below the whole layer
   // Zug über die Seitengrenze: von Mitte letzter Zeile Seite 1 in Zeile 3 von Seite 2 wählt nicht die ganze Seite 2
   await ev("getSelection().removeAllRanges();viewer.scrollTop=0");
   await sleep(300);
@@ -427,8 +427,8 @@ else {
   await sleep(150);
   await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: xx2, y: xy2, button: 'left', buttons: 0, clickCount: 1 });
   await sleep(100);
-  const xg = await ev("(()=>{const sp=[...S.pages[1].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.toString().length,s.containsNode(sp[sp.length-1],true),s.containsNode(sp[1],false)]})()");
-  ok('Zug über die Seitengrenze wählt nicht die ganze nächste Seite', Array.isArray(xg) && xg[0] > 0 && xg[0] < 1000 && xg[1] === false && xg[2] === true, xg);
+  const xg = await ev("(()=>{const sp=[...S.pages[1].tl.querySelectorAll('span')].filter(s=>!s.classList.contains('markedContent')&&s.textContent.trim()),s=getSelection();return [s.toString().length,s.containsNode(sp[sp.length-1],true),s.containsNode(sp[1],false),sp.reduce((n,x)=>n+x.textContent.length,0)]})()");
+  ok('Zug über die Seitengrenze wählt nicht die ganze nächste Seite', Array.isArray(xg) && xg[0] > 0 && xg[0] < xg[3] / 2 && xg[1] === false && xg[2] === true, xg);
   // Selection bar: real double-click on a word shows #tsBar, Copy writes the word to the clipboard, Esc hides it
   await ev("getSelection().removeAllRanges();viewer.scrollTop=0;setTool('select')");
   await sleep(600);
