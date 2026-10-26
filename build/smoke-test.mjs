@@ -491,6 +491,40 @@ else {
   ok('Hintergrund: Knopf, Farbfeld, Keine, Rückgängig und Esc; Palette der Schriftfarbe bleibt unabhängig', await ev("(()=>{const n0=S.pages[0].objs.length;design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar'),bt=bar.querySelector('[data-a=bg]');bt.click();const open=!bar.querySelectorAll('.edpal')[1].hidden||!bar.querySelector('.edbgp').hidden;const sw=bar.querySelector('.edbgp .edsw[data-c=\"#ffd60a\"]');sw.click();const a=ED.o.hbg==='#ffd60a'&&sw.getAttribute('aria-pressed')==='true'&&ED.o.color===S.color;bar.querySelector('.edbgp .edsw-none').click();const b=!('hbg' in ED.o);const colOk=bar.querySelector('.edpal:not(.edbgp)').querySelectorAll('.edsw').length===8;closeEditor();S.pages[0].objs.length=n0;return open&&a&&b&&colOk})()") === true);
   const bgR = await ev("(async()=>{const o={type:'text',x:72,y:430,text:'Hintergrundtest',fs:18,color:'#1b1f24',orient:'h',lw:0,italic:true,hbg:'#ffd60a'};S.pages[0].objs.push(o);redraw(0);const out=await buildOutput();const d=await pdfOpen(out.slice());const pg=await d.getPage(1);const vp=pg.getViewport({scale:1});const cv=document.createElement('canvas');cv.width=Math.ceil(vp.width);cv.height=Math.ceil(vp.height);await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;const pxl=(x,y)=>[...cv.getContext('2d').getImageData(x,y,1,1).data];const pdfPx=pxl(72+2,430+2);S.pages[0].objs=S.pages[0].objs.filter(x=>x!==o);await openPdf(out,'bg.pdf');const l=S.pages[0].objs.filter(x=>x.type==='text'&&x.text==='Hintergrundtest');const r={pdfPx,n:l.length,hbg:l[0]&&l[0].hbg,it:l[0]&&l[0].italic};const cv2=document.createElement('canvas');cv2.width=cv2.height=600;if(l[0]){const c2=cv2.getContext('2d');drawText(c2,l[0]);r.objPx=[...c2.getImageData(l[0].x+2,l[0].y+2,1,1).data]}S.pages[0].objs=S.pages[0].objs.filter(x=>!l.includes(x));return r})()", 60000);
   ok('Hintergrund: gespeichert und neu geöffnet: Gelb sichtbar, Objekt bearbeitbar mit Kursiv und Hintergrund', bgR && bgR.n === 1 && bgR.hbg === '#ffd60a' && bgR.it === true && bgR.objPx && bgR.objPx.join() === '255,214,10,255' && Math.abs(bgR.pdfPx[0] - 255) < 6 && Math.abs(bgR.pdfPx[1] - 214) < 6 && bgR.pdfPx[2] < 20, bgR);
+  // Topology templates: every device carries its own editable label; a device wins over a line crossing its caption
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  await ev(`window.tpPt=o=>{const s=SYM[o.sym],fs=o.fs||11;return[o.x+o.w/2,s.below?o.y+o.h+2+fs*.7:o.y+o.h/2]};
+  window.tpScr=p=>{const P=S.pages[0];P.el.scrollIntoView({block:'start'});viewer.scrollTop+=P.el.getBoundingClientRect().top+p[1]*S.zoom-450;const r=P.el.getBoundingClientRect();return[r.left+p[0]*S.zoom,r.top+p[1]*S.zoom]};
+  window.tpSet=objs=>{const P=S.pages[0];P.objs.length=0;P.objs.push(...objs);setTool('select');redraw(0);return objs.length};
+  window.tpEsc=()=>{closeEditor();setSel(null)}`);
+  const tpDbl = async o => { const p = await ev(`tpScr(tpPt(S.pages[0].objs[${o}]))`); await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p[0], y: p[1], button: 'none', buttons: 0 }); await sleep(60);
+    for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n }); await sleep(150); };
+  const tpSave = await ev("(window.tpOld=S.pages[0].objs.slice(),1)");
+  const tpKeys = await ev('TOPO_TPL.map(t=>t.k)');
+  ok('Topologien: five templates (star, ring, bus, tree, mesh) shown in fillSym', JSON.stringify(tpKeys) === '["topo_star","topo_ring","topo_bus","topo_tree","topo_mesh"]' && await ev("(()=>{const o=S.cat;S.cat='Topologien';buildCats();const n=document.querySelectorAll('#symgrid .sym.tpl').length,s=document.querySelectorAll('#symgrid .sym:not(.tpl)').length;S.cat='Netzwerk';buildCats();const m=document.querySelectorAll('#symgrid .sym.tpl').length;S.cat=o;buildCats();return n===5&&s>=8&&m===5})()") === true);
+  for (const k of tpKeys) {
+    await ev(`tpSet(orgFit(TOPO_TPL.find(t=>t.k==='${k}').b(),S.pages[0],40,1.5))`); await sleep(200);
+    const idx = await ev("S.pages[0].objs.map((o,i)=>o.type==='sym'&&o.label?i:-1).filter(i=>i>=0)");
+    let good = 0;
+    for (const i of idx) { await tpDbl(i); if (await ev(`!!editorEl&&editingObj===S.pages[0].objs[${i}]`) === true) good++; await ev('tpEsc()'); await sleep(80); }
+    ok(`Topologien ${k}: all ${idx.length} labelled devices open the label editor by double-click`, idx.length >= 5 && good === idx.length, { n: idx.length, good });
+  }
+  await ev(`tpSet(orgFit(TOPO_TPL[0].b(),S.pages[0],40,1.5))`); await sleep(200);
+  await tpDbl(0); await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await ev('tpEsc()'); await sleep(100);
+  ok('Topologien: typing into a device label is saved in the object', await ev("S.pages[0].objs[0].label.endsWith('Z')") === true, await ev('S.pages[0].objs[0].label'));
+  // priority: an unlinked line across a device caption must not steal the double-click; the line itself still edits the line label
+  await ev(`(()=>{const P=S.pages[0],d=P.objs[0],p=tpPt(d);P.objs.push({type:'line',x1:d.x-30,y1:p[1],x2:d.x+d.w+30,y2:p[1],color:'#1b2a3a',lw:1.2,dash:false,elbow:false,start:'none',end:'none'});redraw(0)})()`);
+  await tpDbl(0);
+  ok('Topologien: double-click on a device caption crossed by a line edits the device label', await ev('!!editorEl&&editingObj===S.pages[0].objs[0]') === true);
+  await ev('tpEsc()');
+  const lp = await ev("(()=>{const P=S.pages[0],d=P.objs[0],l=P.objs[P.objs.length-1];return[d.x-20,l.y1]})()");
+  const lsp = await ev(`tpScr([${lp[0]},${lp[1]}])`);
+  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: lsp[0], y: lsp[1], button: 'none', buttons: 0 }); await sleep(60);
+  for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: lsp[0], y: lsp[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n });
+  await sleep(150);
+  ok('Topologien: double-click on the line itself still edits the line label', await ev('!!editorEl&&editingObj===S.pages[0].objs[S.pages[0].objs.length-1]') === true);
+  await ev('tpEsc()');
+  await ev("(S.pages[0].objs.length=0,S.pages[0].objs.push(...window.tpOld),redraw(0),1)");
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

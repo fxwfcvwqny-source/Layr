@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-dqDonDz3GAwqP9C+k99n8klkplQquvsgX6Wt8xsJDT4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-zVcWO3RnpNht18/QfeGJSRhGmJdU16C8/ogBhA3wZl8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2267,7 +2267,7 @@ const I18N_EN={
 'Geräte':'Devices','Kleines Büro':'Small office','Firma mit DMZ':'Company with DMZ','VLAN-Aufbau':'VLAN setup','Heimnetz':'Home network','Schulnetz (Stern)':'School network (star)',
 'Firewall extern':'External firewall','Firewall intern':'Internal firewall','Core-Switch':'Core switch','Fileserver':'File server','L3-Switch':'L3 switch','Routing zwischen VLANs':'Routing between VLANs',
 'Switch Etage 1':'Switch floor 1','Switch Etage 2':'Switch floor 2','VLAN 10 · Verwaltung · 192.168.10.0/24':'VLAN 10 · Office · 192.168.10.0/24','VLAN 20 · Technik · 192.168.20.0/24':'VLAN 20 · Engineering · 192.168.20.0/24',
-'Router mit WLAN':'Router with Wi-Fi','Switch Raum 101':'Switch room 101','Switch Raum 102':'Switch room 102','Switch Raum 103':'Switch room 103','DHCP':'DHCP',
+'Router mit WLAN':'Router with Wi-Fi','Vermascht':'Meshed','Switch Raum 101':'Switch room 101','Switch Raum 102':'Switch room 102','Switch Raum 103':'Switch room 103','DHCP':'DHCP',
 'Subnetzrechner':'Subnet calculator','IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.':'Calculate IPv4 networks: network address, broadcast, hosts, subnetting and VLSM. Put the result on the sheet as a table.',
 'IP-Adresse mit Präfix oder Maske':'IP address with prefix or mask','Netz-Info':'Network info','In Subnetze teilen':'Split into subnets','VLSM':'VLSM','Anzahl Subnetze':'Number of subnets',
 'Benötigte Hosts je Subnetz (mit Komma getrennt)':'Required hosts per subnet (comma-separated)','Kopieren':'Copy','Als Tabelle aufs Blatt':'Put on sheet as table',
@@ -3337,6 +3337,25 @@ def('question','Markierung','Frage',20,20,'?',(c,o,x,y,w,h)=>{c.beginPath();c.el
 def('exclam','Markierung','Wichtig',22,20,'',(c,o,x,y,w,h)=>{poly(c,[[x+w/2,y],[x+w,y+h],[x,y+h]]);fillStroke(c,o);c.save();c.fillStyle=o.color;c.font=`700 ${h*.6}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText('!',x+w/2,y+h*.64);c.restore()});
 def('star','Markierung','Stern',22,22,'',(c,o,x,y,w,h)=>{const p=[];for(let i=0;i<10;i++){const r=i%2?.4:1,a=-Math.PI/2+i*Math.PI/5;p.push([x+w/2+Math.cos(a)*w/2*r,y+h/2+h*.04+Math.sin(a)*h/2*r])}poly(c,p);c.fill()});
 def('num','Markierung','Nummer (zählt hoch)',20,20,'1',(c,o,x,y,w,h)=>{c.beginPath();c.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7);c.fill();c.save();c.fillStyle='#fff';c.font=`600 ${h*.6}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(o.label,x+w/2,y+h*.54);c.restore()});
+/* Topologie-Vorlagen: echte Einzelgeräte mit eigener Beschriftung und angedockten Linien. Bewusst nach dem letzten def(),
+   damit die Symbolbibliothek (Altdokumente) unverändert bleibt; NET_TPL.push, damit insertOrgTemplate sie ohne Änderung findet. */
+const TOPO_TPL=(()=>{
+  const at=(M,s,l,cx,cy)=>{const d=SYM[s];return M.add(s,l,cx-d.w/2,cy-d.h/2)};
+  const ringAt=(n,cx,cy,rx,ry)=>Array.from({length:n},(_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+rx*Math.cos(a),cy+ry*Math.sin(a)]});
+  return[
+  {k:'topo_star',n:'Stern',topo:1,max:1.5,b:()=>{const M=netMk(),c=at(M,'switch','Switch',300,200);
+    ringAt(6,300,200,230,150).forEach(([x,y],i)=>M.ln(c,at(M,['server','pc','pc','laptop','printer','nas'][i],['Server','PC 1','PC 2','Laptop','Drucker','NAS'][i],x,y)));return M.o}},
+  {k:'topo_ring',n:'Ring',topo:1,max:1.5,b:()=>{const M=netMk(),N=ringAt(6,300,200,230,150).map(([x,y],i)=>at(M,['pc','pc','laptop','server','pc','printer'][i],['Station 1','Station 2','Station 3','Server','Station 4','Drucker'][i],x,y));
+    N.forEach((n,i)=>M.ln(n,N[(i+1)%N.length]));return M.o}},
+  {k:'topo_bus',n:'Bus',topo:1,max:1.5,b:()=>{const M=netMk(),H=[0,1,2,3].map(i=>at(M,'hub','Hub '+(i+1),70+i*160,150));
+    H.forEach((h,i)=>{if(i)M.ln(H[i-1],h);const up=i%2===0;M.ln(h,at(M,['pc','server','laptop','printer'][i],['PC 1','Server','Laptop','Drucker'][i],70+i*160,up?30:290))});return M.o}},
+  {k:'topo_tree',n:'Baum',topo:1,max:1.5,b:()=>{const M=netMk(),r=at(M,'router','Router',300,20),
+    S2=[[130,150,'Switch 1'],[470,150,'Switch 2']].map(([x,y,l])=>{const s=at(M,'switch',l,x,y);M.ln(r,s);return s});
+    [[40,'PC 1'],[220,'PC 2'],[380,'PC 3'],[560,'PC 4']].forEach(([x,l],i)=>M.ln(S2[i>>1],at(M,'pc',l,x,290)));return M.o}},
+  {k:'topo_mesh',n:'Vermascht',topo:1,max:1.5,b:()=>{const M=netMk(),N=ringAt(5,300,200,220,150).map(([x,y],i)=>at(M,'router','Router '+'ABCDE'[i],x,y));
+    for(let i=0;i<5;i++)for(let j=i+1;j<5;j++)M.ln(N[i],N[j]);return M.o}},
+  ]})();
+NET_TPL.push(...TOPO_TPL);
 
 /* ---------- Objekte zeichnen ---------- */
 const mctx=document.createElement('canvas').getContext('2d');
@@ -4331,7 +4350,9 @@ function attachInk(P,i){
   ink.addEventListener('dblclick',e=>{
     if(!['select','rect','ellipse','table','symbol'].includes(S.tool))return;const[x,y]=toPt(e.clientX,e.clientY);
     if(S.sel&&S.sel.p===i&&rotOf(S.sel.o)&&handleAt(S.sel.o,x,y,6/S.zoom)==='rot'){pushHist();delete S.sel.o.rot;textClamp(S.sel.o,P,false);redraw(i);markDirty();return}
-    const o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o)return;
+    let o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o)return;
+    // a device's own box or caption wins over a docked line crossing it (the line itself still edits the line label)
+    if(o.type==='line'){const sy=[...P.objs].reverse().find(q=>q.type==='sym'&&q.label&&SYM[q.sym]&&!SYM[q.sym].frame&&!q.locked&&x>=q.x-4&&x<=q.x+q.w+4&&y>=q.y&&y<=q.y+q.h+(SYM[q.sym].below&&q.label?(q.fs||11)*1.3*String(q.label).split('\n').length+3:0));if(sy)o=sy}
     if(o.type==='table'){const rc=tblCell(o,x,y);if(rc)editCell(i,o,rc[0],rc[1])}else if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&!['start','end','flowend','fork','activation','timer','check','cross','star','exclam','question'].includes(o.sym))editLabel(i,o);else if(o.type==='line')editLineLabel(i,o);
   });
 }
@@ -4688,7 +4709,7 @@ function fillSym(sel,grid,after){
   sel.innerHTML='';for(const c of CATS){const op=document.createElement('option');op.value=c;op.textContent=c+' ('+Object.values(SYM).filter(s=>s.cat===c).length+')';sel.appendChild(op)}
   sel.value=S.cat;sel.onchange=()=>{S.cat=sel.value;buildCats()};
   grid.innerHTML='';if(S.cat==='Formen')symTableBtn(grid,after);
-  const TPLS=S.cat==='Organigramm'?ORG_TPL:S.cat==='Netzwerk'?NET_TPL:null;
+  const TPLS=S.cat==='Organigramm'?ORG_TPL:S.cat==='Netzwerk'?NET_TPL.filter(t=>!t.topo):S.cat==='Topologien'?TOPO_TPL:null;
   if(TPLS){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
     for(const t of TPLS){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
       b.onclick=()=>{insertOrgTemplate(t.k);after&&after()};grid.appendChild(b)}
