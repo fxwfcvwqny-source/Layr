@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-oZ7EtZDyOxQ++zf7woxo3n/goDIc+YbHjMjkfY7Hx8s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ziBMc69iTp/6kPXCIV4ONCKNp4F0P4hlQ0MKE7xr4DU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3350,8 +3350,8 @@ const TOPO_TPL=(()=>{
     ringAt(6,300,200,230,150).forEach(([x,y],i)=>M.ln(c,at(M,['server','pc','pc','laptop','printer','nas'][i],['Server','PC 1','PC 2','Laptop','Drucker','NAS'][i],x,y)));return M.o}},
   {k:'topo_ring',n:'Ring',topo:1,max:1.5,b:()=>{const M=netMk(),N=ringAt(6,300,200,230,150).map(([x,y],i)=>at(M,['pc','pc','laptop','server','pc','printer'][i],['Station 1','Station 2','Station 3','Server','Station 4','Drucker'][i],x,y));
     N.forEach((n,i)=>M.ln(n,N[(i+1)%N.length]));return M.o}},
-  {k:'topo_bus',n:'Bus',topo:1,max:1.5,b:()=>{const M=netMk(),H=[0,1,2,3].map(i=>at(M,'hub','Hub '+(i+1),70+i*160,150));
-    H.forEach((h,i)=>{if(i)M.ln(H[i-1],h);const up=i%2===0;M.ln(h,at(M,['pc','server','laptop','printer'][i],['PC 1','Server','Laptop','Drucker'][i],70+i*160,up?30:290))});return M.o}},
+  {k:'topo_bus',n:'Bus',topo:1,max:1.5,b:()=>{const M=netMk(),bb=M.add('hub','Bus',40,200,520,16);
+    [['pc','PC 1'],['server','Server'],['laptop','Laptop'],['printer','Drucker']].forEach(([s,l],i)=>M.ln(bb,at(M,s,l,40+520*(i+1)/5,60)));return M.o}},
   {k:'topo_tree',n:'Baum',topo:1,max:1.5,b:()=>{const M=netMk(),r=at(M,'router','Router',300,20),
     S2=[[130,150,'Switch 1'],[470,150,'Switch 2']].map(([x,y,l])=>{const s=at(M,'switch',l,x,y);M.ln(r,s);return s});
     [[40,'PC 1'],[220,'PC 2'],[380,'PC 3'],[560,'PC 4']].forEach(([x,l],i)=>M.ln(S2[i>>1],at(M,'pc',l,x,290)));return M.o}},

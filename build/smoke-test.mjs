@@ -517,6 +517,7 @@ else {
     for (const i of idx) { await tpDbl(i); if (await ev(`!!editorEl&&editingObj===S.pages[0].objs[${i}]`) === true) good++; await ev('tpEsc()'); await sleep(80); }
     ok(`Topologien ${k}: all ${idx.length} labelled devices open the label editor by double-click`, idx.length >= 5 && good === idx.length, { n: idx.length, good });
   }
+  ok('Topologien: Bus has one long backbone with four drop lines docked to it', await ev("(()=>{const o=TOPO_TPL.find(t=>t.k==='topo_bus').b(),bb=o.find(x=>x.sym==='hub'),ls=o.filter(x=>x.type==='line');return bb.w>=400&&ls.length===4&&ls.every(l=>l.link.a===bb.oid||l.link.b===bb.oid)})()") === true);
   await ev(`tpSet(orgFit(TOPO_TPL[0].b(),S.pages[0],40,1.5))`); await sleep(200);
   await tpDbl(0); await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await ev('tpEsc()'); await sleep(100);
   ok('Topologien: typing into a device label is saved in the object', await ev("S.pages[0].objs[0].label.endsWith('Z')") === true, await ev('S.pages[0].objs[0].label'));
