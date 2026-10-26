@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-k1xlsLCqxVlizpkjLbcK5xLk8pEVmXKBACSLFDSDOi8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-57+MZdzkdqgwqPISjjw6bRCeqimpVPGKdcgFAWW2vcg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2172,7 +2172,7 @@ const I18N_EN={
 'Neues Dokument':'New document','Eine eigene, neue PDF-Datei':'A separate, new PDF file','Leere Seiten einfügen':'Insert blank pages','Leere Seiten hinzufügen':'Add blank pages','Zur aktuellen PDF':'To the current PDF','Erst eine PDF öffnen':'Open a PDF first',
 'Name':'Name','Format':'Format','Seiten':'Pages','Papierfarbe':'Paper colour','Hintergrund':'Background','Position':'Position','Am Anfang':'At the beginning','Am Ende':'At the end',
 'A4 hoch':'A4 portrait','A4 quer':'A4 landscape','A3 quer':'A3 landscape','Leer':'Blank','Liniert':'Lined','Kariert':'Squared','Punkte':'Dotted','Creme':'Cream','Rosé':'Rosé','Papier':'Paper',
-'Textauswahl':'Text selection','Markieren':'Highlight','Kopieren':'Copy','Kopiert.':'Copied.','Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
+'Textauswahl':'Text selection','Markieren':'Highlight','Kopiert.':'Copied.','Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
 // Seitenmenü
 'Seite duplizieren':'Duplicate page','Nach oben':'Move up','Nach unten':'Move down','Seite löschen':'Delete page','Nach oben verschieben':'Move up','Nach unten verschieben':'Move down','Seite nach oben':'Move page up','Seite nach unten':'Move page down','Beschriftungen dieser Seite entfernen':'Remove annotations on this page',
 // Zusammenführen
@@ -2197,7 +2197,7 @@ const I18N_EN={
 'Schreibtisch':'Desk','Sand':'Sand','Himmel':'Sky','Salbei':'Sage','Flieder':'Lilac','Tinte':'Ink','Nachtblau':'Navy','Moos':'Moss','Wein':'Wine','Kakao':'Cocoa','Raster':'Grid','Schlicht':'Plain',
 'Blatt auf dem Bildschirm':'Sheet on screen','Mint':'Mint','Nacht':'Night','Weicher Schatten':'Soft shadow','Kräftig':'Strong','Flach':'Flat',
 'Färbt nur die Ansicht ein, zum Beispiel augenschonend oder als Nachtmodus. Die gespeicherte PDF bleibt, wie sie ist.':'Only tints the view, for example to be easier on the eyes or as a night mode. The saved PDF stays as it is.',
-'Oberfläche':'Interface','Text-Leiste':'Text bar','Text-Leiste zurücksetzen':'Reset text bar','Text-Leiste: Stil':'Text bar: look','Werkzeugleiste':'Toolbar','Stil':'Look','Knöpfe':'Buttons','Unterstreichen':'Underline','Texthintergrund':'Text background','Kein Hintergrund':'No background','Kursiv':'Italic','Kursiv (Strg+I)':'Italic (Ctrl+I)','Listen':'Lists','Einrücken':'Indent','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
+'Oberfläche':'Interface','Text-Leiste':'Text bar','Text-Leiste zurücksetzen':'Reset text bar','Text-Leiste: Stil':'Text bar: look','Werkzeugleiste':'Toolbar','Stil':'Look','Knöpfe':'Buttons','Unterstreichen':'Underline','Texthintergrund':'Text background','Hintergrund gibt es nicht für gestapelten Text':'No background for stacked text','Rosa':'Pink','Kein Hintergrund':'No background','Kursiv':'Italic','Kursiv (Strg+I)':'Italic (Ctrl+I)','Listen':'Lists','Einrücken':'Indent','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
 'Meldungen':'Notifications','Akzent':'Accent','Glas':'Glass','Eigene Meldungsfarbe wählen':'Choose custom notification colour','Unten mittig':'Bottom centre','Unten rechts':'Bottom right','Oben':'Top',
 'Anzeigedauer':'Display time','Kurz':'Short','Lang':'Long','Test-Meldung zeigen':'Show test notification',
 'Bewegung':'Motion','Animationen an':'Animations on','Aus':'Off','Alles auf Standard':'Reset everything','Alles wieder auf Standard.':'Everything is back to default.',
@@ -3910,7 +3910,10 @@ function tsShow(){const s=getSelection();if(S.tool!=='select'||!s.rangeCount||s.
   let y=b.top-8-h;if(y<8)y=b.bottom+8;tsBar.style.left=Math.round(Math.max(8,Math.min(vw-w-8,b.left+b.width/2-w/2)))+'px';tsBar.style.top=Math.round(Math.max(8,Math.min(vh-h-8,y)))+'px'}
 tsBar.addEventListener('mousedown',e=>{if(e.target.type!=='color')e.preventDefault()});
 tsBar.addEventListener('pointerdown',e=>{if(e.target.type!=='color')e.preventDefault()});
-tsBar.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();tsHide();viewer.tabIndex=-1;viewer.focus({preventScroll:true})}});
+tsBar.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();tsHide();viewer.tabIndex=-1;viewer.focus({preventScroll:true})}
+  else if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&e.target.type!=='color'){const b=[...tsBar.querySelectorAll('button,input')],k=b.indexOf(e.target);if(k<0)return;e.preventDefault();b[(k+(e.key==='ArrowRight'?1:-1)+b.length)%b.length].focus()}});
+// tsBar is last in the DOM, so Tab from the page never reaches it: plain Tab while it is visible jumps to its first button
+addEventListener('keydown',e=>{if(e.key!=='Tab'||e.shiftKey||e.ctrlKey||e.altKey||e.metaKey||tsBar.hidden||editorEl)return;const a=document.activeElement;if(tsBar.contains(a)||(a&&a.closest&&a.closest('input,textarea,select,[contenteditable],.modal')))return;e.preventDefault();$('#tsHl').focus()},true);
 addEventListener('pointerup',e=>{if(!tsBar.contains(e.target))setTimeout(tsShow,0)});
 addEventListener('keyup',e=>{if(!tsBar.contains(e.target)&&e.key!=='Escape')tsShow()});
 document.addEventListener('selectionchange',()=>{const s=getSelection();if(!tsBar.hidden&&(!s.rangeCount||s.isCollapsed||!inTL(s.anchorNode))&&!tsBar.contains(document.activeElement))tsHide()});
@@ -3919,8 +3922,8 @@ let tsCol='#ffd60a';
 function tsSetCol(c){tsCol=c;tsBar.querySelectorAll('.tsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));$('#tsColor').value=c}
 for(const[c,n]of[['#ffd60a','Gelb'],['#4ade80','Grün'],['#38bdf8','Hellblau'],['#f472b6','Rosa'],['#ea7a0b','Orange']]){const b=document.createElement('button');b.type='button';b.className='tsw';b.style.background=c;b.title=n;b.setAttribute('aria-label',n);b.dataset.c=c;b.onclick=()=>tsSetCol(c);tsBar.querySelector('.tsSw').appendChild(b)}
 $('#tsColor').oninput=e=>tsSetCol(e.target.value);tsSetCol(tsCol);
-// One hl object per page from the selection's client rects; shortcut: rotated text gets axis-aligned boxes, rotated pages are not corrected
-function tsHighlight(){const r=tsRng;if(!r)return;let n=0;const pgs=[];
+// One hl object per page from the selection's client rects; shortcut: rotated text on an unrotated page gets axis-aligned boxes (rotated pages and CropBox are fine, checked at 0/90/180/270 and several zooms)
+function tsHighlight(){const r=tsRng;if(!r)return;const pgs=[];
   S.pages.forEach((P,i)=>{if(!P.tl||!P.ink)return;const t=P.tl.getBoundingClientRect(),ir=P.ink.getBoundingClientRect(),rows=[];
     for(const c of r.getClientRects()){if(c.width<1||c.height<1||c.height>t.height/2||c.left>t.right||c.right<t.left||c.top>t.bottom||c.bottom<t.top)continue;
       const L=rows.find(w=>Math.min(w.b,c.bottom)-Math.max(w.t,c.top)>.5*Math.min(w.b-w.t,c.height)&&c.left<=w.r+c.height*.5&&c.right>=w.l-c.height*.5);
@@ -4575,11 +4578,12 @@ function openTextEditor(i,o,isNew,at){
         for(let li=pa.li;li<=pb.li;li++){const x0=li===pa.li?pa.x:0,x1=li===pb.li?pb.x:mctx.measureText(g.b.lines[li]).width+o.fs*.3;
           const d=document.createElement('b');d.style.left=x0*z+'px';d.style.top=li*lh+'px';d.style.width=Math.max(2,(x1-x0)*z)+'px';d.style.height=lh+'px';selL.appendChild(d)}}}
     {const fn=bF.firstChild;fn.textContent=fontName(o.font);const fc=FONT_MAP[o.font||''];fn.style.fontFamily=fc&&fc.css?fc.css:''}
-    if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);bI.setAttribute('aria-pressed',!!o.italic);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;cbarB.style.background=o.hbg||'transparent';palB.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(o.hbg||'').toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(o.hbg))edcinB.value=o.hbg;
+    if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);bI.setAttribute('aria-pressed',!!o.italic);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;const stk=o.orient==='stack';bBg.disabled=stk;bBg.title=tr(stk?'Hintergrund gibt es nicht für gestapelten Text':'Texthintergrund');cbarB.style.background=o.hbg||'transparent';palB.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(o.hbg||'').toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(o.hbg))edcinB.value=o.hbg;
     root.classList.toggle('flip',o.y*z<46*({s:1,m:1.1,l:1.3}[design.qbar]||1))};
   const set=props=>{
     // Farbe bei markiertem Text: nur für die markierten Zeichen
     if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
+    if(o.orient==='stack'&&'hbg' in props){props={...props};delete props.hbg}
     keepCtr(o,()=>{for(const k of['fs','color','bold','orient','underline','italic','hbg','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];if(!o.hbg)delete o.hbg});
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}if('bold' in props){S.bold=o.bold;$('#bold').checked=o.bold}if('underline' in props){S.underline=!!o.underline;$('#underl').checked=!!o.underline}if('color' in props)setColor(o.color,true);textClamp(o,P,true);refresh();redraw(i)};
@@ -4609,9 +4613,9 @@ function openTextEditor(i,o,isNew,at){
   bI.onclick=()=>{set({italic:!o.italic});eng.focus()};
   bLb.onclick=()=>{eng.list('b');eng.focus()};bLn.onclick=()=>{eng.list('n');eng.focus()};
   root.querySelector('[data-a=in]').onclick=()=>{eng.indent(1);eng.focus()};root.querySelector('[data-a=out]').onclick=()=>{eng.indent(-1);eng.focus()};
-  const palOpen=v=>{if(v)showEl(pal);else animHide(pal);bC.setAttribute('aria-expanded',v)};
+  const palOpen=v=>{if(v&&!palB.hidden)palOpenB(false);if(v)showEl(pal);else animHide(pal);bC.setAttribute('aria-expanded',v)};
   bC.onclick=()=>{const open=!pal.hidden&&!pal._ah;palOpen(!open);if(open)eng.focus()};
-  const palOpenB=v=>{if(v)showEl(palB);else animHide(palB);bBg.setAttribute('aria-expanded',v)};
+  const palOpenB=v=>{if(v&&!pal.hidden)palOpen(false);if(v)showEl(palB);else animHide(palB);bBg.setAttribute('aria-expanded',v)};
   bBg.onclick=()=>{const open=!palB.hidden&&!palB._ah;palOpenB(!open);if(open)eng.focus()};
   palB.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=()=>{set({hbg:b.dataset.c});palOpenB(false);eng.focus()}});
   {const live=rafLast(c=>set({hbg:c}));edcinB.addEventListener('input',()=>live(edcinB.value))}edcinB.addEventListener('change',()=>{palOpenB(false);eng.focus()});
@@ -5926,7 +5930,7 @@ function sanObj(o){
   if(r.alpha!=null&&!(isNum(r.alpha)&&r.alpha>0&&r.alpha<=1))delete r.alpha;
   if(r.locked!==true)delete r.locked;
   if(r.italic!==true)delete r.italic;
-  if(typeof r.hbg!=='string'||!COL_RX.test(r.hbg))delete r.hbg;
+  if(typeof r.hbg!=='string'||!COL_RX.test(r.hbg)||(typeof CSS!=='undefined'&&CSS.supports&&!CSS.supports('color',r.hbg))||r.orient==='stack')delete r.hbg;
   if(r.font!=null&&!own(FONT_MAP,r.font))delete r.font;
   if(r.fs!=null&&!(isNum(r.fs)&&r.fs>=2&&r.fs<=400))r.fs=11;
   const box=()=>isNum(r.x)&&isNum(r.y)&&isNum(r.w)&&isNum(r.h);
@@ -5992,7 +5996,7 @@ function drawText(c,o){
   const line=(L,st,x,y)=>{if(!rich){c.fillStyle=o.color;c.fillText(L,x,y);ul(L,x,y);return}
     for(const[a,e,col]of spanRuns(o,st,st+L.length)){const s=L.slice(a-st,e-st),dx=a>st?c.measureText(L.slice(0,a-st)).width:0;c.fillStyle=col;c.fillText(s,x+dx,y);ul(s,x+dx,y,col)}};
   let n=0;const starts=b.lines.map((L,k)=>{const s=n;n+=L.length+wrapGap(b.lines,k);return s});
-  const hb=(l,x,y)=>{if(!o.hbg||!l)return;c.fillStyle=o.hbg;c.fillRect(x,y,c.measureText(l).width,b.lh)}; // background behind each line, all lines before any text
+  const hb=(l,x,y)=>{if(!o.hbg||!l)return;c.fillStyle='transparent';c.fillStyle=o.hbg;c.fillRect(x,y,c.measureText(l).width,b.lh)}; // background behind each line, all lines before any text
   if(o.orient==='h'){b.lines.forEach((l,i)=>hb(l,o.x,o.y+i*b.lh));b.lines.forEach((l,i)=>line(l,starts[i],o.x,o.y+i*b.lh+off))}
   else if(o.orient==='v'){c.translate(o.x,o.y+b.h);c.rotate(-Math.PI/2);b.lines.forEach((l,i)=>hb(l,0,i*b.lh));b.lines.forEach((l,i)=>line(l,starts[i],0,i*b.lh+off))}
   else{c.textAlign='center';b.lines.forEach((l,i)=>{let k=starts[i];[...l].forEach((ch,j)=>{c.fillStyle=rich?spanColorAt(o,k):o.color;c.fillText(ch,o.x+i*b.cw+b.cw/2,o.y+j*o.fs*1.1);k+=ch.length})})}
