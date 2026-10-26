@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-92UZ7JG1Hciz4tpCx8ryS3ayhW+pz7TLybm0tOjY1Ww=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-dqDonDz3GAwqP9C+k99n8klkplQquvsgX6Wt8xsJDT4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -380,7 +380,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .symPop .symgrid{grid-template-columns:repeat(4,1fr);grid-auto-rows:max-content;align-content:start;overflow-y:auto;min-height:0;padding:2px}
 .sym{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink)}
 .sym canvas{width:72px;height:48px;border-radius:5px;background:color-mix(in srgb,#fff 92%,var(--panel))}
-.sym span{font-size:10.5px;line-height:1.15;text-align:center;color:var(--ink);max-width:100%;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere;hyphens:auto}
+.sym span{font-size:10px;line-height:1.15;text-align:center;color:var(--ink);max-width:100%;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere;hyphens:auto}
 .sym:hover{border-color:var(--accent)}
 .sym[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
 .tgl{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none;white-space:nowrap;font-size:12.5px;color:var(--muted);flex:none;margin:0 4px}
@@ -957,7 +957,7 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .tblbar button:hover{border-color:var(--accent);color:var(--accent)}
 .tblbar button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 :root[data-sheet="night"] .page .tblbar{filter:none}
-.sym.symtbl svg{width:60px;height:40px;padding:5px 0;color:#2b3440}
+.sym.symtbl svg{width:72px;height:48px;padding:8px 20px;box-sizing:border-box;border-radius:5px;background:color-mix(in srgb,#fff 92%,var(--panel));color:#2b3440}
 /* 3.3: Diktieren */
 #bMic.rec{background:var(--danger,#c2412d);color:#fff;animation:lyr-mic 1.6s ease-out infinite}
 #bMic.load svg{animation:lyr-mic-load 1s ease-in-out infinite}
@@ -4687,7 +4687,7 @@ let symPop=null,symPopBtn=null;
 function fillSym(sel,grid,after){
   sel.innerHTML='';for(const c of CATS){const op=document.createElement('option');op.value=c;op.textContent=c+' ('+Object.values(SYM).filter(s=>s.cat===c).length+')';sel.appendChild(op)}
   sel.value=S.cat;sel.onchange=()=>{S.cat=sel.value;buildCats()};
-  grid.innerHTML='';symTableBtn(grid,after);
+  grid.innerHTML='';if(S.cat==='Formen')symTableBtn(grid,after);
   const TPLS=S.cat==='Organigramm'?ORG_TPL:S.cat==='Netzwerk'?NET_TPL:null;
   if(TPLS){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
     for(const t of TPLS){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
