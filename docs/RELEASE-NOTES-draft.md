@@ -12,6 +12,7 @@ Release notes for version 3.9.0.
 - Dark symbols stay visible in forced-colors mode.
 - Symbol tile images shrink with narrow tiles.
 - Test suite: smoke test flake fixed (isolated profile, stale `dense.pdf` objects), geometric check for dense-page drag selection, toolbar position checks.
+- Sheet colour "Night" is no longer inverted twice when the "Night mode for pages" switch is on.
 
 ## New
 
@@ -33,6 +34,7 @@ Release notes for version 3.9.0.
 - New text boxes do not inherit italic or background from the sidebar.
 - Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).
 - The text layer is not available in split view and presentation mode.
+- With the "Night mode for pages" switch on, the sheet option "White" is shown dark (the switch inverts all pages). A clearer behaviour is planned.
 
 # Earlier: Layr 3.8.8
 
