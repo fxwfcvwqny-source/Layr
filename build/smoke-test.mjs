@@ -520,16 +520,27 @@ else {
   await ev(`tpSet(orgFit(TOPO_TPL[0].b(),S.pages[0],40,1.5))`); await sleep(200);
   await tpDbl(0); await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await ev('tpEsc()'); await sleep(100);
   ok('Topologien: typing into a device label is saved in the object', await ev("S.pages[0].objs[0].label.endsWith('Z')") === true, await ev('S.pages[0].objs[0].label'));
-  // priority: an unlinked line across a device caption must not steal the double-click; the line itself still edits the line label
-  await ev(`(()=>{const P=S.pages[0],d=P.objs[0],p=tpPt(d);P.objs.push({type:'line',x1:d.x-30,y1:p[1],x2:d.x+d.w+30,y2:p[1],color:'#1b2a3a',lw:1.2,dash:false,elbow:false,start:'none',end:'none'});redraw(0)})()`);
+  // priority: a docked line across a device caption must not steal the double-click; free lines and label-less symbols keep their own editing
+  const mkRect = "const R=(id,x,y)=>({type:'rect',oid:id,x,y,w:30,h:20,color:'#1b2a3a',lw:1,fill:'none',dash:false});const L=(a,b,y,x1,x2,extra)=>Object.assign({type:'line',x1,y1:y,x2,y2:y,color:'#1b2a3a',lw:1.2,dash:false,elbow:false,start:'none',end:'none'},extra||{});";
+  const dblAt = async pt => { const p = await ev(`tpScr(${JSON.stringify(pt)})`); await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p[0], y: p[1], button: 'none', buttons: 0 }); await sleep(60);
+    for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n }); await sleep(150); };
+  const nObj = await ev('S.pages[0].objs.length');
+  const cut = () => ev(`(S.pages[0].objs.length=${nObj},redraw(0),1)`);
+  await ev(`(()=>{${mkRect}const P=S.pages[0],d=P.objs[0],p=tpPt(d);P.objs.push(R('tA',d.x-80,p[1]-10),R('tB',d.x+d.w+50,p[1]-10),L(0,0,p[1],0,0,{link:{a:'tA',b:'tB'}}));redraw(0)})()`);
   await tpDbl(0);
-  ok('Topologien: double-click on a device caption crossed by a line edits the device label', await ev('!!editorEl&&editingObj===S.pages[0].objs[0]') === true);
-  await ev('tpEsc()');
+  ok('Topologien: double-click on a device caption crossed by a docked line edits the device label', await ev('!!editorEl&&editingObj===S.pages[0].objs[0]') === true);
+  await ev('tpEsc()'); await cut();
+  await ev(`(()=>{${mkRect}const P=S.pages[0],d=P.objs[0],p=tpPt(d);P.objs.push(L(0,0,p[1],d.x-30,d.x+d.w+30,{label:'Notiz',end:'arrow'}));redraw(0)})()`);
+  await tpDbl(0);
+  ok('Topologien: a free arrow with its own label over a device still edits the arrow label', await ev('!!editorEl&&editingObj===S.pages[0].objs[S.pages[0].objs.length-1]') === true);
+  await ev('tpEsc()'); await cut();
+  await ev(`(()=>{${mkRect}const P=S.pages[0],q={type:'sym',sym:'question',label:'?',x:10,y:10,w:20,h:20,color:'#1b2a3a',lw:1.2,fill:'none',fs:11};P.objs.push(q,R('qA',-60,12),R('qB',70,12),L(0,0,20,0,0,{link:{a:'qA',b:'qB'}}));redraw(0)})()`);
+  await dblAt(await ev('[20,20]'));
+  ok('Topologien: a docked line crossing a question mark is still editable', await ev('!!editorEl&&editingObj===S.pages[0].objs[S.pages[0].objs.length-1]&&editingObj.type===\'line\'') === true);
+  await ev('tpEsc()'); await cut();
+  await ev(`(()=>{${mkRect}const P=S.pages[0],d=P.objs[0],p=tpPt(d);P.objs.push(L(0,0,p[1],d.x-30,d.x+d.w+30))})()`);
   const lp = await ev("(()=>{const P=S.pages[0],d=P.objs[0],l=P.objs[P.objs.length-1];return[d.x-20,l.y1]})()");
-  const lsp = await ev(`tpScr([${lp[0]},${lp[1]}])`);
-  await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: lsp[0], y: lsp[1], button: 'none', buttons: 0 }); await sleep(60);
-  for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: lsp[0], y: lsp[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n });
-  await sleep(150);
+  await dblAt(lp);
   ok('Topologien: double-click on the line itself still edits the line label', await ev('!!editorEl&&editingObj===S.pages[0].objs[S.pages[0].objs.length-1]') === true);
   await ev('tpEsc()');
   await ev("(S.pages[0].objs.length=0,S.pages[0].objs.push(...window.tpOld),redraw(0),1)");
