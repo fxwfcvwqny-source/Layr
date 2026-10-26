@@ -489,6 +489,13 @@ else {
   ok('tsBar: ArrowRight moves to the next bar button', await ev("document.activeElement&&document.activeElement.id==='tsCopy'") === true);
   await key('Escape', 'Escape', 27); await sleep(200);
   ok('tsBar: Esc hides the bar and returns focus to the viewer', await ev("$('#tsBar').hidden&&document.activeElement===viewer") === true);
+  // A line taller than half the text layer (long line on a /Rotate 90 page) must still be highlighted
+  await ev("getSelection().removeAllRanges();viewer.scrollTop=0;setTool('select')"); await sleep(400);
+  await ev("(()=>{const t=S.pages[0].tl,s=document.createElement('span');s.id='tallProbe';s.textContent='TallProbe';s.style.cssText='position:absolute;left:10px;top:0;white-space:nowrap;line-height:1;font-size:'+Math.round(t.getBoundingClientRect().height*.6)+'px';t.insertBefore(s,t.firstChild);const r=document.createRange();r.selectNodeContents(s);const g=getSelection();g.removeAllRanges();g.addRange(r);tsShow()})()");
+  const tallN = await hlN();
+  await clickAt(await btn('#tsHl'));
+  ok('tsBar Highlight also works for a line taller than half the text layer', await hlN() === tallN + 1, [tallN, await hlN()]);
+  await ev("document.getElementById('tallProbe').remove();undo()");
   const itR = await ev("(async()=>{const o={type:'text',x:72,y:400,text:'Kursivtest Suche',fs:18,color:'#1b1f24',orient:'h',lw:0,italic:true};S.pages[0].objs.push(o);redraw(0);const out=await buildOutput();const d=await pdfOpen(out.slice());const t=(await (await d.getPage(1)).getTextContent()).items.map(x=>x.str).join('|');S.pages[0].objs=S.pages[0].objs.filter(x=>x!==o);await openPdf(out,'it.pdf');const l=S.pages[0].objs.filter(x=>x.type==='text'&&x.text==='Kursivtest Suche');const r={t:/Kursivtest Suche/.test(t),n:l.length,it:l[0]&&l[0].italic===true};S.pages[0].objs=S.pages[0].objs.filter(x=>!l.includes(x));return r})()", 60000);
   ok('Kursiv: gespeichert, durchsuchbar, wieder bearbeitbar', itR && itR.t && itR.n === 1 && itR.it === true, itR);
   ok('Kursiv: txtCapture liest Schriftgröße aus kursiver Schrift', await ev("(()=>{const cv=document.createElement('canvas');cv.width=cv.height=200;const c=cv.getContext('2d');const T=txtCapture(c,1);drawText(c,{type:'text',x:5,y:5,text:'Abc',fs:14,color:'#000',orient:'h',italic:true,bold:true});T.stop();return T.runs.length===1&&T.runs[0].fs===14&&T.runs[0].t==='Abc'})()") === true);

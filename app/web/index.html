@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ziBMc69iTp/6kPXCIV4ONCKNp4F0P4hlQ0MKE7xr4DU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-D6ucSGFN7shoJAT7oZdUwE5bd0+wT99Nipxh0+do2Gg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3947,10 +3947,10 @@ let tsCol='#ffd60a';
 function tsSetCol(c){tsCol=c;tsBar.querySelectorAll('.tsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));$('#tsColor').value=c}
 for(const[c,n]of[['#ffd60a','Gelb'],['#4ade80','Grün'],['#38bdf8','Hellblau'],['#f472b6','Rosa'],['#ea7a0b','Orange']]){const b=document.createElement('button');b.type='button';b.className='tsw';b.style.background=c;b.title=n;b.setAttribute('aria-label',n);b.dataset.c=c;b.onclick=()=>tsSetCol(c);tsBar.querySelector('.tsSw').appendChild(b)}
 $('#tsColor').oninput=e=>tsSetCol(e.target.value);tsSetCol(tsCol);
-// One hl object per page from the selection's client rects; shortcut: rotated text on an unrotated page gets axis-aligned boxes (rotated pages and CropBox are fine, checked at 0/90/180/270 and several zooms)
+// One hl object per page from the selection's client rects; shortcut: rotated text on an unrotated page gets axis-aligned boxes; only the full-layer endOfContent box is skipped, a line on a rotated page can be taller than half the layer (rotated pages and CropBox are fine, checked at 0/90/180/270 and several zooms)
 function tsHighlight(){const r=tsRng;if(!r)return;const pgs=[];
   S.pages.forEach((P,i)=>{if(!P.tl||!P.ink)return;const t=P.tl.getBoundingClientRect(),ir=P.ink.getBoundingClientRect(),rows=[];
-    for(const c of r.getClientRects()){if(c.width<1||c.height<1||c.height>t.height/2||c.left>t.right||c.right<t.left||c.top>t.bottom||c.bottom<t.top)continue;
+    for(const c of r.getClientRects()){if(c.width<1||c.height<1||(c.height>=t.height-1&&c.width>=t.width-1)||c.left>t.right||c.right<t.left||c.top>t.bottom||c.bottom<t.top)continue;
       const L=rows.find(w=>Math.min(w.b,c.bottom)-Math.max(w.t,c.top)>.5*Math.min(w.b-w.t,c.height)&&c.left<=w.r+c.height*.5&&c.right>=w.l-c.height*.5);
       if(L){L.l=Math.min(L.l,c.left);L.r=Math.max(L.r,c.right);L.t=Math.min(L.t,c.top);L.b=Math.max(L.b,c.bottom)}else rows.push({l:c.left,r:c.right,t:c.top,b:c.bottom})}
     if(!rows.length)return;const z=S.zoom,q=rows.map(w=>{const x0=(w.l-ir.left)/z,x1=(w.r-ir.left)/z,y0=(w.t-ir.top)/z,y1=(w.b-ir.top)/z;return[[x0,y0],[x1,y0],[x1,y1],[x0,y1]]});
