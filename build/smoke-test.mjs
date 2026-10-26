@@ -474,12 +474,27 @@ else {
   ok('tsBar Highlight creates exactly one hl object with the selected word and hides the bar', h1 && await hlN() === h0 + 1 && h1.t === w1 && h1.a === .38 && h1.c === '#ffd60a' && h1.hist === u0 + 1 && !h1.vis && h1.sel === '' && h1.dirty, [w1, h1]);
   await ev('undo()');
   ok('Highlight from tsBar is undone in one step', await hlN() === h0 && await ev('H.u.length') === u0);
+  // Swatch click highlights the selection at once in that colour (one hl, pixel sampled), and the Highlight button then reuses it
+  const hlPix = () => ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl'),o=l[l.length-1];if(!o)return null;const k=S.pages[0].ink,z=S.zoom,sx=k.width/(k.getBoundingClientRect().width/z)/z,d=k.getContext('2d').getImageData(Math.round((o.x+o.w/2)*z*sx),Math.round((o.y+o.h/2)*z*sx),1,1).data;return [d[0],d[1],d[2],d[3]]})()");
+  const near = (p, c) => p && Math.abs(p[0] - parseInt(c.slice(1, 3), 16)) < 90 && Math.abs(p[1] - parseInt(c.slice(3, 5), 16)) < 90 && Math.abs(p[2] - parseInt(c.slice(5, 7), 16)) < 90 && p[3] > 0;
   await dragWord(12);
   await clickAt(await ev("(()=>{const b=$('#tsBar .tsw[data-c=\"#4ade80\"]').getBoundingClientRect();return [(b.left+b.right)/2,(b.top+b.bottom)/2]})()"));
-  ok('tsBar swatch click keeps the selection and bar', await ev("String(getSelection()).trim().length>1&&!$('#tsBar').hidden"));
-  await clickAt(await btn('#tsHl'));
   const h2 = await ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl');return l[l.length-1].color})()");
-  ok('tsBar swatch sets the colour of the next highlight', h2 === '#4ade80' && await hlN() === h0 + 1, h2);
+  const px2 = await hlPix();
+  ok('tsBar swatch click creates exactly one hl in that colour at once', h2 === '#4ade80' && await hlN() === h0 + 1 && await ev("$('#tsBar').hidden") && near(px2, '#4ade80'), [h2, px2]);
+  await dragWord(14);
+  await clickAt(await btn('#tsHl'));
+  const h2b = await ev("(()=>{const l=S.pages[0].objs.filter(o=>o.type==='hl');return l[l.length-1].color})()");
+  ok('tsBar Highlight button after a swatch uses the remembered colour', h2b === '#4ade80' && await hlN() === h0 + 2, h2b);
+  await ev('undo()');
+  // Custom colour: window blur + collapsed selection between picker open and confirm must not lose the selection
+  await dragWord(16);
+  await ev("(()=>{const c=$('#tsColor');c.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));c.focus();window.dispatchEvent(new Event('blur'));getSelection().removeAllRanges();c.value='#ff0000';c.dispatchEvent(new Event('input',{bubbles:true}));c.dispatchEvent(new Event('change',{bubbles:true}))})()");
+  await sleep(250);
+  const px3 = await hlPix();
+  ok('tsBar custom colour survives blur and a collapsed selection: one hl in that colour', await hlN() === h0 + 2 && await ev("S.pages[0].objs.filter(o=>o.type==='hl').pop().color") === '#ff0000' && near(px3, '#ff0000'), px3);
+  await ev('undo()');
+  await ev("tsSetCol('#ffd60a')");
   const rt = await ev("(async()=>{const q0=JSON.stringify(S.pages[0].objs.filter(o=>o.type==='hl').map(o=>o.q));await openPdf(await buildOutput(),'rt.pdf');const l=S.pages[0].objs.filter(o=>o.type==='hl');const same=JSON.stringify(l.map(o=>o.q))===q0&&l.length>=1;const o=l[l.length-1];const n=l.length;S.pages[0].objs=S.pages[0].objs.filter(x=>x!==o);return {same,n,c:o.color,left:S.pages[0].objs.filter(x=>x.type==='hl').length}})()", 60000);
   ok('Saved highlight from tsBar reopens as editable hl object and can be deleted', rt && rt.same && rt.c === '#4ade80' && rt.left === rt.n - 1, rt);
   await dragWord(14);

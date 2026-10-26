@@ -7,7 +7,7 @@ Notiere vorab: Windows-Skalierung (Einstellungen, Anzeige) und Fenstergröße. I
 - [ ] Auf einer Seite mit viel Text von einer Seite über die Seitengrenze auf die nächste ziehen: nur der überstrichene Text wird markiert, nicht die ganze nächste Seite.
 - [ ] Nach dem Loslassen Strg+C und in Notepad einfügen: Text passt zur Markierung.
 - [ ] Nach der Markierung erscheint eine eigene Auswahlleiste mit "Kopieren": Klick kopiert den Text.
-- [ ] "Markieren" in der Leiste: Farben werden angeboten, gewählte Farbe erscheint als Hervorhebung auf dem Text.
+- [ ] "Markieren" in der Leiste: Ein Klick auf eine Farbe markiert den gewählten Text sofort in dieser Farbe. Der Knopf "Markieren" nutzt danach die zuletzt gewählte Farbe. Eigene Farbe: nach Bestätigung im Farbdialog wird der Text markiert, auch wenn die Auswahl dabei verschwindet.
 - [ ] Gedrehter Text: Hervorhebung ist ein achsenparalleles Kästchen (bekannte Grenze, kein Fehler).
 
 ## 2. Text-Schnellleiste

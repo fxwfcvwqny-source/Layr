@@ -16,7 +16,7 @@ Release notes for version 3.9.0.
 
 ## New
 
-- Text selection bar: appears on selected PDF text with Copy and Highlight with a colour choice.
+- Text selection bar: appears on selected PDF text with Copy and Highlight; one click on a colour swatch (or confirming a custom colour) highlights the selection at once in that colour, and the Highlight button reuses the last colour.
 - Text quick bar: italic (Ctrl+I) and text background colour.
 - Fixed toolbar is centred over the sheet from 1200 px window width; density Large applies from 1360 px (below that the old layout is kept).
 - Topology templates (star, ring, bus, tree, mesh) built from real devices with their own labels and docked lines; every device is editable. The bus template has a shared backbone.
