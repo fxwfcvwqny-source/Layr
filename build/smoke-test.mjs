@@ -545,6 +545,38 @@ else {
   ok('Topologien: double-click on the line itself still edits the line label', await ev('!!editorEl&&editingObj===S.pages[0].objs[S.pages[0].objs.length-1]') === true);
   await ev('tpEsc()');
   await ev("(S.pages[0].objs.length=0,S.pages[0].objs.push(...window.tpOld),redraw(0),1)");
+  // Sheet colour: the rendered sheet pixel must match the chosen option, in both app themes, with page night mode off, and after reload
+  {
+    const sheetPx = async () => {
+      const r = await ev("(()=>{const b=document.querySelector('.page').getBoundingClientRect();return [Math.round(b.left+12),Math.round(b.top+12)]})()");
+      const shot = await cdp('Page.captureScreenshot', { format: 'png' });
+      return ev(`(async()=>{const bin=atob("${shot.result.data}");const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const bm=await createImageBitmap(new Blob([u]));const c=document.createElement('canvas');c.width=bm.width;c.height=bm.height;const x=c.getContext('2d');x.drawImage(bm,0,0);return Array.from(x.getImageData(${r[0]},${r[1]},1,1).data).slice(0,3)})()`);
+    };
+    const lum = p => (p[0] + p[1] + p[2]) / 3;
+    const want = { white: p => lum(p) > 235, paper: p => lum(p) > 225 && p[2] < p[0], gray: p => lum(p) > 225 && p[2] > p[0], mint: p => lum(p) > 225 && p[1] > p[0], night: p => lum(p) < 60 };
+    await ev("(document.documentElement.classList.remove('night'),1)");
+    for (const theme of ['light', 'dark']) {
+      await ev(`document.querySelector('#dTheme [data-v=${theme}]').click()`);
+      for (const v of Object.keys(want)) {
+        await ev(`document.querySelector('#dSheet [data-v=${v}]').click()`); await sleep(400);
+        const px = await sheetPx();
+        ok(`Sheet colour "${v}" matches its label (${theme} app)`, want[v](px) && await ev(`document.querySelector('#dSheet [aria-pressed=true]').dataset.v==='${v}'`) === true, px);
+      }
+    }
+    // page night mode on: sheet "Nacht" must stay dark (was inverted twice = light)
+    await ev("(document.documentElement.classList.add('night'),1)"); await sleep(300);
+    await ev("document.querySelector('#dSheet [data-v=night]').click()"); await sleep(400);
+    const npx = await sheetPx();
+    ok('Sheet colour "night" stays dark with page night mode on', lum(npx) < 60, npx);
+    await ev("(document.documentElement.classList.remove('night'),1)");
+    // persistence after reload (startup path)
+    await ev("document.querySelector('#dSheet [data-v=paper]').click()");
+    await ev('location.reload()'); await sleep(2500);
+    for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof openPdf==='function'&&typeof PDFLib==='object'") === true) break; await sleep(500); }
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'sheet.pdf');return 1})()"); await sleep(1200);
+    const rpx = await sheetPx();
+    ok('Sheet colour persists after reload', want.paper(rpx) && await ev("document.querySelector('#dSheet [aria-pressed=true]').dataset.v==='paper'") === true, rpx);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

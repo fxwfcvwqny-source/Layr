@@ -1265,6 +1265,9 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 #rkDlg[data-tab=pl] .rk-prev{width:150px}
 html.night .page,html.night .pc-pg,html.night .th canvas,html.night .pg-t canvas{filter:invert(.88) hue-rotate(180deg)}
 html.night .page{background:#fff}
+/* sheet "Nacht" inside the page night mode: do not invert twice (it showed light instead of dark) */
+html.night:root[data-sheet="night"] .page{background:#fff}
+html.night:root[data-sheet="night"] .page .pdf,html.night:root[data-sheet="night"] .page .ink{filter:none}
 #wrap.split #viewer{right:var(--spv-w,50%);top:43px}
 .spv{position:absolute;top:0;bottom:0;right:0;width:var(--spv-w,50%);display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--desk);z-index:2}
 .spv-h{display:flex;align-items:center;gap:8px;padding:6px 8px;height:43px;box-sizing:border-box;background:var(--panel);border-bottom:1px solid var(--line)}
