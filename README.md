@@ -4,7 +4,7 @@
 
 <p align="center">Annotate, draw, sign and take notes on PDFs. Local, no account needed.<br>Desktop app for <b>Windows</b> and <b>Linux</b>.</p>
 
-<p align="center">Microsoft Store and Flathub: coming soon.</p>
+<p align="center">Microsoft Store: coming soon.</p>
 
 <p align="center"><a href="https://github.com/fxwfcvwqny-source/Layr/releases/latest"><b>⬇ Download the latest version</b></a></p>
 
@@ -80,7 +80,7 @@ Download the file for your system from the [latest release](https://github.com/f
 | Ubuntu / Debian | `Layr-<version>-amd64.deb` | Double-click, or `sudo apt install ./Layr-<version>-amd64.deb` |
 | Any Linux | `Layr-<version>-x86_64.AppImage` | Make it executable (`chmod +x`) and double-click. Nothing gets installed. |
 
-Flatpak (in preparation, not yet on Flathub): see [docs/FLATPAK.md](docs/FLATPAK.md).
+A Flatpak recipe exists in the repository ([docs/FLATPAK.md](docs/FLATPAK.md)) but is not published on Flathub.
 
 **Windows SmartScreen:** the installer is not code-signed, so Windows may show *"Windows protected your PC"* the first time. Click **More info → Run anyway**.
 
