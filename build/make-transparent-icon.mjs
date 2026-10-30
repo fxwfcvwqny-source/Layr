@@ -88,11 +88,27 @@ function render(n) {
   return encodePng(n, n, out);
 }
 
+// Hand-tuned 16 and 24 px: simplified three-page stack without text lines, drawn on the pixel grid (no resampling blur),
+// with a 1 px light edge around the silhouette so it stays visible on dark taskbars (the saturated blues carry it on light ones).
+function small(n) {
+  const P = n === 16 ? { w: 10, off: 2, fold: 3 } : { w: 16, off: 3, fold: 5 }, out = new Uint8Array(n * n * 4), set = (x, y, c, a = 255) => { const i = (y * n + x) * 4; out[i] = c[0]; out[i + 1] = c[1]; out[i + 2] = c[2]; out[i + 3] = a; };
+  const pages = [[[158, 166, 255], 2 * P.off, 0], [[110, 122, 255], P.off, P.off], [[43, 59, 255], 0, 2 * P.off]]; // colour, x offset, y offset
+  for (const [c, ox, oy] of pages) for (let y = 0; y < P.w; y++) for (let x = 0; x < P.w; x++) {
+    if (c[0] === 43 && x >= P.w - P.fold && y < P.fold) { const cx = x - (P.w - P.fold), cy = y; if (cx > cy) continue; if (cx === cy) { set(1 + ox + x, 1 + oy + y, [190, 198, 255]); continue; } }
+    set(1 + ox + x, 1 + oy + y, c);
+  }
+  const edge = [232, 236, 255], mark = [];
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!out[(y * n + x) * 4 + 3]) { let hit = false; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < n && Y < n && out[(Y * n + X) * 4 + 3] === 255) hit = true; } if (hit) mark.push([x, y]); }
+  for (const [x, y] of mark) set(x, y, edge, 255);
+  return encodePng(n, n, out);
+}
+const renderSize = n => (n === 16 || n === 24) ? small(n) : render(n);
+if (process.argv[2] === '--mock') { for (const n of [16, 24]) fs.writeFileSync(process.argv[3] + '/small-' + n + '.png', small(n)); process.exit(0); }
 const master = render(512);
 fs.writeFileSync(path.join(here, 'icon-transparent.png'), master);
 fs.writeFileSync(path.join(here, '..', 'app', 'icon-transparent.png'), master);
 // ICO with PNG-compressed entries (Windows Vista and newer)
-const imgs = SIZES.map(n => render(n));
+const imgs = SIZES.map(renderSize);
 const head = Buffer.alloc(6 + 16 * imgs.length); head.writeUInt16LE(1, 2); head.writeUInt16LE(imgs.length, 4);
 let off = head.length;
 imgs.forEach((b, i) => { const n = SIZES[i], e = 6 + 16 * i; head[e] = n === 256 ? 0 : n; head[e + 1] = n === 256 ? 0 : n; head.writeUInt16LE(1, e + 4); head.writeUInt16LE(32, e + 6); head.writeUInt32LE(b.length, e + 8); head.writeUInt32LE(off, e + 12); off += b.length; });
