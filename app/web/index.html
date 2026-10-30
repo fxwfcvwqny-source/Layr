@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-d2wKR1WvtJvyRVAF98Un24ByBmkbeSZWJHA4eALOrF0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-RfV59Wqzk0ctrUNNmE7BpmSZMlYcphH8jfzmFs1L3Uo=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -58,6 +58,8 @@ button{cursor:pointer}
 .th.sel{outline:2px solid var(--accent);outline-offset:-2px}
 .th-bar{position:sticky;top:0;z-index:1;align-self:stretch;display:flex;justify-content:center;gap:6px;padding:2px 0 4px;background:var(--panel);border-bottom:1px solid var(--line)}
 .th-bar .ib{width:28px;height:28px}.th-bar .ib svg{width:16px;height:16px}
+/* visually hidden live region for selection announcements */
+.sr-live{position:fixed;left:0;top:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 #tsBar{position:fixed;z-index:94;display:flex;align-items:center;gap:2px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:3px}
 #tsBar .tsSw{display:flex;align-items:center;gap:4px;padding:0 4px;border-left:1px solid var(--line);margin-left:2px}#tsBar .tsw{width:20px;height:20px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line);padding:0}#tsBar .tsw[aria-pressed=true]{box-shadow:0 0 0 2px var(--ink)}#tsBar input[type=color]{width:24px;height:24px;padding:0;border:1px solid var(--line);border-radius:50%;background:none;overflow:hidden}#tsBar input[type=color]::-webkit-color-swatch-wrapper{padding:0}#tsBar input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
 @media (forced-colors:active){#tsBar .tsw,#tsBar input[type=color]{forced-color-adjust:none;border-color:ButtonText}}
@@ -2094,6 +2096,7 @@ header,.file{min-width:0}
   </div>
 </aside>
 <div class="ctx" id="ctx" role="menu" hidden></div>
+<div id="selLive" class="sr-live" role="status" aria-live="polite"></div>
 <div id="tsBar" role="toolbar" aria-label="Textauswahl" hidden><button class="ib" id="tsHl" type="button" title="Markieren (zuletzt gewählte Farbe)" aria-label="Markieren"><svg class="ph" aria-hidden="true"><use href="#ph-highlighter"/></svg></button><button class="ib" id="tsCopy" type="button" title="Kopieren" aria-label="Kopieren"><svg class="ph" aria-hidden="true"><use href="#ph-copy"/></svg></button><span class="tsSw" role="group" aria-label="Farbe"></span><input type="color" id="tsColor" title="Eigene Farbe" aria-label="Eigene Farbe" value="#ffd60a"></div>
 <div class="modal" id="newDlg" data-mode="doc" hidden>
   <div class="card wide" role="dialog" aria-modal="true" aria-labelledby="newT">
@@ -2640,6 +2643,8 @@ const I18N_EN={
 'Schalter oben anklicken: Die passende Zeile wird markiert, die Lampe zeigt den Ausgang. Reihenfolge: zuerst UND, dann XOR, dann ODER – im Zweifel Klammern setzen.':'Click the switches above: the matching row is highlighted and the lamp shows the output. Order: AND first, then XOR, then OR – use brackets when in doubt.',
 // Sprachauswahl
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
+// 3.10 Auswahlwerkzeug
+' Objekte gewählt':' objects selected',
 };
 /* Zusammengesetzte Meldungen: Muster → Übersetzung */
 const I18N_RX=[
@@ -2680,6 +2685,7 @@ const I18N_RX=[
   [/^In „(.+)“ einfügen$/,'Insert into “$1”'],
   [/^von (\d+) erledigt$/,'of $1 done'],
   [/^(\d+) ausgewählt$/,'$1 selected'],
+  [/^(\d+) Objekte gewählt$/,'$1 objects selected'],
   [/^(\d+) S\.$/,(m,n)=>n+(n==='1'?' page':' pages')],
   [/^(\d+) Wörter$/,'$1 words'],
   [/^(1 Wort|\d+ Wörter) · (.+)$/,(m,a,b)=>tr(a)+' · '+tr(b)],
@@ -3935,7 +3941,7 @@ function drawSel(c,o){
   const b=bbox(o),z=S.zoom,p=(4+(1-eo)*12)/z;c.save();c.globalAlpha=Math.min(1,.15+eo);c.strokeStyle=accentCol();c.lineWidth=1.2/z;c.setLineDash([4/z,3/z]);c.lineDashOffset=-(1-eo)*14/z;
   if(o.type!=='line'&&o.type!=='measure'){if(rotOf(o)){const t=textBox(o),[cx,cy]=tCtr(o);c.save();c.translate(cx,cy);c.rotate(o.rot*Math.PI/180);c.strokeRect(-t.w/2-p,-t.h/2-p,t.w+2*p,t.h+2*p);c.restore()}else c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p)}c.setLineDash([]);c.globalAlpha=1;
   if(o.type==='group'){c.save();c.globalAlpha=.42*Math.min(1,eo+.2);c.lineWidth=1/z;for(const it of o.items){const q=bbox(it);c.strokeRect(q.x-2/z,q.y-2/z,q.w+4/z,q.h+4/z)}
-    c.globalAlpha=Math.min(1,eo+.1);const lbl=tr(o.items.length+' ausgewählt');c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(lbl).width;let px=b.x-p,py=b.y-p-21/z;if(py<0)py=b.y+b.h+p+5/z;
+    c.globalAlpha=Math.min(1,eo+.1);const lbl=o.items.length+tr(' Objekte gewählt');c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(lbl).width;let px=b.x-p,py=b.y-p-21/z;if(py<0)py=b.y+b.h+p+5/z;
     c.fillStyle=accentCol();rr(c,px,py,tw+16/z,17/z,8.5/z);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(lbl,px+8/z,py+9/z);c.restore()}
   const hs=9*Math.max(.2,bk),hl=handles(o),rh=hl.find(h=>h.k==='rot'),mt=hl.find(h=>h.k==='mt');if(rh&&mt){c.beginPath();c.moveTo(mt.x,mt.y);c.lineTo(rh.x,rh.y);c.stroke()}
   for(const h of hl){c.fillStyle='#fff';c.beginPath();if(h.k==='rot')c.arc(h.x,h.y,hs/2/z,0,7);else c.rect(h.x-hs/2/z,h.y-hs/2/z,hs/z,hs/z);c.fill();c.stroke()}
@@ -4109,7 +4115,9 @@ let selAnim=null;
 function setSel(sel){const prev=S.sel;S.sel=sel;if(sel&&inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(prev)redraw(prev.p);
   if(sel&&(!prev||prev.o!==sel.o)&&!motionOff()){const a={o:sel.o,p:sel.p,t0:performance.now()};selAnim=a;
     const step=()=>{if(selAnim!==a)return;redraw(a.p);if(performance.now()-a.t0<300)requestAnimationFrame(step);else{selAnim=null;redraw(a.p)}};requestAnimationFrame(step)}
-  if(sel){redraw(sel.p);syncControls(sel.o)}try{updTblUI()}catch(e){}try{ffBar()}catch(e){}try{alUI()}catch(e){}}
+  if(sel){redraw(sel.p);syncControls(sel.o)}try{updTblUI()}catch(e){}try{ffBar()}catch(e){}try{alUI()}catch(e){}try{selSay(sel)}catch(e){}}
+// announce a multi-selection (status text, also on the canvas label)
+function selSay(sel){const n=sel&&sel.o.type==='group'?sel.o.items.length:0;if(n>1)$('#selLive').textContent=n+tr(' Objekte gewählt')}
 function delSel(){if(!S.sel)return;const P=S.pages[S.sel.p],T=selItems().filter(o=>!o.locked);if(!T.length){toast(tr('Das Objekt ist gesperrt.'));return}pushHist();P.objs=P.objs.filter(o=>!T.includes(o));const p=S.sel.p;S.sel=null;redraw(p);markDirty()}
 function dupSel(){if(!S.sel)return;pushHist();const p=S.sel.p,C=selItems().map(o=>{const c=JSON.parse(JSON.stringify(o,(k,v)=>k==='locked'?undefined:v));moveObj(c,12,12);if(c.sym==='num')c.label=String(S.num++);return c});orgRemap(C);S.pages[p].objs.push(...C);selectItems(p,C);markDirty()}
 /* internal clipboard for annotation objects; system clipboard only gets text + a stamp */
@@ -4313,6 +4321,8 @@ function objSamples(o){const b=bbox(o);let s;
   return s}
 function lassoHit(o,poly){const s=objSamples(o);if(!s.length)return false;let n=0;for(const p of s)if(pointInPoly(p[0],p[1],poly))n++;return n/s.length>=.5}
 const selItems=()=>!S.sel?[]:S.sel.o.type==='group'?S.sel.o.items:[S.sel.o];
+// Outermost group of o on page P (a click or Shift-click acts on all of it); part=true (Alt) means just o
+const grpOf=(P,o,part)=>{if(part)return[o];if(o.gid&&tplGroupOn)return P.objs.filter(q=>q.gid===o.gid);return[o]};
 function selectItems(i,items){const P=S.pages[i];if(!P){setSel(null);return}const L=P.objs.filter(o=>items.includes(o)&&o.type!=='deco'&&!(o.locked&&lockPassOn));
   if(!L.length)setSel(null);else if(L.length===1)setSel({p:i,o:L[0]});else setSel({p:i,o:{type:'group',items:L,lw:0,color:L[0].color}})}
 function drawLasso(c,pts,a,rect){if(!pts||pts.length<2)return;if(rect){const z=S.zoom,xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0,h=Math.max(...ys)-y0;c.save();c.setLineDash([]);c.fillStyle=accentCol();c.globalAlpha=a*.13;c.fillRect(x0,y0,w,h);c.globalAlpha=a*.95;c.strokeStyle=accentCol();c.lineWidth=1/z;c.strokeRect(x0,y0,w,h);c.restore();return}const z=S.zoom;c.save();c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let k=1;k<pts.length;k++)c.lineTo(pts[k][0],pts[k][1]);c.closePath();
@@ -4380,8 +4390,8 @@ function attachInk(P,i){
         if(S.sel&&S.sel.p===i&&S.sel.o.type==='table'){const tb=tblBorderAt(S.sel.o,x,y,tol);if(tb&&!handleAt(S.sel.o,x,y,tol)){st.mode=tb[0]==='c'?'tcol':'trow';st.idx=tb[1];st.o=S.sel.o;st.selDrag=1;break}}
         if(S.sel&&S.sel.p===i&&S.sel.o.type==='group'&&!e.shiftKey&&!(e.altKey&&P.objs.some(q=>q.gid&&hit(q,x,y,tol)))&&hit(S.sel.o,x,y,tol)){st.wasSel=true;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;break}
         const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
-        if(o&&o.gid&&tplGroupOn&&!e.altKey&&!e.shiftKey&&!(S.sel&&S.sel.o===o)){const mem=P.objs.filter(q=>q.gid===o.gid);if(mem.length>1){selectItems(i,mem);if(S.sel&&S.sel.o.type==='group'){st.wasSel=true;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;break}}}
-        if(o&&e.shiftKey&&S.sel&&S.sel.p===i){const cur=selItems().slice(),k=cur.indexOf(o);if(k>=0)cur.splice(k,1);else cur.push(o);selectItems(i,cur);st=null;break}
+        {const mem=o&&!e.altKey&&!(e.shiftKey&&S.sel&&S.sel.p===i)&&!(S.sel&&S.sel.o===o)?grpOf(P,o):null;if(mem&&mem.length>1){selectItems(i,mem);if(S.sel&&S.sel.o.type==='group'){st.wasSel=true;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;break}}}
+        if(o&&e.shiftKey&&S.sel&&S.sel.p===i){const cur=selItems().slice(),mem=grpOf(P,o,e.altKey);if(mem.every(m=>cur.includes(m)))mem.forEach(m=>cur.splice(cur.indexOf(m),1));else mem.forEach(m=>{if(!cur.includes(m))cur.push(m)});selectItems(i,cur);st=null;break}
         if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.mode='move';st.o=o;st.lx=x;st.ly=y}
         else{if(!e.shiftKey)setSel(null);st.marq=true;st.add=e.shiftKey;const rect=true;S.lasso={p:i,pts:[[x,y]],rect};
           if(!rect&&!motionOff()){const L=S.lasso,step=()=>{if(S.lasso!==L)return;redraw(i);requestAnimationFrame(step)};requestAnimationFrame(step)}}

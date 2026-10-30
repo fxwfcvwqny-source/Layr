@@ -21,7 +21,7 @@ let failed = 0;
 const ok = (name, cond, extra) => { console.log(`${cond ? 'OK  ' : 'FAIL'} ${name}${extra !== undefined ? ' ' + JSON.stringify(extra) : ''}`); if (!cond) { failed++; if (process.env.GITHUB_ACTIONS) console.log(`::error title=Rauchtest::${String(name).replace(/[\r\n]/g, ' ')}${extra !== undefined ? ' ' + JSON.stringify(extra).replace(/[\r\n]/g, ' ') : ''}`); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const done = code => { try { proc.kill(); } catch (e) {} if (profile) setTimeout(() => { try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) {} }, 300); setTimeout(() => process.exit(code), 500); };
-setTimeout(() => { console.error('Zeitüberschreitung'); done(1); }, 180000);
+setTimeout(() => { console.error('Zeitüberschreitung'); done(1); }, 400000);
 
 let target = null;
 for (let i = 0; i < 90 && !target; i++) {
@@ -1143,6 +1143,46 @@ else {
     await clickAt([560, 100]);
     ok('Gruppen: Klick auf leere Fläche hebt die Auswahl auf', await ev("!S.sel") === true);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
+  // 3.10 B5: select tool development (multi-select, groups, align, guides, mini bar, resize modifiers, z-order, Tab). Shared helpers.
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  const open310 = async (objsJs) => { await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'b5.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;tplGroupOn=true;GD.on=true;GD.grid=false;obBarOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});${objsJs};setSel(null);redraw(0)})()`, 20000); await sleep(400); };
+  const pt310 = async (p) => { const sc = await ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left,r.top,S.zoom]})()"); return [sc[0] + p[0] * sc[2], sc[1] + p[1] * sc[2]]; };
+  const click310 = async (p, mod = 0, cc = 1) => { const c = await pt310(p); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: cc, modifiers: mod }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: c[0], y: c[1], button: 'left', buttons: 0, clickCount: cc, modifiers: mod }); await sleep(120); };
+  const drag310 = async (a, b, mod = 0, steps = 8) => { const c = await pt310(a), d = await pt310(b); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod }); for (let i = 1; i <= steps; i++) await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: c[0] + (d[0] - c[0]) * i / steps, y: c[1] + (d[1] - c[1]) * i / steps, button: 'left', buttons: 1, modifiers: mod }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: d[0], y: d[1], button: 'left', buttons: 0, clickCount: 1, modifiers: mod }); await sleep(150); };
+  const key310 = async (k, code, vk, mod = 0) => { await cdp('Input.dispatchKeyEvent', { type: 'rawKeyDown', key: k, code, windowsVirtualKeyCode: vk, modifiers: mod }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: k, code, windowsVirtualKeyCode: vk, modifiers: mod }); await sleep(100); };
+  const R3 = "S.pages[0].objs.push({type:'rect',x:100,y:100,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'bA'},{type:'rect',x:260,y:100,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'bB'},{type:'rect',x:100,y:300,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'bC'})";
+  const ids310 = () => ev("JSON.stringify(selItems().map(o=>o.oid||o.sym||o.type).sort())").then(JSON.parse);
+  // 1 Multi-select
+  {
+    await open310(R3 + ";insertOrgTemplate('net_home',{i:0,x:300,y:470,tl:false})");
+    await click310([140, 125]);
+    await click310([300, 125], 8);
+    const a = await ids310(), live = await ev("[S.sel.o.type,document.getElementById('selLive').textContent]");
+    ok('Mehrfachauswahl: Umschalt-Klick fügt ein Objekt hinzu, Status "2 Objekte gewählt"', a.length === 2 && a[0] === 'bA' && a[1] === 'bB' && live[0] === 'group' && live[1] === '2 Objekte gewählt', { a, live });
+    await click310([300, 125], 8);
+    const a2 = await ids310();
+    ok('Mehrfachauswahl: Umschalt-Klick auf ein gewähltes Objekt nimmt es heraus', a2.length === 1 && a2[0] === 'bA', a2);
+    await click310([450, 700]);
+    await key310('a', 'KeyA', 65, 2);
+    const all = await ev("[selItems().length,S.pages[0].objs.length]");
+    ok('Strg+A wählt alle Objekte der Seite', all[0] === all[1] && all[0] > 3, all);
+    await click310([450, 700]);
+    await drag310([60, 60], [400, 200]);
+    const rb = await ids310();
+    ok('Gummiband wählt nur die Objekte im Rahmen', rb.length === 2 && rb[0] === 'bA' && rb[1] === 'bB', rb);
+    // template = one unit for Shift+Click, Alt+Shift = one part
+    const cp = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid);return {c:[o.x+o.w/2,o.y+o.h/2],n:S.pages[0].objs.filter(q=>q.gid===o.gid).length}})()");
+    await click310([450, 700]);
+    await click310([140, 125]);
+    await click310(cp.c, 8);
+    const u = await ev("selItems().length");
+    ok('Mehrfachauswahl: Umschalt-Klick auf eine Vorlage fügt die ganze Vorlage als Einheit hinzu', u === 1 + cp.n, { u, n: cp.n });
+    await click310([450, 700]);
+    await click310([140, 125]);
+    await click310(cp.c, 9);
+    const u1 = await ev("selItems().length");
+    ok('Mehrfachauswahl: Alt+Umschalt-Klick fügt nur das einzelne Teil hinzu', u1 === 2, u1);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
