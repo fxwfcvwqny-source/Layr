@@ -612,6 +612,37 @@ else {
   for (let k = 0; k < 200; k++) { await key(k % 20 === 19 ? 'Enter' : 'w', k % 20 === 19 ? 'Enter' : 'KeyW', k % 20 === 19 ? 13 : 87, k % 20 === 19 ? '\r' : 'w'); const q = await wl(); wmin = Math.min(wmin, q.l); wmax = Math.max(wmax, q.l); wsc = Math.max(wsc, Math.abs(q.sx - wl0.sx)); }
   ok('Typing 200 characters in a text box does not move the sheet sideways', wobH === true && await ev('editingObj&&editingObj.text.length') > 150 && Math.min(wmin, wl0.l) > 0 && wmax - wmin <= .5 && Math.abs(wmin - wl0.l) <= .5 && wsc === 0, { wobH, before: wl0.l, wmin, wmax, wsc });
   await ev('closeEditor()');
+  // Lost pointer events (cancel, missing pointerup) must not leave the ink layer transparent, the page stuck in a drag, or objects lost
+  await ev("(async()=>{const d=await PDFLib.PDFDocument.create();const f=await d.embedFont(PDFLib.StandardFonts.Helvetica);d.addPage([595,842]).drawText('Rauchtest Router 10.0.0.1',{x:72,y:700,size:18,font:f});await openPdf(await d.save(),'lost.pdf');await new Promise(r=>setTimeout(r,1500));setTool('select');insertOrgTemplate('einlinie');await new Promise(r=>setTimeout(r,600));setSel(null);S.pages[0].objs.forEach(o=>{if(o.type==='sym')o.y+=300});redraw(0)})()");
+  await waitFor("!!(S.pages[0].tl&&S.pages[0].tl.querySelector('span'))");
+  const lostSt = () => ev("(()=>{const P=S.pages[0];return {n:P.objs.length,pe:P.ink.style.pointerEvents,cur:P.ink.style.cursor,sel:!!document.querySelector('.textLayer.selecting'),drag:!!(typeof DRAG!=='undefined'&&DRAG),td:!!tlDrag}})()");
+  const lsp = await ev("(()=>{const P=S.pages[0],s=[...P.tl.querySelectorAll('span')].find(x=>x.textContent.includes('Router')),b=s.getBoundingClientRect(),r=P.el.getBoundingClientRect(),d=P.objs.filter(o=>o.type==='sym')[1];return {sp:[b.left+4,(b.top+b.bottom)/2],dev:[r.left+(d.x+d.w/2)*S.zoom,r.top+(d.y+d.h/2)*S.zoom]}})()");
+  const lostN0 = (await lostSt()).n;
+  // text drag interrupted by pointercancel
+  await pointUntil(lsp.sp[0], lsp.sp[1], 'none');
+  await pressAt(lsp.sp[0], lsp.sp[1]); await dragTo(lsp.sp[0] + 40, lsp.sp[1]);
+  await ev("document.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true}))");
+  const lc = await lostSt();
+  await releaseAt(lsp.sp[0] + 40, lsp.sp[1]);
+  ok('Text drag cancelled by pointercancel: ink restored, no stuck selecting/drag state', lc.pe === '' && !lc.sel && !lc.td && lc.n === lostN0 && lc.cur !== 'none', lc);
+  // object drag whose pointerup is lost: the next move without a button must not keep dragging
+  await ev("setSel(null);S.pages[0].ink.style.pointerEvents=''");
+  await mv(lsp.dev[0], lsp.dev[1]); await pressAt(lsp.dev[0], lsp.dev[1]); await dragTo(lsp.dev[0] + 30, lsp.dev[1] + 20);
+  const lp0 = await ev("JSON.stringify(S.pages[0].objs.filter(o=>o.type==='sym').map(o=>[o.x,o.y]))");
+  await ev(`(()=>{const k=S.pages[0].ink;for(const d of [[120,90],[200,90]])k.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:${lsp.dev[0]}+d[0],clientY:${lsp.dev[1]}+d[1],buttons:0,pointerType:'mouse',pointerId:1}))})()`);
+  const lp1 = await ev("JSON.stringify(S.pages[0].objs.filter(o=>o.type==='sym').map(o=>[o.x,o.y]))"), lo = await lostSt();
+  ok('Object drag with lost pointerup stops following the mouse; objects intact, no stale DRAG', lp0 === lp1 && lo.n === lostN0 && !lo.drag && lo.cur !== 'none', { lo, same: lp0 === lp1 });
+  await releaseAt(lsp.dev[0] + 200, lsp.dev[1] + 90);
+  await ev("setSel(null)"); await mv(lsp.dev[0], lsp.dev[1] + 20); await sleep(100);
+  const ld = await ev("(()=>{const P=S.pages[0],r=P.el.getBoundingClientRect(),d=P.objs.filter(o=>o.type==='sym')[1];return [r.left+(d.x+d.w/2)*S.zoom,r.top+(d.y+d.h/2)*S.zoom]})()");
+  await mv(ld[0], ld[1]); await pressAt(ld[0], ld[1]); await releaseAt(ld[0], ld[1]); await sleep(150);
+  ok('After lost events the next click selects an object', await ev("!!S.sel&&selItems().length>0") === true);
+  // stale transparent ink with no text drag: the next press recovers (safety net)
+  await ev("setSel(null);S.pages[0].ink.style.pointerEvents='none'");
+  await mv(ld[0] + 3, ld[1] + 3); await mv(5, 5);
+  await ev("S.pages[0].ink.style.pointerEvents='none'");
+  await pressAt(5, 5); await releaseAt(5, 5);
+  ok('Stale ink pointer-events none is reset by the next press', await ev("S.pages[0].ink.style.pointerEvents") === '');
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
