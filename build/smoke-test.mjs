@@ -1374,6 +1374,24 @@ else {
     ok('Seitenwahl und Seitenvorschau: englische Texte', en[0] === 'Page selector' && en[1] === 'Add page' && en[2] === 'Blank A4 page' && en[3] === 'Move page up' && en[4] === 'Add page at the end', en);
     await ev("design.motion='on';applyDesign(true);S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Review fix 1: undo/redo inside the open text editor also restores sty/spans; Ctrl+B in the editor is undoable
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'sty3.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});const o={type:'text',x:72,y:200,text:'Hello bold world',fs:16,color:'#1b1f24',orient:'h',lw:0,sty:[{a:6,b:10,bold:true}]};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.u1=o;window.u1K=(k,m={})=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...m}));return 1})()");
+    await sleep(300);
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    await ev("ED.eng.select(2,2);u1K('x');ED.eng.select(4,12);u1K('Delete')");
+    const mid = await J("[u1.text,u1.sty]");
+    await ev("for(let i=0;i<6;i++)u1K('z',{ctrlKey:true})");
+    const back = await J("[u1.text,u1.sty]");
+    await ev("for(let i=0;i<6;i++)u1K('y',{ctrlKey:true})");
+    const fwd = await J("[u1.text,u1.sty]");
+    ok('Review 1: Strg+Z/Strg+Y im Editor stellen Text und Teilformat (sty) zusammen wieder her', back[0] === 'Hello bold world' && JSON.stringify(back[1]) === '[{"a":6,"b":10,"bold":true}]' && fwd[0] === mid[0] && JSON.stringify(fwd[1]) === JSON.stringify(mid[1]), { mid, back, fwd });
+    await ev("for(let i=0;i<6;i++)u1K('z',{ctrlKey:true});ED.eng.select(0,5);u1K('b',{ctrlKey:true})");
+    const f1 = await J("u1.sty"); await ev("u1K('z',{ctrlKey:true})"); const f2 = await J("u1.sty"); await ev("u1K('y',{ctrlKey:true})"); const f3 = await J("u1.sty");
+    ok('Review 1: Strg+B im Editor ist mit Strg+Z rücknehmbar (und Strg+Y)', JSON.stringify(f1) === '[{"a":0,"b":5,"bold":true},{"a":6,"b":10,"bold":true}]' && JSON.stringify(f2) === '[{"a":6,"b":10,"bold":true}]' && JSON.stringify(f3) === JSON.stringify(f1), { f1, f2, f3 });
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

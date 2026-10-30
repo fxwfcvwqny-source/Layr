@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-a+/FVHXjebuwqeMaiyHcBQyombPD8I3+ij6GYy32doI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-69bieQ7WEM47OaOKXg8V5B4nYOMAkAwZ77ny4H2x41g=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4654,7 +4654,7 @@ function textEngine(host,initial,opt){
     const seg=st.v.slice(ms,me);if(sink.value!==seg)sink.value=seg;
     try{sink.setSelectionRange(lo()-ms,hi()-ms,st.c<st.a?'backward':'forward')}catch(e){}};
   const upd=()=>{sync();try{opt.onChange(st)}catch(err){dbg('FEHLER beim Zeichnen: '+(err&&err.stack||err))}};
-  const rec=()=>{hist.push([st.v,st.c,st.a]);if(hist.length>400)hist.shift();fut.length=0};
+  const snap=()=>opt.snap?opt.snap():null,rec=()=>{hist.push([st.v,st.c,st.a,snap()]);if(hist.length>400)hist.shift();fut.length=0};
   const put=t=>{t=norm(t);if(!t&&lo()===hi())return;rec();const l=lo();st.v=st.v.slice(0,l)+t+st.v.slice(hi());st.c=st.a=l+t.length;upd()};
   // Was das Textfeld selbst geändert hat (Tippen, Einfügen, Ausschneiden, Eingabesystem) übernehmen
   const take=()=>{if(comp)return;const seg=norm(sink.value);
@@ -4738,8 +4738,8 @@ function textEngine(host,initial,opt){
     else if(k==='Home'){let t=mod?0:(opt.edge||edge)(st.c,-1);if(opt.lists&&!mod){const[a]=lineRange(st.c),I=info(a);if(I&&t<=a+I.pre&&st.c>a+I.pre)t=a+I.pre}move(t,sh)}
     else if(k==='End')move(mod?st.v.length:(opt.edge||edge)(st.c,1),sh);
     else if(mod&&kl==='a'){st.a=0;st.c=st.v.length;upd()}
-    else if(mod&&!sh&&kl==='z'){if(hist.length){fut.push([st.v,st.c,st.a]);[st.v,st.c,st.a]=hist.pop();upd()}else if(opt.onEmptyUndo)opt.onEmptyUndo()}
-    else if(mod&&(kl==='y'||(sh&&kl==='z'))){if(fut.length){hist.push([st.v,st.c,st.a]);[st.v,st.c,st.a]=fut.pop();upd()}}
+    else if(mod&&!sh&&kl==='z'){if(hist.length){fut.push([st.v,st.c,st.a,snap()]);const h=hist.pop();[st.v,st.c,st.a]=h;if(h[3]&&opt.restore)opt.restore(h[3],st.v);upd()}else if(opt.onEmptyUndo)opt.onEmptyUndo()}
+    else if(mod&&(kl==='y'||(sh&&kl==='z'))){if(fut.length){hist.push([st.v,st.c,st.a,snap()]);const h=fut.pop();[st.v,st.c,st.a]=h;if(h[3]&&opt.restore)opt.restore(h[3],st.v);upd()}}
     else if(k==='Tab'){if(opt.lists)listIndent(sh?-1:1)}
     else if(isChar(e))typeChar(withDead(k));
     else done=false;
@@ -4748,7 +4748,7 @@ function textEngine(host,initial,opt){
     return false};
   sink.addEventListener('keydown',key);
   sync();
-  return{st,sink,put,del,key,list:k=>listToggle(k),indent:d=>listIndent(d),listKind:()=>{const I=info(lineRange(lo())[0]);return I?I.kind:null},
+  return{st,sink,put,del,key,rec,list:k=>listToggle(k),indent:d=>listIndent(d),listKind:()=>{const I=info(lineRange(lo())[0]);return I?I.kind:null},
     focus:()=>{if(document.activeElement!==sink)sink.focus({preventScroll:true});sync()},
     select:(a,c)=>{st.a=clamp(a,0,st.v.length);st.c=clamp(c,0,st.v.length);upd()},
     word:i=>{let a=i,b=i;while(a>0&&isW(st.v[a-1]))a--;while(b<st.v.length&&isW(st.v[b]))b++;st.a=a;st.c=b;upd()},
@@ -4896,16 +4896,16 @@ function openTextEditor(i,o,isNew,at){
     root.classList.toggle('flip',o.y*z<46*({s:1,m:1.1,l:1.3}[design.qbar]||1))};
   const set=props=>{
     // Farbe bei markiertem Text: nur für die markierten Zeichen
-    if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
+    if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){eng.rec();setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
     if(o.orient==='stack'&&'hbg' in props){props={...props};delete props.hbg}
     // Fett/Kursiv/Unterstrichen/Hintergrund bei markiertem Text: nur für die markierten Zeichen (aus, wenn schon alle so formatiert sind)
     if(eng&&o.orient!=='stack'){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);
-      if(h>l&&['bold','italic','underline','hbg'].some(k=>k in props)){props={...props};keepCtr(o,()=>{for(const k of['bold','italic','underline','hbg'])if(k in props){const v=k==='hbg'?props.hbg||'':styState(o,l,h,k)!==true;setSty(o,l,h,k,v);delete props[k]}});
+      if(h>l&&['bold','italic','underline','hbg'].some(k=>k in props)){props={...props};eng.rec();keepCtr(o,()=>{for(const k of['bold','italic','underline','hbg'])if(k in props){const v=k==='hbg'?props.hbg||'':styState(o,l,h,k)!==true;setSty(o,l,h,k,v);delete props[k]}});
         if(!Object.keys(props).length){syncFmt(o);refresh();redraw(i);return}}}
     keepCtr(o,()=>{for(const k of['fs','color','bold','orient','underline','italic','hbg','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];if(!o.hbg)delete o.hbg});
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}for(const k of['bold','underline','italic','hbg'])if(k in props)S[k]=k==='hbg'?(o.hbg||''):!!o[k];syncFmt(o);if('color' in props)setColor(o.color,true);textClamp(o,P,true);refresh();redraw(i)};
-  eng=textEngine(area,o.text,{lists:true,onChange:st=>{keepCtr(o,()=>{shiftSpans(o,o.text,st.v);o.text=st.v});textClamp(o,P,true);refresh();redraw(i)},
+  eng=textEngine(area,o.text,{lists:true,snap:()=>[o.sty?JSON.stringify(o.sty):'',o.spans?JSON.stringify(o.spans):''],restore:(q,v)=>{o.text=v;if(q[0])o.sty=JSON.parse(q[0]);else delete o.sty;if(q[1])o.spans=JSON.parse(q[1]);else delete o.spans},onChange:st=>{keepCtr(o,()=>{shiftSpans(o,o.text,st.v);o.text=st.v});textClamp(o,P,true);refresh();redraw(i)},
     vert:(idx,d)=>{const p=idxPos(o,g,idx),li=p.li+d;if(li<0)return 0;if(li>=g.b.lines.length)return o.text.length;return posIdx(o,g,p.x,(li+.5)*g.b.lh)},
     edge:(idx,d)=>{const p=idxPos(o,g,idx);return g.starts[p.li]+(d<0?0:g.b.lines[p.li].length)},
     onEmptyUndo:()=>{if(o.text===startText&&JSON.stringify({...o,text:startText})===origJson){closeEditor();undo()}}});
