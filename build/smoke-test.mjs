@@ -2112,6 +2112,11 @@ else {
     ok('Review: Aufgaben auf 5000 Stück und 20000 Zeichen begrenzt', tk[0] === 5000 && tk[1] === 20000, tk);
     await ev("tasksSet([])");
   }
+  // Review fix 5
+  {
+    const ac = await ev("(()=>{S.autoChar=true;const L='x'.repeat(5000),r=[acRule(L+' -','>'),acRule(L+' <-',' '),acRule(L+' ..','.'),acRule(L+' (c',')'),acRule(L+'a-','>'),acRule(L+' +-','5'),acRule(L+'!','='),acRule(L+'<=','>')];return JSON.stringify(r)})()").then(JSON.parse);
+    ok('Review: Autokorrektur nutzt nur das Textende (gleiches Ergebnis wie vorher)', JSON.stringify(ac) === JSON.stringify([[1, '→'], [2, '← '], [2, '…'], [2, '©'], [1, '→'], [2, '±5'], [1, '≠'], null]), ac);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

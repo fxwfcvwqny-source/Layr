@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-CVxwXpaaQ/MoEJEpsoAauxoIT7hmIbW9gooZsv6Xmqw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6GNmmkfXAzkcJODW8gPI9gF7zrmvu9O+cVkr2QI8s3s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2259,7 +2259,7 @@ const I18N_EN={
 'Neues Dokument':'New document','Eine eigene, neue PDF-Datei':'A separate, new PDF file','Leere Seiten einfügen':'Insert blank pages','Leere Seiten hinzufügen':'Add blank pages','Zur aktuellen PDF':'To the current PDF','Erst eine PDF öffnen':'Open a PDF first',
 'Name':'Name','Format':'Format','Seiten':'Pages','Papierfarbe':'Paper colour','Hintergrund':'Background','Position':'Position','Am Anfang':'At the beginning','Am Ende':'At the end',
 'A4 hoch':'A4 portrait','A4 quer':'A4 landscape','A3 quer':'A3 landscape','Leer':'Blank','Liniert':'Lined','Kariert':'Squared','Punkte':'Dotted','Creme':'Cream','Rosé':'Rosé','Papier':'Paper',
-'Textauswahl':'Text selection','Markieren':'Highlight','Markieren (zuletzt gewählte Farbe)':'Highlight (last used colour)','Sonderzeichen-Auswahl':'Special character picker','Kopiert.':'Copied.','Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
+'Textauswahl':'Text selection','Markieren':'Highlight','Zusammenführen fehlgeschlagen: Datei zu groß oder beschädigt':'Merge failed: file too large or damaged','Markieren (zuletzt gewählte Farbe)':'Highlight (last used colour)','Sonderzeichen-Auswahl':'Special character picker','Kopiert.':'Copied.','Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
 // Seitenmenü
 'Seite duplizieren':'Duplicate page','Nach oben':'Move up','Nach unten':'Move down','Seite löschen':'Delete page','Nach oben verschieben':'Move up','Nach unten verschieben':'Move down','Seite nach oben':'Move page up','Seite nach unten':'Move page down','Beschriftungen dieser Seite entfernen':'Remove annotations on this page',
 // Zusammenführen
@@ -6909,7 +6909,7 @@ function needCap(before){if(!S.autoCap)return false;const line=before.slice(befo
 const capOf=ch=>{if(!ch||ch.length!==1||!/\p{Ll}/u.test(ch))return null;const u=ch.toUpperCase();return u.length===1&&u!==ch?u:null};
 /* Zeichen-Autokorrektur (Textfelder, Zellen, Beschriftungen, Notizen): wird ausgelöst, wenn das letzte Zeichen des Musters getippt ist. Gibt [Anzahl zu ersetzender Zeichen davor, Ersatz] zurück. */
 S.autoChar=true;try{S.autoChar=localStorage.getItem('pdfwerkbank:autochar')!=='0'}catch(e){}
-function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;
+function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;before=before.slice(-8); // only the tail matters: keeps the regexes cheap on huge texts
   // conservative: dashes and arrows need a word boundary (start or whitespace) in front, so URLs, options (--force), operators (i++--, x<-1) and ASCII art stay as typed
   if(t===' '){if(/(^|\s)--$/.test(before))return[2,'– '];if(/(^|\s)<-$/.test(before))return[2,'← ']}
   else if(t==='>'){if(/(^|\s)<-$/.test(before))return[2,'↔'];if(/(^|[^-<])-$/.test(before))return[1,'→'];if(before.endsWith('=')&&!before.endsWith('<='))return[1,'⇒']}
@@ -7437,10 +7437,11 @@ $('#mergeDlg').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Es
 // A PDF saved by Layr carries its unlabelled original and the editable objects as attachments: merge those, not the flattened pages
 async function mergeLayrData(bytes){
   try{const doc=await pdfOpen(bytes.slice());
-    try{const ac=await pdfAttachment(doc,LAYR_ORIG),jc=ac&&await pdfAttachment(doc,LAYR_DATA);if(!ac||!jc||jc.length>=64e6||ac.length>=1.5e9)return null;
+    try{const ac=await pdfAttachment(doc,LAYR_ORIG),jc=ac&&await pdfAttachment(doc,LAYR_DATA);if(!ac||!jc||jc.length>=64e6||ac.length>=3e8||ac.length>8*bytes.length+1e6)return null;
       const data=JSON.parse(new TextDecoder().decode(jc));if(!data||typeof data!=='object'||Array.isArray(data))return null;
       if(data.form&&typeof data.form==='object'&&Object.keys(data.form).length)return{flat:true}; // the embedded original lacks the filled values: keep the saved pages
-      const ob=new Uint8Array(ac),d2=await pdfOpen(ob.slice()),n=d2.numPages;pdfClose(d2);await PDFLib.PDFDocument.load(ob.slice(),{ignoreEncryption:true}); // pdf.js may open what pdf-lib cannot: then fall back to the flat pages
+      const ob=new Uint8Array(ac),d2=await pdfOpen(ob.slice()),n=d2.numPages;pdfClose(d2);if(n!==doc.numPages)return null; // page count differs from the visible file: keep the flat pages
+      await PDFLib.PDFDocument.load(ob.slice(),{ignoreEncryption:true}); // pdf.js may open what pdf-lib cannot: then fall back to the flat pages
       imgsLoad(data.imgs);
       return{bytes:ob,objs:sanPages(data.objs,n),notes:typeof data.notes==='string'?data.notes.slice(0,5e6):'',tasks:tasksCap(data.tasks)}}
     finally{pdfClose(doc)}}catch(e){return null}}
@@ -7451,8 +7452,9 @@ $('#mOk').onclick=async()=>{
     if(it.current){inote=S.notes||'';itasks=S.tasks||[]}else{const L=await mergeLayrData(bytes);if(L&&L.flat)flat.push(it.name);else if(L){bytes=L.bytes;io=L.objs;inote=L.notes;itasks=L.tasks}}
     const src=await PDFLib.PDFDocument.load(bytes.slice(),{ignoreEncryption:true});if(it.current)await formFill(src); // typed form values live in S.form, not in the bytes
     const pages=await out.copyPages(src,src.getPageIndices());
-    const mine=[];pages.forEach((p,k)=>{out.addPage(p);const l=io?JSON.parse(JSON.stringify(io[k]||[],(kk,v)=>kk==='_editing'?undefined:v)):[];objs.push(l);mine.push(...l)});
-    orgRemap(mine); // ids are random, but the same file merged twice would clash: give every source its own ids so docked lines stay with their own devices
+    const mine=[];try{pages.forEach((p,k)=>{out.addPage(p);const l=io?JSON.parse(JSON.stringify(io[k]||[],(kk,v)=>kk==='_editing'?undefined:v)):[];objs.push(l);for(const x of l)mine.push(x)});
+    orgRemap(mine)}catch(e){closeMerge();toast(tr('Zusammenführen fehlgeschlagen: Datei zu groß oder beschädigt'));return}
+     // ids are random, but the same file merged twice would clash: give every source its own ids so docked lines stay with their own devices
     if(String(inote).trim())notes.push(inote);tasks.push(...itasks)}
   const name=($('#mName').value.trim()||'Zusammengeführt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
   closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs,notes:notes.join('\n\n----------\n\n').slice(0,5e6),tasks:tasksCap(tasks)})},true));
