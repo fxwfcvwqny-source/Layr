@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZOPFOR//SWtpYE+7ZSkpsXGTuFNwNLRBJ0Z6mNbBQuI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZIegy+1Fk1fxDtGwK1B70Amy4Uk3ywWxnSajNCbxa3A=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -817,6 +817,11 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .fontPop{position:fixed;z-index:96;width:260px;max-height:min(440px,72vh);overflow-y:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:6px;overscroll-behavior:contain}
 .fontPop:not([hidden]){animation:lyr-unfold .22s cubic-bezier(.2,.85,.25,1);transform-origin:top left}
 .fontPop.closing{animation:lyr-fold .16s ease-in forwards}
+.charPop{width:auto;padding:8px 8px 6px}
+.cp-g{display:grid;grid-template-columns:repeat(8,34px);gap:2px}
+.cp-h{font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 4px 3px}
+.cp-b{width:34px;height:34px;border:0;background:transparent;color:var(--ink);border-radius:8px;font:17px/1 var(--f-ui);cursor:pointer;padding:0;transition:background .12s}
+.cp-b:hover{background:var(--hover)}.cp-b:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
 .fp-g{font:600 10.5px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:9px 10px 4px}
 .fp-o{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border:0;background:transparent;color:var(--ink);padding:7px 10px;border-radius:8px;font-size:15.5px;line-height:1.25;text-align:left;cursor:pointer;transition:background .12s}
 .fp-o:hover{background:var(--hover)}
@@ -1800,6 +1805,7 @@ header,.file{min-width:0}
         <div class="wr-wl" id="wrWords"></div><p class="hint" id="wrNone">Noch keine. Rechtsklick auf ein rot unterstrichenes Wort → „Zum Wörterbuch hinzufügen“.</p></div>
     </section>
     <section class="wr-s"><h3>Schreiben</h3><div class="seg" id="dAutoCap"><button data-v="on">Satzanfang groß</button><button data-v="off">Aus</button></div><p class="hint">Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.</p></section>
+    <section class="wr-s"><h3>Autokorrektur für Zeichen (→, –, …)</h3><div class="seg" id="dAutoChar"><button data-v="on">Zeichen ersetzen</button><button data-v="off">Aus</button></div><p class="hint">Beim Tippen werden ersetzt: -&gt; zu →, &lt;- zu ←, &lt;-&gt; zu ↔, =&gt; zu ⇒, -- (zwischen Leerzeichen) zu –, ... zu …, (c) zu ©, (r) zu ®, (tm) zu ™, +- zu ±, != zu ≠. Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück. Nicht in Codeblöcken, Adress- und Rechnerfeldern. Sonderzeichen-Auswahl: Strg+Umschalt+K.</p></section>
     <section class="wr-s" id="asrSec" hidden><h3>Diktieren</h3><div class="ab-row"><span class="upd-i"><svg class="ph" aria-hidden="true"><use href="#ph-microphone"/></svg></span><div><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div><p class="hint" id="wrDictKey"></p><button class="btn" id="wrKeys" type="button" style="align-self:flex-start">Tastenkürzel ändern</button></section>
     </div>
   </div>
@@ -2408,7 +2414,9 @@ const I18N_EN={
 'Geöffnete Dateien':'Open files','Nicht gespeichert':'Not saved','Tab schließen (Strg+W)':'Close tab (Ctrl+W)','PDF in neuem Tab öffnen (Strg+O)':'Open PDF in a new tab (Ctrl+O)',
 'Diese Datei ist schon geöffnet.':'This file is already open.',
 'Nicht gespeichert. Zum Schließen ohne Speichern noch einmal auf × klicken.':'Not saved. Click × again to close without saving.',
-'Schreiben':'Writing','Satzanfang groß':'Capitalize sentences','Aus':'Off',
+'Sonderzeichen':'Special characters','Sonderzeichen (Strg+Umschalt+K)':'Special characters (Ctrl+Shift+K)','Schreiben':'Writing','Satzanfang groß':'Capitalize sentences','Aus':'Off',
+'Autokorrektur für Zeichen (→, –, …)':'Autocorrect for characters (→, –, …)','Zeichen ersetzen':'Replace characters',
+'Beim Tippen werden ersetzt: -> zu →, <- zu ←, <-> zu ↔, => zu ⇒, -- (zwischen Leerzeichen) zu –, ... zu …, (c) zu ©, (r) zu ®, (tm) zu ™, +- zu ±, != zu ≠. Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück. Nicht in Codeblöcken, Adress- und Rechnerfeldern. Sonderzeichen-Auswahl: Strg+Umschalt+K.':'While typing these are replaced: -> to →, <- to ←, <-> to ↔, => to ⇒, -- (between spaces) to –, ... to …, (c) to ©, (r) to ®, (tm) to ™, +- to ±, != to ≠. Backspace or Ctrl+Z right after brings back the typed characters. Not in code blocks, address and calculator fields. Special character picker: Ctrl+Shift+K.',
 'Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.':'The first letter of a sentence is capitalized automatically. Ctrl+Z right after makes it lowercase again.',
 'Tabelle':'Table','Zeilen':'Rows','Spalten':'Columns','Zeile':'Row','Spalte':'Column','Zeile entfernen':'Remove row','Zeile hinzufügen':'Add row','Spalte entfernen':'Remove column','Spalte hinzufügen':'Add column',
 'Kopfzeile':'Header','Kopfzeile hervorheben ein/aus':'Highlight header row on/off','Gleich breit':'Even widths','Spalten gleich breit':'Even column widths',
@@ -3556,7 +3564,7 @@ function ensureFont(k){const f=k&&FONT_MAP[k];if(!f||!f.css||fontReady[k])return
     const t=inkTest(f.css,false);if(!(t.w>30&&t.px>60)){fontBad[k]=1;dbg('Schrift '+k+' zeichnet nicht sichtbar, nehme Ersatz')}
     try{if(S.pages&&S.pages.length)redrawAll()}catch(e){}})}
 const tfont=o=>`${o.italic?'italic ':''}${o.bold?(o.font&&!fontBad[o.font]?'700 ':'600 '):''}${o.fs}px ${famOf(o)}`;
-let fontPop=null,fontPopCb=null,fontPopAnchor=null;
+let fontPop=null,fontPopCb=null,fontPopAnchor=null,charPop=null,charPopAnchor=null,charPopBack=null;
 function openFontPop(anchor,cur,cb){
   if(!fontPop){fontPop=document.createElement('div');fontPop.className='fontPop';fontPop.hidden=true;fontPop.setAttribute('role','listbox');fontPop.setAttribute('aria-label','Schriftart');document.body.appendChild(fontPop);
     fontPop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});
@@ -3576,6 +3584,33 @@ function openFontPop(anchor,cur,cb){
   fontPop.style.left=x+'px';fontPop.style.top=y+'px';anchor.setAttribute('aria-expanded','true');
   const sel=fontPop.querySelector('[aria-selected="true"]');if(sel)sel.scrollIntoView({block:'nearest'})}
 function closeFontPop(){if(fontPop&&!fontPop.hidden&&!fontPop._ah){animHide(fontPop);if(fontPopAnchor)fontPopAnchor.setAttribute('aria-expanded','false')}}
+/* Sonderzeichen-Auswahl: kleines Raster, per Maus oder Pfeiltasten + Enter; setzt das Zeichen über insert(ch) an die Schreibmarke */
+const CHAR_GRP=[['Aufzählung','Bullets',[['•','Punkt','Bullet'],['◦','Kreis','Circle'],['▪','Quadrat','Square'],['‣','Dreieckspunkt','Triangle bullet'],['–','Halbgeviertstrich','En dash'],['—','Geviertstrich','Em dash'],['…','Auslassungspunkte','Ellipsis'],['·','Mittelpunkt','Middle dot']]],
+  ['Pfeile','Arrows',[['→','Pfeil rechts','Right arrow'],['←','Pfeil links','Left arrow'],['↑','Pfeil hoch','Up arrow'],['↓','Pfeil runter','Down arrow'],['↔','Pfeil links und rechts','Left right arrow'],['⇒','Doppelpfeil rechts','Right double arrow'],['⇔','Doppelpfeil links und rechts','Left right double arrow'],['↩','Pfeil Zeilenumbruch','Return arrow']]],
+  ['Mathe','Math',[['±','Plus-Minus','Plus-minus'],['×','Mal','Multiplication'],['÷','Geteilt','Division'],['≠','Ungleich','Not equal'],['≤','Kleiner gleich','Less or equal'],['≥','Größer gleich','Greater or equal'],['≈','Ungefähr','Approximately'],['∞','Unendlich','Infinity'],['√','Wurzel','Square root'],['∑','Summe','Sum'],['°','Grad','Degree'],['‰','Promille','Per mille']]],
+  ['Griechisch','Greek',[['µ','Mikro','Micro'],['Ω','Omega','Omega'],['π','Pi','Pi'],['Δ','Delta','Delta'],['α','Alpha','Alpha'],['β','Beta','Beta'],['σ','Sigma','Sigma'],['λ','Lambda','Lambda']]],
+  ['Symbole','Symbols',[['✓','Häkchen','Check mark'],['✗','Kreuz','Cross mark'],['★','Stern','Star'],['©','Copyright','Copyright'],['®','Eingetragene Marke','Registered trademark'],['™','Marke','Trademark'],['§','Paragraph','Section sign'],['†','Kreuz (Dolch)','Dagger']]],
+  ['Anführungszeichen','Quotes',[['„','Anführungszeichen unten','Low double quote'],['“','Anführungszeichen oben','Double quote open'],['”','Anführungszeichen schließend','Double quote close'],['‚','Einfaches Anführungszeichen unten','Low single quote'],['‘','Einfaches Anführungszeichen oben','Single quote open'],['«','Guillemet links','Left guillemet'],['»','Guillemet rechts','Right guillemet'],['’','Apostroph','Apostrophe']]],
+  ['Währung','Currency',[['€','Euro','Euro'],['£','Pfund','Pound'],['$','Dollar','Dollar'],['¥','Yen','Yen'],['¢','Cent','Cent']]]];
+function closeCharPop(){if(charPop&&!charPop.hidden&&!charPop._ah){animHide(charPop);if(charPopAnchor&&charPopAnchor.setAttribute)charPopAnchor.setAttribute('aria-expanded','false')}}
+function openCharPop(anchor,insert,back,kbd){
+  if(!charPop){charPop=document.createElement('div');charPop.className='fontPop charPop';charPop.hidden=true;charPop.setAttribute('role','dialog');document.body.appendChild(charPop);
+    charPop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});
+    charPop.addEventListener('keydown',e=>{e.stopPropagation();const bs=[...charPop.querySelectorAll('.cp-b')],i=bs.indexOf(document.activeElement),k=e.key;let n=-1;
+      if(k==='Escape'){e.preventDefault();closeCharPop();charPopBack&&charPopBack();return}
+      if(k==='ArrowRight')n=Math.min(bs.length-1,i+1);else if(k==='ArrowLeft')n=Math.max(0,i-1);else if(k==='Home')n=0;else if(k==='End')n=bs.length-1;
+      else if((k==='ArrowDown'||k==='ArrowUp')&&i>=0){const r=bs[i].getBoundingClientRect(),d=k==='ArrowDown'?1:-1;let best=1e9;bs.forEach((b,j)=>{const q=b.getBoundingClientRect(),dy=(q.top-r.top)*d;if(dy>2){const sc=dy*100+Math.abs(q.left-r.left);if(sc<best){best=sc;n=j}}})}
+      if(n>=0){e.preventDefault();bs[n].focus()}});
+    document.addEventListener('pointerdown',e=>{if(!charPop||charPop.hidden||charPop._ah)return;if(charPop.contains(e.target)||(charPopAnchor&&charPopAnchor.contains&&charPopAnchor.contains(e.target)))return;closeCharPop()},true);
+    addEventListener('resize',closeCharPop)}
+  if(!charPop.hidden&&!charPop._ah&&charPopAnchor===anchor){closeCharPop();return}
+  charPopAnchor=anchor;charPopBack=back;const en=LANG==='en';charPop.setAttribute('aria-label',en?'Special characters':'Sonderzeichen');charPop.textContent='';
+  for(const[gd,ge,L]of CHAR_GRP){const h=document.createElement('div');h.className='cp-h';h.textContent=en?ge:gd;charPop.appendChild(h);const g=document.createElement('div');g.className='cp-g';g.setAttribute('role','group');g.setAttribute('aria-label',en?ge:gd);
+    for(const[ch,nd,ne]of L){const b=document.createElement('button');b.type='button';b.className='cp-b';b.textContent=ch;b.title=en?ne:nd;b.setAttribute('aria-label',b.title);b.onclick=()=>{closeCharPop();insert(ch);back&&back()};g.appendChild(b)}charPop.appendChild(g)}
+  showEl(charPop);const r=anchor.getBoundingClientRect(),w=charPop.offsetWidth,hh=charPop.offsetHeight;
+  let x=Math.max(8,Math.min(r.left,innerWidth-w-8)),y=r.bottom+6;if(y+hh>innerHeight-8)y=Math.max(8,r.top-hh-6);
+  charPop.style.left=x+'px';charPop.style.top=y+'px';if(anchor.setAttribute&&anchor.tagName==='BUTTON')anchor.setAttribute('aria-expanded','true');
+  const f=charPop.querySelector('.cp-b');if(kbd&&f)f.focus({preventScroll:true})}
 function saveFontPref(){try{localStorage.setItem('pdfwerkbank:font',S.font||'')}catch(e){}}
 function setFontUI(k){const n=document.getElementById('fontBtnN');if(!n)return;n.textContent=fontName(k);const f=FONT_MAP[k||''];n.style.fontFamily=f&&f.css?f.css:''}
 /* Schrifttest: Zeichnet ein Probewort auf eine Zeichenfläche und zählt, ob wirklich Pixel entstehen.
@@ -4598,7 +4633,9 @@ function textEngine(host,initial,opt){
   const isW=ch=>!!ch&&/[\p{L}\p{N}_]/u.test(ch);
   const wordL=i=>{while(i>0&&!isW(st.v[i-1]))i--;while(i>0&&isW(st.v[i-1]))i--;return i};
   const wordR=i=>{const n=st.v.length;while(i<n&&!isW(st.v[i]))i++;while(i<n&&isW(st.v[i]))i++;return i};
-  const typeChar=t=>{const u=lo()===hi()?capOf(t):null;if(!u||!needCap(st.v.slice(0,st.c))){put(t);return}
+  let acSnap=null; // autocorrect just applied: Backspace right after restores the typed characters
+  const typeChar=t=>{if(lo()===hi()){const r=acRule(st.v.slice(0,st.c),t);if(r){put(t);const pv=st.v,pc=st.c;rec();st.v=st.v.slice(0,st.c-t.length-r[0])+r[1]+st.v.slice(st.c);st.c=st.a=st.c-t.length-r[0]+r[1].length;acSnap={v:st.v,c:st.c,pv,pc};upd();return}}
+    const u=lo()===hi()?capOf(t):null;if(!u||!needCap(st.v.slice(0,st.c))){put(t);return}
     put(t);rec();st.v=st.v.slice(0,st.c-1)+u+st.v.slice(st.c);upd()};
   const del=(dir,word)=>{if(lo()!==hi())return put('');let a=st.c,b=st.c;
     if(dir<0)a=word?wordL(st.c):Math.max(0,st.c-1);else b=word?wordR(st.c):Math.min(st.v.length,st.c+1);if(a===b)return;st.c=a;st.a=b;put('')};
@@ -4659,8 +4696,10 @@ function textEngine(host,initial,opt){
   const key=e=>{
     if(comp||e.isComposing||e.keyCode===229)return false;
     if(e.key==='Dead'){dead=deadOf(e);return false}
-    const mod=e.ctrlKey||e.metaKey,sh=e.shiftKey,k=e.key,kl=k.toLowerCase();let done=true;
-    if(k==='Backspace'){if(!(opt.lists&&!mod&&listBack()))del(-1,mod)}else if(k==='Delete')del(1,mod);
+    const mod=e.ctrlKey||e.metaKey,sh=e.shiftKey,k=e.key,kl=k.toLowerCase();let done=true;const ac=acSnap;acSnap=null;
+    if(k==='Backspace'&&ac&&ac.v===st.v&&ac.c===st.c&&lo()===hi()&&!mod){rec();st.v=ac.pv;st.c=st.a=ac.pc;upd()}
+    else if(mod&&sh&&kl==='k'){openCharPop(host,ch=>put(ch),()=>{sink.focus({preventScroll:true});sync()},true)}
+    else if(k==='Backspace'){if(!(opt.lists&&!mod&&listBack()))del(-1,mod)}else if(k==='Delete')del(1,mod);
     else if(k==='Enter'&&!mod&&!e.altKey&&!opt.single){dbg('enter: start');if(!(opt.lists&&!sh&&listEnter()))put('\n');dbg('enter: fertig, Zeilen='+st.v.split('\n').length)}
     else if(k==='ArrowLeft')move(!sh&&lo()!==hi()?lo():mod?wordL(st.c):st.c-1,sh);
     else if(k==='ArrowRight')move(!sh&&lo()!==hi()?hi():mod?wordR(st.c):st.c+1,sh);
@@ -4715,7 +4754,7 @@ function makeEditor(i,x,y,fs,color,value,opt={}){
   editorEl=box;editorTa={get value(){return eng.value}};ED={eng,esc:()=>closeEditor(),focus:eng.focus};
   eng.focus();setTimeout(()=>{if(editorEl===box)eng.focus()},0);return box;
 }
-function closeEditor(){closeFontPop();if(!editorEl)return;dbg('editor close');const root=editorEl,cb=editorDone,v=editorTa.value;editorEl=editorTa=editorDone=ED=editingObj=null;root.remove();try{cb&&cb(v)}finally{for(const P of S.pages)for(const o of P.objs)delete o._editing;redrawAll();requestAnimationFrame(redrawAll)}}
+function closeEditor(){closeFontPop();closeCharPop();if(!editorEl)return;dbg('editor close');const root=editorEl,cb=editorDone,v=editorTa.value;editorEl=editorTa=editorDone=ED=editingObj=null;root.remove();try{cb&&cb(v)}finally{for(const P of S.pages)for(const o of P.objs)delete o._editing;redrawAll();requestAnimationFrame(redrawAll)}}
 const GRIP=PH('arrows-out-cardinal');
 /* Textfeld nach Acrobat-Vorbild: Text steht direkt im Blatt (gleiche Schrift, gleiche Größe), dünner Rahmen,
    Rand ziehen = verschieben, Seitengriffe = Breite (Umbruch), Eckgriff = Schriftgröße. Klick daneben übernimmt den Text. */
@@ -4744,7 +4783,7 @@ function idxPos(o,g,idx){const{b,starts}=g;let li=b.lines.length-1;for(let k=0;k
   const col=clamp(idx-starts[li],0,b.lines[li].length);mctx.font=tfont(o);return{li,col,x:mctx.measureText(b.lines[li].slice(0,col)).width,y:li*b.lh}}
 function posIdx(o,g,x,y){const{b,starts}=g;const li=clamp(Math.floor(y/b.lh),0,b.lines.length-1),L=b.lines[li]||'';mctx.font=tfont(o);let best=0,bd=1e9;
   for(let j=0;j<=L.length;j++){const d=Math.abs(mctx.measureText(L.slice(0,j)).width-x);if(d<bd){bd=d;best=j}}return Math.min(starts[li]+best,String(o.text).length)}
-document.addEventListener('pointerdown',e=>{if(!editorEl)return;const t=e.target;if(editorEl.contains(t)||(fontPop&&fontPop.contains(t)))return;
+document.addEventListener('pointerdown',e=>{if(!editorEl)return;const t=e.target;if(editorEl.contains(t)||(fontPop&&fontPop.contains(t))||(charPop&&charPop.contains(t)))return;
   if(t.closest&&t.closest('#panel,.ctx,#ruler,.modal,#bMic'))return;if(t.classList&&t.classList.contains('ink'))return;closeEditor()},true);
 const QB_HTML={
   font:'<button type="button" data-a="font" class="edfont" title="Schriftart" aria-haspopup="listbox" aria-expanded="false"><span></span><svg class="ph" aria-hidden="true"><use href="#ph-caret-down"/></svg></button>',
@@ -4756,6 +4795,7 @@ const QB_HTML={
   indent:'<button type="button" data-a="out" title="Ebene höher (Umschalt+Tab)"><svg class="ph" aria-hidden="true"><use href="#ph-text-outdent"/></svg></button><button type="button" data-a="in" title="Unterpunkt (Tab)"><svg class="ph" aria-hidden="true"><use href="#ph-text-indent"/></svg></button>',
   col:'<span class="edcolw"><button type="button" data-a="col" class="edcol" title="Schriftfarbe" aria-haspopup="true" aria-expanded="false"><span class="ca">A</span><span class="cbar"></span></button><span class="edpal" hidden><span class="edsws"><button type="button" class="edsw" data-c="#1b1f24" title="Schwarz" style="background:#1b1f24"></button><button type="button" class="edsw" data-c="#d62828" title="Rot" style="background:#d62828"></button><button type="button" class="edsw" data-c="#1d4ed8" title="Blau" style="background:#1d4ed8"></button><button type="button" class="edsw" data-c="#15803d" title="Grün" style="background:#15803d"></button><button type="button" class="edsw" data-c="#ea7a0b" title="Orange" style="background:#ea7a0b"></button><button type="button" class="edsw" data-c="#7c3aed" title="Lila" style="background:#7c3aed"></button><button type="button" class="edsw" data-c="#0e7490" title="Petrol" style="background:#0e7490"></button><button type="button" class="edsw" data-c="#6b7280" title="Grau" style="background:#6b7280"></button></span><label class="edcust"><input type="color" class="edcin" aria-label="Eigene Farbe"> Eigene Farbe</label></span></span>',
   bg:'<span class="edcolw"><button type="button" data-a="bg" class="edcol" title="Texthintergrund" aria-haspopup="true" aria-expanded="false"><span class="ca"><svg class="ph" aria-hidden="true"><use href="#ph-highlighter"/></svg></span><span class="cbar"></span></button><span class="edpal edbgp" hidden><span class="edsws"><button type="button" class="edsw edsw-none" data-c="" title="Kein Hintergrund"></button><button type="button" class="edsw" data-c="#ffd60a" title="Gelb" style="background:#ffd60a"></button><button type="button" class="edsw" data-c="#1b1f24" title="Schwarz" style="background:#1b1f24"></button><button type="button" class="edsw" data-c="#d62828" title="Rot" style="background:#d62828"></button><button type="button" class="edsw" data-c="#1d4ed8" title="Blau" style="background:#1d4ed8"></button><button type="button" class="edsw" data-c="#15803d" title="Grün" style="background:#15803d"></button><button type="button" class="edsw" data-c="#ea7a0b" title="Orange" style="background:#ea7a0b"></button><button type="button" class="edsw" data-c="#7c3aed" title="Lila" style="background:#7c3aed"></button><button type="button" class="edsw" data-c="#0e7490" title="Petrol" style="background:#0e7490"></button><button type="button" class="edsw" data-c="#6b7280" title="Grau" style="background:#6b7280"></button></span><label class="edcust"><input type="color" class="edcin" aria-label="Eigene Farbe"> Eigene Farbe</label></span></span>',
+  chars:'<button type="button" data-a="chars" title="Sonderzeichen (Strg+Umschalt+K)" aria-haspopup="dialog" aria-expanded="false"><b>Ω</b></button>',
   del:'<button type="button" data-a="del" title="Textfeld löschen"><svg class="ph" aria-hidden="true"><use href="#ph-trash"/></svg></button>'};
 /* Sidebar text format toggles (bold/italic/underline/background): defaults for new text boxes AND applied to the selection or open editor */
 function fmtTarget(o){return o&&o.type==='text'?o:ED?ED.o:selItems().find(x=>x.type==='text')||null}
@@ -4779,8 +4819,8 @@ function syncFmt(o){o=fmtTarget(o);const g=k=>o?o[k]:S[k];
 function qbBar(order,hide){const vis=order.filter(id=>!hide.includes(id)),off=order.filter(id=>hide.includes(id));let h='',prev=null;
   for(const id of vis){if(prev!==null&&QB_GRP[id]!==QB_GRP[prev])h+='<span class="edsep"></span>';h+=QB_HTML[id];prev=id}
   return h+'<span class="edoff" hidden>'+off.map(id=>QB_HTML[id]).join('')+'</span>'}
-const QB_NAME={font:'Schriftart',size:'Schriftgröße',bold:'Fett',it:'Kursiv',ul:'Unterstreichen',lists:'Listen',indent:'Einrücken',col:'Schriftfarbe',bg:'Texthintergrund',del:'Löschen'};
-const QB_ICON={font:PH('text-aa'),size:PH('text-t'),bold:'<b>B</b>',it:PH('text-italic'),ul:'<u>U</u>',lists:PH('list-bullets'),indent:PH('text-indent'),col:PH('palette'),bg:PH('highlighter'),del:PH('trash')};
+const QB_NAME={font:'Schriftart',size:'Schriftgröße',bold:'Fett',it:'Kursiv',ul:'Unterstreichen',lists:'Listen',indent:'Einrücken',col:'Schriftfarbe',bg:'Texthintergrund',chars:'Sonderzeichen',del:'Löschen'};
+const QB_ICON={font:PH('text-aa'),size:PH('text-t'),bold:'<b>B</b>',it:PH('text-italic'),ul:'<u>U</u>',lists:PH('list-bullets'),indent:PH('text-indent'),col:PH('palette'),bg:PH('highlighter'),chars:'<b>Ω</b>',del:PH('trash')};
 // Dialog: live preview, one row per button (order arrows and visibility switch); focus = selector to keep focus on after re-render
 function qbRender(focus){const L=$('#dQbItems'),ord=design.qbarOrder,hide=design.qbarHide,nVis=ord.length-hide.length;
   L.textContent='';
@@ -4849,6 +4889,7 @@ function openTextEditor(i,o,isNew,at){
   root.querySelector('[data-a=dn]').onclick=e=>{set({fs:o.fs-(e.shiftKey?4:1)});eng.focus()};
   root.querySelector('[data-a=up]').onclick=e=>{set({fs:o.fs+(e.shiftKey?4:1)});eng.focus()};
   root.querySelector('[data-a=del]').onclick=()=>{eng.st.v='';o.text='';closeEditor()};
+  {const bCh=root.querySelector('[data-a=chars]');bCh.onclick=e=>openCharPop(bCh,ch=>eng.put(ch),()=>eng.focus(),e.detail===0)}
   bB.onclick=()=>{set({bold:!o.bold});eng.focus()};
   bF.onclick=()=>openFontPop(bF,o.font,k=>{set({font:k});eng.focus()});
   bU.onclick=()=>{set({underline:!o.underline});eng.focus()};
@@ -5172,9 +5213,9 @@ $('#bZoomIn').onclick=()=>zoomTo(S.zoom*1.2);$('#bZoomOut').onclick=()=>zoomTo(S
 $('#bPanel').onclick=()=>$('#panel').classList.toggle('open');
 // Design-Einstellungen (nur Oberfläche, pro Gerät gemerkt)
 let _acc='';function accentCol(){return _acc||(_acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#0b6570')}
-const DDEF={theme:'system',accent:'petrol',accentC:'',toolbar:'center',density:'normal',corners:'round',desk:'plain',deskc:'standard',sheet:'white',shadow:'soft',motion:'on',light:'standard',dark:'standard',bars:'standard',barsC:'',tbstyle:'bar',toast:'standard',toastC:'',toastPos:'bc',toastDur:'normal',qbar:'m',qbarOrder:['font','size','bold','it','ul','lists','indent','col','bg','del'],qbarHide:[],qbarStyle:'panel',saveStyle:'icon',hints:'on'};
-const QB_IDS=['font','size','bold','it','ul','lists','indent','col','bg','del']; // text quick bar buttons in default order
-const QB_GRP={font:0,size:1,bold:2,it:2,ul:2,lists:3,indent:3,col:3,bg:3,del:3}; // a separator goes between visible buttons of different groups
+const DDEF={theme:'system',accent:'petrol',accentC:'',toolbar:'center',density:'normal',corners:'round',desk:'plain',deskc:'standard',sheet:'white',shadow:'soft',motion:'on',light:'standard',dark:'standard',bars:'standard',barsC:'',tbstyle:'bar',toast:'standard',toastC:'',toastPos:'bc',toastDur:'normal',qbar:'m',qbarOrder:['font','size','bold','it','ul','lists','indent','col','bg','chars','del'],qbarHide:[],qbarStyle:'panel',saveStyle:'icon',hints:'on'};
+const QB_IDS=['font','size','bold','it','ul','lists','indent','col','bg','chars','del']; // text quick bar buttons in default order
+const QB_GRP={font:0,size:1,bold:2,it:2,ul:2,lists:3,indent:3,col:3,bg:3,chars:3,del:3}; // a separator goes between visible buttons of different groups
 // Returns a sanitised copy of the text quick bar keys; never mutates the input
 const qbSan=d=>{const known=a=>Array.isArray(a)?[...new Set(a.filter(x=>QB_IDS.includes(x)))]:[];
   const o=known(d.qbarOrder),h=known(d.qbarHide);
@@ -6590,6 +6631,23 @@ function needCap(before){if(!S.autoCap)return false;const line=before.slice(befo
   if(/[^.]\.\.\s+$/.test(before))return false;
   return true}
 const capOf=ch=>{if(!ch||ch.length!==1||!/\p{Ll}/u.test(ch))return null;const u=ch.toUpperCase();return u.length===1&&u!==ch?u:null};
+/* Zeichen-Autokorrektur (Textfelder, Zellen, Beschriftungen, Notizen): wird ausgelöst, wenn das letzte Zeichen des Musters getippt ist. Gibt [Anzahl zu ersetzender Zeichen davor, Ersatz] zurück. */
+S.autoChar=true;try{S.autoChar=localStorage.getItem('pdfwerkbank:autochar')!=='0'}catch(e){}
+function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;
+  if(t==='>'){if(before.endsWith('←'))return[1,'↔'];if(before.endsWith('-'))return[1,'→'];if(before.endsWith('='))return[1,'⇒']}
+  else if(t==='-'){if(before.endsWith('<'))return[1,'←'];if(before.endsWith('+'))return[1,'±'];if(/[ \t]-$/.test(before))return[1,'–']}
+  else if(t==='.'){if(before.endsWith('..')&&!before.endsWith('…'))return[2,'…']}
+  else if(t==='='){if(before.endsWith('!'))return[1,'≠']}
+  else if(t===')'){const m=/\((c|r|tm)$/i.exec(before);if(m)return[m[0].length,{c:'©',r:'®',tm:'™'}[m[1].toLowerCase()]]}
+  return null}
+{const nt=document.getElementById('ntText');if(nt){let acN=null;
+  nt.addEventListener('keydown',e=>{if(e.key==='Backspace'&&acN&&acN.v===nt.value&&acN.p===nt.selectionStart&&nt.selectionStart===nt.selectionEnd){e.preventDefault();document.execCommand('undo')}acN=null;
+    if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='k'){e.preventDefault();openCharPop(nt,ch=>document.execCommand('insertText',false,ch),()=>nt.focus(),true)}});
+  nt.addEventListener('beforeinput',e=>{
+    if(e.inputType!=='insertText'||e.isComposing||nt.selectionStart!==nt.selectionEnd||!e.data)return;const r=acRule(nt.value.slice(0,nt.selectionStart),e.data);if(!r)return;
+    e.preventDefault();document.execCommand('insertText',false,e.data);const p=nt.selectionStart;nt.setSelectionRange(p-r[0]-1,p);document.execCommand('insertText',false,r[1]);acN={v:nt.value,p:nt.selectionStart}})}}
+{const g=document.getElementById('dAutoChar');if(g){const sync=()=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.v==='on')===!!S.autoChar)));sync();
+  g.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.autoChar=b.dataset.v==='on';try{localStorage.setItem('pdfwerkbank:autochar',S.autoChar?'1':'0')}catch(err){}sync()})}}
 {const nt=document.getElementById('ntText');if(nt)nt.addEventListener('beforeinput',e=>{
   if(e.inputType!=='insertText'||e.isComposing||nt.selectionStart!==nt.selectionEnd)return;const u=capOf(e.data);if(!u||!needCap(nt.value.slice(0,nt.selectionStart)))return;
   e.preventDefault();document.execCommand('insertText',false,e.data);const p=nt.selectionStart;nt.setSelectionRange(p-1,p);document.execCommand('insertText',false,u)})}
