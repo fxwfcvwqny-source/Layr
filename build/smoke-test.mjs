@@ -959,6 +959,37 @@ else {
     ok('Doppelklick im Stiftwerkzeug auf leerem Papier: Striche bleiben', emp.n > 1 && !emp.edit, emp);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
   }
+  // B4b: «include»/«extend» buttons arm the arrow tool with a preset; with a selected line they label it as before
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("zoomTo(1);S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo();S.pages[0].el.scrollIntoView({block:'start'})");
+    await sleep(300);
+    const btn = id => ev(`(()=>{const b=document.getElementById('${id}');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    const c4 = async id => { const b = await btn(id); await mv(b[0], b[1]); await pressAt(b[0], b[1]); await releaseAt(b[0], b[1]); await sleep(100); };
+    for (const [id, lab] of [['lnInc', '«include»'], ['lnExt', '«extend»']]) {
+      await c4(id);
+      const a0 = await ev("({tool:S.tool,pre:LNPRE&&LNPRE.label,n:S.pages[0].objs.length})");
+      const g = await ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width*.3,r.top+r.height*.3,S.zoom]})()");
+      await mv(g[0], g[1]); await pressAt(g[0], g[1]); for (let i = 1; i <= 6; i++) await dragTo(g[0] + 20 * i, g[1] + 10 * i); await releaseAt(g[0] + 120, g[1] + 60); await sleep(120);
+      const l = await ev("(()=>{const o=S.pages[0].objs;return {n:o.length,o:o[o.length-1],pre:LNPRE,hu:H.u.length}})()");
+      ok(`${lab}-Knopf ohne Auswahl: Pfeilwerkzeug mit Voreinstellung, der nächste Pfeil ist gestrichelt, offen und beschriftet, genau ein Objekt`,
+        a0.tool === 'arrow' && a0.pre === lab && a0.n === 0 && l.n === 1 && l.o.label === lab && l.o.dash === true && l.o.end === 'arrow' && l.o.start === 'none' && Math.abs((l.o.x2 - l.o.x1) * g[2] - 120) < 2 && Math.abs((l.o.y2 - l.o.y1) * g[2] - 60) < 2 && l.pre === null && l.hu === 1, { a0, l: { n: l.n, lab: l.o.label, dash: l.o.dash, end: l.o.end, pre: l.pre, hu: l.hu } });
+      // the preset is one-shot: the next arrow is plain
+      await mv(g[0], g[1] + 150); await pressAt(g[0], g[1] + 150); for (let i = 1; i <= 4; i++) await dragTo(g[0] + 20 * i, g[1] + 150); await releaseAt(g[0] + 80, g[1] + 150); await sleep(100);
+      const p2 = await ev("(()=>{const o=S.pages[0].objs;return [o.length,o[o.length-1].label||null]})()");
+      ok(`${lab}: Voreinstellung gilt nur für einen Pfeil`, p2[0] === 2 && p2[1] === null, p2);
+      await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo()");
+    }
+    await c4('lnExt'); await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+    ok('«extend»-Voreinstellung: Esc bricht ab', await ev("LNPRE===null&&!document.querySelector('.armhint').textContent") === true);
+    // selected line: old behaviour
+    await ev("S.pages[0].objs.push({type:'line',x1:100,y1:100,x2:200,y2:100,color:'#000000',lw:1,dash:false,elbow:false,start:'none',end:'none'});setTool('select');setSel({p:0,o:S.pages[0].objs[0]});redraw(0)");
+    await c4('lnInc');
+    const sl = await ev("({lab:S.pages[0].objs[0].label,dash:S.pages[0].objs[0].dash,pre:LNPRE,tool:S.tool,n:S.pages[0].objs.length})");
+    ok('«include»-Knopf mit gewählter Linie: beschriftet sie wie früher, keine Voreinstellung', sl.lab === '«include»' && sl.dash === true && sl.pre === null && sl.tool === 'select' && sl.n === 1, sl);
+    ok('«include»/«extend»: Tooltip und aria-label vorhanden (de/en)', await ev("(()=>{const b=document.getElementById('lnInc');const d=b.title&&b.getAttribute('aria-label'),L0=LANG;LANG='en';const e=tr(b.title)!==b.title&&tr(b.getAttribute('aria-label'))!==b.getAttribute('aria-label');LANG='de';return !!d&&e})()") === true);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select')");
+  }
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
