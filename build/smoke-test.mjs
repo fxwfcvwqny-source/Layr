@@ -1164,22 +1164,22 @@ else {
     await click310([300, 125], 8);
     const a2 = await ids310();
     ok('Mehrfachauswahl: Umschalt-Klick auf ein gewähltes Objekt nimmt es heraus', a2.length === 1 && a2[0] === 'bA', a2);
-    await click310([450, 700]);
+    await key310('Escape', 'Escape', 27);
     await key310('a', 'KeyA', 65, 2);
     const all = await ev("[selItems().length,S.pages[0].objs.length]");
     ok('Strg+A wählt alle Objekte der Seite', all[0] === all[1] && all[0] > 3, all);
-    await click310([450, 700]);
+    await key310('Escape', 'Escape', 27);
     await drag310([60, 60], [400, 200]);
     const rb = await ids310();
     ok('Gummiband wählt nur die Objekte im Rahmen', rb.length === 2 && rb[0] === 'bA' && rb[1] === 'bB', rb);
     // template = one unit for Shift+Click, Alt+Shift = one part
     const cp = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid);return {c:[o.x+o.w/2,o.y+o.h/2],n:S.pages[0].objs.filter(q=>q.gid===o.gid).length}})()");
-    await click310([450, 700]);
+    await key310('Escape', 'Escape', 27);
     await click310([140, 125]);
     await click310(cp.c, 8);
     const u = await ev("selItems().length");
     ok('Mehrfachauswahl: Umschalt-Klick auf eine Vorlage fügt die ganze Vorlage als Einheit hinzu', u === 1 + cp.n, { u, n: cp.n });
-    await click310([450, 700]);
+    await key310('Escape', 'Escape', 27);
     await click310([140, 125]);
     await click310(cp.c, 9);
     const u1 = await ev("selItems().length");
@@ -1194,13 +1194,13 @@ else {
     await key310('g', 'KeyG', 71, 2);
     const g1 = await ggOf('gA'), g2 = await ggOf('gB'), g3 = await ggOf('gC'), h1 = await ev('H.u.length');
     ok('Gruppieren (Strg+G): beide Objekte bekommen dasselbe gg, ein Rückgängig-Schritt, das dritte nicht', !!g1 && g1 === g2 && !g3 && h1 === h0 + 1, { g1, g2, g3, h0, h1 });
-    await click310([450, 700]); await click310([70, 85]);
+    await key310('Escape', 'Escape', 27); await click310([70, 85]);
     ok('Gruppe: Klick auf ein Mitglied wählt die äußere Gruppe', JSON.stringify(await ids310()) === JSON.stringify(['gA', 'gB']), await ids310());
-    await click310([450, 700]); await click310([70, 265]); await click310([70, 85], 8);
+    await key310('Escape', 'Escape', 27); await click310([70, 265]); await click310([70, 85], 8);
     ok('Gruppe: Umschalt-Klick fügt die ganze Gruppe hinzu', (await ids310()).length === 3, await ids310());
-    await click310([450, 700]); await click310([70, 85], 1);
+    await key310('Escape', 'Escape', 27); await click310([70, 85], 1);
     ok('Gruppe: Alt-Klick wählt nur das einzelne Teil', JSON.stringify(await ids310()) === JSON.stringify(['gA']), await ids310());
-    await click310([450, 700]); await click310([70, 85]);
+    await key310('Escape', 'Escape', 27); await click310([70, 85]);
     const m0 = await ev("S.pages[0].objs.filter(o=>o.oid==='gA'||o.oid==='gB').map(o=>[o.x,o.y])");
     await drag310([70, 85], [170, 115]);
     const m1 = await ev("S.pages[0].objs.filter(o=>o.oid==='gA'||o.oid==='gB').map(o=>[o.x,o.y])");
@@ -1218,7 +1218,7 @@ else {
     ok('Gruppe: sanObj bereinigt gg wie gid (Zeichen, Länge 40, Typ)', san[0] === 'abc_-9' && san[1] === 40 && san[2] === false && san[3] === false, san);
     const rm = await ev("(()=>{const mk=()=>[{type:'rect',x:0,y:0,w:5,h:5,color:'#000',gg:'same'},{type:'rect',x:9,y:0,w:5,h:5,color:'#000',gg:'same'}];const a=mk(),b=mk();orgRemap(a);orgRemap(b);return JSON.stringify([a[0].gg===a[1].gg,b[0].gg===b[1].gg,a[0].gg!==b[0].gg,a[0].gg!=='same'])})()").then(JSON.parse);
     ok('Gruppe: Zusammenführen/Einfügen vergibt je Quelle eigene gg (orgRemap)', rm.every(Boolean), rm);
-    await click310([450, 700]); await click310([170, 205]);
+    await key310('Escape', 'Escape', 27); await click310([170, 205]);
     const cp = await ev("(()=>{const n0=S.pages[0].objs.length;copySel();pasteClip();const a=S.pages[0].objs.slice(n0),old=new Set(S.pages[0].objs.slice(0,n0).map(o=>o.gg));return JSON.stringify([a.length,new Set(a.map(o=>o.gg)).size,a.every(o=>o.gg&&!old.has(o.gg))])})()").then(JSON.parse);
     ok('Gruppe: Kopieren/Einfügen gibt der Kopie ein neues gg', cp[0] === 2 && cp[1] === 1 && cp[2] === true, cp);
     const dp = await ev("(()=>{const n0=S.pages[0].objs.length;dupSel();const a=S.pages[0].objs.slice(n0),old=new Set(S.pages[0].objs.slice(0,n0).map(o=>o.gg));return JSON.stringify([a.length,new Set(a.map(o=>o.gg)).size,a.every(o=>o.gg&&!old.has(o.gg))])})()").then(JSON.parse);
@@ -1232,19 +1232,19 @@ else {
     ok('Gruppe: nach Wiederöffnen wählt ein Klick die Gruppe', (await ids310()).length === 2, await ids310());
     await key310('g', 'KeyG', 71, 10);
     ok('Gruppierung aufheben (Strg+Umschalt+G): gg weg', await ggOf('gA') === null && await ggOf('gB') === null, { a: await ggOf('gA') });
-    await click310([450, 700]); await click310(gp);
+    await key310('Escape', 'Escape', 27); await click310(gp);
     ok('Gruppe: nach dem Aufheben wählt ein Klick nur das Objekt', (await ids310()).length === 1, await ids310());
     await ev("setSel(null)");
     const t = await ev("(()=>{const a=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid),r=S.pages[0].objs.find(o=>o.sym==='router'&&o.gid&&o.gid!==a.gid);return {g1:a.gid,g2:r.gid,c1:[a.x+a.w/2,a.y+a.h/2],c2:[r.x+r.w/2,r.y+r.h/2],n1:S.pages[0].objs.filter(q=>q.gid===a.gid).length,n2:S.pages[0].objs.filter(q=>q.gid===r.gid).length}})()");
-    await click310([450, 700]); await click310(t.c1); await click310(t.c2, 8);
+    await key310('Escape', 'Escape', 27); await click310(t.c1); await click310(t.c2, 8);
     const both = (await ev("selItems().length"));
     await key310('g', 'KeyG', 71, 2);
     const tg = await ev("JSON.stringify([new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gg)).size,new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid)).size])").then(JSON.parse);
-    await click310([450, 700]); await click310(t.c1);
+    await key310('Escape', 'Escape', 27); await click310(t.c1);
     const n12 = await ev("selItems().length");
     await key310('g', 'KeyG', 71, 10);
     const left = await ev("JSON.stringify([S.pages[0].objs.filter(o=>o.gid&&o.gg).length,new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid)).size])").then(JSON.parse);
-    await click310([450, 700]); await click310(t.c1);
+    await key310('Escape', 'Escape', 27); await click310(t.c1);
     const n1 = await ev("selItems().length");
     ok('Gruppe aus zwei Vorlagen: Strg+G gruppiert beide, Aufheben stellt zwei Vorlagen-Gruppen wieder her', both === t.n1 + t.n2 && tg[0] === 1 && tg[1] === 2 && n12 === t.n1 + t.n2 && left[0] === 0 && left[1] === 2 && n1 === t.n1, { both, tg, n12, left, n1, t });
   }
@@ -1254,7 +1254,7 @@ else {
     const clickEl = async (sel) => { const r = await ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});e.scrollIntoView({block:'nearest'});document.scrollingElement.scrollTop=0;document.body.scrollTop=0;const b=e.getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(150); };
     const rects = () => ev("JSON.stringify(['aR1','aR2','aR3'].map(i=>{const o=S.pages[0].objs.find(q=>q.oid===i);return [o.x,o.y,o.w,o.h]}))").then(JSON.parse);
     const reset = async () => { await ev("(()=>{const P=S.pages[0];const set=(i,x,y)=>{const o=P.objs.find(q=>q.oid===i);o.x=x;o.y=y};set('aR1',40,100);set('aR2',200,150);set('aR3',120,300);setSel(null);redraw(0)})()"); };
-    const selAll = async () => { await click310([500, 700]); await key310('a', 'KeyA', 65, 2); };
+    const selAll = async () => { await key310('Escape', 'Escape', 27); await key310('a', 'KeyA', 65, 2); };
     const near = (a, b) => Math.abs(a - b) < 1e-6;
     const cases = [
       ['l', r => r.every(q => near(q[0], 40))], ['r', r => r.every(q => near(q[0] + q[2], 300))], ['ch', r => r.every(q => near(q[0] + q[2] / 2, 170))],
@@ -1399,7 +1399,7 @@ else {
     const was = await menu('Objektleiste am gewählten Objekt');
     await ev("closeMenu()"); await click310([410, 330]); await sleep(200);
     const offState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
-    await sleep(500); await menu('Objektleiste am gewählten Objekt'); await ev("closeMenu()"); await click310([450, 700]); await click310([410, 330]); await sleep(250);
+    await sleep(500); await menu('Objektleiste am gewählten Objekt'); await ev("closeMenu()"); await key310('Escape', 'Escape', 27); await click310([410, 330]); await sleep(250);
     const onState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
     ok('Objektleiste: Einstellung "Objektleiste am gewählten Objekt" (Standard an) schaltet die Leiste aus und wieder ein', was === 'true' && offState[0] === false && offState[1] === '0' && offState[2] === true && onState[0] === true && onState[2] === false, { was, offState, onState });
   }
@@ -1428,7 +1428,7 @@ else {
     const ta = await ev("(()=>{const o=S.pages[0].objs.find(q=>q.oid==='zT'),b=textBox(o);return [o.x,o.y,b.w,b.h,o.fs]})()");
     ok('Größe: Alt am Textfeld skaliert von der Mitte aus', ta[4] > 20 && near(ta[0] + ta[2] / 2, tb[0] + tb[2] / 2, 1.5) && near(ta[1] + ta[3] / 2, tb[1] + tb[3] / 2, 1.5), { tb, ta });
     // group: Alt keeps the centre; image rule and non-Alt group unchanged (unit level)
-    await reset(); await click310([450, 700]); await drag310([60, 280], [420, 380]); // rubber band over zA and zB
+    await reset(); await key310('Escape', 'Escape', 27); await drag310([60, 280], [420, 380]); // rubber band over zA and zB
     const g0 = await ev("JSON.stringify(bbox(S.sel.o))").then(JSON.parse);
     await dragH([g0.x + g0.w, g0.y + g0.h], [g0.x + g0.w + 40, g0.y + g0.h + 30], 1);
     const g1 = await ev("JSON.stringify(bbox(S.sel.o))").then(JSON.parse);
@@ -1440,7 +1440,7 @@ else {
   {
     await open310("for(const[i,x]of[['z1',60],['z2',180],['z3',300],['z4',420]])S.pages[0].objs.push({type:'rect',x,y:200,w:90,h:60,color:'#000000',lw:1,fill:'white',oid:i})");
     const ord = () => ev("S.pages[0].objs.map(o=>o.oid).join()");
-    const sel = async (i) => { await click310([450, 700]); await click310([[105, 225, 345, 465][i - 1], 230]); };
+    const sel = async (i) => { await key310('Escape', 'Escape', 27); await click310([[105, 225, 345, 465][i - 1], 230]); };
     const step = async (name, k, code, vk, mod, want) => { const h0 = await ev('H.u.length'); await key310(k, code, vk, mod); const got = await ord(), h1 = await ev('H.u.length'); await ev('undo()'); const back = await ord(); await ev('redo()'); return { name, got, ok: got === want && h1 === h0 + 1 && back !== got }; };
     await sel(2);
     const r1 = await step('forward', ']', 'BracketRight', 221, 2, 'z1,z3,z2,z4'); 
@@ -1454,19 +1454,19 @@ else {
     await ev("['z3','z4'].forEach(i=>S.pages[0].objs.find(o=>o.oid===i).gg='gg1');setSel(null)");
     await sel(2); await key310(']', 'BracketRight', 221, 2);
     ok('Reihenfolge: eine Ebene nach vorne springt über die ganze Gruppe', await ord() === 'z1,z3,z4,z2', await ord());
-    await click310([450, 700]); await click310([345, 230]);
+    await key310('Escape', 'Escape', 27); await click310([345, 230]);
     await key310('[', 'BracketLeft', 219, 2);
     ok('Reihenfolge: eine Gruppe nach hinten behält die Reihenfolge ihrer Mitglieder', await ord() === 'z3,z4,z1,z2', await ord());
     await key310('}', 'BracketRight', 221, 10);
     const og = await ord();
     ok('Reihenfolge: Gruppe ganz nach vorne, Mitglieder in gleicher Reihenfolge', og.endsWith('z3,z4'), og);
     // persists through save and reopen
-    await click310([450, 700]); await click310([105, 230]); await key310('}', 'BracketRight', 221, 10);
+    await key310('Escape', 'Escape', 27); await click310([105, 230]); await key310('}', 'BracketRight', 221, 10);
     const rt = await ev("(async()=>{const before=S.pages[0].objs.map(o=>o.oid).join();const b=await buildOutput();await openPdf(b,'ord.pdf');await new Promise(r=>setTimeout(r,800));return JSON.stringify([before,S.pages[0].objs.map(o=>o.oid).join()])})()", 20000).then(JSON.parse);
     ok('Reihenfolge: bleibt nach Speichern und Wiederöffnen erhalten', rt[0] === rt[1] && rt[0] === 'z2,z3,z4,z1', rt);
     // context menu
     await ev("scroll310();setTool('select');setSel(null)"); await sleep(300);
-    await click310([450, 700]); await click310([225, 230]);
+    await key310('Escape', 'Escape', 27); await click310([225, 230]);
     {
       const c = await pt310([225, 230]);
       await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'right', buttons: 2, clickCount: 1 });
@@ -1504,7 +1504,7 @@ else {
     ok('Esc hebt die Auswahl auf, danach wandert Tab wieder durch die Oberfläche (keine Tastaturfalle)', afterEsc === true && f[0] === true && f[2] === false, f);
     // a user group is one stop
     await ev("['tC','tD'].forEach(i=>S.pages[0].objs.find(o=>o.oid===i).gg='gt');setSel(null)");
-    await click310([450, 700]); await click310([345, 125]);
+    await key310('Escape', 'Escape', 27); await click310([345, 125]);
     await key310('Tab', 'Tab', 9);
     c = await cur(); l = await live();
     ok('Tab: eine Gruppe ist ein Halt (Objekt 3 von 3: Gruppe aus 2 Objekten)', c.length === 2 && l === 'Objekt 3 von 3: Gruppe aus 2 Objekten', { c, l });
@@ -1515,7 +1515,7 @@ else {
     const clickEl = async (sel) => { const r = await ev(`(()=>{const b=document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(200); };
     const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); await ev('closeMenu()'); return r[2]; };
     const was = await menu('Tab wechselt zwischen Objekten');
-    await click310([450, 700]); await click310([345, 125]);
+    await key310('Escape', 'Escape', 27); await click310([345, 125]);
     const before = await cur();
     await ev('document.activeElement.blur()');
     await key310('Tab', 'Tab', 9);
