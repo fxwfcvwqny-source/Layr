@@ -697,6 +697,24 @@ else {
     + "undo();await w(100);const back=Math.abs(o.h-h0)<1e-6||(P.objs[0]&&Math.abs(P.objs[0].h-h0)<1e-6);return JSON.stringify({shortSame,grown,back,h0,h1:o.h})})()");
   const tgj = JSON.parse(tg || '{}');
   ok('Table rows grow with long cell text, short text keeps the height, Undo restores', tgj.shortSame === true && tgj.grown === true && tgj.back === true, tgj);
+  // Table growth bounds and triggers: shifts up at the page end, notice when taller than the page, font size and column drag refit, Settings switch off = old behaviour
+  const tgb = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),P=S.pages[0],LONG='This is a rather long text that cannot fit into one line of this narrow cell at all '.repeat(3);const out={};"
+    + "const mk=(y,fs)=>{const o={type:'table',x:60,y,w:240,h:60,rows:2,cols:2,cw:[.5,.5],rh:[.5,.5],cells:[['a','b'],['','']],fs:fs||11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.length=0;P.objs.push(o);redraw(0);return o};"
+    + "const cm=(o,t)=>{editCell(0,o,1,0);const d=editorDone;editorDone=null;closeEditor();d(t)};"
+    + "let o=mk(P.h-70);cm(o,LONG);out.shift=o.h>70&&o.y+o.h<=P.h+1e-6&&o.y<P.h-70;"
+    + "o=mk(10);const T=[],t0=window.toast;window.toast=m=>{T.push(m);t0(m)};cm(o,('Zeile\\n').repeat(120));window.toast=t0;out.tall=o.h>P.h&&o.y===0&&T.some(m=>/ragt/.test(m));"
+    + "o=mk(100,11);o.cells[1][0]='Ein Text der in einer Zelle bei grosser Schrift umbrechen muss';setSel({p:0,o});const h0=o.h;applySel({fs:30},false);out.fsGrow=o.h>h0+10;"
+    + "o=mk(100,11);o.cells[1][1]='Ein Text der nach dem Ziehen der Spaltentrennlinie umbrechen muss';out.dragSetup=[o.x,o.y,o.w,o.h];setSel({p:0,o});"
+    + "const q=$('#tGrow');q.checked=false;q.onchange();o=mk(100,11);cm(o,LONG);out.offSame=Math.abs(o.h-60)<1e-6;o.h=60;o.cells[1][0]='';applySel({fs:30},false);out.offFs=Math.abs(o.h-60)<1e-6;q.checked=true;q.onchange();out.persist=localStorage.getItem('pdfwerkbank:tblgrow')==='1';return JSON.stringify(out)})()", 60000);
+  const tbj = typeof tgb === 'string' ? JSON.parse(tgb) : { err: tgb };
+  ok('Table grow: shifts up at the page end, notice when taller than the page, font size refits, Settings switch off keeps the old height', tbj.shift === true && tbj.tall === true && tbj.fsGrow === true && tbj.offSame === true && tbj.offFs === true && tbj.persist === true, tbj);
+  {
+    const [tx, ty, tw, th] = tbj.dragSetup || [0, 0, 0, 0];
+    await ev("(()=>{const P=S.pages[0];P.objs.length=0;const o={type:'table',x:60,y:100,w:240,h:60,rows:2,cols:2,cw:[.5,.5],rh:[.5,.5],cells:[['a','b'],['','Ein Text der nach dem Ziehen der Spaltentrennlinie umbrechen muss']],fs:11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.push(o);redraw(0);setTool('select');setSel({p:0,o})})()");
+    const gp = await ev("(()=>{const P=S.pages[0],r=P.el.getBoundingClientRect(),o=P.objs[0];return [r.left+(o.x+o.w*.5)*S.zoom,r.top+(o.y+o.h*.75)*S.zoom,r.left+(o.x+o.w-20)*S.zoom]})()");
+    await mv(gp[0], gp[1]); await pressAt(gp[0], gp[1]); await dragTo(gp[0] + 20, gp[1]); await dragTo(gp[2], gp[1]); await releaseAt(gp[2], gp[1]); await sleep(150);
+    ok('Table column drag that makes a cell wrap refits the rows', await ev("(()=>{const o=S.pages[0].objs[0];return o.cw[1]<.2&&o.h>75})()") === true, await ev("JSON.stringify(S.pages[0].objs[0].cw)+' '+S.pages[0].objs[0].h"));
+  }
   // Window/taskbar icon: transparent variant exists (png corners alpha 0, ico has 16..256), wired in main.js and package.json; installer and Store keep the black icon
   const icoOk = (() => { try { const b = fs.readFileSync('build/icon-transparent.ico'), n = b.readUInt16LE(4), s = []; for (let i = 0; i < n; i++) s.push(b[6 + 16 * i] || 256); return [16, 24, 32, 48, 64, 128, 256].every(x => s.includes(x)); } catch (e) { return false; } })();
   const pngCorners = f => { try { const b = fs.readFileSync(f); let o = 8, w = 0, d = []; while (o < b.length) { const n = b.readUInt32BE(o), t = b.toString('latin1', o + 4, o + 8); if (t === 'IHDR') { w = b.readUInt32BE(o + 8); if (b[o + 17] !== 6) return null; } if (t === 'IDAT') d.push(b.subarray(o + 8, o + 8 + n)); o += 12 + n; } const r = zlib.inflateSync(Buffer.concat(d)), row = Buffer.alloc(w * 4); for (let i = 0; i < w * 4; i++) { const a = i >= 4 ? row[i - 4] : 0, f = r[0]; row[i] = (r[1 + i] + (f === 1 || f === 4 ? a : f === 3 ? a >> 1 : 0)) & 255; } return [row[3], row[w * 4 - 1]]; } catch (e) { return null; } };

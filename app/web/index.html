@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-a9x6o4iddhSUPMeKwYsZFdLhlF24ZJd0mojUB6zqh1Q=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-LwcTBRr0aWSD2OqEWWIGUFkAgSConWS1EUiaXUdPiRU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1604,6 +1604,7 @@ header,.file{min-width:0}
       <div class="row tblrow"><label>Zeilen</label><button class="btn" id="tRm" title="Zeile entfernen">−</button><span class="val" id="tRv">3</span><button class="btn" id="tRp" title="Zeile hinzufügen">+</button></div>
       <div class="row tblrow"><label>Spalten</label><button class="btn" id="tCm" title="Spalte entfernen">−</button><span class="val" id="tCv">3</span><button class="btn" id="tCp" title="Spalte hinzufügen">+</button></div>
       <div class="row"><label class="chk"><input type="checkbox" id="tHead" checked> Kopfzeile hervorheben</label></div>
+      <label class="tgl qsrow" title="Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht"><input type="checkbox" id="tGrow" role="switch" aria-label="Tabelle wächst mit dem Text" checked><span class="knob"></span><span class="tl">Tabelle wächst mit dem Text</span></label>
       <div class="row"><button class="btn" id="tEven">Spalten gleich breit</button><button class="btn" id="tChart">Als Diagramm</button></div>
       <p class="hint">Tabelle anklicken, dann in eine Zelle klicken zum Schreiben; Tab springt zur nächsten. Rechtsklick auf eine Zelle: Zeilen und Spalten an dieser Stelle einfügen oder löschen. Trennlinien ziehen ändert Breite und Höhe.</p>
     </div>
@@ -2468,7 +2469,7 @@ const I18N_EN={
 'Fotos und Scans in der PDF werden verkleinert, z. B. für E-Mail oder Upload. Deine Datei bleibt, wie sie ist; die Kopie bekommt einen eigenen Namen.':'Photos and scans in the PDF are made smaller, e.g. for email or upload. Your file stays as it is; the copy gets its own name.',
 'Stufe':'Level','Leicht':'Light','Stark':'Strong','In Layr bearbeitbar lassen (größer)':'Keep editable in Layr (larger)','Bild ':'Image ','Speichert':'Saving',
 'Die Datei lässt sich kaum verkleinern (':'The file can hardly be made smaller (','Von ':'From ',' auf ':' to ',' verkleinert.':'.','Verkleinern hat nicht geklappt: ':'Making it smaller failed: ',
-'Textmarker an Text ausrichten':'Snap highlighter to text','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
+'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
 'Schwärzen':'Redact','Inhalt dauerhaft unkenntlich machen':'Remove content permanently','Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.':'Drag areas that should be made unreadable. Then “Apply redaction”: the content there is removed from the PDF for good.',
 'Verwerfen':'Discard','Schwärzen anwenden':'Apply redaction','1 Bereich zum Schwärzen markiert':'1 area marked for redaction',' Bereiche zum Schwärzen markiert':' areas marked for redaction',
 'Endgültig schwärzen?':'Redact permanently?','Alles in den markierten Bereichen wird schwarz und aus der Datei entfernt – auch aus der versteckten Originalfassung, die Layr in der PDF mitspeichert.':'Everything in the marked areas turns black and is removed from the file – also from the hidden original that Layr keeps inside the PDF.',
@@ -2923,6 +2924,7 @@ function applySel(props,isRange){
   const jobs=T.map(o=>{const a=allow(o);return[o,Object.keys(props).filter(k=>a[k])]}).filter(j=>j[1].length);if(!jobs.length)return;
   if(!isRange||!ctrlHist){pushHist();if(isRange)ctrlHist=true}
   for(const[o,ch]of jobs)keepCtr(o,()=>{for(const k of ch){o[k]=props[k];if(k==='color'&&o.spans)delete o.spans}});if(S.sel.o.type==='group'&&props.color)S.sel.o.color=props.color;
+  for(const[o,ch]of jobs)if(o.type==='table'&&(ch.includes('fs')||ch.includes('font')))tblFit(o);
   redraw(S.sel.p);markDirty();
 }
 function syncControls(o){
@@ -3369,10 +3371,12 @@ const TOPO_TPL=(()=>{
   ]})();
 NET_TPL.push(...TOPO_TPL);
 // Rows grow downward when a cell's wrapped text needs more room (applied when a cell edit is committed, so old tables render unchanged)
-function tblFit(o){const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;
+var tblGrow=true;try{tblGrow=localStorage.getItem('pdfwerkbank:tblgrow')!=='0'}catch(e){}
+function tblFit(o){if(!tblGrow)return false;const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;
   for(let r=0;r<o.rows;r++){let h=Y[r+1]-Y[r];for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;
     mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;const n=wrapLines(mctx,t,Math.max(10,X[k+1]-X[k]-8)).length;if(n>1&&n*lh+4>h){h=n*lh+4;grew=true}}H.push(h)}
-  if(!grew)return false;const tot=H.reduce((q,v)=>q+v,0);o.h=tot;o.rh=H.map(v=>v/tot);return true}
+  if(!grew)return false;const tot=H.reduce((q,v)=>q+v,0);o.h=tot;o.rh=H.map(v=>v/tot);
+  const P=S.pages.find(P=>P.objs.includes(o));if(P&&o.y+o.h>P.h){o.y=Math.max(0,P.h-o.h);if(o.h>P.h)toast('Die Tabelle ragt über die Seite hinaus.')}return true}
 const editCell0=editCell;
 editCell=function(i,o,r,k){const prev=(o.cells[r]&&o.cells[r][k])||'';editCell0(i,o,r,k);const d=editorDone;
   if(d)editorDone=v=>{d(v);if(v!==prev&&tblFit(o)){redraw(i);markDirty()}}};
@@ -4118,6 +4122,7 @@ function hlText(i,o){const idx=FD.idx&&FD.idxDoc===S.doc?FD.idx:null,E=idx&&idx[
     if(!best)continue;findQuad(best,E.mc,0,0);const ch=[...best.str],a0=Math.min(...Q.map(p=>(o.x+p[0]-best.x)*best.ux+(o.y+p[1]-best.y)*best.uy)),b0=Math.max(...Q.map(p=>(o.x+p[0]-best.x)*best.ux+(o.y+p[1]-best.y)*best.uy));
     let s='';for(let k=0;k<ch.length;k++){const m=(best.off[k]+(best.off[k+1]??best.w))/2;if(m>=a0-.5&&m<=b0+.5)s+=ch[k]}out.push(s.trim())}
   return out.filter(Boolean).join(' ')}
+{const q=$('#tGrow');q.checked=tblGrow;q.onchange=()=>{tblGrow=q.checked;try{localStorage.setItem('pdfwerkbank:tblgrow',q.checked?'1':'0')}catch(e){}}}
 {const q=$('#qHlSnap');q.checked=hlSnapOn;q.onchange=()=>{hlSnapOn=q.checked;try{localStorage.setItem('pdfwerkbank:hlsnap',q.checked?'1':'0')}catch(e){}}}
 /* ---------- Formerkennung (Stift/Textmarker: am Ende halten) ---------- */
 const QS={
@@ -4369,6 +4374,7 @@ function attachInk(P,i){
         if(st.o&&st.o.type==='line'&&(st.mode==='p1'||st.mode==='p2')){const o=st.o,one=st.mode==='p1';delete o.__drag;
           if(st.moved){const L=o.link||{a:null,b:null,ta:'auto',tb:'auto'},dk=st.dockT;if(one){L.a=dk?ensureOid(dk):null;L.ta=dk?st.dockPick:'auto'}else{L.b=dk?ensureOid(dk):null;L.tb=dk?st.dockPick:'auto'}if(L.a&&L.a===L.b)L[one?'a':'b']=null;if(L.a||L.b)o.link=L;else delete o.link}S.dock=null;redraw(i)}
         if(!st.hist&&!st.moved&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='table'){const o=st.o,rc=tblCell(o,st.x,st.y);st=null;if(rc)editCell(i,o,rc[0],rc[1]);return}
+        if(st.hist&&st.o&&st.o.type==='table'&&st.mode!=='move'&&tblFit(st.o))redraw(i);
         if(st.hist)markDirty();else if(S.tool==='select'&&!st.selDrag&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='text'&&!st.moved){const o=st.o;st=null;editText(i,o,[e.clientX,e.clientY]);return}break;
     }
     st=null;
