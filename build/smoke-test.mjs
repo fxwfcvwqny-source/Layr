@@ -1184,6 +1184,69 @@ else {
     const u1 = await ev("selItems().length");
     ok('Mehrfachauswahl: Alt+Umschalt-Klick fügt nur das einzelne Teil hinzu', u1 === 2, u1);
   }
+  // 2 Group / ungroup (gg), two levels with the template groups (gid)
+  {
+    await open310("S.pages[0].objs.push({type:'rect',x:30,y:60,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'gA'},{type:'rect',x:30,y:150,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'gB'},{type:'rect',x:30,y:240,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'gC'});insertOrgTemplate('net_home',{i:0,x:330,y:150,sc:.4,tl:false});insertOrgTemplate('net_office',{i:0,x:330,y:420,sc:.4,tl:false})");
+    const ggOf = (oid) => ev(`S.pages[0].objs.find(o=>o.oid===${JSON.stringify(oid)}).gg||null`);
+    await click310([70, 85]); await click310([70, 175], 8);
+    const h0 = await ev('H.u.length');
+    await key310('g', 'KeyG', 71, 2);
+    const g1 = await ggOf('gA'), g2 = await ggOf('gB'), g3 = await ggOf('gC'), h1 = await ev('H.u.length');
+    ok('Gruppieren (Strg+G): beide Objekte bekommen dasselbe gg, ein Rückgängig-Schritt, das dritte nicht', !!g1 && g1 === g2 && !g3 && h1 === h0 + 1, { g1, g2, g3, h0, h1 });
+    await click310([450, 780]); await click310([70, 85]);
+    ok('Gruppe: Klick auf ein Mitglied wählt die äußere Gruppe', JSON.stringify(await ids310()) === JSON.stringify(['gA', 'gB']), await ids310());
+    await click310([450, 780]); await click310([70, 265]); await click310([70, 85], 8);
+    ok('Gruppe: Umschalt-Klick fügt die ganze Gruppe hinzu', (await ids310()).length === 3, await ids310());
+    await click310([450, 780]); await click310([70, 85], 1);
+    ok('Gruppe: Alt-Klick wählt nur das einzelne Teil', JSON.stringify(await ids310()) === JSON.stringify(['gA']), await ids310());
+    await click310([450, 780]); await click310([70, 85]);
+    const m0 = await ev("S.pages[0].objs.filter(o=>o.oid==='gA'||o.oid==='gB').map(o=>[o.x,o.y])");
+    await drag310([70, 85], [170, 115]);
+    const m1 = await ev("S.pages[0].objs.filter(o=>o.oid==='gA'||o.oid==='gB').map(o=>[o.x,o.y])");
+    ok('Gruppe: Ziehen verschiebt beide Mitglieder gleich', m1.every((q, k) => Math.abs(q[0] - m0[k][0] - 100) < 1.5 && Math.abs(q[1] - m0[k][1] - 30) < 1.5), { m0, m1 });
+    {
+      const c = await pt310([170, 205]);
+      await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'right', buttons: 2, clickCount: 1 });
+      await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: c[0], y: c[1], button: 'right', buttons: 0, clickCount: 1 });
+      await sleep(200);
+      const mi = await ev("JSON.stringify([...document.querySelectorAll('#ctx button')].map(b=>[b.textContent,b.disabled]))").then(JSON.parse);
+      ok('Kontextmenü: Gruppieren gesperrt, Gruppierung aufheben möglich', mi.some(m => /^Gruppieren/.test(m[0]) && m[1]) && mi.some(m => /^Gruppierung aufheben/.test(m[0]) && !m[1]), mi);
+      await ev("closeMenu()");
+    }
+    const san = await ev("JSON.stringify([sanObj({type:'rect',x:0,y:0,w:5,h:5,color:'#000',gg:'a b!c_-9'}).gg,sanObj({type:'rect',x:0,y:0,w:5,h:5,color:'#000',gg:'x'.repeat(80)}).gg.length,'gg' in sanObj({type:'rect',x:0,y:0,w:5,h:5,color:'#000',gg:7}),'gg' in sanObj({type:'rect',x:0,y:0,w:5,h:5,color:'#000'})])").then(JSON.parse);
+    ok('Gruppe: sanObj bereinigt gg wie gid (Zeichen, Länge 40, Typ)', san[0] === 'abc_-9' && san[1] === 40 && san[2] === false && san[3] === false, san);
+    const rm = await ev("(()=>{const mk=()=>[{type:'rect',x:0,y:0,w:5,h:5,color:'#000',gg:'same'},{type:'rect',x:9,y:0,w:5,h:5,color:'#000',gg:'same'}];const a=mk(),b=mk();orgRemap(a);orgRemap(b);return JSON.stringify([a[0].gg===a[1].gg,b[0].gg===b[1].gg,a[0].gg!==b[0].gg,a[0].gg!=='same'])})()").then(JSON.parse);
+    ok('Gruppe: Zusammenführen/Einfügen vergibt je Quelle eigene gg (orgRemap)', rm.every(Boolean), rm);
+    await click310([450, 780]); await click310([170, 205]);
+    const cp = await ev("(()=>{const n0=S.pages[0].objs.length;copySel();pasteClip();const a=S.pages[0].objs.slice(n0),old=new Set(S.pages[0].objs.slice(0,n0).map(o=>o.gg));return JSON.stringify([a.length,new Set(a.map(o=>o.gg)).size,a.every(o=>o.gg&&!old.has(o.gg))])})()").then(JSON.parse);
+    ok('Gruppe: Kopieren/Einfügen gibt der Kopie ein neues gg', cp[0] === 2 && cp[1] === 1 && cp[2] === true, cp);
+    const dp = await ev("(()=>{const n0=S.pages[0].objs.length;dupSel();const a=S.pages[0].objs.slice(n0),old=new Set(S.pages[0].objs.slice(0,n0).map(o=>o.gg));return JSON.stringify([a.length,new Set(a.map(o=>o.gg)).size,a.every(o=>o.gg&&!old.has(o.gg))])})()").then(JSON.parse);
+    ok('Gruppe: Duplizieren (Strg+D) gibt der Kopie ein neues gg', dp[0] === 2 && dp[1] === 1 && dp[2] === true, dp);
+    await ev('undo();undo()');
+    const rt = await ev("(async()=>{const before=JSON.stringify(S.pages[0].objs.map(o=>o.gg?1:0));const n=new Set(S.pages[0].objs.map(o=>o.gg).filter(Boolean)).size;const b=await buildOutput();await openPdf(b,'gg2.pdf');await new Promise(r=>setTimeout(r,800));return JSON.stringify([before===JSON.stringify(S.pages[0].objs.map(o=>o.gg?1:0)),new Set(S.pages[0].objs.map(o=>o.gg).filter(Boolean)).size===n,n])})()", 20000).then(JSON.parse);
+    ok('Gruppe: Speichern und Wiederöffnen behält die gg-Gruppen', rt[0] === true && rt[1] === true && rt[2] === 1, rt);
+    await ev("zoomTo(1);S.pages[0].el.scrollIntoView({block:'start'});setTool('select');setSel(null)"); await sleep(400);
+    const gp = await ev("S.pages[0].objs.find(o=>o.oid==='gA')").then(o => [o.x + 40, o.y + 25]);
+    await click310(gp);
+    ok('Gruppe: nach Wiederöffnen wählt ein Klick die Gruppe', (await ids310()).length === 2, await ids310());
+    await key310('g', 'KeyG', 71, 10);
+    ok('Gruppierung aufheben (Strg+Umschalt+G): gg weg', await ggOf('gA') === null && await ggOf('gB') === null, { a: await ggOf('gA') });
+    await click310([450, 780]); await click310(gp);
+    ok('Gruppe: nach dem Aufheben wählt ein Klick nur das Objekt', (await ids310()).length === 1, await ids310());
+    await ev("setSel(null)");
+    const t = await ev("(()=>{const a=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid),r=S.pages[0].objs.find(o=>o.sym==='router'&&o.gid&&o.gid!==a.gid);return {g1:a.gid,g2:r.gid,c1:[a.x+a.w/2,a.y+a.h/2],c2:[r.x+r.w/2,r.y+r.h/2],n1:S.pages[0].objs.filter(q=>q.gid===a.gid).length,n2:S.pages[0].objs.filter(q=>q.gid===r.gid).length}})()");
+    await click310([450, 780]); await click310(t.c1); await click310(t.c2, 8);
+    const both = (await ev("selItems().length"));
+    await key310('g', 'KeyG', 71, 2);
+    const tg = await ev("JSON.stringify([new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gg)).size,new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid)).size])").then(JSON.parse);
+    await click310([450, 780]); await click310(t.c1);
+    const n12 = await ev("selItems().length");
+    await key310('g', 'KeyG', 71, 10);
+    const left = await ev("JSON.stringify([S.pages[0].objs.filter(o=>o.gid&&o.gg).length,new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid)).size])").then(JSON.parse);
+    await click310([450, 780]); await click310(t.c1);
+    const n1 = await ev("selItems().length");
+    ok('Gruppe aus zwei Vorlagen: Strg+G gruppiert beide, Aufheben stellt zwei Vorlagen-Gruppen wieder her', both === t.n1 + t.n2 && tg[0] === 1 && tg[1] === 2 && n12 === t.n1 + t.n2 && left[0] === 0 && left[1] === 2 && n1 === t.n1, { both, tg, n12, left, n1, t });
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
