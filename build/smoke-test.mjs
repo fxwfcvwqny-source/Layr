@@ -678,6 +678,23 @@ else {
   ok('Transparent window icon: files exist, png corners alpha 0, ico 16..256, BrowserWindow + win.icon wired, installer/Store/linux package icons untouched',
     icoOk && fs.existsSync('app/icon-transparent.png') && JSON.stringify(pngCorners('build/icon-transparent.png')) === '[0,0]' && JSON.stringify(pngCorners('app/icon-transparent.png')) === '[0,0]' && winIcon
     && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico' && [pj.win.icon, pj.nsis.installerIcon, pj.nsis.uninstallerIcon, pj.linux.icon].every(f => fs.existsSync(f)) && fs.existsSync('build/appx/Square44x44Logo.png'));
+  // Ruler rotates around its centre: the angle field and the handle (Shift = 15 degree steps) keep the centre fixed
+  const rz = await ev("(()=>{toggleRuler(true);R.x=300;R.y=250;R.a=0;drawRuler();const c=()=>{const r=ruler.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]},c0=c(),inp=$('#rulerAngIn');inp.value='30';inp.dispatchEvent(new Event('input'));const c1=c(),a1=R.a,sec=!$('#rulerSec').hidden;const h=$('#rulerRot').getBoundingClientRect();return JSON.stringify({c0,c1,a1,sec,hx:h.left+h.width/2,hy:h.top+h.height/2})})()");
+  const rzj = JSON.parse(rz || '{}');
+  ok('Ruler angle field rotates around the centre (centre fixed, angle set, panel section visible)', rzj.c0 && Math.hypot(rzj.c0[0] - rzj.c1[0], rzj.c0[1] - rzj.c1[1]) < 0.6 && Math.abs(rzj.a1 + Math.PI / 6) < 1e-6 && rzj.sec === true, rzj);
+  const rotDrag = async (dAng, mod) => {
+    const st = JSON.parse(await ev("(()=>{const r=ruler.getBoundingClientRect(),h=$('#rulerRot').getBoundingClientRect();return JSON.stringify({c:[r.left+r.width/2,r.top+r.height/2],h:[h.left+h.width/2,h.top+h.height/2]})})()"));
+    const a = Math.atan2(st.h[1] - st.c[1], st.h[0] - st.c[0]) + dAng, d = Math.hypot(st.h[0] - st.c[0], st.h[1] - st.c[1]);
+    await mv(st.h[0], st.h[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: st.h[0], y: st.h[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod });
+    await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: st.c[0] + d * Math.cos(a), y: st.c[1] + d * Math.sin(a), button: 'left', buttons: 1, modifiers: mod }); await sleep(50);
+    const r = JSON.parse(await ev("(()=>{const r=ruler.getBoundingClientRect();return JSON.stringify({c:[r.left+r.width/2,r.top+r.height/2],a:R.a})})()"));
+    await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: st.c[0], y: st.c[1], button: 'left', buttons: 0, clickCount: 1 });
+    return { drift: Math.hypot(r.c[0] - st.c[0], r.c[1] - st.c[1]), a: r.a, want: Math.atan2(st.h[1] - st.c[1], st.h[0] - st.c[0]) + dAng };
+  };
+  const rd1 = await rotDrag(0.62, 0), rd2 = await rotDrag(0.31, 8);
+  ok('Ruler handle drag rotates around the centre (centre fixed, angle follows the pointer, Shift snaps to 15 degrees)',
+    rd1.drift < 0.6 && Math.abs(rd1.a - rd1.want) < 0.01 && rd2.drift < 0.6 && Math.abs(rd2.a / (Math.PI / 12) - Math.round(rd2.a / (Math.PI / 12))) < 1e-6, { rd1, rd2 });
+  await ev("toggleRuler(false)");
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

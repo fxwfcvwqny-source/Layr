@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lVPiITiqlxssOJd60tKx/mBl7KcsKyS5HXey1N/aYCQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Kf0JINhNPdWS6ekIJZm4wa7Y5OLbsmGsPq0Raoa/nE4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1594,6 +1594,11 @@ header,.file{min-width:0}
       <p class="hint">Mit gedrückter Umschalttaste rastet die Linie in 15°-Schritten ein.</p>
       <p class="hint">Startet oder endet eine Linie auf einem Symbol, einer Form oder Tabelle, dockt sie dort an und wandert mit. Alt gedrückt halten: frei zeichnen.</p>
     </div>
+    <div class="sec" id="rulerSec" hidden>
+      <h3>Lineal</h3>
+      <div class="row"><label for="rulerAngIn">Winkel (°)</label><input type="number" id="rulerAngIn" min="0" max="359" step="1" value="0" aria-label="Lineal-Winkel" style="width:72px"></div>
+      <p class="hint">Das Lineal dreht sich um seine Mitte. Am runden Griff ziehen; mit Umschalt rastet es in 15°-Schritten ein.</p>
+    </div>
     <div class="sec" id="tblSec" hidden>
       <h3>Tabelle</h3>
       <div class="row tblrow"><label>Zeilen</label><button class="btn" id="tRm" title="Zeile entfernen">−</button><span class="val" id="tRv">3</span><button class="btn" id="tRp" title="Zeile hinzufügen">+</button></div>
@@ -2149,7 +2154,7 @@ const I18N_EN={
 'Pfeil':'Arrow','Pfeil ziehen. Pfeilspitzen für UML (Vererbung, Komposition …) rechts wählen.':'Drag an arrow. Choose UML arrowheads (inheritance, composition …) on the right.',
 'Rechteck':'Rectangle','Rechteck ziehen. Umschalt für ein Quadrat.':'Drag a rectangle. Shift for a square.','Ellipse':'Ellipse','Ellipse ziehen. Umschalt für einen Kreis.':'Drag an ellipse. Shift for a circle.',
 'Symbol setzen':'Place symbol','Klick öffnet die Symbol-Auswahl. Symbol wählen, dann aufs Blatt klicken oder ziehen.':'Click to open the symbol picker. Choose a symbol, then click or drag on the sheet.',
-'Lineal ein/aus':'Ruler on/off','Lineal drehen':'Rotate ruler','Länge ändern':'Change length',
+'Lineal ein/aus':'Ruler on/off','Lineal drehen':'Rotate ruler','Länge ändern':'Change length','Winkel (°)':'Angle (°)','Lineal-Winkel':'Ruler angle','Das Lineal dreht sich um seine Mitte. Am runden Griff ziehen; mit Umschalt rastet es in 15°-Schritten ein.':'The ruler rotates around its centre. Drag the round handle; hold Shift to snap to 15° steps.',
 'Lineal: am Körper verschieben, am runden Griff drehen, mit ↔ die Länge ändern. Stift oder Linie an der Kante wird gerade.':'Ruler: drag the body to move it, the round handle to rotate it, ↔ to change its length. Pen strokes and lines along the edge come out straight.',
 'Taste':'Key',
 // Seitenbereich
@@ -4032,7 +4037,7 @@ setTimeout(()=>{try{alUI()}catch(e){}},0);
 /* ---------- Lineal ---------- */
 const ruler=$('#ruler'),rcv=$('#rulerCv'),wrap=$('#wrap');
 const R={x:60,y:120,a:0,cm:20,H:58};let rulerOn=false;
-function toggleRuler(on){rulerOn=on==null?!rulerOn:on;ruler.hidden=!rulerOn;document.querySelector('.tool[data-t="ruler"]').setAttribute('aria-pressed',rulerOn);if(rulerOn){const ww=wrap.clientWidth;R.cm=clamp(Math.floor((ww-60)/(CM_PT*S.zoom)),5,30);drawRuler();toast('Lineal: am Körper verschieben, am runden Griff drehen, mit ↔ die Länge ändern. Stift oder Linie an der Kante wird gerade.')}}
+function toggleRuler(on){rulerOn=on==null?!rulerOn:on;ruler.hidden=!rulerOn;$('#rulerSec').hidden=!rulerOn;document.querySelector('.tool[data-t="ruler"]').setAttribute('aria-pressed',rulerOn);if(rulerOn){const ww=wrap.clientWidth;R.cm=clamp(Math.floor((ww-60)/(CM_PT*S.zoom)),5,30);drawRuler();toast('Lineal: am Körper verschieben, am runden Griff drehen, mit ↔ die Länge ändern. Stift oder Linie an der Kante wird gerade.')}}
 function drawRuler(){
   const pxcm=CM_PT*S.zoom,W=Math.round(R.cm*pxcm+16),k=DPR();ruler.style.width=W+'px';rcv.width=W*k;rcv.height=R.H*k;
   const c=rcv.getContext('2d');c.setTransform(k,0,0,k,0,0);c.clearRect(0,0,W,R.H);
@@ -4041,11 +4046,15 @@ function drawRuler(){
   for(let mm=0;mm<=R.cm*10;mm+=5){const x=8+mm*pxcm/10;const L=mm%10===0?10:5;c.beginPath();c.moveTo(x+.5,R.H);c.lineTo(x+.5,R.H-L);c.stroke()}
   c.textAlign='right';c.fillText('cm',W-6,27);placeRuler();
 }
-function placeRuler(){ruler.style.transform=`translate(${R.x}px,${R.y}px) rotate(${R.a}rad)`;$('#rulerAng').textContent=Math.round(((-R.a*180/Math.PI)%360+360)%360)+'°'}
+function placeRuler(){ruler.style.transform=`translate(${R.x}px,${R.y}px) rotate(${R.a}rad)`;const d=Math.round(((-R.a*180/Math.PI)%360+360)%360)%360;$('#rulerAng').textContent=d+'°';const ai=$('#rulerAngIn');if(ai&&document.activeElement!==ai)ai.value=d}
+/* Pivot is the centre of the ruler; R.x/R.y stay the top-left corner of the unrotated box, so snapping and old geometry are unchanged */
+function rulerCentre(){const W=ruler.offsetWidth,c=Math.cos(R.a),s=Math.sin(R.a);return[R.x+W/2*c-R.H/2*s,R.y+W/2*s+R.H/2*c]}
+function rulerRotate(a,cx,cy){const W=ruler.offsetWidth;R.a=a;R.x=cx-W/2*Math.cos(a)+R.H/2*Math.sin(a);R.y=cy-W/2*Math.sin(a)-R.H/2*Math.cos(a);placeRuler()}
+$('#rulerAngIn').addEventListener('input',e=>{const v=parseFloat(e.target.value);if(!isFinite(v))return;const[cx,cy]=rulerCentre();rulerRotate(-(((v%360)+360)%360)*Math.PI/180,cx,cy)});
 ruler.addEventListener('pointerdown',e=>{
   e.preventDefault();ruler.setPointerCapture(e.pointerId);const rot=e.target.closest('.rot'),len=e.target.closest('.len');const wr=wrap.getBoundingClientRect();
-  const sx=e.clientX,sy=e.clientY,ox=R.x,oy=R.y;ruler.style.cursor='grabbing';
-  const mv=ev=>{if(len){const t=(ev.clientX-wr.left-R.x)*Math.cos(R.a)+(ev.clientY-wr.top-R.y)*Math.sin(R.a);const nc=clamp(Math.round((t-16)/(CM_PT*S.zoom)),3,60);if(nc!==R.cm){R.cm=nc;drawRuler()}return}if(rot){let a=Math.atan2(ev.clientY-wr.top-R.y,ev.clientX-wr.left-R.x);const st=Math.PI/12,sn=Math.round(a/st)*st;if(Math.abs(a-sn)<.05)a=sn;R.a=a}else{R.x=ox+ev.clientX-sx;R.y=oy+ev.clientY-sy}placeRuler()};
+  const sx=e.clientX,sy=e.clientY,ox=R.x,oy=R.y,cc=rulerCentre();ruler.style.cursor='grabbing';
+  const mv=ev=>{if(len){const t=(ev.clientX-wr.left-R.x)*Math.cos(R.a)+(ev.clientY-wr.top-R.y)*Math.sin(R.a);const nc=clamp(Math.round((t-16)/(CM_PT*S.zoom)),3,60);if(nc!==R.cm){R.cm=nc;drawRuler()}return}if(rot){let a=Math.atan2(ev.clientY-wr.top-cc[1],ev.clientX-wr.left-cc[0]);const st=Math.PI/12,sn=Math.round(a/st)*st;if(ev.shiftKey||Math.abs(a-sn)<.05)a=sn;rulerRotate(a,cc[0],cc[1]);return}else{R.x=ox+ev.clientX-sx;R.y=oy+ev.clientY-sy}placeRuler()};
   const up=()=>{ruler.removeEventListener('pointermove',mv);ruler.removeEventListener('pointerup',up);ruler.removeEventListener('pointercancel',up);ruler.style.cursor=''};
   ruler.addEventListener('pointermove',mv);ruler.addEventListener('pointerup',up);ruler.addEventListener('pointercancel',up);
 });
