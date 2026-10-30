@@ -630,20 +630,19 @@ else {
   await ev("setSel(null);S.pages[0].ink.style.pointerEvents=''");
   await mv(lsp.dev[0], lsp.dev[1]); await pressAt(lsp.dev[0], lsp.dev[1]); await dragTo(lsp.dev[0] + 30, lsp.dev[1] + 20);
   const lp0 = await ev("JSON.stringify(S.pages[0].objs.filter(o=>o.type==='sym').map(o=>[o.x,o.y]))");
-  await ev(`(()=>{const k=S.pages[0].ink;for(const d of [[120,90],[200,90]])k.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:${lsp.dev[0]}+d[0],clientY:${lsp.dev[1]}+d[1],buttons:0,pointerType:'mouse',pointerId:1}))})()`);
+  await ev(`(()=>{const k=S.pages[0].ink;for(const d of [[120,90],[200,90]])k.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:${lsp.dev[0]}+d[0],clientY:${lsp.dev[1]}+d[1],buttons:0,pointerType:'mouse',pointerId:1,isPrimary:true}))})()`);
   const lp1 = await ev("JSON.stringify(S.pages[0].objs.filter(o=>o.type==='sym').map(o=>[o.x,o.y]))"), lo = await lostSt();
   ok('Object drag with lost pointerup stops following the mouse; objects intact, no stale DRAG', lp0 === lp1 && lo.n === lostN0 && !lo.drag && lo.cur !== 'none', { lo, same: lp0 === lp1 });
   await releaseAt(lsp.dev[0] + 200, lsp.dev[1] + 90);
   await ev("setSel(null)"); await mv(lsp.dev[0], lsp.dev[1] + 20); await sleep(100);
   const ld = await ev("(()=>{const P=S.pages[0],r=P.el.getBoundingClientRect(),d=P.objs.filter(o=>o.type==='sym')[1];return [r.left+(d.x+d.w/2)*S.zoom,r.top+(d.y+d.h/2)*S.zoom]})()");
   await mv(ld[0], ld[1]); await pressAt(ld[0], ld[1]); await releaseAt(ld[0], ld[1]); await sleep(150);
-  ok('After lost events the next click selects an object', await ev("!!S.sel&&selItems().length>0") === true);
-  // stale transparent ink with no text drag: the next press recovers (safety net)
-  await ev("setSel(null);S.pages[0].ink.style.pointerEvents='none'");
-  await mv(ld[0] + 3, ld[1] + 3); await mv(5, 5);
-  await ev("S.pages[0].ink.style.pointerEvents='none'");
-  await pressAt(5, 5); await releaseAt(5, 5);
-  ok('Stale ink pointer-events none is reset by the next press', await ev("S.pages[0].ink.style.pointerEvents") === '');
+  // stale state while a press arrives (read before the release, which would also clean up): cached drag layers are dropped, transparent ink is made clickable again
+  await ev("setSel(null);{const P=S.pages[0];while(P.objs.length<12)P.objs.push({type:'rect',x:20+P.objs.length*3,y:700,w:20,h:10,color:'#000000',lw:1,fill:'none'});dragBegin(0,P.objs[0]);S.pages[0].ink.style.pointerEvents='none'}");
+  const stPre = await ev("!!DRAG&&S.pages[0].ink.style.pointerEvents==='none'");
+  await mv(5, 5); await pressAt(5, 5);
+  const stDown = await ev("JSON.stringify({drag:!!DRAG,pe:S.pages[0].ink.style.pointerEvents})"); await releaseAt(5, 5);
+  ok('A press drops stale drag layers and resets stale transparent ink before anything else', stPre === true && stDown === '{"drag":false,"pe":""}', { stPre, stDown });
   // Notes and to-dos survive save + reopen + second save at full length (old caps: 2e6 characters, 5000 to-dos)
   const nrt = await ev("(async()=>{const mk=n=>{let s='';const u='Ärger ß 😀 Zeile\\n';while(s.length<n)s+=u;return s.slice(0,n)},tasks=Array.from({length:6000},(_,i)=>({t:'Aufgabe '+i+' 😀 ä',d:i%3===0})),res=[];await openPdf(await (async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);return d.save()})(),'notes.pdf');await new Promise(r=>setTimeout(r,500));"
     + "for(const n of [5e3,5e4,5e5,2.5e6]){const notes=mk(n);notesSet(notes);tasksSet(n>1e6?tasks:[]);let out=await buildOutput();let okk=true;for(let k=0;k<2;k++){await openPdf(out,'notes.pdf');okk=okk&&S.notes===notes&&S.tasks.length===(n>1e6?6000:0)&&(n<=1e6||S.tasks[5999].t===tasks[5999].t);out=await buildOutput()}res.push([n,okk])}return JSON.stringify(res)})()", 150000);

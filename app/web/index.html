@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-LwcTBRr0aWSD2OqEWWIGUFkAgSConWS1EUiaXUdPiRU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-PdBDF2+lyK/aqm9pWTpZBwl67s1KAFkjZTQxEc2K1Ts=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3929,7 +3929,7 @@ document.addEventListener('pointerup',()=>tlDragEnd(false));
 // an ink layer left transparent to the mouse although no text drag runs (safety net, normal paths never hit it)
 for(const ev of ['pointercancel','lostpointercapture'])document.addEventListener(ev,()=>tlDragEnd(true),true);
 addEventListener('blur',()=>{tlDragEnd(true);if(typeof dragEnd==='function')dragEnd()});
-document.addEventListener('pointerdown',e=>{if(typeof DRAG!=='undefined'&&DRAG)DRAG=null;
+document.addEventListener('pointerdown',e=>{if(e.isPrimary&&typeof dragEnd==='function')dragEnd();
   if(!tlDrag){for(const l of document.querySelectorAll('.textLayer.selecting'))l.classList.remove('selecting');
     for(const Q of S.pages)if(Q.ink&&Q.ink.style.pointerEvents==='none'&&!(Q.tl&&Q.tl.contains(e.target)))Q.ink.style.pointerEvents=''}},true);
 // Keeps .endOfContent right behind the selection anchor. Simplified from the known algorithm of pdf.js web/text_layer_builder.js (Copyright 2014 Mozilla Foundation, Apache License 2.0), written from memory, not from vendored source (pdf.min.js has no viewer text-layer builder)
@@ -4308,7 +4308,7 @@ function attachInk(P,i){
     }
   });
   ink.addEventListener('pointermove',e=>{
-    if(st&&!e.buttons&&e.pointerType==='mouse'){end(e);st=null;DRAG=null;return}
+    if(st&&!e.buttons&&e.pointerType==='mouse'&&e.isPrimary){end(e);st=null;dragEnd();return}
     if(!st){
       let cur='';if(S.sel&&S.sel.p===i&&['symbol','rect','ellipse'].includes(S.tool)){const[x,y]=toPt(e.clientX,e.clientY),k=handleAt(S.sel.o,x,y,6/S.zoom);if(k)cur=CURS[k];else if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,6/S.zoom))cur='move'}
       else if(S.tool==='select'){cur=selCur(e.clientX,e.clientY)}
