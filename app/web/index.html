@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-DNh4IX3iwhpcRXTSjJhsrVJVSSR2BqxQ1uJdKkJhXHk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-VtbCAsxWv1gXwNkn3mD/tH49N5Sk/WUb4vXwXNzeyyI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2628,6 +2628,7 @@ const I18N_RX=[
   [/^Beschriftungen auf Seite (\d+) entfernt\. Rückgängig mit Strg\+Z\.$/,'Annotations on page $1 removed. Undo with Ctrl+Z.'],
   [/^„(.+)“ ist angelegt\. Gespeichert wird unter diesem Namen\.$/,'“$1” has been created and will be saved under this name.'],
   [/^„(.+)“ lässt sich nicht lesen und wurde übersprungen\.$/,'“$1” can’t be read and was skipped.'],
+  [/^(.+): Ausgefüllte Formularwerte bleiben erhalten, Beschriftungen dieser Datei sind flach in die Seiten eingebettet\. Lernkarten werden nicht übernommen\.$/,'$1: filled form values are kept, annotations of this file are embedded flat in the pages. Flashcards are not merged.'],
   [/^(\d+) Dateien mit zusammen (\d+) Seiten zusammengeführt\. Mit „Speichern“ sicherst du „(.+)“\.$/,'$1 files with $2 pages in total merged. Click “Save” to keep “$3”.'],
   [/^Notizen \(N\) · (\d+) offene Aufgaben?$/,(m,n)=>'Notes (N) · '+n+' open to-do'+(n==='1'?'':'s')],
   [/^Layr (\S+) ist da$/,'Layr $1 is available'],
@@ -6804,15 +6805,17 @@ async function mergeLayrData(bytes){
   try{const doc=await pdfOpen(bytes.slice());
     try{const ac=await pdfAttachment(doc,LAYR_ORIG),jc=ac&&await pdfAttachment(doc,LAYR_DATA);if(!ac||!jc||jc.length>=64e6||ac.length>=1.5e9)return null;
       const data=JSON.parse(new TextDecoder().decode(jc));if(!data||typeof data!=='object'||Array.isArray(data))return null;
+      if(data.form&&typeof data.form==='object'&&Object.keys(data.form).length)return{flat:true}; // the embedded original lacks the filled values: keep the saved pages
       const ob=new Uint8Array(ac),d2=await pdfOpen(ob.slice()),n=d2.numPages;pdfClose(d2);imgsLoad(data.imgs);
       return{bytes:ob,objs:sanPages(data.objs,n),notes:typeof data.notes==='string'?data.notes.slice(0,5e7):'',tasks:Array.isArray(data.tasks)?data.tasks.slice(0,1e5):[]}}
     finally{pdfClose(doc)}}catch(e){return null}}
 $('#mOk').onclick=async()=>{
   if(mItems.length<2){toast('Bitte mindestens zwei PDFs hinzufügen.');return}
-  closeEditor();const out=await PDFLib.PDFDocument.create();const objs=[],notes=[],tasks=[];
+  closeEditor();const out=await PDFLib.PDFDocument.create();const objs=[],notes=[],tasks=[],flat=[];
   for(const it of mItems){let bytes=it.bytes,io=it.current?it.objs:null,inote='',itasks=[];
-    if(it.current){inote=S.notes||'';itasks=S.tasks||[]}else{const L=await mergeLayrData(bytes);if(L){bytes=L.bytes;io=L.objs;inote=L.notes;itasks=L.tasks}}
-    const src=await PDFLib.PDFDocument.load(bytes.slice(),{ignoreEncryption:true});const pages=await out.copyPages(src,src.getPageIndices());
+    if(it.current){inote=S.notes||'';itasks=S.tasks||[]}else{const L=await mergeLayrData(bytes);if(L&&L.flat)flat.push(it.name);else if(L){bytes=L.bytes;io=L.objs;inote=L.notes;itasks=L.tasks}}
+    const src=await PDFLib.PDFDocument.load(bytes.slice(),{ignoreEncryption:true});if(it.current)await formFill(src); // typed form values live in S.form, not in the bytes
+    const pages=await out.copyPages(src,src.getPageIndices());
     const mine=[];pages.forEach((p,k)=>{out.addPage(p);const l=io?JSON.parse(JSON.stringify(io[k]||[],(kk,v)=>kk==='_editing'?undefined:v)):[];objs.push(l);mine.push(...l)});
     orgRemap(mine); // ids are random, but the same file merged twice would clash: give every source its own ids so docked lines stay with their own devices
     if(String(inote).trim())notes.push(inote);tasks.push(...itasks)}
@@ -6820,6 +6823,7 @@ $('#mOk').onclick=async()=>{
   closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs,notes:notes.join('\n\n----------\n\n'),tasks})},true));
   if(!ok)return;markDirty();
   toast(`${mItems.length} Dateien mit zusammen ${S.pages.length} Seiten zusammengeführt. Mit „Speichern“ sicherst du „${name}“.`);
+  if(flat.length)toast(`${flat.join(', ')}: Ausgefüllte Formularwerte bleiben erhalten, Beschriftungen dieser Datei sind flach in die Seiten eingebettet. Lernkarten werden nicht übernommen.`);
 };
 
 /* ---------- Beispielblatt ---------- */

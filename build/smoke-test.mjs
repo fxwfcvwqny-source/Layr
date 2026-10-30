@@ -663,6 +663,13 @@ else {
   await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: mtp[0], y: mtp[1], button: 'left', buttons: 1, clickCount: 2 }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: mtp[0], y: mtp[1], button: 'left', buttons: 0, clickCount: 2 }); await sleep(300);
   ok('Merged text box opens the editor on double-click', await ev("!!editorEl&&!!editingObj&&editingObj.type==='text'&&editingObj.text==='Merge Hallo'") === true);
   await ev('closeEditor()');
+  // Merging a Layr-saved PDF with a filled form keeps the typed values (the embedded original has none) and says so
+  const mf = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.getForm().createTextField('fname').addToPage(d.getPage(0),{x:50,y:700,width:200,height:24});"
+    + "await openPdf(await d.save(),'f.pdf');await w(600);fmSet('fname','Anna Merge');S.pages[0].objs.push({type:'text',x:60,y:60,text:'Form Merge',fs:20,color:'#000000',lw:0,orient:'h'});markDirty();const A=await buildOutput();"
+    + "const e=await PDFLib.PDFDocument.create();e.addPage([595,842]);const B=await e.save();await openPdf(B,'e.pdf');await w(400);mItems=[{name:'f.pdf',bytes:A,pages:1},{name:'e.pdf',bytes:B,pages:1}];const T=[],t0=window.toast;window.toast=m=>{T.push(m);t0(m)};await $('#mOk').onclick();await w(1200);window.toast=t0;"
+    + "return JSON.stringify({n:S.pages.length,v:S.form.fname,toast:T.join(' | ')})})()", 60000);
+  const mfj = JSON.parse(mf || '{}');
+  ok('Merge of a Layr-saved PDF with a filled form keeps the form value and shows the notice', mfj.n === 2 && mfj.v === 'Anna Merge' && /Formular|form values/.test(mfj.toast), mfj);
   // Tables grow downward when a committed cell text needs more rows; empty/short cells keep the old height; Undo restores
   const tg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),P=S.pages[0];P.objs.length=0;H.u.length=0;const o={type:'table',x:60,y:100,w:240,h:90,rows:3,cols:2,cw:[.5,.5],rh:[1/3,1/3,1/3],cells:[['a','b'],['',''],['','']],fs:11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.push(o);redraw(0);"
     + "const rows=()=>o.rh.map(f=>f*o.h),h0=o.h,r0=rows();const cm=t=>{editCell(0,o,1,0);const d=editorDone;editorDone=null;closeEditor();d(t)};cm('short');const shortSame=Math.abs(o.h-h0)<1e-6;"
