@@ -810,6 +810,7 @@ else {
     spj.none && spj.show && spj.same && spj.beside && spj.size && spj.contrast && spj.esc && spj.noReshow && spj.again && spj.off && spj.san && spj.noOld, spj);
   // Templates: click-to-place (B1). Real mouse; geometry relative to the page, not font-based.
   {
+    await ev("design.pager='off';applyDesign(true)"); // the floating page selector would sit on the test click points
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'tpl.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;setTool('select');setSel(null)})()");
     const click = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(60); };
@@ -1284,6 +1285,94 @@ else {
     const sn = await J("(()=>{const b={type:'text',x:1,y:1,text:'abcdef',fs:14,color:'#000000',orient:'h'};const t=s=>sanObj({...b,sty:s});return [t('x').sty,t([{a:0,b:3,bold:'yes'}]).sty,t([{a:2,b:9,bold:true},{a:0,b:4,italic:true}]).sty,t(Array.from({length:3000},(_,i)=>({a:0,b:1,bold:true}))).sty.length<=1,t([{a:0,b:3,bold:true,hbg:'javascript:x'}]).sty,sanObj({...b,orient:'stack',sty:[{a:0,b:2,bold:true}]}).sty,sanObj(b).sty,sanObj({...b,sty:[{a:0,b:2,hbg:'#ff0000'}]}).sty]})()");
     ok('Teilformat: sanObj prüft Bereiche (Typen, Überlappung, Zahl, stack), Altdokumente ohne sty bleiben gleich', sn[0] == null && sn[1] == null && JSON.stringify(sn[2]) === '[{"a":0,"b":4,"italic":true},{"a":4,"b":6,"bold":true}]' && sn[3] === true && JSON.stringify(sn[4]) === '[{"a":0,"b":3,"bold":true}]' && sn[5] == null && sn[6] == null && JSON.stringify(sn[7]) === '[{"a":0,"b":2,"hbg":"#ff0000"}]', sn);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
+  // B6: page sidebar (add page, drag reorder, arrows setting), page selector (pager) with its placements and shortcut, big documents
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    await ev("(async()=>{design.motion='off';design.pager=DDEF.pager;applyDesign(true);const d=await PDFLib.PDFDocument.create();for(let i=0;i<5;i++)d.addPage([595,842]);await openPdf(await d.save(),'pg5.pdf');await new Promise(r=>setTimeout(r,600));S.pages.forEach((P,i)=>P.objs.push({type:'text',x:60,y:80,text:'P'+(i+1),fs:20,color:'#000000',orient:'h',lw:0}));setSel(null);redrawAll();zoomTo(.5);if(!thumbsOn)toggleThumbs(true);await new Promise(r=>setTimeout(r,900));return 1})()", 60000);
+    const order = () => J("S.pages.map(P=>(P.objs.find(o=>o.type==='text')||{}).text||'-').join()");
+    const wait = async (c, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await ev(c) === true) return true; await sleep(150); } return false; };
+    // arrows: off by default, on with the setting
+    const a0 = await ev("!document.querySelector('#thumbs .th-bar')&&thArrows===false");
+    await ev("document.querySelector('#dThArrows button[data-v=on]').click()"); await sleep(300);
+    const a1 = await J("[!!document.querySelector('#thumbs .th-bar'),document.querySelector('#thumbs .th-bar button').title,localStorage.getItem('pdfwerkbank:tharrows')]");
+    await ev("document.querySelector('#dThArrows button[data-v=off]').click()"); await sleep(300);
+    const a2 = await ev("!document.querySelector('#thumbs .th-bar')");
+    ok('Seitenvorschau: Verschiebe-Pfeile standardmäßig aus, mit Einstellung an (Tooltip „Seite nach oben verschieben“), wieder aus', a0 === true && a1[0] === true && /^Seite nach oben verschieben/.test(a1[1]) && a1[2] === '1' && a2 === true, { a0, a1, a2 });
+    // add page with the + button at the end (menu)
+    const ctr = sel => ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    let p = await ctr('#thAdd'); await mv(p[0], p[1]); await pressAt(p[0], p[1]); await releaseAt(p[0], p[1]); await sleep(300);
+    const item = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(b=>/Größe der letzten/.test(b.textContent));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+    if (item) { await mv(item[0], item[1]); await pressAt(item[0], item[1]); await releaseAt(item[0], item[1]); }
+    const added = await wait("S.pages.length===6&&!rbBusy");
+    const o1 = await order();
+    ok('Seitenvorschau: „+“ am Ende fügt eine leere Seite hinzu, Beschriftungen bleiben bei ihren Seiten', added && o1 === 'P1,P2,P3,P4,P5,-', o1);
+    const hu = await ev("H.u.length"); await ev("undo()"); const un1 = await wait("S.pages.length===5"); const o2 = await order();
+    ok('Seitenvorschau: Seite hinzufügen ist ein Rückgängig-Schritt', un1 && o2 === 'P1,P2,P3,P4,P5', o2);
+    await ev("if(thumbsOn)buildThumbs()"); await sleep(600);
+    // insertion line between two thumbnails
+    const gap = await ev("(()=>{const t=[...document.querySelectorAll('#thumbs .th')],a=t[1].getBoundingClientRect(),b=t[2].getBoundingClientRect();return [(a.left+a.right)/2,(a.bottom+b.top)/2]})()");
+    await mv(gap[0] - 30, gap[1] - 20); await mv(gap[0] - 30, gap[1]); await sleep(150);
+    const insv = await J("(()=>{const i=document.querySelector('#thumbs .th-ins');if(!i||i.hidden)return null;const b=i.querySelector('button').getBoundingClientRect();return [+i.dataset.at,b.left+b.width/2,b.top+b.height/2]})()");
+    if (insv) { await mv(insv[1], insv[2]); await pressAt(insv[1], insv[2]); await releaseAt(insv[1], insv[2]); }
+    const ins = await wait("S.pages.length===6&&!rbBusy"); const o3 = await order();
+    ok('Seitenvorschau: Einfügestreifen zwischen zwei Seiten fügt dort eine leere Seite ein', !!insv && insv[0] === 2 && ins && o3 === 'P1,P2,-,P3,P4,P5', { insv, o3 });
+    await ev("undo()"); await wait("S.pages.length===5"); await ev("buildThumbs()"); await sleep(600);
+    // drag reorder with the mouse: page 1 to between 3 and 4
+    const dragTh = async (k, toY, steps = 8) => { const t = await ev(`(()=>{const e=document.querySelectorAll('#thumbs .th')[${k}];e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+      await mv(t[0], t[1]); await pressAt(t[0], t[1]); for (let s = 1; s <= steps; s++) await dragTo(t[0], t[1] + (toY(t) - t[1]) * s / steps); return t };
+    const nFirst = await ev("H.u.length");
+    let t0 = await dragTh(0, t => t[1]); // placeholder to measure geometry
+    await releaseAt(t0[0], t0[1]); await sleep(200);
+    const tgt = await ev("(()=>{const t=document.querySelectorAll('#thumbs .th'),a=t[2].getBoundingClientRect(),b=t[3].getBoundingClientRect();return (a.bottom+b.top)/2})()");
+    t0 = await dragTh(0, () => tgt);
+    const line = await ev("!!document.querySelector('#thumbs .th-drop')&&document.querySelector('#thumbs').classList.contains('th-drag-on')");
+    await releaseAt(t0[0], tgt);
+    const dr = await wait("!rbBusy&&S.pages.length===5&&(S.pages[0].objs.find(o=>o.type==='text')||{}).text==='P2'"); const o4 = await order();
+    const cp = await ev("curPage()===2||TM.sel===2");
+    ok('Seitenvorschau: Ziehen verschiebt die Seite (Linie sichtbar, Beschriftung folgt), die Seite bleibt gewählt', line && dr && o4 === 'P2,P3,P1,P4,P5' && cp, { line, o4, cp });
+    const h2 = await ev("H.u.length"); await ev("undo()"); await wait("(S.pages[0].objs.find(o=>o.type==='text')||{}).text==='P1'"); const o5 = await order();
+    ok('Seitenvorschau: Ziehen ist ein Rückgängig-Schritt', o5 === 'P1,P2,P3,P4,P5' && h2 - nFirst === 1, { o5, d: h2 - nFirst });
+    await ev("buildThumbs()"); await sleep(600);
+    t0 = await dragTh(1, () => tgt + 10);
+    const ln2 = await ev("!!document.querySelector('#thumbs .th-drop')");
+    await key('Escape', 'Escape', 27); await releaseAt(t0[0], tgt); await sleep(500);
+    const o6 = await order(); const st = await ev("[!!document.querySelector('#thumbs .th-drop'),document.querySelector('#thumbs').classList.contains('th-drag-on'),rbBusy]");
+    ok('Seitenvorschau: Esc bricht das Ziehen ab (Reihenfolge unverändert, Linie weg)', ln2 && o6 === 'P1,P2,P3,P4,P5' && st[0] === false && st[1] === false, { o6, st });
+    // page selector: default floating, jump, clamp, Esc, arrows, shortcut
+    const pg0 = await J("[design.pager,document.getElementById('pager').parentNode.tagName,getComputedStyle(document.getElementById('pgInfo')).display,document.getElementById('pgNum').value,document.getElementById('pgTot').textContent,getComputedStyle(document.getElementById('pgNum')).fontVariantNumeric]");
+    ok('Seitenwahl: standardmäßig unten schwebend, ersetzt die Anzeige „Seite x / y“ (kein Doppel), Zahlen tabellarisch', pg0[0] === 'float' && pg0[1] === 'MAIN' && pg0[2] === 'none' && +pg0[3] >= 1 && /5/.test(pg0[4]) && /tabular/.test(pg0[5]), pg0);
+    const typeNum = async s => { await ev("(()=>{const i=document.getElementById('pgNum');i.focus();i.select()})()"); for (const ch of s) await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, code: 'Digit' + ch, windowsVirtualKeyCode: 48 + +ch, text: ch }); };
+    await typeNum('4'); await key('Enter', 'Enter', 13);
+    const j4 = await wait("curPage()===3");
+    await typeNum('99'); await key('Enter', 'Enter', 13); const j5 = await wait("curPage()===4");
+    const v5 = await ev("document.getElementById('pgNum').value");
+    await typeNum('2'); const mid = await ev("document.getElementById('pgNum').value"); await key('Escape', 'Escape', 27); await sleep(200);
+    const rev = await J("[document.getElementById('pgNum').value,document.activeElement===document.getElementById('pgNum'),curPage()]");
+    await ev("document.getElementById('pgNum').focus()"); await key('ArrowUp', 'ArrowUp', 38); const up = await wait("curPage()===3");
+    ok('Seitenwahl: Zahl + Enter springt (4), zu große Zahl wird begrenzt (5), Esc stellt zurück, Pfeil hoch blättert zurück', j4 && j5 && v5 === '5' && mid === '2' && rev[0] === '5' && rev[1] === false && rev[2] === 4 && up, { j4, j5, v5, mid, rev, up });
+    await ev("document.getElementById('pgNum').blur();document.body.focus()");
+    await ev("document.dispatchEvent(new KeyboardEvent('keydown',{key:'g',code:'KeyG',ctrlKey:true,altKey:true,bubbles:true,cancelable:true}))"); await sleep(200);
+    const sc = await J("[document.activeElement===document.getElementById('pgNum'),!!KB_DEF.find(a=>a.id==='gotoPage'&&a.def==='Ctrl+Alt+G')]").catch(() => null);
+    ok('Seitenwahl: Strg+Alt+G fokussiert das Seitenfeld, Eintrag in der Tastenkürzel-Tabelle', sc && sc[0] === true && sc[1] === true, sc);
+    await ev("document.getElementById('pgNum').blur()");
+    // placements
+    const pl = {};
+    for (const v of ['side', 'off', 'float']) { await ev(`design.pager='${v}';applyDesign(true)`); await sleep(250);
+      pl[v] = await J("[document.getElementById('pager').parentNode.id,getComputedStyle(document.getElementById('pager')).display,getComputedStyle(document.getElementById('pgInfo')).display,document.getElementById('pager').classList.contains('in-thumbs')]"); }
+    await ev("toggleThumbs(false)"); await ev("design.pager='side';applyDesign(true)"); await sleep(300);
+    const sc2 = await J("[document.getElementById('pager').parentNode.tagName,getComputedStyle(document.getElementById('pager')).display]"); await ev("design.pager='float';applyDesign(true);toggleThumbs(true)");
+    const san = await J("[dSan({...design,pager:'x'}).pager,dSan({...design,pager:'side'}).pager,document.querySelectorAll('#dPager button').length]");
+    ok('Seitenwahl: Platzierung unten / in der Vorschau / aus (dann nur die Anzeige), bei geschlossener Vorschau schwebend, ungültiger Wert wird bereinigt',
+      pl.side[0] === 'thumbs' && pl.side[1] !== 'none' && pl.side[2] === 'none' && pl.side[3] && pl.off[1] === 'none' && pl.off[2] !== 'none' && pl.float[0] === 'wrap' && pl.float[1] !== 'none' && pl.float[2] === 'none'
+      && sc2[0] === 'MAIN' && sc2[1] !== 'none' && san[0] === 'float' && san[1] === 'side' && san[2] === 3, { pl, sc2, san });
+    // big document: thumbnails are drawn lazily
+    const big = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();for(let i=0;i<220;i++)d.addPage([595,842]);const b=await d.save();const t0=performance.now();await openPdf(b,'big.pdf');await new Promise(r=>setTimeout(r,1500));const n=document.querySelectorAll('#thumbs .th').length,done=S.pages.filter(P=>P.thumbBase).length;return JSON.stringify({n,done,ms:Math.round(performance.now()-t0),val:document.getElementById('pgTot').textContent})})()", 90000).then(JSON.parse);
+    ok('Seitenvorschau: 220 Seiten, Vorschaubilder werden nur für den sichtbaren Bereich gezeichnet', big.n === 220 && big.done > 0 && big.done < 120 && /220/.test(big.val), big);
+    const en = await J("(()=>{setLang('en');const r=[tr('Seitenwahl'),tr('Seite hinzufügen'),tr('Leere A4-Seite'),tr('Seite nach oben verschieben'),document.querySelector('#thAdd')&&document.querySelector('#thAdd').title];setLang('de');return r})()");
+    ok('Seitenwahl und Seitenvorschau: englische Texte', en[0] === 'Page selector' && en[1] === 'Add page' && en[2] === 'Blank A4 page' && en[3] === 'Move page up' && en[4] === 'Add page at the end', en);
+    await ev("design.motion='on';applyDesign(true);S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
