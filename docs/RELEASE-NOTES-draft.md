@@ -33,6 +33,8 @@ Release notes for version 3.9.0.
 - Old single topology symbols are not editable inside their nodes.
 - Cropped images (`crop`): older Layr versions ignore the crop and squeeze the full image into the cropped box (distorted).
 - Cropping only hides the rest of an image; the whole image stays in the saved file (use Redact to remove content for good).
+- User groups (`gg`, Ctrl+G): older versions ignore them but keep the value; a part duplicated in an older version lands in the original's group in 3.10.
+- Alt+click / Alt+drag may be taken by the window manager on some Linux desktops (KDE, Xfce); the tooltips say so and the same actions are available without Alt where possible.
 - In Layr versions before 3.10, a duplicated part of a template keeps its group id, so in 3.10 original and copy form one group; use Alt+Click to select a single part.
 - Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).
 - The text layer is not available in split view and presentation mode.
