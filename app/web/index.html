@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FW9IBxpXRj+Bcoiw/mVROgc5r7A1vtciRrsWhgXil8k=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-O8VWc6CpbrBf84XaODgQuEJa2qZnmCOYjDIOQIWiRhc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2659,7 +2659,7 @@ const I18N_EN={
 'Eine Ebene nach vorne (Strg+])':'Bring forward (Ctrl+])','Eine Ebene nach hinten (Strg+[)':'Send backward (Ctrl+[)','Ganz nach vorne (Strg+Umschalt+])':'Bring to front (Ctrl+Shift+])','Ganz nach hinten (Strg+Umschalt+[)':'Send to back (Ctrl+Shift+[)',
 'Umschalt-Klick wählt mehrere Objekte, Strg+G gruppiert, Alt-Klick wählt ein Teil einer Gruppe, Tab springt zum nächsten Objekt. Beim Ziehen einer Ecke: Umschalt schaltet das Seitenverhältnis um (Bilder bleiben sonst proportional), Alt skaliert von der Mitte aus.':'Shift-click selects several objects, Ctrl+G groups, Alt-click selects one part of a group, Tab jumps to the next object. When dragging a corner: Shift toggles the aspect ratio (images stay proportional otherwise), Alt resizes from the centre.',
 'Objektleiste':'Object bar','Duplizieren':'Duplicate','Duplizieren (Strg+D)':'Duplicate (Ctrl+D)','Löschen (Entf)':'Delete (Del)','Sperren':'Lock','Nach vorne':'Bring to front','Nach hinten':'Send to back','Objektleiste am gewählten Objekt':'Object bar at the selected object','Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten':'Small bar above the object: duplicate, delete, lock, colour, order, align',
-'Hilfslinien beim Verschieben':'Guides while moving','Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)':'Guide lines and snapping to edges, centres and margins, also while resizing (Alt: off briefly)',
+'Hilfslinien (beim Verschieben und Größe ändern)':'Guides (while moving and resizing)','Linien und Einrasten an Kanten, Mitten und Rändern, beim Verschieben und beim Skalieren an Ecken einfacher Objekte (Alt: kurz aus)':'Guide lines and snapping to edges, centres and margins, while moving and while scaling by the corners of simple objects (Alt: off briefly)',
 'Zum Gruppieren mindestens zwei Objekte auswählen.':'Select at least two objects to group them.','Gruppiert. Aufheben mit Strg+Umschalt+G.':'Grouped. Ungroup with Ctrl+Shift+G.','Die Auswahl enthält keine Gruppe.':'The selection contains no group.','Gruppe aufgehoben.':'Group removed.','Gruppieren (Strg+G)':'Group (Ctrl+G)','Gruppierung aufheben (Strg+Umschalt+G)':'Ungroup (Ctrl+Shift+G)',
 };
 /* Zusammengesetzte Meldungen: Muster → Übersetzung */
@@ -3767,7 +3767,8 @@ function gdApply(){document.getElementById('app').classList.toggle('pen-only',GD
 function gdBox(L){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of L){let q;try{q=o.type==='text'?bbox(o):boxOf(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
 // Candidate lines (page edges, 36 pt margins, page centre, other objects' edges and centres), computed ONCE per drag and kept in st.gc
 function gdCands(P,moving){const X=[[0,'p'],[36,'p'],[P.w/2,'c'],[P.w-36,'p'],[P.w,'p']],Y=[[0,'p'],[36,'p'],[P.h/2,'c'],[P.h-36,'p'],[P.h,'p']];GD.built=(GD.built||0)+1;
-  for(const q of P.objs){if(moving.includes(q)||q.type==='deco'||q.type==='redact')continue;let r;try{r=q.type==='text'?bbox(q):boxOf(q)}catch(e2){continue}if(!isNum(r.x)||!isNum(r.w))continue;
+  const mv=new Set(moving.flatMap(o=>o.type==='group'?o.items:[o]).map(o=>o.oid).filter(Boolean));
+  for(const q of P.objs){if(moving.includes(q)||q.type==='deco'||q.type==='redact'||(q.link&&(mv.has(q.link.a)||mv.has(q.link.b))))continue;let r;try{r=q.type==='text'?bbox(q):boxOf(q)}catch(e2){continue}if(!isNum(r.x)||!isNum(r.w))continue;
     X.push([r.x,'o'],[r.x+r.w/2,'o'],[r.x+r.w,'o']);Y.push([r.y,'o'],[r.y+r.h/2,'o'],[r.y+r.h,'o'])}
   return{X,Y}}
 const gdBest=(cands,vals,tol)=>{let m=null;for(const[v,kind]of vals)for(const a of cands){const d=v-a;if(Math.abs(d)<=tol&&(!m||Math.abs(d)<Math.abs(m.d)))m={d,v,kind}}return m};
@@ -7430,7 +7431,7 @@ $('#bViewMenu').onclick=()=>hmOpen($('#bViewMenu'),[
   {sep:1},
   {ic:'zin',t:'Vergrößern',k:kbOf('zoomIn'),run:()=>zoomTo(S.zoom*1.2)},{ic:'zout',t:'Verkleinern',k:kbOf('zoomOut'),run:()=>zoomTo(S.zoom/1.2)},{ic:'fit',t:'An Breite anpassen',k:kbOf('fit'),run:()=>fitZoom()},
   {sep:1},
-  {ic:'guides',t:'Hilfslinien',d:'Beim Verschieben an Kanten einrasten',get:()=>GD.on,run:()=>{GD.on=!GD.on;gdSave()}},
+  {ic:'guides',t:'Hilfslinien (beim Verschieben und Größe ändern)',d:'Linien und Einrasten an Kanten, Mitten und Rändern, beim Verschieben und beim Skalieren an Ecken einfacher Objekte (Alt: kurz aus)',get:()=>GD.on,run:()=>{GD.on=!GD.on;gdSave()}},
   {ic:'grid',t:'Raster (5 mm)',d:'Punkte anzeigen und daran ausrichten',get:()=>GD.grid,run:()=>{GD.grid=!GD.grid;gdSave();gdApply()}},
   {ic:'pen',t:'Tablet-Modus',d:'Nur der Stift zeichnet, Finger scrollen',get:()=>GD.pen,run:()=>{GD.pen=!GD.pen;gdSave();gdApply()}},
   {ic:'present',t:'Präsentieren',k:kbOf('tool:present'),run:()=>prsStart()},...tbHdrItems()],'Ansicht');
@@ -7443,7 +7444,7 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
   {ic:'tools',t:'Vorlagen als Gruppe auswählen',d:'Klick auf ein Teil wählt die ganze Vorlage (Alt: nur das Teil)',get:()=>tplGroupOn,run:()=>{tplGroupOn=!tplGroupOn;try{localStorage.setItem('pdfwerkbank:tplGroup',tplGroupOn?'1':'0')}catch(e){}}},
   {ic:'tools',t:'Topologie-Bausteine als bearbeitbare Knoten',d:'Stern, Ring, Bus usw. werden als einzelne Geräte mit Linien platziert (aus: ein Symbol)',get:()=>topoEditOn,run:()=>{topoEditOn=!topoEditOn;try{localStorage.setItem('pdfwerkbank:topoEdit',topoEditOn?'1':'0')}catch(e){}}},
   {ic:'tools',t:'Doppelklick bearbeitet in allen Werkzeugen',d:'Auch mit Symbol-, Form-, Linien- oder Textwerkzeug: Doppelklick auf ein Objekt bearbeitet es (aus: nur mit Auswahl)',get:()=>dblAllOn,run:()=>{dblAllOn=!dblAllOn;try{localStorage.setItem('pdfwerkbank:dblAll',dblAllOn?'1':'0')}catch(e){}}},
-  {ic:'guides',t:'Hilfslinien beim Verschieben',d:'Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)',get:()=>GD.on,run:()=>{GD.on=!GD.on;gdSave()}},
+  {ic:'guides',t:'Hilfslinien (beim Verschieben und Größe ändern)',d:'Linien und Einrasten an Kanten, Mitten und Rändern, beim Verschieben und beim Skalieren an Ecken einfacher Objekte (Alt: kurz aus)',get:()=>GD.on,run:()=>{GD.on=!GD.on;gdSave()}},
   {ic:'tools',t:'Objektleiste am gewählten Objekt',d:'Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten',get:()=>obBarOn,run:()=>{obBarOn=!obBarOn;try{localStorage.setItem('pdfwerkbank:objBar',obBarOn?'1':'0')}catch(e){}obSoon()}},
   {ic:'tools',t:'Tab wechselt zwischen Objekten',d:'Tab und Umschalt+Tab wählen das nächste oder vorige Objekt der Seite (Esc: wieder durch die Oberfläche tabben)',get:()=>tabObjOn,run:()=>{tabObjOn=!tabObjOn;try{localStorage.setItem('pdfwerkbank:tabObj',tabObjOn?'1':'0')}catch(e){}}},
   {ic:'tools',t:'Bilder frei strecken (Seitengriffe)',d:'Die Griffe in der Mitte der Bildkanten ändern nur Breite oder Höhe (aus: nur Eckgriffe)',get:()=>imgSideOn,run:()=>{imgSideOn=!imgSideOn;try{localStorage.setItem('pdfwerkbank:imgSide',imgSideOn?'1':'0')}catch(e){}if(S.sel)redraw(S.sel.p)}},
@@ -9335,7 +9336,7 @@ const FN_SYN={'Passwortschutz':'passwort kennwort verschlüsseln sperren schütz
   'Geteilte Ansicht':'nebeneinander zwei seiten split splitscreen spalte','Nachtmodus für Seiten':'dunkel nacht dark mode invertieren',
   'Formularfeld':'formular feld ausfüllen textfeld checkbox kästchen dropdown form','Diagramm aus Text':'mindmap chart diagramm logik schaltung struktogramm nassi wahrheitstabelle',
   'Schwärzen':'redact zensieren unkenntlich entfernen anonymisieren','Rack-Planer':'rack schrank serverschrank patchpanel patchliste','Codeblock':'code quellcode syntax programm',
-  'Unterschrift':'signatur unterschreiben signature','Notizen ein/aus':'notizen notes aufgaben todo','Hilfslinien':'raster ausrichten snap guides','Design anpassen':'farbe theme dunkel hell aussehen'};
+  'Unterschrift':'signatur unterschreiben signature','Notizen ein/aus':'notizen notes aufgaben todo','Hilfslinien (beim Verschieben und Größe ändern)':'raster ausrichten snap guides','Design anpassen':'farbe theme dunkel hell aussehen'};
 FN_SYN['IT-Rechner']=(FN_SYN['IT-Rechner']||'')+' rechner logik logikrechner gatter xor and or nand nor schaltung wahrheitstabelle binär hex zahlensystem subnetz';
 const fnNorm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/ß/g,'ss');
 // alle Befehle einsammeln: Menüs (über hmOpen abgefangen), Werkzeuge, Tastenkürzel-Aktionen

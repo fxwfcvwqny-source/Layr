@@ -1639,6 +1639,11 @@ else {
     await open310(IMG);
     const r3 = await ev("(()=>{cropNote=false;const o=S.pages[0].objs[0];setSel({p:0,o});const t=()=>document.querySelector('.toast,#toast')&&document.querySelector('.toast,#toast').textContent;cropStart(0,o);cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;cropEnd(true);return JSON.stringify([cropNote,/Schwärzen/.test(t()||''),document.getElementById('imgCrop').title.includes('Schwärzen')])})()").then(JSON.parse);
     ok('Zuschnitt: beim Übernehmen Hinweis, dass das ganze Bild in der Datei bleibt (einmal pro Sitzung), auch als Tooltip am Knopf', r3[0] === true && r3[1] === true && r3[2] === true, r3);
+    {
+      await open310("S.pages[0].objs.push({type:'rect',x:100,y:100,w:60,h:40,color:'#000000',lw:1,oid:'gA'},{type:'rect',x:300,y:100,w:60,h:40,color:'#000000',lw:1,oid:'gB'},{type:'line',x1:160,y1:123,x2:444,y2:123,color:'#000000',lw:1,link:{a:'gA',b:null,ta:'auto',tb:'auto'}})");
+      const c = await ev("(()=>{const P=S.pages[0],a=P.objs[0],c=gdCands(P,[a]);return JSON.stringify([c.X.some(v=>v[0]===444),gdCands(P,[P.objs[1]]).X.some(v=>v[0]===444)])})()").then(JSON.parse);
+      ok('Hilfslinien: an das bewegte Objekt gedockte Linien liefern keine Einrastkanten', c[0] === false, c);
+    }
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
