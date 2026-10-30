@@ -955,6 +955,12 @@ else {
     await dbl4(0); await ev("ED.eng.put('NEU')"); await dbl4(1);
     const lossB = await ev("({l0:S.pages[0].objs[0].label,n:S.pages[0].objs.length,edit:!!editorEl&&editingObj===S.pages[0].objs[1]})"); await ev("closeEditor();setSel(null);setTool('select');S.pages[0].objs.length=1;S.pages[0].objs[0].label='Eins';H.u=[];H.r=[];updUndo()");
     ok('Doppelklick im Stiftwerkzeug: die Änderung am ersten Symbol bleibt, zweites Symbol wird bearbeitet', /NEU/.test(lossB.l0) && lossB.n === 2 && lossB.edit, lossB);
+    // typing right after a click over an object in the text tool: the character lands in the new text box, no shortcut fires
+    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;setTool('text');H.u=[];H.r=[];updUndo()");
+    { await sleep(700); const p = await ev("tpScr(tpPt(S.pages[0].objs[0]))"); await mv(p[0], p[1]); await pressAt(p[0], p[1]); await releaseAt(p[0], p[1]); await sleep(60);
+      await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'm', code: 'KeyM', windowsVirtualKeyCode: 77, text: 'm' }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'm', code: 'KeyM', windowsVirtualKeyCode: 77 }); await sleep(100); }
+    const tk = await ev("({tool:S.tool,ed:!!editorEl&&ED&&ED.eng.value})"); await ev("closeEditor();setTool('select');setSel(null);S.pages[0].objs.length=1;H.u=[];H.r=[];updUndo()");
+    ok('Textwerkzeug über einem Objekt: sofortiges Tippen (m) landet im Textfeld, Werkzeug bleibt', tk.tool === 'text' && tk.ed === 'm', tk);
     // full (capped) history: the dblclick still takes back the dots and opens the editor
     await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;for(let q=0;q<160;q++)pushHist();setTool('pen')");
     await dbl4(); const cap4 = await state4(); await ev("closeEditor();setTool('select');setSel(null);S.pages[0].objs.length=1;H.u=[];H.r=[];updUndo()");

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-oB7uYAzICB1/NLlA7Wh3R6OHyijevBZkllIB79JTJWY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/BUrediJG9sHvty+d7p0ikStTdmPB7xJpllLsPK6h/c=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3445,7 +3445,10 @@ const TOPO_TPL=(()=>{
 NET_TPL.push(...TOPO_TPL,...TOPO_X);
 /* Double-click in any placement/shape tool (setting dblAllOn): remember the history length at the first click so the dblclick handler can take back what that click placed */
 var dblAllOn=true;try{dblAllOn=localStorage.getItem('pdfwerkbank:dblAll')!=='0'}catch(e){}
-var DBLH=null,txtDefer=0;
+var DBLH=null,txtDefer=0,txtPend=null;
+// typing during the deferred text box: open it now and put the character in (otherwise it would trigger a shortcut)
+addEventListener('keydown',e=>{if(!txtDefer)return;clearTimeout(txtDefer);txtDefer=0;const p=txtPend;if(!p||S.tool!=='text'||editorEl)return;
+  newText(p.i,p.x,p.y);if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&ED&&ED.eng){e.preventDefault();e.stopImmediatePropagation();ED.eng.put(e.key)}},true);
 addEventListener('pointerdown',e=>{if(e.button!==0||!viewer.contains(e.target))return;const t=performance.now();if(!DBLH||t-DBLH.t>500||Math.hypot(e.clientX-DBLH.x,e.clientY-DBLH.y)>6)DBLH={n:H.n,arm:!!ARM,tool:S.tool,c:0,x:e.clientX,y:e.clientY};DBLH.c++;DBLH.t=t},true);
 /* Old single topology symbols -> editable template (setting topoEditOn; documents with the old symbols stay as they are) */
 var topoEditOn=true;try{topoEditOn=localStorage.getItem('pdfwerkbank:topoEdit')!=='0'}catch(e){}
@@ -4382,7 +4385,7 @@ function attachInk(P,i){
         const o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tol));
         if(o&&nearBorder(o,x,y,tol)){setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;break}
         if(o)editText(i,o,[e.clientX,e.clientY]);
-        else if(dblAllOn&&P.objs.some(q=>hit(q,x,y,tol))){clearTimeout(txtDefer);txtDefer=setTimeout(()=>{txtDefer=0;if(S.tool==='text'&&!editorEl)newText(i,x,y)},350)} // maybe the first click of a double-click on an object: wait before opening a new text box
+        else if(dblAllOn&&P.objs.some(q=>hit(q,x,y,tol))){clearTimeout(txtDefer);txtPend={i,x,y};txtDefer=setTimeout(()=>{txtDefer=0;if(S.tool==='text'&&!editorEl)newText(i,x,y)},350)} // maybe the first click of a double-click on an object: wait before opening a new text box
         else newText(i,x,y);st=null;break}
       case'line':case'arrow':st.dockA=e.altKey?null:dockAt(P,x,y,10/S.zoom);st.kA=st.dockA?pickAnchor(st.dockA,x,y):'auto';S.dock=st.dockA?{p:i,o:st.dockA,k:st.kA}:null;S.draft={p:i,o:{type:'line',x1:x,y1:y,x2:x,y2:y,color:S.color,lw:S.lw,dash:S.dash,elbow:S.elbow,start:S.tool==='arrow'?S.startH:'none',end:S.tool==='arrow'?S.endH:'none',...(LNPRE&&S.tool==='arrow'?{dash:true,start:'none',end:'arrow',label:LNPRE.label}:{})}};break;
       case'table':S.draft={p:i,o:newTable(x,y,S.tblR||3,S.tblC||3)};break;
