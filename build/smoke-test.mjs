@@ -727,6 +727,7 @@ else {
   const rzj = JSON.parse(rz || '{}');
   ok('Ruler angle field rotates around the centre (centre fixed, angle set, panel section visible)', rzj.c0 && Math.hypot(rzj.c0[0] - rzj.c1[0], rzj.c0[1] - rzj.c1[1]) < 0.6 && Math.abs(rzj.a1 + Math.PI / 6) < 1e-6 && rzj.sec === true, rzj);
   const rotDrag = async (dAng, mod) => {
+    await ev("(()=>{R.x=Math.round(innerWidth/2-parseFloat(ruler.style.width)/2);R.y=Math.round(innerHeight/2-R.H/2);R.a=0;placeRuler()})()"); await sleep(50); // start from a visible position
     const st = JSON.parse(await ev("(()=>{const r=ruler.getBoundingClientRect(),h=$('#rulerRot').getBoundingClientRect();return JSON.stringify({c:[r.left+r.width/2,r.top+r.height/2],h:[h.left+h.width/2,h.top+h.height/2]})})()"));
     const a = Math.atan2(st.h[1] - st.c[1], st.h[0] - st.c[0]) + dAng, d = Math.hypot(st.h[0] - st.c[0], st.h[1] - st.c[1]);
     await mv(st.h[0], st.h[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: st.h[0], y: st.h[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod });
