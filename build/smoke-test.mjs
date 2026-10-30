@@ -1640,6 +1640,17 @@ else {
     const r3 = await ev("(()=>{cropNote=false;const o=S.pages[0].objs[0];setSel({p:0,o});const t=()=>document.querySelector('.toast,#toast')&&document.querySelector('.toast,#toast').textContent;cropStart(0,o);cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;cropEnd(true);return JSON.stringify([cropNote,/Schwärzen/.test(t()||''),document.getElementById('imgCrop').title.includes('Schwärzen')])})()").then(JSON.parse);
     ok('Zuschnitt: beim Übernehmen Hinweis, dass das ganze Bild in der Datei bleibt (einmal pro Sitzung), auch als Tooltip am Knopf', r3[0] === true && r3[1] === true && r3[2] === true, r3);
     {
+      await open310("for(const[i,x]of[['y1',60],['y2',180],['y3',300]])S.pages[0].objs.push({type:'rect',x,y:200,w:90,h:60,color:'#000000',lw:1,fill:'white',oid:i})");
+      const ord = () => ev("S.pages[0].objs.map(o=>o.oid).join()");
+      await click310([105, 230]);
+      await key310('ArrowUp', 'ArrowUp', 38, 10); const a1 = await ord();
+      await key310('ArrowUp', 'ArrowUp', 38, 11); const a2 = await ord();
+      await key310('ArrowDown', 'ArrowDown', 40, 10); const a3 = await ord();
+      await key310('ArrowDown', 'ArrowDown', 40, 11); const a4 = await ord();
+      const reg = await ev("JSON.stringify(['group','ungroup','ordFwd','ordBack','ordFront','ordEnd'].map(id=>KB_DEF.some(x=>x.id===id)))").then(JSON.parse);
+      ok('Tastenkürzel: Ebenen-Reihenfolge auch mit Strg+Umschalt+↑/↓ und Strg+Alt+Umschalt+↑/↓, Gruppieren/Ebenen im Kürzel-Dialog registriert', a1 === 'y2,y1,y3' && a2 === 'y2,y3,y1' && a3 === 'y2,y1,y3' && a4 === 'y1,y2,y3' && reg.every(Boolean), { a1, a2, a3, a4, reg });
+    }
+    {
       await open310("S.pages[0].objs.push({type:'rect',x:100,y:100,w:60,h:40,color:'#000000',lw:1,oid:'gA'},{type:'rect',x:300,y:100,w:60,h:40,color:'#000000',lw:1,oid:'gB'},{type:'line',x1:160,y1:123,x2:444,y2:123,color:'#000000',lw:1,link:{a:'gA',b:null,ta:'auto',tb:'auto'}})");
       const c = await ev("(()=>{const P=S.pages[0],a=P.objs[0],c=gdCands(P,[a]);return JSON.stringify([c.X.some(v=>v[0]===444),gdCands(P,[P.objs[1]]).X.some(v=>v[0]===444)])})()").then(JSON.parse);
       ok('Hilfslinien: an das bewegte Objekt gedockte Linien liefern keine Einrastkanten', c[0] === false, c);
