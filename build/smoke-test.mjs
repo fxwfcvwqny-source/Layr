@@ -1039,6 +1039,19 @@ else {
     ok('Vorlage: Vorschau folgt dem Scrollen ohne Mausbewegung (neu berechnet)', Math.abs(pt1 - pt0) > 20 && Math.abs((a1.t - a0.t) - (pt1 - pt0)) < 3, { d: pt1 - pt0, g: a1.t - a0.t });
     await ev("armOff();S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // ARM drag: pointerup of another pointer is ignored, window blur ends a hanging drag
+  {
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);S.pages[0].el.scrollIntoView({block:'start'})"); await sleep(250);
+    const g = await ev("(()=>{const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height*.4]})()");
+    await ev("armOn('net_home')"); await mv(g[0], g[1]); await pressAt(g[0], g[1]); await sleep(60);
+    const o1 = await ev(`(()=>{const had=!!ARM.drag;window.dispatchEvent(new PointerEvent('pointerup',{pointerId:99,clientX:${g[0]},clientY:${g[1]},bubbles:true}));return {had,still:!!ARM&&!!ARM.drag,n:S.pages[0].objs.length}})()`);
+    await releaseAt(g[0], g[1]); await sleep(150);
+    const placed = await ev("S.pages[0].objs.length>2");
+    await ev("S.pages.forEach(P=>P.objs=[]);armOn('net_home')"); await mv(g[0], g[1]); await pressAt(g[0], g[1]); await sleep(60);
+    const hang = await ev("(()=>{window.dispatchEvent(new Event('blur'));return ARM&&ARM.drag===null})()"); await releaseAt(g[0], g[1]);
+    await ev("armOff();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    ok('Vorlage: pointerup eines anderen Zeigers wird ignoriert, Fenster-blur beendet ein hängendes Ziehen', o1.had && o1.still && o1.n === 0 && placed && hang === true, { o1, placed, hang });
+  }
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });

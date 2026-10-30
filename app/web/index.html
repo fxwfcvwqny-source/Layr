@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/9PTlDkAHbaMzUqPkW3T7sIWjMmB5gKnpbybwAYBz0s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8X4gldsV7Z3SONjuFuMHf1Y92LGzIpKcdfjDHYp4HT4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3223,12 +3223,14 @@ addEventListener('pointermove',e=>{if(!ARM)return;ARM.last=[e.clientX,e.clientY,
 // scrolling or zooming without moving the mouse: redraw the ghost at the last pointer position
 const armRefresh=()=>{if(ARM&&ARM.last)armMove(...ARM.last)};
 $('#viewer').addEventListener('scroll',armRefresh,{passive:true});
-addEventListener('pointerdown',e=>{if(!ARM||e.button!==0||!viewer.contains(e.target)||editorEl)return;const pa=pageAt(e.clientX,e.clientY);if(!pa)return;
-  e.preventDefault();e.stopPropagation();ARM.drag={i:pa.p,x0:e.clientX,y0:e.clientY}},true);
-addEventListener('pointerup',e=>{if(!ARM||!ARM.drag)return;const D=ARM.drag;ARM.drag=null;e.preventDefault();e.stopPropagation();if(!S.pages[D.i]){armOff();return}
+addEventListener('pointerdown',e=>{if(ARM&&ARM.drag&&!viewer.contains(e.target))ARM.drag=null; // a lost pointerup must not leave the drag hanging
+  if(!ARM||e.button!==0||!viewer.contains(e.target)||editorEl)return;const pa=pageAt(e.clientX,e.clientY);if(!pa)return;
+  e.preventDefault();e.stopPropagation();ARM.drag={i:pa.p,x0:e.clientX,y0:e.clientY,id:e.pointerId}},true);
+addEventListener('pointerup',e=>{if(!ARM||!ARM.drag||e.pointerId!==ARM.drag.id)return;const D=ARM.drag;ARM.drag=null;e.preventDefault();e.stopPropagation();if(!S.pages[D.i]){armOff();return}
   const g=armGeom(D.i,e.clientX,e.clientY,D),k=ARM.k;if(!e.shiftKey)armOff();else document.querySelectorAll('.armghost').forEach(x=>x.hidden=true);
   insertOrgTemplate(k,{i:D.i,x:g.x,y:g.y,sc:g.sc,tl:true})},true);
-addEventListener('pointercancel',()=>{if(ARM&&ARM.drag)ARM.drag=null},true);
+addEventListener('pointercancel',e=>{if(ARM&&ARM.drag&&e.pointerId===ARM.drag.id)ARM.drag=null},true);
+addEventListener('blur',()=>{if(ARM)ARM.drag=null});
 addEventListener('contextmenu',e=>{if(ARM){e.preventDefault();e.stopPropagation();armOff()}},true);
 addEventListener('keydown',e=>{if(ARM&&e.key==='Escape'&&!S.draft&&!document.querySelector('.modal:not([hidden])')){e.preventDefault();e.stopImmediatePropagation();armOff()}},true);
 /* ---------- Tabellen ---------- */
