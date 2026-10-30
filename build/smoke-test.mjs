@@ -1065,6 +1065,13 @@ else {
     await ev("armOff()"); const p2 = await ev("document.querySelector('#symgrid .sym[data-s=\"t_ring\"]').getAttribute('aria-pressed')");
     ok('Alte Topologie-Kachel: aria-pressed zeigt die armierte Vorlage, Hinweis (role=status) nennt Enter, de/en', a.p0 === 'false' && a.p1 === 'true' && a.other === 'false' && p2 === 'false' && a.role === 'status' && a.txt && a.en, { a, p2 });
   }
+  // armed template / «include» preset do not survive a tab switch
+  {
+    const r = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);const b=await d.save();const t0=TAB;armOn('net_home');LNPRE={label:'«include»'};const ok=await tabOpenWith(()=>tabLoad(b,'tabB.pdf'));const afterOpen=[ARM===null,LNPRE===null];armOn('net_home');LNPRE={label:'«extend»'};await tabSwitch_(t0);return JSON.stringify({ok,afterOpen,afterSwitch:[ARM===null,LNPRE===null],tabs:TABS.length})})()", 40000);
+    const rj = JSON.parse(r || '{}');
+    ok('Tabwechsel/neuer Tab: armierte Vorlage und «include»-Voreinstellung werden verworfen', rj.ok === true && rj.afterOpen.every(Boolean) && rj.afterSwitch.every(Boolean), rj);
+    await ev("armOff();lnPreOff()");
+  }
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });

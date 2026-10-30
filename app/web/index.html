@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-7Wjd2yEiAY+Qo6MplTVJ8TgCUhmifjHrhgzCPECIUhc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-AjsDL+O1kVAXHxNMiHsXSb0M8eEjVqX8d0FHVbkitBg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6476,7 +6476,7 @@ async function tabQuiet(){closeEditor();for(let n=0;(autoBusy||saveHold)&&n<2400
 // Nur eine Tab-Aktion gleichzeitig
 async function tabGate(fn){if(tabBusy||rbBusy){toast(tr('Bitte kurz warten, es läuft noch eine Seitenänderung.'));return false}tabBusy=true;try{await tabQuiet();return await fn()}finally{tabBusy=false;tabRender()}}
 // Neuen Tab beginnen; S bleibt dabei unverändert (der alte Tab ist so per tabBack sofort wieder da)
-async function tabOpen_(noReuse){
+async function tabOpen_(noReuse){armOff();lnPreOff();
   if(tabSame){tabSame=false;return{t:TAB,reused:true}}
   if(TAB&&(!S.bytes||(!noReuse&&tabPristine())))return{t:TAB,reused:true};
   const prev=TAB;if(prev)prev.snap=tabCapture();
@@ -6487,7 +6487,7 @@ async function tabRestore(sn){S.autoFit=sn.autoFit;S.zoom=sn.zoom;
   await openPdf(sn.bytes,sn.name,{isNew:sn.isNew,bg:sn.bg,paper:sn.paper,sample:sn.sample,objs:sn.objs,notes:sn.notes,tasks:sn.tasks,form:sn.form,crypt:sn.crypt||null,cards:sn.cards||null,keepHist:true});
   if(sn.autoFit)fitZoom();H.u=sn.hu;H.r=sn.hr;updUndo();S.savedName=sn.savedName;S.dirty=sn.dirty;setSaveState();if(S.dirty)scheduleAutoSave();
   viewer.scrollTop=sn.scroll;requestAnimationFrame(()=>{viewer.scrollTop=sn.scroll;try{updPg()}catch(e){}})}
-async function tabSwitch_(t){if(!t||t===TAB||!t.snap)return;if(TAB)TAB.snap=tabCapture();const sn=t.snap;TAB=t;await tabMain(t.id);await tabRestore(sn);t.snap=null}
+async function tabSwitch_(t){if(!t||t===TAB||!t.snap)return;armOff();lnPreOff();if(TAB)TAB.snap=tabCapture();const sn=t.snap;TAB=t;await tabMain(t.id);await tabRestore(sn);t.snap=null}
 // Ein Dokument in einem neuen Tab öffnen (Datei, Zuletzt geöffnet, Doppelklick im Dateimanager, neues Blatt).
 // fn liefert {dup:id} (schon offen), false (nicht geklappt) oder true.
 async function tabOpenWith(fn,noReuse){const h=await tabOpen_(noReuse);let r=false;
@@ -6500,7 +6500,7 @@ async function tabLoad(bytes,name,opt){const b0=S.bytes;await openPdf(bytes,name
 const tabDirty=t=>t===TAB?!!(S.dirty&&!S.sample&&S.bytes):!!(t.snap&&t.snap.dirty&&!t.snap.sample);
 function tabSwitch(t){return tabGate(()=>tabSwitch_(t))}
 function tabStep(d){if(TABS.length<2)return;const k=TABS.indexOf(TAB);tabSwitch(TABS[(k+d+TABS.length)%TABS.length])}
-function tabClose(t){if(!t)return;return tabGate(async()=>{
+function tabClose(t){if(!t)return;return tabGate(async()=>{armOff();lnPreOff();
   if(tabDirty(t)&&tabArm!==t){tabArm=t;setTimeout(()=>{if(tabArm===t)tabArm=null},4000);toast(tr('Nicht gespeichert. Zum Schließen ohne Speichern noch einmal auf × klicken.'));return}
   tabArm=null;const k=TABS.indexOf(t);if(k<0)return;
   if(TABS.length===1){tabSame=true;try{await openBlank()}finally{tabSame=false}return}
