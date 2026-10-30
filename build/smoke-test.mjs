@@ -1184,7 +1184,7 @@ else {
     await ev("(()=>{const o={type:'text',x:72,y:200,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);return 1})()");
     await sleep(300);
     await ev("window.acKey=(k,o={})=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...o}));window.acType=s=>{for(const ch of s)acKey(ch)};window.acSet=()=>{const st=ED.eng.st;st.v='';st.c=st.a=0};window.acV=()=>ED.eng.st.v");
-    const cases = [['->', '→'], ['<-', '←'], ['<->', '↔'], ['=>', '⇒'], ['1 -- 2', '1 – 2'], ['1...', '1…'], ['(c)', '©'], ['(R)', '®'], ['(tm)', '™'], ['+-', '±'], ['!=', '≠']];
+    const cases = [['->', '→'], ['<- ', '← '], ['<->', '↔'], ['=>', '⇒'], ['1 -- 2', '1 – 2'], ['1...', '1…'], ['(c)', '©'], ['(R)', '®'], ['(tm)', '™'], ['+-5', '±5'], ['!=', '≠']];
     const got = [];
     for (const [i, o] of cases) { await ev(`acSet();acType(${JSON.stringify(i)})`); got.push(await ev('acV()')); }
     ok('Autokorrektur: alle Regeln lösen beim letzten Zeichen aus', JSON.stringify(got) === JSON.stringify(cases.map(c => c[1])), got);
@@ -1411,6 +1411,20 @@ else {
     const nv = await ev("document.getElementById('ntText').value");
     ok("Review 3: Notizen: 'a ->', Rückschritt, 'X' ergibt 'a ->X'", nv === 'a ->X', nv);
     await ev("document.getElementById('ntText').value='';notesOpen(false);S.autoCap=true");
+  }
+  // Review fix 4: conservative autocorrect: IT text, options, URLs and enumerations stay as typed; real dash/arrow/symbol uses still convert
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ac2.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;S.autoCap=false;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});const o={type:'text',x:72,y:200,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.a4K=k=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));window.a4=s=>{const st=ED.eng.st;st.v='';st.c=st.a=0;for(const ch of s)a4K(ch);return ED.eng.st.v};return 1})()");
+    await sleep(300);
+    const same = ['git push --force', 'x<-1', 'f(c)', '(a) (b) (c)', '<=>', '+---+', 'i++--', 'http://a.b/c--d', 'user@mail--x', '1--2', 'a<->b', '"zitat" und \'x\'', 'a-b', 'wait.. ok', 'x --y', '1+-'];
+    const conv = [['a -- b', 'a – b'], ['-- x', '– x'], ['a <- b', 'a ← b'], ['x <-> y', 'x ↔ y'], ['+-5', '±5'], ['Copyright (c) 2026', 'Copyright © 2026'], ['a->b', 'a→b'], ['wait...', 'wait…'], ['a != b', 'a ≠ b'], ['a => b', 'a ⇒ b'], ['x (tm)', 'x ™'], ['(R) y', '® y']];
+    const bad = [], badc = [];
+    for (const i of same) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== i) bad.push([i, r]); }
+    for (const [i, e] of conv) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== e) badc.push([i, r, e]); }
+    ok('Review 4: Autokorrektur lässt IT-Text, Optionen, URLs, Aufzählungen und Operatoren unverändert', bad.length === 0, bad);
+    ok('Review 4: Autokorrektur wandelt echte Gedankenstriche, Pfeile und Zeichen weiterhin um', badc.length === 0, badc);
+    await ev("closeEditor();S.autoCap=true;S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

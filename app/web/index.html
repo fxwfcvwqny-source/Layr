@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-yCDFzhLEzC/1Ww48Bdi2Os8zR/Fb01hjnOUxpIDAY90=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-OLqzVSM0p9WbRrbZ7QzTTf7tQ0+nQgmVXj+O1IV8Brc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6718,11 +6718,13 @@ const capOf=ch=>{if(!ch||ch.length!==1||!/\p{Ll}/u.test(ch))return null;const u=
 /* Zeichen-Autokorrektur (Textfelder, Zellen, Beschriftungen, Notizen): wird ausgelöst, wenn das letzte Zeichen des Musters getippt ist. Gibt [Anzahl zu ersetzender Zeichen davor, Ersatz] zurück. */
 S.autoChar=true;try{S.autoChar=localStorage.getItem('pdfwerkbank:autochar')!=='0'}catch(e){}
 function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;
-  if(t==='>'){if(before.endsWith('←'))return[1,'↔'];if(before.endsWith('-'))return[1,'→'];if(before.endsWith('='))return[1,'⇒']}
-  else if(t==='-'){if(before.endsWith('<'))return[1,'←'];if(before.endsWith('+'))return[1,'±'];if(/[ \t]-$/.test(before))return[1,'–']}
+  // conservative: dashes and arrows need a word boundary (start or whitespace) in front, so URLs, options (--force), operators (i++--, x<-1) and ASCII art stay as typed
+  if(t===' '){if(/(^|\s)--$/.test(before))return[2,'– '];if(/(^|\s)<-$/.test(before))return[2,'← ']}
+  else if(t==='>'){if(/(^|\s)<-$/.test(before))return[2,'↔'];if(/(^|[^-<])-$/.test(before))return[1,'→'];if(before.endsWith('=')&&!before.endsWith('<='))return[1,'⇒']}
+  else if(/\d/.test(t)){if(/(^|\s)\+-$/.test(before))return[2,'±'+t]}
   else if(t==='.'){if(before.endsWith('..')&&!before.endsWith('…'))return[2,'…']}
   else if(t==='='){if(before.endsWith('!'))return[1,'≠']}
-  else if(t===')'){const m=/\((c|r|tm)$/i.exec(before);if(m)return[m[0].length,{c:'©',r:'®',tm:'™'}[m[1].toLowerCase()]]}
+  else if(t===')'){const m=/(^|\s)\((c|r|tm)$/i.exec(before);if(m&&!/\)\s*$/.test(before.slice(0,before.length-m[0].length+m[1].length)))return[m[0].length-m[1].length,{c:'©',r:'®',tm:'™'}[m[2].toLowerCase()]]}
   return null}
 {const nt=document.getElementById('ntText');if(nt){let acN=null;
   nt.addEventListener('keydown',e=>{if(e.key==='Backspace'&&acN&&acN.v===nt.value&&acN.p===nt.selectionStart&&nt.selectionStart===nt.selectionEnd){e.preventDefault();document.execCommand('undo');nt.setSelectionRange(nt.selectionEnd,nt.selectionEnd)}acN=null;
