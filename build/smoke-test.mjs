@@ -789,6 +789,24 @@ else {
     + "Object.assign(design,d0);applyDesign(true);S.dirty=false;setSaveState();return JSON.stringify({min:Math.round(min*100)/100,bad:res})})()", 60000);
   const sv2j = JSON.parse(sv2 || '{}');
   ok('Save indicator: icon and text contrast >= 4.5:1 in light/dark with standard, tint, contrast and accent bars (saved and unsaved)', sv2j.bad && sv2j.bad.length === 0 && sv2j.min >= 4.5, sv2j);
+  // Sidebar tips (B10, variant S3): overlay on focus, panel layout unchanged
+  const spt = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),P=document.querySelector('#panel'),c=document.querySelector('#qShape'),row=c.closest('[data-sph]'),r={};"
+    + "const rgb=x=>{let m=x.match(/color\\(srgb ([\\d.e-]+) ([\\d.e-]+) ([\\d.e-]+)/);if(m)return m.slice(1,4).map(v=>v*255);return x.match(/[\\d.]+/g).slice(0,3).map(Number)};"
+    + "const L=x=>{const [a,b,d]=rgb(x).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*a+.7152*b+.0722*d},cr=(x,y)=>{const p=L(x),q=L(y);return (Math.max(p,q)+.05)/(Math.min(p,q)+.05)};"
+    + "const t=()=>document.querySelector('#spTip'),shown=()=>!!t()&&!t().hidden&&t().classList.contains('on');const h0=P.scrollHeight,top0=row.getBoundingClientRect().top;"
+    + "design.hints='on';applyDesign(true);document.activeElement&&document.activeElement.blur();r.none=!shown();"
+    + "c.focus();await w(600);r.show=shown()&&/Strichs/.test(t().textContent)&&c.getAttribute('aria-describedby')===row.dataset.sph.replace(/^/,'spd')&&document.getElementById(c.getAttribute('aria-describedby')).textContent===t().textContent;"
+    + "r.same=P.scrollHeight===h0&&Math.abs(row.getBoundingClientRect().top-top0)<0.5;const tr0=t().getBoundingClientRect(),pl=P.getBoundingClientRect().left;r.beside=tr0.right<=pl&&tr0.left>=0&&tr0.top>=0&&tr0.bottom<=innerHeight;"
+    + "r.size=parseFloat(getComputedStyle(t()).fontSize)>=12.5;r.contrast=cr(getComputedStyle(t()).color,getComputedStyle(t()).backgroundColor)>=4.5;"
+    + "c.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));r.esc=!shown();"
+    + "await w(600);r.noReshow=!shown();c.blur();await w(100);c.focus();await w(600);r.again=shown();"
+    + "c.blur();await w(100);design.hints='off';applyDesign(true);c.focus();await w(600);r.off=!shown()&&!c.hasAttribute('aria-describedby');c.blur();"
+    + "r.san=dSan({...design,hints:'x'}).hints==='on'&&DDEF.hints==='on'&&JSON.parse(localStorage.getItem('pdfwerkbank:design')).hints==='off';"
+    + "r.noOld=[...document.querySelectorAll('#pProps .hint')].every(h=>h.id==='saveState'||h.id==='alHint');"
+    + "design.hints='on';applyDesign(true);return JSON.stringify(r)})()", 30000);
+  const spj = JSON.parse(spt || '{}');
+  ok('Sidebar tips: shown on focus beside the panel without layout change, readable, Esc and the setting hide them, old hint paragraphs gone',
+    spj.none && spj.show && spj.same && spj.beside && spj.size && spj.contrast && spj.esc && spj.noReshow && spj.again && spj.off && spj.san && spj.noOld, spj);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
