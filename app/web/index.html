@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2Qup95tkVK4x2yycj4ec4HJoZ1fWM/8n3D9uiACZgic=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-kyG4hEqDvU153QMifP8wTB3HiuqguyK+pKbB4wsDUog=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6774,13 +6774,25 @@ $('#bMerge').onclick=openMerge;$('#mCancel').onclick=closeMerge;$('#mAdd').oncli
 $('#mIn').onchange=async()=>{await addMergeFiles([...$('#mIn').files]);$('#mIn').value=''};
 $('#mergeDlg').addEventListener('click',e=>{if(e.target.id==='mergeDlg')closeMerge()});
 $('#mergeDlg').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')closeMerge()});
+// A PDF saved by Layr carries its unlabelled original and the editable objects as attachments: merge those, not the flattened pages
+async function mergeLayrData(bytes){
+  try{const doc=await pdfOpen(bytes.slice());
+    try{const ac=await pdfAttachment(doc,LAYR_ORIG),jc=ac&&await pdfAttachment(doc,LAYR_DATA);if(!ac||!jc||jc.length>=64e6||ac.length>=1.5e9)return null;
+      const data=JSON.parse(new TextDecoder().decode(jc));if(!data||typeof data!=='object'||Array.isArray(data))return null;
+      const ob=new Uint8Array(ac),d2=await pdfOpen(ob.slice()),n=d2.numPages;pdfClose(d2);imgsLoad(data.imgs);
+      return{bytes:ob,objs:sanPages(data.objs,n),notes:typeof data.notes==='string'?data.notes.slice(0,5e7):'',tasks:Array.isArray(data.tasks)?data.tasks.slice(0,1e5):[]}}
+    finally{pdfClose(doc)}}catch(e){return null}}
 $('#mOk').onclick=async()=>{
   if(mItems.length<2){toast('Bitte mindestens zwei PDFs hinzufügen.');return}
-  closeEditor();const out=await PDFLib.PDFDocument.create();const objs=[];
-  for(const it of mItems){const src=await PDFLib.PDFDocument.load(it.bytes.slice(),{ignoreEncryption:true});const pages=await out.copyPages(src,src.getPageIndices());
-    pages.forEach((p,k)=>{out.addPage(p);objs.push(it.current?JSON.parse(JSON.stringify(it.objs[k]||[])):[])})}
+  closeEditor();const out=await PDFLib.PDFDocument.create();const objs=[],notes=[],tasks=[];
+  for(const it of mItems){let bytes=it.bytes,io=it.current?it.objs:null,inote='',itasks=[];
+    if(it.current){inote=S.notes||'';itasks=S.tasks||[]}else{const L=await mergeLayrData(bytes);if(L){bytes=L.bytes;io=L.objs;inote=L.notes;itasks=L.tasks}}
+    const src=await PDFLib.PDFDocument.load(bytes.slice(),{ignoreEncryption:true});const pages=await out.copyPages(src,src.getPageIndices());
+    const mine=[];pages.forEach((p,k)=>{out.addPage(p);const l=io?JSON.parse(JSON.stringify(io[k]||[],(kk,v)=>kk==='_editing'?undefined:v)):[];objs.push(l);mine.push(...l)});
+    orgRemap(mine); // ids are random, but the same file merged twice would clash: give every source its own ids so docked lines stay with their own devices
+    if(String(inote).trim())notes.push(inote);tasks.push(...itasks)}
   const name=($('#mName').value.trim()||'Zusammengeführt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
-  closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs})},true));
+  closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs,notes:notes.join('\n\n----------\n\n'),tasks})},true));
   if(!ok)return;markDirty();
   toast(`${mItems.length} Dateien mit zusammen ${S.pages.length} Seiten zusammengeführt. Mit „Speichern“ sicherst du „${name}“.`);
 };

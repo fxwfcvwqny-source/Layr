@@ -647,6 +647,21 @@ else {
   const nrt = await ev("(async()=>{const mk=n=>{let s='';const u='Ärger ß 😀 Zeile\\n';while(s.length<n)s+=u;return s.slice(0,n)},tasks=Array.from({length:6000},(_,i)=>({t:'Aufgabe '+i+' 😀 ä',d:i%3===0})),res=[];await openPdf(await (async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);return d.save()})(),'notes.pdf');await new Promise(r=>setTimeout(r,500));"
     + "for(const n of [5e3,5e4,5e5,2.5e6]){const notes=mk(n);notesSet(notes);tasksSet(n>1e6?tasks:[]);let out=await buildOutput();let okk=true;for(let k=0;k<2;k++){await openPdf(out,'notes.pdf');okk=okk&&S.notes===notes&&S.tasks.length===(n>1e6?6000:0)&&(n<=1e6||S.tasks[5999].t===tasks[5999].t);out=await buildOutput()}res.push([n,okk])}return JSON.stringify(res)})()", 150000);
   ok('Long notes and 6000 to-dos round-trip exactly (5k, 50k, 500k, 2.5M characters, saved twice)', typeof nrt === 'string' && JSON.parse(nrt).every(r => r[1] === true), nrt);
+  // Merging Layr-saved PDFs keeps their objects editable, remaps ids (same file twice) and joins the notes
+  const mg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),mkDoc=async(n)=>{const d=await PDFLib.PDFDocument.create();for(let k=0;k<n;k++)d.addPage([595,842]);await openPdf(await d.save(),'m.pdf');await w(400)};"
+    + "await mkDoc(2);setTool('select');insertOrgTemplate('topo_star');S.pages[0].objs.push({type:'text',x:60,y:60,text:'Merge Hallo',fs:20,color:'#000000',lw:0,orient:'h'});S.pages[1].objs.push({type:'text',x:60,y:60,text:'Seite zwei',fs:20,color:'#000000',lw:0,orient:'h'});notesSet('Notiz A');tasksSet([{t:'Aufgabe A',d:false}]);markDirty();"
+    + "const A=await buildOutput(),snapA=JSON.parse(JSON.stringify(S.pages.map(P=>P.objs)));await mkDoc(1);S.pages[0].objs=JSON.parse(JSON.stringify(snapA[0]));notesSet('Notiz B');tasksSet([]);markDirty();const B=await buildOutput();"
+    + "await mkDoc(1);mItems=[{name:'a.pdf',bytes:A,pages:2},{name:'b.pdf',bytes:B,pages:1}];await $('#mOk').onclick();await w(1200);"
+    + "const cnt=S.pages.map(P=>P.objs.length),oids=S.pages.flatMap(P=>P.objs.map(o=>o.oid).filter(Boolean)),dock=S.pages.map(P=>{const ids=new Set(P.objs.map(o=>o.oid));const L=P.objs.filter(o=>o.type==='line'&&o.link);return L.length>0&&L.every(o=>ids.has(o.link.a)&&ids.has(o.link.b))});"
+    + "return JSON.stringify({n:S.pages.length,cnt,srcCnt:[snapA[0].length,snapA[1].length,snapA[0].length],uniq:new Set(oids).size===oids.length,dock,notes:S.notes,tasks:S.tasks.length,txt:S.pages[0].objs.some(o=>o.type==='text'&&o.text==='Merge Hallo')})})()", 90000);
+  const mgj = JSON.parse(mg || '{}');
+  ok('Merge keeps objects per page (counts match the sources), ids unique, docked lines stay docked, notes joined', mgj.n === 3 && JSON.stringify(mgj.cnt) === JSON.stringify(mgj.srcCnt) && mgj.uniq && mgj.dock[0] && mgj.dock[2] && /Notiz A/.test(mgj.notes) && /Notiz B/.test(mgj.notes) && mgj.tasks === 1 && mgj.txt, mgj);
+  const mtp = await ev("(()=>{const P=S.pages[0],r=P.el.getBoundingClientRect(),o=P.objs.find(o=>o.type==='text');return [r.left+(o.x+20)*S.zoom,r.top+(o.y+10)*S.zoom]})()");
+  await ev("setTool('select');setSel(null)"); await mv(mtp[0], mtp[1]); await sleep(100);
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: mtp[0], y: mtp[1], button: 'left', buttons: 1, clickCount: 1 }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: mtp[0], y: mtp[1], button: 'left', buttons: 0, clickCount: 1 });
+  await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: mtp[0], y: mtp[1], button: 'left', buttons: 1, clickCount: 2 }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: mtp[0], y: mtp[1], button: 'left', buttons: 0, clickCount: 2 }); await sleep(300);
+  ok('Merged text box opens the editor on double-click', await ev("!!editorEl&&!!editingObj&&editingObj.type==='text'&&editingObj.text==='Merge Hallo'") === true);
+  await ev('closeEditor()');
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
