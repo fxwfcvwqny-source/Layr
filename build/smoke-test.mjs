@@ -2101,6 +2101,11 @@ else {
     const kb = await ev("(()=>{S.sel=null;kbOpen(true);const q=id=>!!document.querySelector('#kbList .kb-k[data-id='+id+']');const r=[q('chars'),q('group'),q('ordFwd'),q('imgCrop')];kbOpen(false);setLang('en');const en=[tr('Sonderzeichen-Auswahl'),tr('Markieren (zuletzt gewählte Farbe)'),tr('Code hier einfügen oder tippen'),document.getElementById('tsHl').title];$('#cdText').placeholder=tr('Code hier einfügen oder tippen');en.push(document.getElementById('cdText').placeholder);setLang('de');return JSON.stringify([r,en])})()").then(JSON.parse);
     ok('Review: Tastenkürzel-Liste zeigt auch Einträge ohne Auswahl, englische Texte vollständig', kb[0].every(Boolean) && kb[1][0] === 'Special character picker' && kb[1][1] === 'Highlight (last used colour)' && kb[1][2] === 'Paste or type code here' && kb[1][3] === 'Highlight (last used colour)' && kb[1][4] === 'Paste or type code here', kb);
   }
+  // Review fix 3
+  {
+    const ids = await ev("(()=>{const bad=['__proto__','constructor','toString'];const raw=[{type:'rect',x:1,y:1,w:20,h:20,color:'#000000',lw:1,gid:'__proto__',gg:'constructor',oid:'constructor'},{type:'line',x1:0,y1:0,x2:5,y2:5,color:'#000000',lw:1,link:{a:'constructor',b:'toString',ta:'auto',tb:'auto'}},{type:'rect',x:1,y:1,w:20,h:20,color:'#000000',lw:1,gid:'toString',oid:'o1'}];let err=null,j='';try{const C=raw.map(sanObj).filter(Boolean);orgRemap(C);j=JSON.stringify(C)}catch(e){err=String(e)}const C2=raw.map(o=>JSON.parse(JSON.stringify(o)));let err2=null;try{orgRemap(C2.map(o=>(o.gid=o.gid||undefined,o)));}catch(e){err2=String(e)}return JSON.stringify({err,err2,hasBad:bad.some(b=>j.includes('\"'+b+'\"')),types:j.length>0&&JSON.parse(j).every(o=>(o.gid==null||typeof o.gid==='string')&&(o.oid==null||typeof o.oid==='string'))})})()").then(JSON.parse);
+    ok('Review: reservierte IDs (__proto__, constructor) bleiben beim Zusammenführen/Einfügen harmlos', ids.err === null && ids.err2 === null && ids.hasBad === false && ids.types === true, ids);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-asrszDd0nkMMRtgpmJdRyjJw/PKKkpzouYcoY/10Km0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-O0s0RF4+yQWipzoXcWN5KZ5pLnXahOuGtxsSIT/X+7o=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3175,7 +3175,7 @@ function dockAt(P,x,y,tol,ex){for(let k=P.objs.length-1;k>=0;k--){const o=P.objs
 function drawDockHint(c,o,k){const b=dockBox(o),z=S.zoom,p=3/z;c.save();c.strokeStyle=accentCol();c.lineWidth=1.4/z;c.setLineDash([3/z,2.5/z]);c.globalAlpha=.9;c.strokeRect(b.x-p,b.y-p,b.w+2*p,b.h+2*p);c.setLineDash([]);
   for(const t of dockIds(o)){const q=orgAnchor(o,t);c.beginPath();c.arc(q[0],q[1],3.6/z,0,7);c.fillStyle=t===k?accentCol():'#fff';c.fill();c.stroke()}c.restore()}
 /* Verbindungen an ihre Kästen anpassen; ist ein Kasten weg, verschwindet auch seine Linie */
-function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
+function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by=Object.create(null);for(const o of P.objs)if(o.oid)by[o.oid]=o;let gone=[];
   const ends=[],ctr=b=>{const d=dockBox(b);return[d.x+d.w/2,d.y+d.h/2]};
   for(const o of P.objs){const L=o.link;if(!L)continue;const A=L.a?by[L.a]:null,B=L.b?by[L.b]:null;
     if((L.a&&!A)||(L.b&&!B)){if(!o.locked){gone.push(o);continue}if(L.a&&!A)L.a=null;if(L.b&&!B)L.b=null}if(!A&&!B){delete o.link;continue}
@@ -3190,7 +3190,7 @@ function orgRelink(P){if(!P||!P.objs.some(o=>o.link))return;const by={};for(cons
   if(gone.length){P.objs=P.objs.filter(o=>!gone.includes(o));if(S.sel&&S.pages[S.sel.p]===P){const keep=selItems().filter(o=>!gone.includes(o));
     if(!keep.length)S.sel=null;else if(S.sel.o.type==='group'){S.sel.o.items=keep;if(keep.length===1)S.sel={p:S.sel.p,o:keep[0]}}}}}
 /* Beim Duplizieren bekommen die Kopien eigene Kennungen, damit ihre Linien an den Kopien hängen */
-function orgRemap(C){const m={},gm={},um={};for(const o of C)if(o.gid)o.gid=gm[o.gid]||(gm[o.gid]=newGid());for(const o of C)if(o.gg)o.gg=um[o.gg]||(um[o.gg]=newGid());for(const o of C)if(o.oid){const n=newOid();m[o.oid]=n;o.oid=n}
+function orgRemap(C){const m=Object.create(null),gm=Object.create(null),um=Object.create(null);for(const o of C)if(o.gid)o.gid=gm[o.gid]||(gm[o.gid]=newGid());for(const o of C)if(o.gg)o.gg=um[o.gg]||(um[o.gg]=newGid());for(const o of C)if(o.oid){const n=newOid();m[o.oid]=n;o.oid=n}
   for(const o of C)if(o.link){const a=o.link.a?m[o.link.a]||null:null,b=o.link.b?m[o.link.b]||null:null;if(!a&&!b)delete o.link;else o.link={...o.link,a,b}}}
 /* Baum-Layout: Kinder nebeneinander, Eltern mittig darüber */
 function orgBuild(spec){const objs=[],GX=18,GY=46,col='#1b2a3a';
@@ -6469,6 +6469,8 @@ function sanVal(v,depth){
   return undefined}
 const isNum=v=>typeof v==='number'&&Number.isFinite(v);
 const COL_RX=/^(#[0-9a-f]{3,8}|rgba?\(\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*(,\s*[\d.]+\s*)?\)|[a-z]{3,20})$/i;
+const RES_IDS=new Set(['__proto__','constructor','prototype','toString','valueOf','hasOwnProperty',...Object.getOwnPropertyNames(Object.prototype)]);
+function sanId(v){if(typeof v!=='string')return null;v=v.replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);return v&&!RES_IDS.has(v)?v:null}
 function sanObj(o){
   if(!o||typeof o!=='object'||Array.isArray(o)||!OBJ_TYPES.has(o.type))return null;
   const r=sanVal(o,0);if(!r||typeof r!=='object')return null;
@@ -6476,8 +6478,7 @@ function sanObj(o){
   if(r.lw!=null&&!(isNum(r.lw)&&r.lw>=0&&r.lw<=200))r.lw=1;if(r.lw==null)r.lw=r.type==='text'||r.type==='image'?0:1;
   if(r.alpha!=null&&!(isNum(r.alpha)&&r.alpha>0&&r.alpha<=1))delete r.alpha;
   if(r.locked!==true)delete r.locked;
-  if(typeof r.gid==='string'){r.gid=r.gid.replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);if(!r.gid)delete r.gid}else delete r.gid;
-  if(typeof r.gg==='string'){r.gg=r.gg.replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);if(!r.gg)delete r.gg}else delete r.gg;
+  for(const k of['gid','gg','oid']){const v=sanId(r[k]);if(v)r[k]=v;else delete r[k]}
   if(r.italic!==true)delete r.italic;
   if(typeof r.hbg!=='string'||!COL_RX.test(r.hbg)||(typeof CSS!=='undefined'&&CSS.supports&&!CSS.supports('color',r.hbg))||r.orient==='stack')delete r.hbg;
   if(r.font!=null&&!own(FONT_MAP,r.font))delete r.font;
@@ -6487,7 +6488,7 @@ function sanObj(o){
     case'pen':if(!Array.isArray(r.pts))return null;r.pts=r.pts.filter(p=>Array.isArray(p)&&isNum(p[0])&&isNum(p[1])).map(p=>[p[0],p[1]]);return r.pts.length?r:null;
     case'line':case'measure':if(!(isNum(r.x1)&&isNum(r.y1)&&isNum(r.x2)&&isNum(r.y2)))return null;
       if(r.type==='line'){if(typeof r.label==='string'&&r.label)r.label=r.label.replace(/\n/g,' ').slice(0,200);else delete r.label}
-      if(r.link&&typeof r.link==='object'){const L=r.link;r.link={a:typeof L.a==='string'?L.a.slice(0,40):null,b:typeof L.b==='string'?L.b.slice(0,40):null,ta:typeof L.ta==='string'&&ANCHOR_RE.test(L.ta)?L.ta:'auto',tb:typeof L.tb==='string'&&ANCHOR_RE.test(L.tb)?L.tb:'auto'}}else delete r.link;return r;
+      if(r.link&&typeof r.link==='object'){const L=r.link;r.link={a:sanId(L.a),b:sanId(L.b),ta:typeof L.ta==='string'&&ANCHOR_RE.test(L.ta)?L.ta:'auto',tb:typeof L.tb==='string'&&ANCHOR_RE.test(L.tb)?L.tb:'auto'}}else delete r.link;return r;
     case'rect':case'ellipse':return box()?r:null;
     case'text':if(!isNum(r.x)||!isNum(r.y)||typeof r.text!=='string')return null;if(r.minH!=null&&!(isNum(r.minH)&&r.minH>0&&r.minH<=2e4))delete r.minH;if(!['h','v','stack'].includes(r.orient))r.orient='h';if(!isNum(r.fs))r.fs=14;
       if(r.spans!=null){r.spans=Array.isArray(r.spans)?r.spans.filter(s=>s&&isNum(s.a)&&isNum(s.b)&&s.b>s.a&&typeof s.color==='string'&&COL_RX.test(s.color)).slice(0,2000).map(s=>({a:Math.max(0,s.a|0),b:Math.min(r.text.length,s.b|0),color:s.color})).filter(s=>s.b>s.a):[];if(!r.spans.length)delete r.spans}
