@@ -643,6 +643,10 @@ else {
   await ev("S.pages[0].ink.style.pointerEvents='none'");
   await pressAt(5, 5); await releaseAt(5, 5);
   ok('Stale ink pointer-events none is reset by the next press', await ev("S.pages[0].ink.style.pointerEvents") === '');
+  // Notes and to-dos survive save + reopen + second save at full length (old caps: 2e6 characters, 5000 to-dos)
+  const nrt = await ev("(async()=>{const mk=n=>{let s='';const u='Ärger ß 😀 Zeile\\n';while(s.length<n)s+=u;return s.slice(0,n)},tasks=Array.from({length:6000},(_,i)=>({t:'Aufgabe '+i+' 😀 ä',d:i%3===0})),res=[];await openPdf(await (async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);return d.save()})(),'notes.pdf');await new Promise(r=>setTimeout(r,500));"
+    + "for(const n of [5e3,5e4,5e5,2.5e6]){const notes=mk(n);notesSet(notes);tasksSet(n>1e6?tasks:[]);let out=await buildOutput();let okk=true;for(let k=0;k<2;k++){await openPdf(out,'notes.pdf');okk=okk&&S.notes===notes&&S.tasks.length===(n>1e6?6000:0)&&(n<=1e6||S.tasks[5999].t===tasks[5999].t);out=await buildOutput()}res.push([n,okk])}return JSON.stringify(res)})()", 150000);
+  ok('Long notes and 6000 to-dos round-trip exactly (5k, 50k, 500k, 2.5M characters, saved twice)', typeof nrt === 'string' && JSON.parse(nrt).every(r => r[1] === true), nrt);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
