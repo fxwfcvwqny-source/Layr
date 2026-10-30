@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-69bieQ7WEM47OaOKXg8V5B4nYOMAkAwZ77ny4H2x41g=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WhPy/FOd/JFvG52In2xDbU1TjkaJcVQdZRe4GAbXKVU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3662,7 +3662,7 @@ function pickFont(why){let pick=null;
 setTimeout(()=>pickFont('start'),0);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>setTimeout(()=>pickFont('fonts'),0));
 function textBox(o){
-  mctx.font=tfont(o);const rich=isRich(o),wrapped=o.orient==='h'&&o.wrapW>0;const lines=wrapped?(rich?wrapRich(o,o.wrapW):wrapLines(mctx,String(o.text),o.wrapW)):String(o.text).split('\n'),lh=o.fs*1.25;let w=0;
+  mctx.font=tfont(o);const rich=isRich(o),wrapped=o.orient==='h'&&o.wrapW>0;const lines=wrapped?(fontRich(o)?wrapRich(o,o.wrapW):wrapLines(mctx,String(o.text),o.wrapW)):String(o.text).split('\n'),lh=o.fs*1.25;let w=0;
   if(o.orient==='stack'){const cw=o.fs*1.2;let n=0;for(const l of lines)n=Math.max(n,[...l].length);return{w:Math.max(1,lines.length)*cw,h:Math.max(1,n)*o.fs*1.1,lines,lh,cw}}
   if(rich){let n=0;lines.forEach((l,k)=>{w=Math.max(w,tw(o,l,n));n+=l.length+wrapGap(lines,k)})}else for(const l of lines)w=Math.max(w,mctx.measureText(l).width);w=wrapped?o.wrapW:Math.max(w,o.fs*.6);
   return o.orient==='v'?{w:lines.length*lh,h:w,lines,lh}:{w,h:Math.max(lines.length*lh,o.minH>0?o.minH:0),lines,lh};
@@ -6379,17 +6379,20 @@ function setSty(o,a,b,k,v){if(b<=a)return;const old=(o.sty||[]).slice().sort((x,
 function styState(o,a,b,k){let t=0,f=0;for(let i=a;i<b;i++){if(k==='hbg'?styVal(o,i,k):styVal(o,i,k))t++;else f++;if(t&&f)return'mixed'}return t>0}
 const STY_FONT=new Map();
 function styFont(o,i){const b=styVal(o,i,'bold'),it=styVal(o,i,'italic'),k=b+'|'+it+'|'+tfont(o);let f=STY_FONT.get(k);if(!f){if(STY_FONT.size>60)STY_FONT.clear();f=tfont({...o,bold:b,italic:it});STY_FONT.set(k,f)}return f}
-const STY_P=new Map();
-// prefix widths of o.text: P[i]=width of the first i characters, each in the font of its own run
-function richP(o){const T=String(o.text),key=tfont(o)+''+JSON.stringify(o.sty)+''+T;let P=STY_P.get(key);if(P)return P;
-  P=new Float64Array(T.length+1);let last='';for(let i=0;i<T.length;){const cp=T.codePointAt(i),n=cp>65535?2:1,f=styFont(o,i);if(f!==last){mctx.font=f;last=f}
-    P[i+n]=P[i]+mctx.measureText(T.slice(i,i+n)).width;if(n===2)P[i+1]=P[i];i+=n}
-  if(STY_P.size>40)STY_P.clear();STY_P.set(key,P);return P}
 const isRich=o=>!!(o.sty&&o.sty.length&&o.orient!=='stack');
+// only runs that change weight or slant need their own font; underline/background keep the plain measuring and wrapping
+const fontRich=o=>isRich(o)&&o.sty.some(s=>'bold' in s||'italic' in s);
+const STY_S=new Map();
+// font-uniform pieces [from,to,font] of o.text
+function fsegs(o){const n=String(o.text).length,base=tfont(o),fr=o.sty.filter(s=>'bold' in s||'italic' in s),key=base+'\u0001'+JSON.stringify(fr.map(s=>[s.a,s.b,s.bold,s.italic]))+'\u0001'+n;let r=STY_S.get(key);if(r)return r;
+  r=[];let p=0;for(const s of fr){const a=Math.max(p,s.a),b=Math.min(n,s.b);if(b<=a)continue;if(a>p)r.push([p,a,base]);r.push([a,b,tfont({...o,bold:'bold' in s?s.bold:!!o.bold,italic:'italic' in s?s.italic:!!o.italic})]);p=b}
+  if(p<n||!r.length)r.push([p,n,base]);if(STY_S.size>40)STY_S.clear();STY_S.set(key,r);return r}
+// width of o.text.slice(a,b): each font piece is measured as one string (keeps kerning inside a piece)
+function wSty(o,a,b){const T=String(o.text);let w=0;for(const[s,e,f]of fsegs(o)){const x=Math.max(a,s),y=Math.min(b,e);if(y>x){mctx.font=f;w+=mctx.measureText(T.slice(x,y)).width}}return w}
 // width of str, which sits at index start of o.text
-function tw(o,str,start){if(isRich(o)&&start+str.length<=String(o.text).length){const P=richP(o);return P[start+str.length]-P[start]}mctx.font=tfont(o);return mctx.measureText(str).width}
+function tw(o,str,start){if(isRich(o)&&start+str.length<=String(o.text).length)return wSty(o,start,start+str.length);mctx.font=tfont(o);return mctx.measureText(str).width}
 // same line breaking as wrapLines, but on text indexes with per-run widths
-function wrapRich(o,maxW){const T=String(o.text),P=richP(o),W=(a,b)=>P[b]-P[a],out=[];out.soft=new Set();let off=0;
+function wrapRich(o,maxW){const T=String(o.text),W=(a,b)=>wSty(o,a,b),out=[];out.soft=new Set();let off=0;
   const cut=(a,b)=>{let i=a;while(b-i>1&&W(i,b)>maxW){let k=i+1;while(k<b&&W(i,k+1)<=maxW)k++;out.soft.add(out.length);out.push(T.slice(i,k));i=k}return i};
   for(const para of T.split('\n')){const end=off+para.length;let cs=off,ce=off,ws=off;
     for(;;){let we=T.indexOf(' ',ws);if(we<0||we>end)we=end;
@@ -6411,9 +6414,8 @@ function drawText(c,o){
   let n=0;const starts=b.lines.map((L,k)=>{const s=n;n+=L.length+wrapGap(b.lines,k);return s});
   const hb=(l,x,y)=>{if(!o.hbg||!l)return;c.fillStyle='transparent';c.fillStyle=o.hbg;c.fillRect(x,y,c.measureText(l).width,b.lh)}; // background behind each line, all lines before any text
   // formatted runs: each piece of a line with the same colour/weight/slant/underline/background is drawn on its own at its measured position
-  const richDraw=(ox,oy)=>{const P=richP(o),segs=b.lines.map((l,i)=>{const st=starts[i],out=[];let a=0;
-      const at=k=>[spanColorAt(o,k),styVal(o,k,'bold'),styVal(o,k,'italic'),styVal(o,k,'underline'),styVal(o,k,'hbg')].join('|');
-      while(a<l.length){let e=a+1;const key=at(st+a);while(e<l.length&&at(st+e)===key)e++;const q=key.split('|');out.push({t:l.slice(a,e),x:P[st+a]-P[st],w:P[st+e]-P[st+a],col:spanColorAt(o,st+a),bold:q[1]==='true',ul:q[3]==='true',hbg:q[4],font:styFont(o,st+a)});a=e}return out});
+  const richDraw=(ox,oy)=>{const bnd=[...new Set([...(o.sty||[]),...(o.spans||[])].flatMap(s=>[s.a,s.b]))].sort((x,y)=>x-y),segs=b.lines.map((l,i)=>{const st=starts[i],en=st+l.length,out=[],cuts=bnd.filter(v=>v>st&&v<en);cuts.push(en);let a=st;
+      for(const e of cuts){if(e<=a)continue;out.push({t:l.slice(a-st,e-st),x:wSty(o,st,a),w:wSty(o,a,e),col:spanColorAt(o,a),bold:styVal(o,a,'bold'),ul:styVal(o,a,'underline'),hbg:styVal(o,a,'hbg'),font:styFont(o,a)});a=e}return out});
     segs.forEach((sg,i)=>sg.forEach(s=>{if(s.hbg){c.fillStyle=s.hbg;c.fillRect(ox+s.x,oy+i*b.lh,s.w,b.lh)}}));
     segs.forEach((sg,i)=>sg.forEach(s=>{const y=oy+i*b.lh;c.font=s.font;c.fillStyle=s.col;c.fillText(s.t,ox+s.x,y+off);
       if(s.ul){c.save();c.strokeStyle=s.col;c.setLineDash([]);c.globalAlpha=1;c.lineWidth=Math.max(.6,o.fs/(s.bold?11:14));c.beginPath();c.moveTo(ox+s.x,y+off+o.fs*.98);c.lineTo(ox+s.x+s.w,y+off+o.fs*.98);c.stroke();c.restore()}}));c.font=tfont(o)};
