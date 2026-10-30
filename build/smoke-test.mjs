@@ -1052,6 +1052,13 @@ else {
     await ev("armOff();S.pages.forEach(P=>P.objs=[]);setSel(null)");
     ok('Vorlage: pointerup eines anderen Zeigers wird ignoriert, Fenster-blur beendet ein hängendes Ziehen', o1.had && o1.still && o1.n === 0 && placed && hang === true, { o1, placed, hang });
   }
+  // a11y: old topology tiles show the armed state, live region with keyboard hint
+  {
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');S.cat='Topologien';buildCats()");
+    const a = await ev("(()=>{const b=document.querySelector('#symgrid .sym[data-s=\"t_ring\"]'),o=document.querySelector('#symgrid .sym[data-s=\"t_star\"]');const p0=b.getAttribute('aria-pressed');b.click();const h=document.querySelector('.armhint');return {p0,p1:b.getAttribute('aria-pressed'),other:o.getAttribute('aria-pressed'),role:h.getAttribute('role'),txt:/Enter/.test(h.textContent),en:(()=>{const L0=LANG;LANG='en';const t=tr('Klicken zum Platzieren, Enter: in der Mitte platzieren, Esc bricht ab');LANG=L0;return /centre/.test(t)})()}})()");
+    await ev("armOff()"); const p2 = await ev("document.querySelector('#symgrid .sym[data-s=\"t_ring\"]').getAttribute('aria-pressed')");
+    ok('Alte Topologie-Kachel: aria-pressed zeigt die armierte Vorlage, Hinweis (role=status) nennt Enter, de/en', a.p0 === 'false' && a.p1 === 'true' && a.other === 'false' && p2 === 'false' && a.role === 'status' && a.txt && a.en, { a, p2 });
+  }
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
