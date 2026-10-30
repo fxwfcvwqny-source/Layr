@@ -47,6 +47,19 @@ Privacy: see PRIVACY.md in the project (linked in the listing).
 
 PDF, annotate PDF, sign PDF, notes, dictation, diagram, subnet
 
+## What's new in 3.10.0
+
+• Place templates and symbols by clicking on the sheet; templates are groups that move and scale as a whole.
+• Select tool: group (Ctrl+G), align and distribute, smart guides, object bar, z-order, Tab through objects.
+• Bold, italic, underline and highlight for selected words only.
+• Stretch and crop images.
+• Page preview: add pages, drag to reorder, jump to a page by number.
+• Merging keeps Layr objects editable.
+• New symbols for storage and backup (RAID, NAS, tape, backup server).
+• Character autocorrect (→, –, …) and a special character picker.
+• New save status indicator, sidebar tips, tables that grow with their text.
+• All new behaviours can be switched off in Settings.
+
 ## What's new (first version)
 
 First version in the Microsoft Store. Updates come through the Store.
