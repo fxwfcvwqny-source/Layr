@@ -1426,6 +1426,11 @@ else {
     ok('Review 4: Autokorrektur wandelt echte Gedankenstriche, Pfeile und Zeichen weiterhin um', badc.length === 0, badc);
     await ev("closeEditor();S.autoCap=true;S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
+  // Review fix 9: the special character shortcut is part of the shortcut table (listed, remappable)
+  {
+    const k9 = await ev("JSON.stringify((()=>{const a=KB_DEF.find(x=>x.id==='chars');return [!!a,a&&a.def,a&&a.text===true,kbGet(a)]})())").then(JSON.parse);
+    ok('Review 9: Sonderzeichen-Kürzel steht in der Tastenkürzel-Tabelle (Ctrl+Shift+K, auch beim Schreiben)', k9[0] && k9[1] === 'Ctrl+Shift+K' && k9[2] && k9[3] === 'Ctrl+Shift+K', k9);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
