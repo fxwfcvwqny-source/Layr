@@ -947,6 +947,10 @@ else {
       res4[tool] = r;
       ok(`Doppelklick im Werkzeug ${tool}: bearbeitet das Objekt, kein zusätzliches Objekt, kein Verlauf-Eintrag`, r.n === 1 && r.edit && r.hu === 0, r);
     }
+    // full (capped) history: the dblclick still takes back the dots and opens the editor
+    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;for(let q=0;q<160;q++)pushHist();setTool('pen')");
+    await dbl4(); const cap4 = await state4(); await ev("closeEditor();setTool('select');setSel(null);S.pages[0].objs.length=1;H.u=[];H.r=[];updUndo()");
+    ok('Doppelklick im Stiftwerkzeug bei vollem Verlauf (150): keine Punkte, Editor offen', cap4.n === 1 && cap4.edit, cap4);
     // setting OFF: pen tool keeps the old behaviour (draws dots, no editor), proves the check is sensitive
     await ev("dblAllOn=false;closeEditor();setSel(null);setTool('pen');H.u=[];H.r=[];updUndo();S.pages[0].objs.length=1");
     await dbl4(); const off4 = await state4(); await ev("dblAllOn=true;closeEditor();setTool('select');S.pages[0].objs.length=1;setSel(null);H.u=[];H.r=[];updUndo()");

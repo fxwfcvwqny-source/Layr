@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Vnh0IK5KAhXC+0CSbIgGm6SvurXEbN/MOe3SxT83CVQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-iWIBptQdKYDe5/SCZnO/p5XmWrSG7enUxkqVb2ZZ6us=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3446,7 +3446,7 @@ NET_TPL.push(...TOPO_TPL,...TOPO_X);
 /* Double-click in any placement/shape tool (setting dblAllOn): remember the history length at the first click so the dblclick handler can take back what that click placed */
 var dblAllOn=true;try{dblAllOn=localStorage.getItem('pdfwerkbank:dblAll')!=='0'}catch(e){}
 var DBLH=null,txtDefer=0;
-addEventListener('pointerdown',e=>{if(e.button!==0||!viewer.contains(e.target))return;const t=performance.now();if(!DBLH||t-DBLH.t>500||Math.hypot(e.clientX-DBLH.x,e.clientY-DBLH.y)>6)DBLH={n:H.u.length,arm:!!ARM,tool:S.tool,c:0,x:e.clientX,y:e.clientY};DBLH.c++;DBLH.t=t},true);
+addEventListener('pointerdown',e=>{if(e.button!==0||!viewer.contains(e.target))return;const t=performance.now();if(!DBLH||t-DBLH.t>500||Math.hypot(e.clientX-DBLH.x,e.clientY-DBLH.y)>6)DBLH={n:H.n,arm:!!ARM,tool:S.tool,c:0,x:e.clientX,y:e.clientY};DBLH.c++;DBLH.t=t},true);
 /* Old single topology symbols -> editable template (setting topoEditOn; documents with the old symbols stay as they are) */
 var topoEditOn=true;try{topoEditOn=localStorage.getItem('pdfwerkbank:topoEdit')!=='0'}catch(e){}
 const TOPO_MAP={t_star:'topo_star',t_ring:'topo_ring',t_bus:'topo_bus',t_line:'topo_line',t_mesh:'topo_mesh',t_partmesh:'topo_partmesh',t_tree:'topo_tree',t_xstar:'topo_xstar'};
@@ -4066,9 +4066,9 @@ function tsHighlight(){const r=tsRng||tsKeep;if(!r)return;const pgs=[];
 $('#tsHl').onclick=tsHighlight;
 $('#tsCopy').onclick=async()=>{const t=String(tsRng||getSelection());try{await navigator.clipboard.writeText(t)}catch(e){document.execCommand('copy')}toast(tr('Kopiert.'))};
 /* ---------- Verlauf & Zwischenspeicher ---------- */
-const H={u:[],r:[]};
+const H={u:[],r:[],n:0}; // n: pushHist counter that keeps growing when the history is capped (dblclick undo)
 const snapshot=()=>JSON.stringify(S.pages.map(p=>p.objs),(k,v)=>k==='_editing'?undefined:v);
-function pushHist(){H.u.push(snapshot());if(H.u.length>150)H.u.shift();H.r=[];updUndo()}
+function pushHist(){H.n++;H.u.push(snapshot());if(H.u.length>150)H.u.shift();H.r=[];updUndo()}
 function restoreSnap(js){const a=JSON.parse(js);a.forEach((objs,i)=>{if(S.pages[i])S.pages[i].objs=objs});setSel(null);redrawAll();markDirty()}
 const docSnap=()=>({doc:S.bytes,name:S.name,isNew:S.isNew,bg:S.bg,sample:S.sample,objs:JSON.parse(snapshot())});
 async function applyDocSnap(d){const cp=curPage();await openPdf(d.doc,d.name,{isNew:d.isNew,bg:d.bg,sample:d.sample,objs:JSON.parse(JSON.stringify(d.objs)),keepHist:true});updUndo();markDirty();scrollToPage(Math.min(cp,S.pages.length-1))}
@@ -4483,8 +4483,8 @@ function attachInk(P,i){
     const any=dblAllOn&&DBLH&&DBLH.c===2&&(DBLH.arm||['line','arrow','pen','marker','text'].includes(DBLH.tool));
     if(!any&&!['select','rect','ellipse','table','symbol'].includes(S.tool))return;const[x,y]=toPt(e.clientX,e.clientY);
     // take back what the first click of the double-click placed (a dot, a template, an empty text box); nothing under the pointer: put it back
-    let undone=0;if(any){if(editorEl)closeEditor();while(H.u.length>DBLH.n&&undone<5){undo();undone++}}
-    const redoAll=()=>{while(undone-->0)redo()};
+    let undone=0;if(any){if(editorEl)closeEditor();const k=Math.min(5,H.n-DBLH.n);while(undone<k&&H.u.length){undo();undone++}H.n-=undone}
+    const redoAll=()=>{const u=undone;while(undone-->0)redo();H.n+=u};
     if(S.sel&&S.sel.p===i&&rotOf(S.sel.o)&&handleAt(S.sel.o,x,y,6/S.zoom)==='rot'){pushHist();delete S.sel.o.rot;textClamp(S.sel.o,P,false);redraw(i);markDirty();return}
     let o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o||(any&&S.tool==='text'&&o.type==='text')){redoAll();return}
     // a device's own box or caption wins over a docked line crossing it (not over the line's own label, a free line, or label-less symbols)
