@@ -47,6 +47,19 @@ Datenschutz: siehe PRIVACY.md im Projekt (Link im Eintrag).
 
 PDF, PDF bearbeiten, Unterschrift, Notizen, Diktieren, Diagramm, Subnetz
 
+## Neuerungen 3.10.0
+
+• Vorlagen und Symbole setzt du per Klick aufs Blatt; Vorlagen sind Gruppen und lassen sich als Ganzes verschieben und skalieren.
+• Auswahlwerkzeug: Gruppieren (Strg+G), Ausrichten und Verteilen, Hilfslinien, Objektleiste, Reihenfolge, Tab durch die Objekte.
+• Fett, Kursiv, Unterstrichen und Hervorhebung nur für markierte Wörter.
+• Bilder frei strecken und zuschneiden.
+• Seitenvorschau: Seiten hinzufügen, per Ziehen umsortieren, per Nummer zu einer Seite springen.
+• Zusammenführen lässt Layr-Objekte bearbeitbar.
+• Neue Symbole für Speicher und Backup (RAID, NAS, Band, Backupserver).
+• Autokorrektur für Zeichen (→, –, …) und Sonderzeichen-Auswahl.
+• Neue Speicheranzeige, Tipps in der Seitenleiste, Tabellen wachsen mit dem Text.
+• Alle neuen Funktionen lassen sich in den Einstellungen ausschalten.
+
 ## Neuerungen (erste Version)
 
 Erste Version im Microsoft Store. Updates kommen über den Store.
