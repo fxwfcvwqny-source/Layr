@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-9CWSdBmr48ZTiXksM1//XrIT9eTdqV799As/4oULwbI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HpVlVmjc3rO3/eCUaFzkAHlJNf5126vmO2ID/zqV7Yw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3504,7 +3504,7 @@ NET_TPL.push(...TOPO_TPL,...TOPO_X);
   const raid=(id,name,lab,L,pairs)=>{
     def(id,CAT,name,L.length>3?72:58,52,lab,(c,o,x,y,w,h)=>{
       const n=L.length,top=pairs?h*.3:0,gap=w*.04,cw=(w-gap*(n-1))/n,ch=h-top,mid=i=>x+i*(cw+gap)+cw/2;
-      L.forEach((t,i)=>{const cx=x+i*(cw+gap);cyl(c,o,cx,y+top,cw,ch,.16);txt(c,o,t,cx+cw/2,y+top+ch*.64,Math.max(5,Math.min(cw*.55,ch*.3)))});
+      L.forEach((t,i)=>{const cx=x+i*(cw+gap);cyl(c,o,cx,y+top,cw,ch,.16);txt(c,o,t,cx+cw/2,y+top+ch*.64,h*.22)});
       if(pairs)thin(c,o,()=>{for(let i=0;i<n;i+=2){const a=mid(i),b=mid(i+1),yb=y+top,yy=y+top*.62;c.beginPath();c.moveTo(a,yb);c.lineTo(a,yy);c.lineTo(b,yy);c.lineTo(b,yb);c.stroke()}
         const p=(mid(0)+mid(1))/2,q=(mid(2)+mid(3))/2,ys=y+top*.62,yt=y+top*.1;c.beginPath();c.moveTo(p,ys);c.lineTo(p,yt);c.lineTo(q,yt);c.lineTo(q,ys);c.stroke()});
       below(c,o,x,y,w,h)},{below:1})};
@@ -3513,7 +3513,7 @@ NET_TPL.push(...TOPO_TPL,...TOPO_X);
   raid('st_raid5','RAID 5 (Parität)','RAID 5',['A','B','P']);
   raid('st_raid6','RAID 6 (Dual-Parität)','RAID 6',['A','B','P','Q']);
   raid('st_raid10','RAID 10 (1+0)','RAID 10',['A','A','B','B'],1);
-  def('st_nas',CAT,'NAS-Speicher',50,42,'NAS',(c,o,x,y,w,h)=>{rr(c,x,y,w,h,3);fillStroke(c,o);
+  def('st_nas',CAT,'NAS mit Einschüben',50,42,'NAS',(c,o,x,y,w,h)=>{rr(c,x,y,w,h,3);fillStroke(c,o);
     for(let i=0;i<2;i++){const yy=y+h*(.12+i*.34);c.strokeRect(x+w*.1,yy,w*.8,h*.26);thin(c,o,()=>{seg(c,x+w*.18,yy+h*.13,x+w*.5,yy+h*.13);c.beginPath();c.arc(x+w*.78,yy+h*.13,Math.max(.9,w*.035),0,7);c.fill()})}
     thin(c,o,()=>{for(let k=0;k<3;k++)c.strokeRect(x+w*(.36+k*.12),y+h*.82,w*.08,h*.08)});below(c,o,x,y,w,h)},{below:1});
   def('st_bsrv',CAT,'Backup-Server',44,50,'Backup-Server',(c,o,x,y,w,h)=>{const bw=w*.84,bh=h*.9;rr(c,x,y,bw,bh,3);fillStroke(c,o);
@@ -3538,7 +3538,7 @@ NET_TPL.push(...TOPO_TPL,...TOPO_X);
   // group placed after 'Topologien' in the list; labels and names for English
   const mv=CATS.splice(nCats);const at=CATS.indexOf('Topologien');CATS.splice(at<0?CATS.length:at+1,0,...mv);
   Object.assign(I18N_EN,{'Speicher & Backup':'Storage & backup','RAID 0 (Striping)':'RAID 0 (striping)','RAID 1 (Spiegelung)':'RAID 1 (mirroring)','RAID 5 (Parität)':'RAID 5 (parity)','RAID 6 (Dual-Parität)':'RAID 6 (dual parity)','RAID 10 (1+0)':'RAID 10 (1+0)',
-    'NAS-Speicher':'NAS storage','Backup-Server':'Backup server','Bandlaufwerk (Tape)':'Tape drive','Bandlaufwerk':'Tape drive','Cloud-Backup':'Cloud backup','Offsite-Kopie / Replikation':'Offsite copy / replication','Replikation':'Replication',
+    'NAS mit Einschüben':'NAS with drive bays','Backup-Server':'Backup server','Bandlaufwerk (Tape)':'Tape drive','Bandlaufwerk':'Tape drive','Cloud-Backup':'Cloud backup','Offsite-Kopie / Replikation':'Offsite copy / replication','Replikation':'Replication',
     'USB-/externe Festplatte':'USB / external hard disk','Ext. Festplatte':'External disk',...I18N_EN});
 })();
 /* Double-click in any placement/shape tool (setting dblAllOn): remember the history length at the first click so the dblclick handler can take back what that click placed */
