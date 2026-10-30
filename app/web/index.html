@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jZExvHJMWgoLb++qicNu32yFxARRp0iFFUOLbQFFWbQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-a9x6o4iddhSUPMeKwYsZFdLhlF24ZJd0mojUB6zqh1Q=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3995,6 +3995,8 @@ const storeKeyOld=()=>'pdfwerkbank:'+S.name+':'+(S.bytes?S.bytes.length:0);
 // Recovery key = name + length + content fingerprint (S.fp, computed once per opened document), so equal-named equal-sized files stay apart
 const storeKey=()=>storeKeyOld()+(S.fp?':'+S.fp:'');
 async function docFp(b){try{const n=Math.min(4096,b.length),m=new Uint8Array(2*n+8);m.set(b.subarray(0,n),0);m.set(b.subarray(b.length-n),n);new DataView(m.buffer).setFloat64(2*n,b.length);const h=new Uint8Array(await crypto.subtle.digest('SHA-256',m));return Array.from(h.subarray(0,10),x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return''}}
+// Reads fall back to the old key when adoption failed (e.g. storage full)
+const storeGet=suf=>localStorage.getItem(storeKey()+suf)??(S.fp?localStorage.getItem(storeKeyOld()+suf):null);
 // Old-key data is adopted by the fingerprint key only if that is still empty; the old entry goes away after the copy was read back
 function storeAdopt(){if(!S.fp)return;try{const o=storeKeyOld(),n=storeKey();for(const suf of['',':notes',':tasks']){const v=localStorage.getItem(o+suf);if(v!=null&&localStorage.getItem(n+suf)==null){localStorage.setItem(n+suf,v);if(localStorage.getItem(n+suf)===v)localStorage.removeItem(o+suf)}}
   const I=JSON.parse(localStorage.getItem('pdfwerkbank:cardsdue')||'{}');if(I&&I[o]&&!I[n]){I[n]=I[o];localStorage.setItem('pdfwerkbank:cardsdue',JSON.stringify(I));delete I[o];localStorage.setItem('pdfwerkbank:cardsdue',JSON.stringify(I))}}catch(e){}}
@@ -4801,9 +4803,9 @@ async function openPdf(bytes,name,opt={}){
   if(opt.keep)opt.keep.forEach((k,i)=>k&&S.pages[i]&&(S.pages[i].keep=k));
   $('#fname').textContent=name;$('#fname').title=name+' · '+tr('Klicken zum Umbenennen (F2)');editingObj=null;
   if(!opt.isNew&&!opt.sample&&!crNoStore())storeAdopt();
-  {let nv='';if(opt.notes!=null)nv=opt.notes;else if(opt.keepHist)nv=S.notes||'';else if(!opt.isNew&&!opt.sample){try{nv=localStorage.getItem(storeKey()+':notes')||''}catch(e){}}notesSet(nv);let tv=[];if(opt.tasks!=null)tv=opt.tasks;else if(opt.keepHist)tv=S.tasks||[];else if(!opt.isNew&&!opt.sample){try{tv=JSON.parse(localStorage.getItem(storeKey()+':tasks')||'[]')}catch(e){}}tasksSet(tv);tasksMigrate()}
+  {let nv='';if(opt.notes!=null)nv=opt.notes;else if(opt.keepHist)nv=S.notes||'';else if(!opt.isNew&&!opt.sample){try{nv=storeGet(':notes')||''}catch(e){}}notesSet(nv);let tv=[];if(opt.tasks!=null)tv=opt.tasks;else if(opt.keepHist)tv=S.tasks||[];else if(!opt.isNew&&!opt.sample){try{tv=JSON.parse(storeGet(':tasks')||'[]')}catch(e){}}tasksSet(tv);tasksMigrate()}
   if(opt.objs)sanPages(opt.objs,S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));
-  else{try{const js=localStorage.getItem(storeKey());if(js&&js.length<64e6){sanPages(JSON.parse(js),S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));toast('Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.')}}catch(e){}}
+  else{try{const js=storeGet('');if(js&&js.length<64e6){sanPages(JSON.parse(js),S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));toast('Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.')}}catch(e){}}
   for(const P of S.pages)for(const o of P.objs)delete o._editing;
   {const used=new Set();for(const P of S.pages)for(const o of P.objs)if(o.type==='text'&&o.font)used.add(o.font);used.forEach(k=>ensureFont(k))}
   S.dirty=false;setSaveState();if(!opt.keepHist)fitZoom(false);buildPages();if(!opt.keepHist)viewer.scrollTop=0;updPg();buildThumbs();

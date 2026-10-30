@@ -684,6 +684,12 @@ else {
     + "const gone=mine().length===0&&Object.keys(JSON.parse(LS.getItem('pdfwerkbank:cardsdue'))).join()==='other';return JSON.stringify({adopted,gone,left:mine()})})()", 60000);
   const saj = JSON.parse(sa || '{}');
   ok('Layr-saved PDF adopts old recovery keys (cards index too) and crForget removes both key formats', saj.adopted === true && saj.gone === true, saj);
+  // Storage full while adopting old-format data: the restore still works from the old key
+  const sq = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),LS=localStorage;const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);const B=await d.save();await openPdf(B,'quota.pdf');await w(400);const ko=storeKeyOld();await w(600);Object.keys(LS).filter(k=>k.includes('quota.pdf')).forEach(k=>LS.removeItem(k));"
+    + "LS.setItem(ko,JSON.stringify([[{type:'text',x:40,y:40,text:'Quota Rest',fs:20,color:'#000000',lw:0,orient:'h'}]]));LS.setItem(ko+':notes','Quota Notiz');const si=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(String(k).includes('quota.pdf:'))throw new DOMException('full','QuotaExceededError');return si.call(this,k,v)};"
+    + "try{await openPdf(B,'quota.pdf');await w(500)}finally{Storage.prototype.setItem=si}return JSON.stringify({t:S.pages[0].objs.some(o=>o.text==='Quota Rest'),n:S.notes})})()", 60000);
+  const sqj = JSON.parse(sq || '{}');
+  ok('Restore still works when the recovery key cannot be written (storage full)', sqj.t === true && sqj.n === 'Quota Notiz', sqj);
   // Tables grow downward when a committed cell text needs more rows; empty/short cells keep the old height; Undo restores
   const tg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),P=S.pages[0];P.objs.length=0;H.u.length=0;const o={type:'table',x:60,y:100,w:240,h:90,rows:3,cols:2,cw:[.5,.5],rh:[1/3,1/3,1/3],cells:[['a','b'],['',''],['','']],fs:11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.push(o);redraw(0);"
     + "const rows=()=>o.rh.map(f=>f*o.h),h0=o.h,r0=rows();const cm=t=>{editCell(0,o,1,0);const d=editorDone;editorDone=null;closeEditor();d(t)};cm('short');const shortSame=Math.abs(o.h-h0)<1e-6;"
