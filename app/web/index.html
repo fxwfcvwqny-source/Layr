@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-wcdI0neb/7EM6kKfRyC5PhTuSdRDd+EEskjsdWXpn4A=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-h7t4aMrc8iI6Qe9soDFRtKzTQ+LC02jJ9C3ZZD/r9Hg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3664,7 +3664,7 @@ function pickFont(why){let pick=null;
 setTimeout(()=>pickFont('start'),0);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>setTimeout(()=>pickFont('fonts'),0));
 function textBox(o){
-  mctx.font=tfont(o);const rich=isRich(o),wrapped=o.orient==='h'&&o.wrapW>0;const lines=wrapped?(fontRich(o)?wrapRich(o,o.wrapW):wrapLines(mctx,String(o.text),o.wrapW)):String(o.text).split('\n'),lh=o.fs*1.25;let w=0;
+  mctx.font=tfont(o);const rich=isRich(o),wrapped=o.orient==='h'&&o.wrapW>0;const lines=wrapped?(fontRich(o)?wrapRichC(o):wrapLines(mctx,String(o.text),o.wrapW)):String(o.text).split('\n'),lh=o.fs*1.25;let w=0;
   if(o.orient==='stack'){const cw=o.fs*1.2;let n=0;for(const l of lines)n=Math.max(n,[...l].length);return{w:Math.max(1,lines.length)*cw,h:Math.max(1,n)*o.fs*1.1,lines,lh,cw}}
   if(rich){let n=0;lines.forEach((l,k)=>{w=Math.max(w,tw(o,l,n));n+=l.length+wrapGap(lines,k)})}else for(const l of lines)w=Math.max(w,mctx.measureText(l).width);w=wrapped?o.wrapW:Math.max(w,o.fs*.6);
   return o.orient==='v'?{w:lines.length*lh,h:w,lines,lh}:{w,h:Math.max(lines.length*lh,o.minH>0?o.minH:0),lines,lh};
@@ -6393,6 +6393,9 @@ function wSty(o,a,b){const T=String(o.text),R=fsegs(o);let lo=0,hi=R.length;whil
   let w=0;for(let k=lo;k<R.length&&R[k][0]<b;k++){const x=Math.max(a,R[k][0]),y=Math.min(b,R[k][1]);if(y>x){mctx.font=R[k][2];w+=mctx.measureText(T.slice(x,y)).width}}return w}
 // width of str, which sits at index start of o.text
 function tw(o,str,start){if(isRich(o)&&start+str.length<=String(o.text).length)return wSty(o,start,start+str.length);mctx.font=tfont(o);return mctx.measureText(str).width}
+const STY_W=new WeakMap();
+// wrapRich result is reused while text, width, font and runs stay the same (several callers ask per edit)
+function wrapRichC(o){const f=tfont(o),c=STY_W.get(o.sty);if(c&&c.t===o.text&&c.w===o.wrapW&&c.f===f)return c.l;const l=wrapRich(o,o.wrapW);STY_W.set(o.sty,{t:o.text,w:o.wrapW,f,l});return l}
 // same line breaking as wrapLines, but on text indexes with per-run widths
 function wrapRich(o,maxW){const T=String(o.text),W=(a,b)=>wSty(o,a,b),out=[];out.soft=new Set();let off=0;
   const cut=(a,b)=>{let i=a;while(b-i>1&&W(i,b)>maxW){let k=i+1;while(k<b&&W(i,k+1)<=maxW)k++;out.soft.add(out.length);out.push(T.slice(i,k));i=k}return i};
