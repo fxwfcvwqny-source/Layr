@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-JaUENbHAES1qdr9ks9DM7XHJJIF3hrzTNOzCmhFOSlk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jZExvHJMWgoLb++qicNu32yFxARRp0iFFUOLbQFFWbQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4800,7 +4800,7 @@ async function openPdf(bytes,name,opt={}){
   S.pages=[];for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});S.pages.push({w:vp.width,h:vp.height,objs:[]})}
   if(opt.keep)opt.keep.forEach((k,i)=>k&&S.pages[i]&&(S.pages[i].keep=k));
   $('#fname').textContent=name;$('#fname').title=name+' · '+tr('Klicken zum Umbenennen (F2)');editingObj=null;
-  if(!opt.isNew&&!opt.sample&&!opt.objs&&!crNoStore())storeAdopt();
+  if(!opt.isNew&&!opt.sample&&!crNoStore())storeAdopt();
   {let nv='';if(opt.notes!=null)nv=opt.notes;else if(opt.keepHist)nv=S.notes||'';else if(!opt.isNew&&!opt.sample){try{nv=localStorage.getItem(storeKey()+':notes')||''}catch(e){}}notesSet(nv);let tv=[];if(opt.tasks!=null)tv=opt.tasks;else if(opt.keepHist)tv=S.tasks||[];else if(!opt.isNew&&!opt.sample){try{tv=JSON.parse(localStorage.getItem(storeKey()+':tasks')||'[]')}catch(e){}}tasksSet(tv);tasksMigrate()}
   if(opt.objs)sanPages(opt.objs,S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));
   else{try{const js=localStorage.getItem(storeKey());if(js&&js.length<64e6){sanPages(JSON.parse(js),S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));toast('Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.')}}catch(e){}}
@@ -7740,7 +7740,8 @@ async function pdfEncrypt(bytes,crypt){const{PDFDocument,PDFHexString,PDFString,
    Beschriftungen geschützter Dateien landen nicht im lokalen Zwischenspeicher der App. */
 const crNoStore=()=>!!(S.crypt&&S.crypt.pw);
 const crSeal=async(b,cr)=>cr?pdfEncrypt(b,cr):b;
-function crForget(){try{for(const k of[storeKey(),storeKey()+':notes',storeKey()+':tasks'])localStorage.removeItem(k)}catch(e){}}
+function crForget(){try{const K=[storeKey(),storeKeyOld()];for(const k of K)for(const suf of['',':notes',':tasks'])localStorage.removeItem(k+suf);
+  const I=lkIdxGet();if(K.some(k=>k in I)){K.forEach(k=>delete I[k]);localStorage.setItem('pdfwerkbank:cardsdue',JSON.stringify(I))}}catch(e){}}
 function crBadge(){const b=$('#hdrLock');if(b)b.hidden=!crNoStore()}
 function pwAsk(name,wrong){return new Promise(res=>{const d=$('#pwDlg'),i=$('#pwIn');$('#pwFile').textContent=name;$('#pwErr').hidden=!wrong;i.value='';i.type='password';
   showEl(d);setTimeout(()=>i.focus(),30);

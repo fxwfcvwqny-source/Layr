@@ -675,6 +675,15 @@ else {
     + "const e=await PDFLib.PDFDocument.create();e.addPage([595,842]);const B=await e.save();await openPdf(B,'e.pdf');await w(400);mItems=[{name:'g.pdf',bytes:A,pages:2},{name:'e.pdf',bytes:B,pages:1}];const l0=PDFLib.PDFDocument.load;PDFLib.PDFDocument.load=function(b,o){if(b&&b.length===L)return Promise.reject(new Error('garbled'));return l0.call(this,b,o)};"
     + "try{await $('#mOk').onclick();await w(1200)}finally{PDFLib.PDFDocument.load=l0}return S.pages.length})()", 60000);
   ok('Merge with an embedded original pdf-lib cannot load falls back to the saved pages', mb === 3, mb);
+  // Recovery storage: a Layr-saved PDF (opens with objects) still adopts old-format keys and drops them; crForget leaves nothing of the file behind
+  const sa = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),LS=localStorage,mine=()=>Object.keys(LS).filter(k=>k.includes('adopt.pdf'));const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'adopt.pdf');await w(400);"
+    + "S.pages[0].objs.push({type:'text',x:60,y:60,text:'Adopt',fs:20,color:'#000000',lw:0,orient:'h'});markDirty();const A=await buildOutput(),ko=storeKeyOld();await w(600);mine().forEach(k=>LS.removeItem(k));"
+    + "LS.setItem(ko,'[[]]');LS.setItem(ko+':notes','Alte Notiz');LS.setItem(ko+':tasks','[]');LS.setItem('pdfwerkbank:cardsdue',JSON.stringify({[ko]:{name:'adopt.pdf',n:1,due:1,next:'2000-01-01',day:'2000-01-01',t:1}}));"
+    + "await openPdf(A,'adopt.pdf');await w(500);const I=JSON.parse(LS.getItem('pdfwerkbank:cardsdue')||'{}'),kn=storeKey();const adopted=ko!==kn&&LS.getItem(ko)==null&&LS.getItem(ko+':notes')==null&&LS.getItem(ko+':tasks')==null&&!(ko in I)&&LS.getItem(kn+':notes')==='Alte Notiz';"
+    + "LS.setItem(ko,'x');LS.setItem(ko+':notes','x');LS.setItem(ko+':tasks','x');LS.setItem(kn,'x');LS.setItem(kn+':notes','x');LS.setItem(kn+':tasks','x');LS.setItem('pdfwerkbank:cardsdue',JSON.stringify({[ko]:{n:1},[kn]:{n:1},other:{n:1}}));crForget();"
+    + "const gone=mine().length===0&&Object.keys(JSON.parse(LS.getItem('pdfwerkbank:cardsdue'))).join()==='other';return JSON.stringify({adopted,gone,left:mine()})})()", 60000);
+  const saj = JSON.parse(sa || '{}');
+  ok('Layr-saved PDF adopts old recovery keys (cards index too) and crForget removes both key formats', saj.adopted === true && saj.gone === true, saj);
   // Tables grow downward when a committed cell text needs more rows; empty/short cells keep the old height; Undo restores
   const tg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),P=S.pages[0];P.objs.length=0;H.u.length=0;const o={type:'table',x:60,y:100,w:240,h:90,rows:3,cols:2,cw:[.5,.5],rh:[1/3,1/3,1/3],cells:[['a','b'],['',''],['','']],fs:11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.push(o);redraw(0);"
     + "const rows=()=>o.rh.map(f=>f*o.h),h0=o.h,r0=rows();const cm=t=>{editCell(0,o,1,0);const d=editorDone;editorDone=null;closeEditor();d(t)};cm('short');const shortSame=Math.abs(o.h-h0)<1e-6;"
