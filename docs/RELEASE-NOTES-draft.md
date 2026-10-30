@@ -1,8 +1,136 @@
-# Layr 3.9.0 (draft release notes)
+# Layr 3.10.0
+
+Release notes for version 3.10.0.
+
+## Highlights
+
+- Templates and symbols are placed by clicking on the sheet; templates are groups that move and scale as a whole.
+- Select tool: group/ungroup, align and distribute, smart guides, object mini bar, z-order, Tab through objects.
+- Bold, italic, underline and highlight for selected words only.
+- Images: free stretch with the side handles, non-destructive crop.
+- Page sidebar: add pages, drag to reorder, jump to a page by number.
+- Merging PDFs keeps Layr objects editable.
+- New symbol group "Storage & backup" (RAID, NAS, tape, backup server and more).
+- Character autocorrect and a special character picker; new save status indicator.
+
+## New
+
+### Templates and symbols
+- Click-to-place: choose a template, then click on the sheet (drag sizes it). A ghost preview follows the pointer; Esc or right-click cancels, Shift keeps it armed.
+- Templates are groups (`gid`): a click selects the whole template, move, scale and copy keep it together. Alt+click or double-click selects one part.
+- Topology blocks (star, ring, bus, tree, mesh) place real, editable devices with docked lines.
+- Include/extend buttons without a selected line arm the arrow tool with a dashed open-arrow preset and label.
+- Symbol group "Storage & backup": RAID 0/1/5/6/10, NAS, backup server, tape, cloud backup, snapshot, replication, external disk, SAN switch.
+
+### Select tool
+- Shift+click adds a whole group to the selection; the status line shows "N Objekte gewählt".
+- Ctrl+G groups the selection (`gg`), Ctrl+Shift+G ungroups; also in the context menu.
+- Align and distribute treat templates and user groups as one unit.
+- Smart guides while moving and while resizing corners, with snapping to the 36 pt page margins; Alt switches them off briefly.
+- Object mini bar above the selection: duplicate, delete, lock, colour, order, align. F6 moves focus to it, Esc leaves.
+- Alt on a corner handle resizes from the centre.
+- Z-order: Ctrl+] / Ctrl+[ one step, Ctrl+Shift+] / Ctrl+Shift+[ to front/back; layout-independent alternatives Ctrl+Shift+Up/Down and Ctrl+Alt+Shift+Up/Down. Groups move as a block.
+- Tab / Shift+Tab step through the objects of the page (reading order, groups as one stop, announced to screen readers); Esc leaves.
+- Double-click edits an object in every placement and shape tool.
+
+### Text
+- Partial formatting: bold, italic, underline and highlight for the selected characters (`sty` runs), with a mixed state in the toggles; undo/redo restores it.
+- Sidebar text section: bold, italic, underline and background toggles that show their state, can be switched off and apply to the selection. New text boxes inherit italic and background.
+- Character autocorrect: `->` to arrow, `<-`, `<->`, `=>`, `--` to en dash, `...`, (c), (r), (tm), `+-`, `!=`. Backspace or Ctrl+Z right after undoes it. Only at word boundaries; not in options, operators, URLs and enumerations.
+- Special character picker: Ctrl+Shift+K or the quick bar button (remappable in the shortcut list).
+- Table rows grow downward when a cell text needs more lines; the table stays inside the page.
+- Ruler rotates around its centre; angle field in the panel; Shift snaps to 15 degrees.
+
+### Images
+- Side handles stretch one dimension (free, non-proportional); double-click on a handle resets the aspect ratio.
+- Crop mode (button, double-click, Shift+C) with non-destructive crop fractions; Tab selects the edge, arrows move it (Shift: 10 pt); the size is shown in mm.
+
+### Pages and navigation
+- Page sidebar: add pages with + and with insert strips between thumbnails, drag to reorder, lazy thumbnails.
+- Page selector "Seite 3 / 12": type a number and press Enter. Floating, in the preview, or off. Ctrl+Alt+G focuses it.
+- Merge keeps Layr objects editable (embedded originals are used), joins notes and to-dos, and keeps filled form values.
+
+### Settings and design
+- Save status indicator next to the file name: icon or text variant; unsaved is red; error state.
+- Sidebar tips: a floating hint beside the panel while a control is focused or hovered.
+- Numbers in the interface (page, zoom, value labels, counters) use the interface font with tabular figures; code, keys and tables keep the mono font.
+- Transparent Layr icon for the window, taskbar and exe, with hand-tuned 16 and 24 px variants. The installer and the Store keep the black tile.
+
+### Accessibility
+- Live-region announcements for selection count, Tab stops, crop edges and armed templates.
+- Pressed state on armed template tiles; all new switches are keyboard accessible and work in light, dark and forced-colors.
+
+## Fixes
+
+- Sheet no longer shifts sideways while typing (scrollbar gutter reserved).
+- Lost pointer events (window focus, tablet) no longer leave stale drags or missing ink layers.
+- Long notes and to-dos are no longer cut off when read back from the PDF (higher caps).
+- Merge: text boxes and other Layr objects stay editable; falls back to the saved pages when the embedded original cannot be loaded.
+- Tables grow with their content instead of clipping, and refit after font size and column changes.
+- Local recovery key includes a content fingerprint, so two different files with the same name and size cannot restore each other's annotations. Old data is adopted and the old key is removed.
+- Double-click that follows a saved edit no longer undoes it; dblclick undo works with a capped history.
+- Typing during the short wait of the text tool opens the box and keeps the character.
+- Pen strokes are not mistaken for double-clicks.
+- Armed template and include preset are cancelled on tab open/switch/close and ignore Esc while a dialog or draft is open.
+
+## Settings added
+
+| Setting (de) | Default | Where |
+|---|---|---|
+| Vorlagen per Klick platzieren | on | Settings menu |
+| Vorlagen als Gruppe auswählen | on | Settings menu |
+| Topologie-Bausteine als bearbeitbare Knoten | on | Settings menu |
+| Doppelklick bearbeitet in allen Werkzeugen | on | Settings menu |
+| Hilfslinien (beim Verschieben und Größe ändern) | on | Settings menu |
+| Objektleiste am gewählten Objekt | on | Settings menu |
+| Tab wechselt zwischen Objekten | on | Settings menu |
+| Bilder frei strecken (Seitengriffe) | on | Settings menu |
+| Tabelle wächst mit dem Text | on | Table panel |
+| Autokorrektur für Zeichen | on | Schreiben & Rechtschreibung |
+| Verschiebe-Pfeile an der Seitenvorschau | off | Schreiben & Rechtschreibung |
+| Speicheranzeige (Symbol / Text) | Symbol | Design |
+| Seitenwahl (schwebend / in der Vorschau / aus) | schwebend | Design |
+| Tipps in der Seitenleiste | on | Design |
+
+## Changes of behaviour
+
+- Templates are placed by clicking on the sheet, not in the page centre (switch off to get the old behaviour).
+- Double-click edits an object in every tool, not only in the select tool.
+- Tab cycles through the objects of the page; Esc returns to normal Tab navigation.
+- The page-move arrows at the thumbnails are hidden by default (drag, Alt+Up/Down or the context menu still work).
+- Text-box background and italic are stored per run when set for selected words only.
+- Interface numbers use a new font (IBM Plex Sans, tabular figures).
+- The save status indicator looks different (icon by default, red when unsaved).
+- Autocorrect replaces typed character sequences; undo with Backspace or Ctrl+Z.
+- Clicking a template part selects the whole template (Alt+click: one part).
+
+## Known limits
+
+- Rotated text gets axis-aligned highlight boxes.
+- Text background is not drawn for stacked text; stacked text does not use the per-word runs.
+- Special characters such as arrows and maths symbols come from a fallback system font if the chosen font lacks them.
+- Old single topology symbols are not editable inside their nodes.
+- Cropping only hides the rest of an image; the whole image stays in the saved file (use Redact to remove content for good).
+- Bookmarks (outlines) are lost when pages are rebuilt or reordered (pdf-lib has no API for them); Layr warns once per move when the document has some.
+- The text layer is not available in split view and presentation mode.
+- Alt+click / Alt+drag may be taken by the window manager on some Linux desktops (KDE, Xfce); the same actions are available without Alt where possible.
+- With the "Night mode for pages" switch on, the sheet option "White" is shown dark.
+- Under Wayland/GNOME the window icon comes from the .desktop file and stays black.
+
+## Also since 3.9.0: notes for users of older versions
+
+- Files saved by 3.10 open in older versions, but new fields are ignored there:
+  - Partial formatting (`sty`): the whole box is shown without per-word style; editing such a box in an older version can leave formatting at outdated positions.
+  - Crop (`crop`): the crop is ignored and the full image is squeezed into the cropped box (distorted).
+  - User groups (`gg`): ignored but kept. A part duplicated in an older version keeps its group id, so in 3.10 original and copy form one group; use Alt+click to select a single part.
+- Old documents open unchanged in 3.10. Local recovery data from 3.9.0 is adopted on first access.
+- Flathub is not pursued; the Flatpak files point at v3.9.0.
+
+# Earlier: Layr 3.9.0
 
 Release notes for version 3.9.0.
 
-## Fixes
+### Fixes
 
 - Text selection: the text layer has an `endOfContent` element kept behind the selection anchor, so dragging across pages no longer selects the whole next page.
 - The toolbox "More" button no longer looks permanently active; its `aria-expanded` state is reset when the menu closes or another menu opens.
@@ -14,32 +142,23 @@ Release notes for version 3.9.0.
 - Test suite: smoke test flake fixed (isolated profile, stale `dense.pdf` objects), geometric check for dense-page drag selection, toolbar position checks.
 - Sheet colour "Night" is no longer inverted twice when the "Night mode for pages" switch is on.
 
-## New
+### New
 
 - Text selection bar: appears on selected PDF text with Copy and Highlight; one click on a colour swatch (or confirming a custom colour) highlights the selection at once in that colour, and the Highlight button reuses the last colour.
 - Text quick bar: italic (Ctrl+I) and text background colour.
 - Fixed toolbar is centred over the sheet from 1200 px window width; density Large applies from 1360 px (below that the old layout is kept).
 - Topology templates (star, ring, bus, tree, mesh) built from real devices with their own labels and docked lines; every device is editable. The bus template has a shared backbone.
 
-## Design
+### Design
 
 - Symbol tiles: one label, uniform 72x48 size, no baked-in label in the image.
 - Table tile appears only under Shapes, as a 32 px icon in the symbol style.
 
-## Known limits
+### Known limits
 
 - Rotated text gets axis-aligned highlight boxes.
 - Text background is not drawn for stacked text.
 - Special characters such as arrows and maths symbols come from a fallback system font if the chosen font lacks them.
-- In Layr versions before 3.10, editing a text box that has partial formatting (`sty`) can leave the formatting at outdated positions.
-- Reordering pages (also by drag in the page preview) still drops bookmarks; Layr warns once per move when the document has some.
-- Bold, italic, underline and highlight can be set for selected words only (stored per text box as `sty` runs). Older Layr versions ignore the runs and show the whole box without per-run style. Stacked text does not use the runs.
-- Old single topology symbols are not editable inside their nodes.
-- Cropped images (`crop`): older Layr versions ignore the crop and squeeze the full image into the cropped box (distorted).
-- Cropping only hides the rest of an image; the whole image stays in the saved file (use Redact to remove content for good).
-- User groups (`gg`, Ctrl+G): older versions ignore them but keep the value; a part duplicated in an older version lands in the original's group in 3.10.
-- Alt+click / Alt+drag may be taken by the window manager on some Linux desktops (KDE, Xfce); the tooltips say so and the same actions are available without Alt where possible.
-- In Layr versions before 3.10, a duplicated part of a template keeps its group id, so in 3.10 original and copy form one group; use Alt+Click to select a single part.
 - Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).
 - The text layer is not available in split view and presentation mode.
 - With the "Night mode for pages" switch on, the sheet option "White" is shown dark (the switch inverts all pages). A clearer behaviour is planned.
