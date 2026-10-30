@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-nJIB0lT4JtZqzwRwFwqH1xcOCxsqWOPwFPQbwFShR+o=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-9CWSdBmr48ZTiXksM1//XrIT9eTdqV799As/4oULwbI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -343,6 +343,8 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .pager input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .pager.in-thumbs{position:sticky;top:0;left:auto;bottom:auto;transform:none;align-self:stretch;justify-content:center;border-radius:var(--r);box-shadow:none;margin-bottom:6px;z-index:2}
 .pager.in-thumbs~.th-bar{top:34px}
+#app:not(.mode-select) .pager:not(.in-thumbs):not(.pg-live),#app.armed .pager:not(.in-thumbs):not(.pg-live){opacity:.35;pointer-events:none}
+@media (max-width:860px){#wrap.split .pager:not(.in-thumbs){display:none}}
 .pager.in-thumbs .pgl{display:none}.pager.in-thumbs{padding:2px}.pager.in-thumbs .pgw{gap:3px}
 .thumbs{position:relative}
 .th.th-dragging{opacity:.4}.th.th-dragging canvas{box-shadow:none}
@@ -6950,11 +6952,11 @@ function pgSync(){const inp=document.getElementById('pgNum');if(!inp)return;cons
   document.getElementById('pgTot').textContent='/ '+(n||'–');inp.setAttribute('aria-valuemax',n);inp.setAttribute('aria-valuenow',c);inp.disabled=!n;
   if(!PGE.edit||document.activeElement!==inp)inp.value=n?c:'';document.getElementById('pgPrev').disabled=c<=1;document.getElementById('pgNext').disabled=!n||c>=n}
 function pgGo(k){const n=S.pages.length;if(!n)return;k=Math.max(1,Math.min(n,k|0));TM.sel=k-1;scrollToPage(k-1);document.getElementById('pgNum').value=k;PGE.edit=false}
-function pgFocus(){const inp=document.getElementById('pgNum');if(!inp||!S.pages.length)return;if(design.pager==='off'){toast(tr('Die Seitenwahl ist in den Design-Einstellungen ausgeschaltet.'));return}inp.focus();inp.select()}
+function pgFocus(){const inp=document.getElementById('pgNum');if(!inp||!S.pages.length)return;const pv=document.getElementById('prsView');if(pv&&!pv.hidden)return;if(design.pager==='off'){toast(tr('Die Seitenwahl ist in den Design-Einstellungen ausgeschaltet.'));return}document.getElementById('pager').classList.add('pg-live');inp.focus();inp.select()}
 {const inp=document.getElementById('pgNum');
   inp.addEventListener('input',()=>{PGE.edit=true;const v=inp.value.replace(/\D/g,'').slice(0,5);if(v!==inp.value)inp.value=v});
   inp.addEventListener('focus',()=>inp.select());
-  inp.addEventListener('blur',()=>{PGE.edit=false;pgSync()});
+  inp.addEventListener('blur',()=>{PGE.edit=false;pgSync();document.getElementById('pager').classList.remove('pg-live')});
   inp.addEventListener('keydown',e=>{e.stopPropagation();const cur=PGE.edit&&inp.value?+inp.value:curPage()+1;
     if(e.key==='Enter'){e.preventDefault();if(inp.value)pgGo(+inp.value);else{PGE.edit=false;pgSync()}}
     else if(e.key==='Escape'){e.preventDefault();PGE.edit=false;pgSync();inp.blur()}

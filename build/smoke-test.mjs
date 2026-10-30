@@ -810,7 +810,6 @@ else {
     spj.none && spj.show && spj.same && spj.beside && spj.size && spj.contrast && spj.esc && spj.noReshow && spj.again && spj.off && spj.san && spj.noOld, spj);
   // Templates: click-to-place (B1). Real mouse; geometry relative to the page, not font-based.
   {
-    await ev("design.pager='off';applyDesign(true)"); // the floating page selector would sit on the test click points
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'tpl.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;setTool('select');setSel(null)})()");
     const click = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(60); };
@@ -1430,6 +1429,30 @@ else {
   {
     const k9 = await ev("JSON.stringify((()=>{const a=KB_DEF.find(x=>x.id==='chars');return [!!a,a&&a.def,a&&a.text===true,kbGet(a)]})())").then(JSON.parse);
     ok('Review 9: Sonderzeichen-Kürzel steht in der Tastenkürzel-Tabelle (Ctrl+Shift+K, auch beim Schreiben)', k9[0] && k9[1] === 'Ctrl+Shift+K' && k9[2] && k9[3] === 'Ctrl+Shift+K', k9);
+  }
+  // Review fix 5/12: the floating page selector does not block drawing: faded and click-through with any tool but select (and while a template is armed); Ctrl+Alt+G makes it live; not in presentation mode
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{design.pager='float';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'pgf.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);S.pages[0].el.scrollIntoView({block:'start'});await new Promise(r=>setTimeout(r,300));return 1})()");
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    const hit = "(()=>{const r=document.getElementById('pager').getBoundingClientRect(),e=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!e&&!!e.closest('#pager')})()";
+    const sOn = await ev(hit);
+    await ev("setTool('pen')"); await sleep(200);
+    const pen = await J("[" + hit + ",getComputedStyle(document.getElementById('pager')).opacity]");
+    await ev("setTool('select')"); await sleep(200);
+    const back = await ev(hit);
+    await ev("document.dispatchEvent(new KeyboardEvent('keydown',{key:'g',code:'KeyG',ctrlKey:true,altKey:true,bubbles:true,cancelable:true}))"); await sleep(150);
+    await ev("setTool('pen')"); await sleep(100);
+    const live = await J("[document.getElementById('pager').classList.contains('pg-live'),document.activeElement===document.getElementById('pgNum'),getComputedStyle(document.getElementById('pager')).opacity]");
+    await ev("setTool('select');document.getElementById('pgNum').blur()");
+    const pad = await ev("parseFloat(getComputedStyle(document.getElementById('viewer')).paddingBottom)");
+    ok('Review 5: Seitenwahl-Pille ist bei Stift/Formen/Text/armierter Vorlage blass und lässt Klicks durch, mit Auswahlwerkzeug normal; Seite scrollt über sie', sOn === true && pen[0] === false && +pen[1] < 0.5 && back === true && pad >= 52 && live[0] && live[1] && +live[2] === 1, { sOn, pen, back, pad, live });
+    // Ctrl+Alt+G in presentation mode does not focus the hidden field
+    await ev("(()=>{let pv=document.getElementById('prsView');if(!pv){pv=document.createElement('div');pv.id='prsView';document.body.appendChild(pv)}pv.hidden=false;document.getElementById('pgNum').blur()})()");
+    await ev("document.dispatchEvent(new KeyboardEvent('keydown',{key:'g',code:'KeyG',ctrlKey:true,altKey:true,bubbles:true,cancelable:true}))"); await sleep(150);
+    const prs = await ev("document.activeElement!==document.getElementById('pgNum')");
+    await ev("document.getElementById('prsView').hidden=true");
+    ok('Review 12: Strg+Alt+G fokussiert das Seitenfeld nicht im Präsentationsmodus', prs === true, prs);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
