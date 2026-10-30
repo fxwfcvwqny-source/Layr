@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Kf0JINhNPdWS6ekIJZm4wa7Y5OLbsmGsPq0Raoa/nE4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-DNh4IX3iwhpcRXTSjJhsrVJVSSR2BqxQ1uJdKkJhXHk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3990,7 +3990,13 @@ async function applyDocSnap(d){const cp=curPage();await openPdf(d.doc,d.name,{is
 function undo(){closeEditor();if(!H.u.length)return;const e=H.u.pop();if(typeof e!=='string'){H.r.push(docSnap());applyDocSnap(e);return}H.r.push(snapshot());restoreSnap(e);updUndo()}
 function redo(){closeEditor();if(!H.r.length)return;const e=H.r.pop();if(typeof e!=='string'){H.u.push(docSnap());capDocHist();applyDocSnap(e);return}H.u.push(snapshot());restoreSnap(e);updUndo()}
 function updUndo(){$('#bUndo').disabled=!H.u.length;$('#bRedo').disabled=!H.r.length}
-const storeKey=()=>'pdfwerkbank:'+S.name+':'+(S.bytes?S.bytes.length:0);
+const storeKeyOld=()=>'pdfwerkbank:'+S.name+':'+(S.bytes?S.bytes.length:0);
+// Recovery key = name + length + content fingerprint (S.fp, computed once per opened document), so equal-named equal-sized files stay apart
+const storeKey=()=>storeKeyOld()+(S.fp?':'+S.fp:'');
+async function docFp(b){try{const n=Math.min(4096,b.length),m=new Uint8Array(2*n+8);m.set(b.subarray(0,n),0);m.set(b.subarray(b.length-n),n);new DataView(m.buffer).setFloat64(2*n,b.length);const h=new Uint8Array(await crypto.subtle.digest('SHA-256',m));return Array.from(h.subarray(0,10),x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return''}}
+// Old-key data is adopted by the fingerprint key only if that is still empty; the old entry goes away after the copy was read back
+function storeAdopt(){if(!S.fp)return;try{const o=storeKeyOld(),n=storeKey();for(const suf of['',':notes',':tasks']){const v=localStorage.getItem(o+suf);if(v!=null&&localStorage.getItem(n+suf)==null){localStorage.setItem(n+suf,v);if(localStorage.getItem(n+suf)===v)localStorage.removeItem(o+suf)}}
+  const I=JSON.parse(localStorage.getItem('pdfwerkbank:cardsdue')||'{}');if(I&&I[o]&&!I[n]){I[n]=I[o];localStorage.setItem('pdfwerkbank:cardsdue',JSON.stringify(I));delete I[o];localStorage.setItem('pdfwerkbank:cardsdue',JSON.stringify(I))}}catch(e){}}
 let saveT=0;
 function markDirty(){try{spvDocChanged()}catch(e){}try{rdBar()}catch(e){}try{if(FD.open&&FD.q)findSoon(true)}catch(e){}S.dirty=true;S.rev=(S.rev||0)+1;refreshThumbs();scheduleAutoSave();setSaveState();clearTimeout(saveT);saveT=setTimeout(()=>{if(S.sample||crNoStore())return;try{localStorage.setItem(storeKey(),snapshot())}catch(e){}},400)}
 
@@ -4787,11 +4793,13 @@ async function openPdf(bytes,name,opt={}){
       const ob=new Uint8Array(ac);const d2=await pdfOpen(ob.slice());
       pdfClose(doc);doc=d2;bytes=ob;imgsLoad(data.imgs);opt={...opt,form:data.form&&typeof data.form==='object'?data.form:null,objs:sanPages(data.objs,d2.numPages),notes:typeof data.notes==='string'?data.notes.slice(0,5e7):'',tasks:Array.isArray(data.tasks)?data.tasks.slice(0,1e5):[],cards:lkSan(data.cards)};fromLayr=true;dbg('Layr-Anhang geladen: '+opt.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
   catch(e){dbg('Anhang nicht lesbar: '+e)}}
-  if(S.doc)pdfClose(S.doc);renderGen++;S.doc=doc;S.bytes=bytes;S.crypt=crypt;crBadge();if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
+  const fp=await docFp(bytes);
+  if(S.doc)pdfClose(S.doc);renderGen++;S.doc=doc;S.bytes=bytes;S.fp=fp;S.crypt=crypt;crBadge();if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
   S.cards=opt.cards!==undefined?(opt.cards?lkSan(opt.cards):null):(opt.keepHist?S.cards:null);
   S.pages=[];for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});S.pages.push({w:vp.width,h:vp.height,objs:[]})}
   if(opt.keep)opt.keep.forEach((k,i)=>k&&S.pages[i]&&(S.pages[i].keep=k));
   $('#fname').textContent=name;$('#fname').title=name+' · '+tr('Klicken zum Umbenennen (F2)');editingObj=null;
+  if(!opt.isNew&&!opt.sample&&!opt.objs&&!crNoStore())storeAdopt();
   {let nv='';if(opt.notes!=null)nv=opt.notes;else if(opt.keepHist)nv=S.notes||'';else if(!opt.isNew&&!opt.sample){try{nv=localStorage.getItem(storeKey()+':notes')||''}catch(e){}}notesSet(nv);let tv=[];if(opt.tasks!=null)tv=opt.tasks;else if(opt.keepHist)tv=S.tasks||[];else if(!opt.isNew&&!opt.sample){try{tv=JSON.parse(localStorage.getItem(storeKey()+':tasks')||'[]')}catch(e){}}tasksSet(tv);tasksMigrate()}
   if(opt.objs)sanPages(opt.objs,S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));
   else{try{const js=localStorage.getItem(storeKey());if(js&&js.length<64e6){sanPages(JSON.parse(js),S.pages.length).forEach((o,i)=>S.pages[i]&&(S.pages[i].objs=o));toast('Deine letzten Beschriftungen zu dieser Datei sind wiederhergestellt.')}}catch(e){}}

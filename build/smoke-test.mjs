@@ -695,6 +695,16 @@ else {
   ok('Ruler handle drag rotates around the centre (centre fixed, angle follows the pointer, Shift snaps to 15 degrees)',
     rd1.drift < 0.6 && Math.abs(rd1.a - rd1.want) < 0.01 && rd2.drift < 0.6 && Math.abs(rd2.a / (Math.PI / 12) - Math.round(rd2.a / (Math.PI / 12))) < 1e-6, { rd1, rd2 });
   await ev("toggleRuler(false)");
+  // Recovery store: equal name + size but different content must not share annotations; old-key data is adopted by the fingerprint key
+  const rk = await ev("(async()=>{window.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push(String(e.reason)));const w=ms=>new Promise(r=>setTimeout(r,ms)),mk=async t=>{const d=await PDFLib.PDFDocument.create();d.setTitle(t);d.setCreationDate(new Date(0));d.setModificationDate(new Date(0));d.setProducer('p');d.setCreator('c');d.addPage([300,300]);return await d.save({useObjectStreams:false})};"
+    + "const A=await mk('AAAAAAAA'),B=await mk('BBBBBBBB'),sameSize=A.length===B.length,differ=A.some((x,i)=>x!==B[i]);const obj=()=>({type:'text',x:40,y:40,text:'Rec',fs:20,color:'#000000',lw:0,orient:'h'});const n=()=>S.pages[0].objs.length;"
+    + "await openPdf(A.slice(),'same.pdf');await w(300);S.pages[0].objs.push(obj());markDirty();await w(700);await openPdf(B.slice(),'same.pdf');await w(300);const nB=n();await openPdf(A.slice(),'same.pdf');await w(300);const nA=n();"
+    + "const C=await mk('CCCCCCCC');await openPdf(C.slice(),'old.pdf');await w(300);S.pages[0].objs.push(obj());const snap=snapshot();const nk=storeKey(),ok0=storeKeyOld();[nk,nk+':notes',nk+':tasks'].forEach(k=>localStorage.removeItem(k));localStorage.setItem(ok0,snap);localStorage.setItem(ok0+':notes','old note');"
+    + "await openPdf(C.slice(),'old.pdf');await w(300);const old={n:n(),moved:localStorage.getItem(nk)!=null&&localStorage.getItem(ok0)===null,note:S.notes==='old note',noteMoved:localStorage.getItem(nk+':notes')==='old note'&&localStorage.getItem(ok0+':notes')===null,key:/:[0-9a-f]{20}$/.test(nk)};"
+    + "return JSON.stringify({sameSize,differ,nA,nB,old,errs:__errs})})()", 60000);
+  const rkj = JSON.parse(rk || '{}');
+  ok('Recovery store: same name and size but different content do not share annotations; old-key data is adopted and the old key removed; no errors',
+    rkj.sameSize && rkj.differ && rkj.nA === 1 && rkj.nB === 0 && rkj.old && rkj.old.n === 1 && rkj.old.moved && rkj.old.note && rkj.old.noteMoved && rkj.old.key && rkj.errs.length === 0, rkj);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
