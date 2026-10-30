@@ -1478,6 +1478,52 @@ else {
       ok('Reihenfolge: Kontextmenü "Ganz nach vorne" wirkt', !!br && o2 === 'z2', { br: !!br, o2 });
     }
   }
+  // 8 Tab / Shift+Tab steps through the objects of the page (reading order), announced via aria-live; Esc leaves; setting switches it off
+  {
+    await open310("S.pages[0].objs.push({type:'rect',x:300,y:100,w:90,h:50,color:'#000000',lw:1,fill:'white',oid:'tA'},{type:'rect',x:100,y:100,w:90,h:50,color:'#000000',lw:1,fill:'white',oid:'tB'},{type:'rect',x:100,y:300,w:90,h:50,color:'#000000',lw:1,fill:'white',oid:'tC'},{type:'rect',x:300,y:300,w:90,h:50,color:'#000000',lw:1,fill:'white',oid:'tD'})");
+    const cur = () => ev("JSON.stringify(selItems().map(o=>o.oid))").then(JSON.parse);
+    const live = () => ev("document.getElementById('selLive').textContent");
+    // focus sits on a sidebar button before the click: the click on the page takes the keyboard over
+    await ev("document.getElementById('bDup').focus()");
+    await click310([345, 125]);
+    ok('Tab: Klick auf die Seite mit dem Auswahlwerkzeug nimmt den Fokus aus der Oberfläche', await ev("document.activeElement===document.body||document.activeElement===document.getElementById('viewer')") === true);
+    await key310('Tab', 'Tab', 9);
+    let c = await cur(), l = await live();
+    ok('Tab wählt das nächste Objekt in Leseordnung (oben links nach unten rechts), Ansage per aria-live', c.join() === 'tC' && l === 'Objekt 3 von 4: Rechteck', { c, l });
+    await key310('Tab', 'Tab', 9); await key310('Tab', 'Tab', 9);
+    c = await cur();
+    ok('Tab: nach dem letzten Objekt geht es zum ersten (Umlauf)', c.join() === 'tB', c);
+    await key310('Tab', 'Tab', 9, 8);
+    c = await cur();
+    ok('Umschalt+Tab wählt das vorige Objekt (zurück zum letzten)', c.join() === 'tD', c);
+    // Esc deselects, then Tab moves through the interface again
+    await key310('Escape', 'Escape', 27);
+    const afterEsc = await ev("!S.sel");
+    await key310('Tab', 'Tab', 9);
+    const f = await ev("JSON.stringify([!S.sel,document.activeElement.tagName,document.activeElement===document.body])").then(JSON.parse);
+    ok('Esc hebt die Auswahl auf, danach wandert Tab wieder durch die Oberfläche (keine Tastaturfalle)', afterEsc === true && f[0] === true && f[2] === false, f);
+    // a user group is one stop
+    await ev("['tC','tD'].forEach(i=>S.pages[0].objs.find(o=>o.oid===i).gg='gt');setSel(null)");
+    await click310([450, 700]); await click310([345, 125]);
+    await key310('Tab', 'Tab', 9);
+    c = await cur(); l = await live();
+    ok('Tab: eine Gruppe ist ein Halt (Objekt 3 von 3: Gruppe aus 2 Objekten)', c.length === 2 && l === 'Objekt 3 von 3: Gruppe aus 2 Objekten', { c, l });
+    // English announcement
+    await ev("LANG='en'"); await key310('Tab', 'Tab', 9); await key310('Tab', 'Tab', 9); const le = await live(); await ev("LANG='de'");
+    ok('Tab: englische Ansage', /^Object \d of 3: /.test(le), le);
+    // setting off (via the Settings menu): Tab does not change the selection
+    const clickEl = async (sel) => { const r = await ev(`(()=>{const b=document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(200); };
+    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); await ev('closeMenu()'); return r[2]; };
+    const was = await menu('Tab wechselt zwischen Objekten');
+    await click310([450, 700]); await click310([345, 125]);
+    const before = await cur();
+    await ev('document.activeElement.blur()');
+    await key310('Tab', 'Tab', 9);
+    const after = await cur(), fo = await ev("document.activeElement.id");
+    ok('Tab: Einstellung "Tab wechselt zwischen Objekten" (Standard an) aus: Auswahl bleibt, Tab geht in die Objektleiste', was === 'true' && before.join() === 'tA' && after.join() === 'tA' && fo === 'obDup' && await ev("tabObjOn===false&&localStorage.getItem('pdfwerkbank:tabObj')==='0'") === true, { was, before, after, fo });
+    await sleep(500); await menu('Tab wechselt zwischen Objekten');
+    ok('Tab: Einstellung wieder an', await ev("tabObjOn===true") === true);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

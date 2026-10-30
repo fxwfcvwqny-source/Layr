@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-5mr1uXmIolh1sAq4txLPBsJxZdou9vRUvN+IxtesxNk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/1yR9deylba6GrgSJ3lH1ebTPa3N2piyJDac2m6JOmU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2654,6 +2654,7 @@ const I18N_EN={
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 // 3.10 Auswahlwerkzeug
 ' Objekte gewählt':' objects selected',
+'Tab wechselt zwischen Objekten':'Tab switches between objects','Tab und Umschalt+Tab wählen das nächste oder vorige Objekt der Seite (Esc: wieder durch die Oberfläche tabben)':'Tab and Shift+Tab select the next or previous object on the page (Esc: tab through the interface again)',
 'Eine Ebene nach vorne (Strg+])':'Bring forward (Ctrl+])','Eine Ebene nach hinten (Strg+[)':'Send backward (Ctrl+[)','Ganz nach vorne (Strg+Umschalt+])':'Bring to front (Ctrl+Shift+])','Ganz nach hinten (Strg+Umschalt+[)':'Send to back (Ctrl+Shift+[)',
 'Umschalt-Klick wählt mehrere Objekte, Strg+G gruppiert, Alt-Klick wählt ein Teil einer Gruppe, Tab springt zum nächsten Objekt. Beim Ziehen einer Ecke: Umschalt schaltet das Seitenverhältnis um (Bilder bleiben sonst proportional), Alt skaliert von der Mitte aus.':'Shift-click selects several objects, Ctrl+G groups, Alt-click selects one part of a group, Tab jumps to the next object. When dragging a corner: Shift toggles the aspect ratio (images stay proportional otherwise), Alt resizes from the centre.',
 'Objektleiste':'Object bar','Duplizieren':'Duplicate','Duplizieren (Strg+D)':'Duplicate (Ctrl+D)','Löschen (Entf)':'Delete (Del)','Sperren':'Lock','Nach vorne':'Bring to front','Nach hinten':'Send to back','Objektleiste am gewählten Objekt':'Object bar at the selected object','Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten':'Small bar above the object: duplicate, delete, lock, colour, order, align',
@@ -4225,6 +4226,28 @@ obBar.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.s
 // F6 moves focus into the bar (Tab is used for stepping through objects)
 addEventListener('keydown',e=>{if(e.key!=='F6'||obBar.hidden)return;e.preventDefault();$('#obDup').focus()},true);
 
+/* ---------- 3.10: Tab / Umschalt+Tab wählt das nächste / vorige Objekt der Seite ----------
+   Active after a click on a page with the select tool (obNav = that page) until focus goes to other UI or Esc is pressed (no keyboard trap).
+   Order: reading order (top to bottom, then left to right); a template or user group is one stop. */
+var tabObjOn=true;try{tabObjOn=localStorage.getItem('pdfwerkbank:tabObj')!=='0'}catch(e){}
+var obNav=-1;
+function tabUnits(P){const m=new Map(),U=[];for(const o of P.objs){if(o.type==='deco'||(o.locked&&lockPassOn))continue;const k=o.gg||(tplGroupOn&&o.gid)||null;if(!k){U.push([o]);continue}let u=m.get(k);if(!u){u=[];m.set(k,u);U.push(u)}u.push(o)}
+  const K=U.map(u=>{const b=bbox({type:'group',items:u});return{u,x:b.x,y:b.y}});K.sort((a,b)=>a.y-b.y||a.x-b.x);return K.map(q=>q.u)}
+const OBJ_NAMES={rect:['Rechteck','Rectangle'],ellipse:['Ellipse','Ellipse'],line:['Linie','Line'],pen:['Zeichnung','Drawing'],text:['Textfeld','Text box'],image:['Bild','Image'],table:['Tabelle','Table'],sym:['Symbol','Symbol'],field:['Formularfeld','Form field'],measure:['Messlinie','Measurement'],hl:['Markierung','Highlight'],redact:['Schwärzung','Redaction']};
+function objName(u){if(u.length>1)return LANG==='en'?`Group of ${u.length} objects`:`Gruppe aus ${u.length} Objekten`;const o=u[0],n=OBJ_NAMES[o.type]||['Objekt','Object'];let t=LANG==='en'?n[1]:n[0];if(o.type==='sym'&&o.label)t+=' '+String(o.label).split('\n')[0].slice(0,40);return t}
+function tabStepObj(dir){const P=S.pages[S.sel?S.sel.p:obNav];if(!P)return false;const U=tabUnits(P);if(!U.length)return false;
+  const first=S.sel?selItems()[0]:null;let k=first?U.findIndex(u=>u.includes(first)):-1;
+  k=k<0?(dir>0?0:U.length-1):(k+dir+U.length)%U.length;const p=S.pages.indexOf(P);selectItems(p,U[k]);if(!S.sel)return false;
+  const b=bbox(S.sel.o),r=P.ink.getBoundingClientRect(),vr=viewer.getBoundingClientRect(),z=S.zoom,top=r.top+b.y*z,bot=top+b.h*z;
+  if(top<vr.top+40)viewer.scrollTop-=vr.top+40-top;else if(bot>vr.bottom-20)viewer.scrollTop+=bot-vr.bottom+20;
+  const n=U.length,nm=objName(U[k]);$('#selLive').textContent=LANG==='en'?`Object ${k+1} of ${n}: ${nm}`:`Objekt ${k+1} von ${n}: ${nm}`;return true}
+document.addEventListener('focusin',e=>{if(!viewer.contains(e.target)&&!obBar.contains(e.target))obNav=-1});
+addEventListener('keydown',e=>{if(e.key!=='Tab'||e.ctrlKey||e.altKey||e.metaKey||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||document.querySelector('.modal:not([hidden])'))return;
+  const a=document.activeElement;if(a&&a!==document.body&&a!==viewer)return; // focus is in other UI: Tab works as usual
+  if(!tabObjOn){if(!e.shiftKey&&S.sel&&!obBar.hidden){e.preventDefault();$('#obDup').focus()}return}
+  if(obNav<0||!S.pages[S.sel?S.sel.p:obNav])return;
+  if(tabStepObj(e.shiftKey?-1:1)){e.preventDefault();e.stopPropagation()}},true);
+
 /* ---------- Lineal ---------- */
 const ruler=$('#ruler'),rcv=$('#rulerCv'),wrap=$('#wrap');
 const R={x:60,y:120,a:0,cm:20,H:58};let rulerOn=false;
@@ -4444,6 +4467,7 @@ function attachInk(P,i){
     if(editorEl){const hb=H.n;closeEditor();if(DBLH)DBLH.n+=H.n-hb; // an edit saved by closing is not an artefact of this click
       if(S.tool==='text'){e.preventDefault();const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tl));if(o&&!nearBorder(o,x,y,tl))editText(i,o,[e.clientX,e.clientY]);return}}
     try{ink.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault();getSelection().removeAllRanges();
+    obNav=S.tool==='select'||S.tool==='lasso'?i:-1;if(obNav>=0&&tabObjOn){const a=document.activeElement;if(a&&a!==document.body&&a!==viewer&&!obBar.contains(a))a.blur()} // Tab then steps through the objects of this page
     const snap=['pen','marker','line','arrow'].includes(S.tool)?rulerSnapStart(e.clientX,e.clientY):null;
     const sp=snap?snapPt(snap,e.clientX,e.clientY):[e.clientX,e.clientY];
     const [x,y]=toPt(...sp);const tol=6/S.zoom;st={x,y,snap,moved:false};
@@ -6895,7 +6919,7 @@ addEventListener('keydown',e=>{
   else if(mod&&k==='-'){e.preventDefault();zoomTo(S.zoom/1.2)}
   else if(mod)return;
   else if(k==='delete'||k==='backspace'){if(S.sel){e.preventDefault();delSel()}}
-  else if(k==='escape'){if(FD.open&&!S.sel)closeFind();setSel(null);S.pages.forEach(P=>{if(P.ink)P.ink.style.pointerEvents=''});if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(S.tool!=='select')setTool('select')}
+  else if(k==='escape'){obNav=-1;if(FD.open&&!S.sel)closeFind();setSel(null);S.pages.forEach(P=>{if(P.ink)P.ink.style.pointerEvents=''});if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(S.tool!=='select')setTool('select')}
   else if(k==='u')toggleRuler();
   else if(S.sel&&e.key.startsWith('Arrow')){e.preventDefault();if(S.sel.o.locked)return;pushHist();const d=e.shiftKey?10:1;moveObj(S.sel.o,k==='arrowleft'?-d:k==='arrowright'?d:0,k==='arrowup'?-d:k==='arrowdown'?d:0);redraw(S.sel.p);markDirty()}
   else if(k==='n'&&!e.altKey&&!e.shiftKey)notesOpen();
@@ -7367,6 +7391,7 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
   {ic:'tools',t:'Doppelklick bearbeitet in allen Werkzeugen',d:'Auch mit Symbol-, Form-, Linien- oder Textwerkzeug: Doppelklick auf ein Objekt bearbeitet es (aus: nur mit Auswahl)',get:()=>dblAllOn,run:()=>{dblAllOn=!dblAllOn;try{localStorage.setItem('pdfwerkbank:dblAll',dblAllOn?'1':'0')}catch(e){}}},
   {ic:'guides',t:'Hilfslinien beim Verschieben',d:'Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)',get:()=>GD.on,run:()=>{GD.on=!GD.on;gdSave()}},
   {ic:'tools',t:'Objektleiste am gewählten Objekt',d:'Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten',get:()=>obBarOn,run:()=>{obBarOn=!obBarOn;try{localStorage.setItem('pdfwerkbank:objBar',obBarOn?'1':'0')}catch(e){}obSoon()}},
+  {ic:'tools',t:'Tab wechselt zwischen Objekten',d:'Tab und Umschalt+Tab wählen das nächste oder vorige Objekt der Seite (Esc: wieder durch die Oberfläche tabben)',get:()=>tabObjOn,run:()=>{tabObjOn=!tabObjOn;try{localStorage.setItem('pdfwerkbank:tabObj',tabObjOn?'1':'0')}catch(e){}}},
   {ic:'tools',t:'Auswahl nach dem Setzen',d:'Neue Objekte bleiben ausgewählt',get:()=>keepSelOn,run:()=>{keepSelOn=!keepSelOn;try{localStorage.setItem('pdfwerkbank:keepSel',keepSelOn?'1':'0')}catch(e){}}},
   {ic:'lock',t:'Gesperrte Objekte: Klicks gehen durch',d:'Klicks auf gesperrte Objekte wirken auf das darunter',get:()=>lockPassOn,run:()=>{lockPassOn=!lockPassOn;try{localStorage.setItem('pdfwerkbank:lockPass',lockPassOn?'1':'0')}catch(e){}redrawAll()}},
   {sep:1,hidden:$('#bInfo').hidden},
