@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-kyG4hEqDvU153QMifP8wTB3HiuqguyK+pKbB4wsDUog=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lVPiITiqlxssOJd60tKx/mBl7KcsKyS5HXey1N/aYCQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3362,6 +3362,14 @@ const TOPO_TPL=(()=>{
     for(let i=0;i<5;i++)for(let j=i+1;j<5;j++)M.ln(N[i],N[j]);return M.o}},
   ]})();
 NET_TPL.push(...TOPO_TPL);
+// Rows grow downward when a cell's wrapped text needs more room (applied when a cell edit is committed, so old tables render unchanged)
+function tblFit(o){const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;
+  for(let r=0;r<o.rows;r++){let h=Y[r+1]-Y[r];for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;
+    mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;const n=wrapLines(mctx,t,Math.max(10,X[k+1]-X[k]-8)).length;if(n>1&&n*lh+4>h){h=n*lh+4;grew=true}}H.push(h)}
+  if(!grew)return false;const tot=H.reduce((q,v)=>q+v,0);o.h=tot;o.rh=H.map(v=>v/tot);return true}
+const editCell0=editCell;
+editCell=function(i,o,r,k){const prev=(o.cells[r]&&o.cells[r][k])||'';editCell0(i,o,r,k);const d=editorDone;
+  if(d)editorDone=v=>{d(v);if(v!==prev&&tblFit(o)){redraw(i);markDirty()}}};
 
 /* ---------- Objekte zeichnen ---------- */
 const mctx=document.createElement('canvas').getContext('2d');

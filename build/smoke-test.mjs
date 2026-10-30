@@ -662,6 +662,13 @@ else {
   await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: mtp[0], y: mtp[1], button: 'left', buttons: 1, clickCount: 2 }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: mtp[0], y: mtp[1], button: 'left', buttons: 0, clickCount: 2 }); await sleep(300);
   ok('Merged text box opens the editor on double-click', await ev("!!editorEl&&!!editingObj&&editingObj.type==='text'&&editingObj.text==='Merge Hallo'") === true);
   await ev('closeEditor()');
+  // Tables grow downward when a committed cell text needs more rows; empty/short cells keep the old height; Undo restores
+  const tg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),P=S.pages[0];P.objs.length=0;H.u.length=0;const o={type:'table',x:60,y:100,w:240,h:90,rows:3,cols:2,cw:[.5,.5],rh:[1/3,1/3,1/3],cells:[['a','b'],['',''],['','']],fs:11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.push(o);redraw(0);"
+    + "const rows=()=>o.rh.map(f=>f*o.h),h0=o.h,r0=rows();const cm=t=>{editCell(0,o,1,0);const d=editorDone;editorDone=null;closeEditor();d(t)};cm('short');const shortSame=Math.abs(o.h-h0)<1e-6;"
+    + "cm('This is a rather long text that cannot fit into one line of this narrow cell at all '.repeat(3));await w(100);const r1=rows(),grown=o.h>h0+10&&r1[1]>r0[1]+10&&Math.abs(r1[0]-r0[0])<1e-6&&Math.abs(r1[2]-r0[2])<1e-6&&Math.abs(o.y-100)<1e-6;"
+    + "undo();await w(100);const back=Math.abs(o.h-h0)<1e-6||(P.objs[0]&&Math.abs(P.objs[0].h-h0)<1e-6);return JSON.stringify({shortSame,grown,back,h0,h1:o.h})})()");
+  const tgj = JSON.parse(tg || '{}');
+  ok('Table rows grow with long cell text, short text keeps the height, Undo restores', tgj.shortSame === true && tgj.grown === true && tgj.back === true, tgj);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
