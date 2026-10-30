@@ -1626,6 +1626,16 @@ else {
     }
     await ev("tplGroupOn=true");
   }
+  // 11 Crop mode and document switch / foreign history entries
+  {
+    const IMG = "const cv=document.createElement('canvas');cv.width=200;cv.height=100;cv.getContext('2d').fillRect(0,0,200,100);const src=cv.toDataURL('image/png');const id=imgId(src);S.imgs[id]=src;const im=imgEl(id);await im.decode();S.pages[0].objs.push({type:'image',x:100,y:100,w:200,h:100,img:id,lw:0,color:'#000000'})";
+    await open310(IMG);
+    const r = await ev("(async()=>{const o=S.pages[0].objs[0];setSel({p:0,o});cropStart(0,o);cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;pushHist();CRP.hu=H.u.length;const had=!!CRP;const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'other.pdf');await new Promise(r=>setTimeout(r,400));const hu=H.u.length;S.pages[0].objs.push({type:'rect',x:1,y:1,w:5,h:5,color:'#000000',lw:1});pushHist();const h1=H.u.length;document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return JSON.stringify([had,!!CRP,h1,H.u.length])})()", 20000).then(JSON.parse);
+    ok('Zuschnitt: Dokumentwechsel beendet den Zuschnitt, Esc nimmt keinen Verlaufseintrag des anderen Dokuments', r[0] === true && r[1] === false && r[3] === r[2], r);
+    await open310(IMG);
+    const r2 = await ev("(()=>{const o=S.pages[0].objs[0];setSel({p:0,o});cropStart(0,o);pushHist();cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;CRP.hu=H.u.length;pushHist();const h=H.u.length;cropEnd(false);return JSON.stringify([h,H.u.length,o.x])})()").then(JSON.parse);
+    ok('Zuschnitt: Abbrechen entfernt keinen fremden Verlaufseintrag (zwischendurch gesetzt), stellt aber den Kasten wieder her', r2[0] === r2[1] && r2[2] === 100, r2);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
