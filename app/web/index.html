@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HpVlVmjc3rO3/eCUaFzkAHlJNf5126vmO2ID/zqV7Yw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-EDdta8uaJOlwmQ6ylHwZwa/kDb+1xJDJ9Iw+H82pyj0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2446,7 +2446,7 @@ const I18N_EN={
 'Sonderzeichen':'Special characters','Sonderzeichen (Strg+Umschalt+K)':'Special characters (Ctrl+Shift+K)','Seitenwahl':'Page selector','Unten schwebend':'Floating at the bottom','In der Seitenvorschau':'In the page preview','Vorherige Seite':'Previous page','Nächste Seite':'Next page','Seitenzahl, Zahl eingeben und Enter drücken':'Page number, type a number and press Enter','Zu Seite springen (Strg+Alt+G)':'Jump to page (Ctrl+Alt+G)','Zu Seite springen (Seitenwahl)':'Jump to page (page selector)',
 'Feld „Seite 3 / 12“: Zahl eintippen und Enter springt zur Seite. Schwebend unten in der Mitte oder oben in der Seitenvorschau (ist die Vorschau zu, schwebt es). Bei „Aus“ bleibt nur die kleine Anzeige unten links.':'The “Page 3 / 12” field: type a number and press Enter to jump to that page. Floating at the bottom centre or at the top of the page preview (floats when the preview is closed). With “Off” only the small display at the bottom left stays.','Die Seitenwahl ist in den Design-Einstellungen ausgeschaltet.':'The page selector is switched off in the design settings.',
 'Verschiebe-Pfeile an der Seitenvorschau':'Move arrows at the page preview','Pfeile zeigen':'Show arrows','Seiten in der Vorschau verschiebst du durch Ziehen, mit Alt+↑/↓ oder im Rechtsklick-Menü. „Pfeile zeigen“ blendet zusätzlich zwei Knöpfe über der Liste ein.':'Move pages in the preview by dragging, with Alt+↑/↓ or in the right-click menu. “Show arrows” adds two buttons above the list.',
-'Seite nach oben verschieben':'Move page up','Seite nach unten verschieben':'Move page down','Seite am Ende hinzufügen':'Add page at the end','Leere Seite hier einfügen':'Insert blank page here','Leere Seite (Größe der letzten Seite)':'Blank page (size of the last page)','Leere A4-Seite':'Blank A4 page','Letzte Seite duplizieren':'Duplicate last page','Seite hinzufügen':'Add page',
+'Seite nach oben verschieben':'Move page up','Seite nach unten verschieben':'Move page down','Seite am Ende hinzufügen':'Add page at the end','Leere Seite hier einfügen':'Insert blank page here','Leere Seite (Größe der letzten Seite)':'Blank page (size of the last page)','Leere A4-Seite':'Blank A4 page','Letzte Seite duplizieren':'Duplicate last page','Seite hinzufügen':'Add page','Lesezeichen gehen beim Umsortieren verloren.':'Bookmarks are lost when pages are reordered.',
 'Schreiben':'Writing','Satzanfang groß':'Capitalize sentences','Aus':'Off',
 'Autokorrektur für Zeichen (→, –, …)':'Autocorrect for characters (→, –, …)','Zeichen ersetzen':'Replace characters',
 'Beim Tippen werden ersetzt: -> zu →, <- zu ←, <-> zu ↔, => zu ⇒, -- (zwischen Leerzeichen) zu –, ... zu …, (c) zu ©, (r) zu ®, (tm) zu ™, +- zu ±, != zu ≠. Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück. Nicht in Codeblöcken, Adress- und Rechnerfeldern. Sonderzeichen-Auswahl: Strg+Umschalt+K.':'While typing these are replaced: -> to →, <- to ←, <-> to ↔, => to ⇒, -- (between spaces) to –, ... to …, (c) to ©, (r) to ®, (tm) to ™, +- to ±, != to ≠. Backspace or Ctrl+Z right after brings back the typed characters. Not in code blocks, address and calculator fields. Special character picker: Ctrl+Shift+K.',
@@ -7106,13 +7106,13 @@ async function rebuildPages(entries,msg,focus){
   else if(focus!=null){scrollToPage(focus);const P=S.pages[focus];if(P&&P.el)popEl(P.el)}if(msg)toast(msg);return true;
   }finally{rbBusy=false}
 }
-let thumbsOn=false,thumbGen=0,thT=0,thArrows=false;try{thArrows=localStorage.getItem('pdfwerkbank:tharrows')==='1'}catch(e){}
+let thumbsOn=false,thumbGen=0,thT=0,thIO=null,thArrows=false;try{thArrows=localStorage.getItem('pdfwerkbank:tharrows')==='1'}catch(e){}
 function toggleThumbs(on){const was=thumbsOn;thumbsOn=on==null?!thumbsOn:on;if(was!==thumbsOn)barAnim('thumbs',$('#thumbs'),h=>$('#app').classList.toggle('show-thumbs',!h),!thumbsOn,260);$('#bThumbs').setAttribute('aria-pressed',thumbsOn);try{localStorage.setItem('pdfwerkbank:thumbs',thumbsOn?'1':'0')}catch(e){}placePager();if(thumbsOn)buildThumbs()}
 $('#bThumbs').onclick=()=>toggleThumbs();
 async function buildThumbs(){
   TM.order=null;TM.sel=null;
   const el=$('#thumbs');if(!thumbsOn||!S.doc){S.pages.forEach(P=>delete P.keep);return}const g=++thumbGen;el.innerHTML='';
-  placePager();
+  placePager();if(thIO)thIO.disconnect();
   if(thArrows){const bar=document.createElement('div');bar.className='th-bar';bar.innerHTML=`<button class="ib" aria-label="${tr('Seite nach oben verschieben')}" title="${tr('Seite nach oben verschieben')} (Alt+↑)">${PH('arrow-up')}</button><button class="ib" aria-label="${tr('Seite nach unten verschieben')}" title="${tr('Seite nach unten verschieben')} (Alt+↓)">${PH('arrow-down')}</button>`;
   const[up,dn]=bar.querySelectorAll('button');up.onclick=()=>thMove(-1);dn.onclick=()=>thMove(1);bar.addEventListener('mousedown',e=>e.preventDefault());el.appendChild(bar)}
   const ins=document.createElement('div');ins.className='th-ins';ins.hidden=true;ins.innerHTML=`<button type="button" aria-label="${tr('Leere Seite hier einfügen')}" title="${tr('Leere Seite hier einfügen')}">${PH('plus')}</button>`;ins.firstChild.onclick=()=>thInsert(+ins.dataset.at);el.appendChild(ins);
@@ -7131,7 +7131,7 @@ async function buildThumbs(){
     const base=document.createElement('canvas');base.width=P.thumb.width;base.height=P.thumb.height;
     try{await page.render({canvasContext:base.getContext('2d'),viewport:vp}).promise}catch(e){}
     if(g!==thumbGen)return;P.thumbBase=base;drawThumb(i)}}finally{busy=false}};
-  const io=new IntersectionObserver(es=>{if(g!==thumbGen){io.disconnect();return}for(const e of es)if(e.isIntersecting){todo.add(+e.target.dataset.i);io.unobserve(e.target)}run()},{root:el,rootMargin:'400px 0px'});
+  const io=thIO=new IntersectionObserver(es=>{if(g!==thumbGen){io.disconnect();return}for(const e of es)if(e.isIntersecting){todo.add(+e.target.dataset.i);io.unobserve(e.target)}run()},{root:el,rootMargin:'400px 0px'});
   el.querySelectorAll('.th').forEach(b=>{if(S.pages[+b.dataset.i].thumbBase)pend.delete(+b.dataset.i);else io.observe(b)});
 }
 // Seite einfügen: vor Position `at` (0..n), Größe wie die Nachbarseite
@@ -7157,7 +7157,9 @@ $('#thumbs').addEventListener('pointermove',e=>{const d=THD;if(!d||e.pointerId!=
 function thAutoScroll(){thAuto=0;const d=THD;if(!d||!d.on)return;const box=$('#thumbs'),r=box.getBoundingClientRect(),dir=d.y<r.top+44?-1:d.y>r.bottom-44?1:0;if(!dir)return;box.scrollTop+=dir*12;d.at=thDropAt(d.y);thDropLine(d.at);thAuto=requestAnimationFrame(thAutoScroll)}
 function thDragUp(e){const d=THD;if(!d||e.pointerId!==d.id)return;const on=d.on,at=d.at,i=d.i;thDragStop();
   if(!on||e.type==='pointercancel'||at==null)return;const n=S.pages.length,o=idx(n);if(at===i||at===i+1)return;const to=at>i?at-1:at;o.splice(i,1);o.splice(to,0,i);
-  TM.order=o;TM.sel=i;TM.b0=S.bytes;thCommit()}
+  // rebuilding the pages drops bookmarks (pdf-lib has no API for them): tell the user once the new order is in place
+  const ol=S.doc&&S.doc.getOutline?S.doc.getOutline().then(a=>!!(a&&a.length),()=>false):Promise.resolve(false);
+  TM.order=o;TM.sel=i;TM.b0=S.bytes;thCommit().then(()=>ol).then(has=>{if(has)toast(tr('Lesezeichen gehen beim Umsortieren verloren.'))})}
 $('#thumbs').addEventListener('pointerup',thDragUp);$('#thumbs').addEventListener('pointercancel',thDragUp);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&THD&&THD.on){e.preventDefault();e.stopImmediatePropagation();thDragStop()}},true);
 // Seiten in der Seitenleiste nur in der Ansicht verschieben; nach einer kurzen Pause wird der Stand als ein Schritt übernommen

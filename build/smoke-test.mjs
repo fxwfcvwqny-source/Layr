@@ -1454,6 +1454,18 @@ else {
     await ev("document.getElementById('prsView').hidden=true");
     ok('Review 12: Strg+Alt+G fokussiert das Seitenfeld nicht im Präsentationsmodus', prs === true, prs);
   }
+  // Review fix 11: dragging pages in a document with bookmarks warns that bookmarks are lost; thumbnail observer is replaced on rebuild
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();for(let i=0;i<4;i++)d.addPage([595,842]);await openPdf(await d.save(),'ol.pdf');await new Promise(r=>setTimeout(r,600));if(!thumbsOn)toggleThumbs(true);await new Promise(r=>setTimeout(r,900));window.olMsgs=[];const t0=toast;window.__toast0=t0;toast=m=>{olMsgs.push(String(m));return t0(m)};S.doc.getOutline=async()=>[{title:'Kapitel'}];return 1})()", 60000);
+    const t = await ev("(()=>{const e=document.querySelectorAll('#thumbs .th')[0];e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+    const g = await ev("(()=>{const t=document.querySelectorAll('#thumbs .th'),a=t[2].getBoundingClientRect(),b=t[3].getBoundingClientRect();return (a.bottom+b.top)/2})()");
+    await mv(t[0], t[1]); await pressAt(t[0], t[1]); for (let s = 1; s <= 8; s++) await dragTo(t[0], t[1] + (g - t[1]) * s / 8); await releaseAt(t[0], g);
+    let w = false; for (let i = 0; i < 60 && !w; i++) { await sleep(250); w = await ev("olMsgs.some(m=>/Lesezeichen/.test(m))"); }
+    const same = await ev("olMsgs.filter(m=>/Lesezeichen/.test(m)).length");
+    ok('Review 11: Ziehen von Seiten warnt, wenn das Dokument Lesezeichen hat', w === true && same === 1, same);
+    await ev("toast=window.__toast0;S.pages.forEach(P=>P.objs=[])");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

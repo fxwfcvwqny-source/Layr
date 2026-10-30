@@ -30,6 +30,9 @@ Release notes for version 3.9.0.
 
 - Rotated text gets axis-aligned highlight boxes.
 - Text background is not drawn for stacked text.
+- Special characters such as arrows and maths symbols come from a fallback system font if the chosen font lacks them.
+- In Layr versions before 3.10, editing a text box that has partial formatting (`sty`) can leave the formatting at outdated positions.
+- Reordering pages (also by drag in the page preview) still drops bookmarks; Layr warns once per move when the document has some.
 - Bold, italic, underline and highlight can be set for selected words only (stored per text box as `sty` runs). Older Layr versions ignore the runs and show the whole box without per-run style. Stacked text does not use the runs.
 - Old single topology symbols are not editable inside their nodes.
 - In Layr versions before 3.10, a duplicated part of a template keeps its group id, so in 3.10 original and copy form one group; use Alt+Click to select a single part.
