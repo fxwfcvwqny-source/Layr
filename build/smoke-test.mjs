@@ -1436,6 +1436,48 @@ else {
     const img = await ev("(()=>{const mk=()=>({type:'image',x:100,y:100,w:100,h:50,img:'x',color:'#000000',lw:0});const run=(shift,alt)=>{const o=mk(),st={orig:JSON.parse(JSON.stringify(o)),mode:'br'};st.ob=boxOf(st.orig);resizeTo(o,st,260,200,shift,alt);return [o.x,o.y,o.w,o.h]};return JSON.stringify({plain:run(false,false),shift:run(true,false),alt:run(false,true)})})()").then(JSON.parse);
     ok('Größe: Bild bleibt ohne Taste proportional, Umschalt gibt frei, Alt = von der Mitte', near(img.plain[2] / img.plain[3], 2, 0.01) && !near(img.shift[2] / img.shift[3], 2, 0.05) && near(img.alt[0] + img.alt[2] / 2, 150) && near(img.alt[2] / img.alt[3], 2, 0.01), img);
   }
+  // 7 Z-order: Ctrl+] / Ctrl+[ one step, Ctrl+Shift+] / [ to front/back, groups jump as a block, 1 undo step, order persists
+  {
+    await open310("for(const[i,x]of[['z1',60],['z2',180],['z3',300],['z4',420]])S.pages[0].objs.push({type:'rect',x,y:200,w:90,h:60,color:'#000000',lw:1,fill:'white',oid:i})");
+    const ord = () => ev("S.pages[0].objs.map(o=>o.oid).join()");
+    const sel = async (i) => { await click310([450, 700]); await click310([[105, 225, 345, 465][i - 1], 230]); };
+    const step = async (name, k, code, vk, mod, want) => { const h0 = await ev('H.u.length'); await key310(k, code, vk, mod); const got = await ord(), h1 = await ev('H.u.length'); await ev('undo()'); const back = await ord(); await ev('redo()'); return { name, got, ok: got === want && h1 === h0 + 1 && back !== got }; };
+    await sel(2);
+    const r1 = await step('forward', ']', 'BracketRight', 221, 2, 'z1,z3,z2,z4'); 
+    await ev('undo()'); await sel(2);
+    const r2 = await step('backward', '[', 'BracketLeft', 219, 2, 'z2,z1,z3,z4'); await ev('undo()'); await sel(2);
+    const r3 = await step('front', '}', 'BracketRight', 221, 10, 'z1,z3,z4,z2'); await ev('undo()');
+    await ev('undo()'); await sel(2);
+    const r4 = await step('back', '{', 'BracketLeft', 219, 10, 'z2,z1,z3,z4'); await ev('undo()');
+    ok('Reihenfolge: Strg+] / Strg+[ eine Ebene, Strg+Umschalt+] / [ ganz vorn/hinten, je 1 Rückgängig-Schritt', [r1, r2, r3, r4].every(r => r.ok) && await ord() === 'z1,z2,z3,z4', [r1, r2, r3, r4]);
+    // group of z3+z4 is jumped as a block; its members keep their relative order when moved
+    await ev("['z3','z4'].forEach(i=>S.pages[0].objs.find(o=>o.oid===i).gg='gg1');setSel(null)");
+    await sel(2); await key310(']', 'BracketRight', 221, 2);
+    ok('Reihenfolge: eine Ebene nach vorne springt über die ganze Gruppe', await ord() === 'z1,z3,z4,z2', await ord());
+    await click310([450, 700]); await click310([345, 230]);
+    await key310('[', 'BracketLeft', 219, 2);
+    ok('Reihenfolge: eine Gruppe nach hinten behält die Reihenfolge ihrer Mitglieder', await ord() === 'z3,z4,z1,z2', await ord());
+    await key310('}', 'BracketRight', 221, 10);
+    const og = await ord();
+    ok('Reihenfolge: Gruppe ganz nach vorne, Mitglieder in gleicher Reihenfolge', og.endsWith('z3,z4'), og);
+    // persists through save and reopen
+    await click310([450, 700]); await click310([105, 230]); await key310('}', 'BracketRight', 221, 10);
+    const rt = await ev("(async()=>{const before=S.pages[0].objs.map(o=>o.oid).join();const b=await buildOutput();await openPdf(b,'ord.pdf');await new Promise(r=>setTimeout(r,800));return JSON.stringify([before,S.pages[0].objs.map(o=>o.oid).join()])})()", 20000).then(JSON.parse);
+    ok('Reihenfolge: bleibt nach Speichern und Wiederöffnen erhalten', rt[0] === rt[1] && rt[0] === 'z2,z3,z4,z1', rt);
+    // context menu
+    await ev("scroll310();setTool('select');setSel(null)"); await sleep(300);
+    await click310([450, 700]); await click310([225, 230]);
+    {
+      const c = await pt310([225, 230]);
+      await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'right', buttons: 2, clickCount: 1 });
+      await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: c[0], y: c[1], button: 'right', buttons: 0, clickCount: 1 });
+      await sleep(500);
+      const br = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(b=>b.textContent.startsWith('Ganz nach vorne'));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+      if (br) { await mv(br[0], br[1]); await pressAt(br[0], br[1]); await releaseAt(br[0], br[1]); await sleep(250); }
+      const o2 = await ev("S.pages[0].objs[S.pages[0].objs.length-1].oid");
+      ok('Reihenfolge: Kontextmenü "Ganz nach vorne" wirkt', !!br && o2 === 'z2', { br: !!br, o2 });
+    }
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

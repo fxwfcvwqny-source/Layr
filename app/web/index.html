@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-wMcF03oZshFP2a2oNssc/S1Q4KfoA1piLcXw8TUm9F8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-5mr1uXmIolh1sAq4txLPBsJxZdou9vRUvN+IxtesxNk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2654,6 +2654,7 @@ const I18N_EN={
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 // 3.10 Auswahlwerkzeug
 ' Objekte gewählt':' objects selected',
+'Eine Ebene nach vorne (Strg+])':'Bring forward (Ctrl+])','Eine Ebene nach hinten (Strg+[)':'Send backward (Ctrl+[)','Ganz nach vorne (Strg+Umschalt+])':'Bring to front (Ctrl+Shift+])','Ganz nach hinten (Strg+Umschalt+[)':'Send to back (Ctrl+Shift+[)',
 'Umschalt-Klick wählt mehrere Objekte, Strg+G gruppiert, Alt-Klick wählt ein Teil einer Gruppe, Tab springt zum nächsten Objekt. Beim Ziehen einer Ecke: Umschalt schaltet das Seitenverhältnis um (Bilder bleiben sonst proportional), Alt skaliert von der Mitte aus.':'Shift-click selects several objects, Ctrl+G groups, Alt-click selects one part of a group, Tab jumps to the next object. When dragging a corner: Shift toggles the aspect ratio (images stay proportional otherwise), Alt resizes from the centre.',
 'Objektleiste':'Object bar','Duplizieren':'Duplicate','Duplizieren (Strg+D)':'Duplicate (Ctrl+D)','Löschen (Entf)':'Delete (Del)','Sperren':'Lock','Nach vorne':'Bring to front','Nach hinten':'Send to back','Objektleiste am gewählten Objekt':'Object bar at the selected object','Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten':'Small bar above the object: duplicate, delete, lock, colour, order, align',
 'Hilfslinien beim Verschieben':'Guides while moving','Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)':'Guide lines and snapping to edges, centres and margins, also while resizing (Alt: off briefly)',
@@ -4157,6 +4158,12 @@ function pasteClip(){if(!CLIP||!S.pages.length)return;const p=curPage();pushHist
   orgRemap(C);S.pages[p].objs.push(...C);selectItems(p,C);markDirty()}
 function orderSel(front){if(!S.sel)return;pushHist();const P=S.pages[S.sel.p],T=P.objs.filter(o=>selItems().includes(o));P.objs=P.objs.filter(o=>!T.includes(o));if(front)P.objs.push(...T);else P.objs.unshift(...T);redraw(S.sel.p);markDirty()}
 
+// One step forward (dir 1) or backward (dir -1): the selection jumps over the next object, or over a whole other group; array order = z-order, relative order inside the selection stays
+function orderStep(dir){if(!S.sel)return;const P=S.pages[S.sel.p],A=P.objs,sel=new Set(selItems()),key=o=>o.gg||o.gid||null;
+  let u=-1;if(dir>0){for(let k=A.length-1;k>=0&&u<0;k--)if(sel.has(A[k])){for(let j=k+1;j<A.length;j++)if(!sel.has(A[j])){u=j;break}break}}
+  else{for(let k=0;k<A.length&&u<0;k++)if(sel.has(A[k])){for(let j=k-1;j>=0;j--)if(!sel.has(A[j])){u=j;break}break}}
+  if(u<0)return;const kk=key(A[u]);let tgt=u;if(kk)A.forEach((o,k)=>{if(!sel.has(o)&&key(o)===kk)tgt=dir>0?Math.max(tgt,k):Math.min(tgt,k)});
+  pushHist();const T=A.filter(o=>sel.has(o)),Rest=A.filter(o=>!sel.has(o)),pos=Rest.indexOf(A[tgt]);Rest.splice(dir>0?pos+1:pos,0,...T);P.objs=Rest;redraw(S.sel.p);markDirty()}
 /* ---------- 3.10: Gruppieren (Strg+G) ----------
    gg = outer user group, gid = inner template group: at most two levels. Grouping sets one new gg on the selection; ungrouping removes gg only. */
 function alUnits(items){const m=new Map(),U=[];for(const o of items){const k=o.gg||o.gid;if(!k){U.push([o]);continue}let u=m.get(k);if(!u){u=[];m.set(k,u);U.push(u)}u.push(o)}return U}
@@ -6544,6 +6551,7 @@ function objMenu(i,o,x,y){const P=S.pages[i];
   const nu=alUnits(T.filter(q=>!alFixed(q))).length;
   if(nu>=2){for(const[a,t]of[['l','Links ausrichten'],['ch','Waagerecht zentrieren'],['r','Rechts ausrichten'],['t','Oben ausrichten'],['cv','Senkrecht zentrieren'],['b','Unten ausrichten']])add(t,()=>alignSel(a));
     add('Waagerecht verteilen',()=>alignSel('dh'),nu<3);add('Senkrecht verteilen',()=>alignSel('dv'),nu<3);sep()}
+  add('Eine Ebene nach vorne (Strg+])',()=>orderStep(1));add('Eine Ebene nach hinten (Strg+[)',()=>orderStep(-1));add('Ganz nach vorne (Strg+Umschalt+])',()=>orderSel(true));add('Ganz nach hinten (Strg+Umschalt+[)',()=>orderSel(false));sep();
   add(o.locked?'Entsperren':'Position sperren',()=>{pushHist();const lk=!o.locked;T.forEach(q=>{if(lk)q.locked=true;else delete q.locked});redraw(i);markDirty()});
   if(rotOf(o))add('Gerade ausrichten',()=>{pushHist();delete o.rot;textClamp(o,S.pages[i],false);redraw(i);markDirty()});
   showEl(ctx);ctx.style.left=Math.min(x,innerWidth-ctx.offsetWidth-8)+'px';ctx.style.top=Math.min(y,innerHeight-ctx.offsetHeight-8)+'px'}
@@ -6881,6 +6889,7 @@ addEventListener('keydown',e=>{
   else if(mod&&k==='d'){e.preventDefault();dupSel()}
   else if(mod&&k==='a'&&inTL(getSelection().anchorNode)){e.preventDefault();const L=pagesEl.querySelectorAll('.textLayer');if(L.length){const r=document.createRange();r.setStartBefore(L[0]);r.setEndAfter(L[L.length-1]);getSelection().removeAllRanges();getSelection().addRange(r)}}
   else if(mod&&k==='a'){e.preventDefault();const i=S.sel?S.sel.p:curPage(),P=S.pages[i];if(P&&P.objs.length){if(S.tool!=='select'&&S.tool!=='lasso')setTool('select');selectItems(i,P.objs.slice())}}
+  else if(mod&&S.sel&&(e.key===']'||e.key==='}'||e.key==='['||e.key==='{')){e.preventDefault();const fw=e.key===']'||e.key==='}';if(e.shiftKey||e.key==='}'||e.key==='{')orderSel(fw);else orderStep(fw?1:-1)}
   else if(mod&&k==='g'&&!e.altKey){e.preventDefault();if(e.shiftKey)ungroupSel();else groupSel()}
   else if(mod&&(k==='+'||k==='=')){e.preventDefault();zoomTo(S.zoom*1.2)}
   else if(mod&&k==='-'){e.preventDefault();zoomTo(S.zoom/1.2)}
