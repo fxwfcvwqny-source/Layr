@@ -670,6 +670,11 @@ else {
     + "return JSON.stringify({n:S.pages.length,v:S.form.fname,toast:T.join(' | ')})})()", 60000);
   const mfj = JSON.parse(mf || '{}');
   ok('Merge of a Layr-saved PDF with a filled form keeps the form value and shows the notice', mfj.n === 2 && mfj.v === 'Anna Merge' && /Formular|form values/.test(mfj.toast), mfj);
+  // Embedded original that pdf.js opens but pdf-lib rejects: the merge falls back to the saved pages instead of aborting (pdf-lib load patched to reject the original's bytes)
+  const mb = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'g.pdf');await w(400);const L=S.bytes.length;S.pages[0].objs.push({type:'text',x:60,y:60,text:'Broken Orig',fs:20,color:'#000000',lw:0,orient:'h'});markDirty();const A=await buildOutput();"
+    + "const e=await PDFLib.PDFDocument.create();e.addPage([595,842]);const B=await e.save();await openPdf(B,'e.pdf');await w(400);mItems=[{name:'g.pdf',bytes:A,pages:2},{name:'e.pdf',bytes:B,pages:1}];const l0=PDFLib.PDFDocument.load;PDFLib.PDFDocument.load=function(b,o){if(b&&b.length===L)return Promise.reject(new Error('garbled'));return l0.call(this,b,o)};"
+    + "try{await $('#mOk').onclick();await w(1200)}finally{PDFLib.PDFDocument.load=l0}return S.pages.length})()", 60000);
+  ok('Merge with an embedded original pdf-lib cannot load falls back to the saved pages', mb === 3, mb);
   // Tables grow downward when a committed cell text needs more rows; empty/short cells keep the old height; Undo restores
   const tg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),P=S.pages[0];P.objs.length=0;H.u.length=0;const o={type:'table',x:60,y:100,w:240,h:90,rows:3,cols:2,cw:[.5,.5],rh:[1/3,1/3,1/3],cells:[['a','b'],['',''],['','']],fs:11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.push(o);redraw(0);"
     + "const rows=()=>o.rh.map(f=>f*o.h),h0=o.h,r0=rows();const cm=t=>{editCell(0,o,1,0);const d=editorDone;editorDone=null;closeEditor();d(t)};cm('short');const shortSame=Math.abs(o.h-h0)<1e-6;"

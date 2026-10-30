@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-VtbCAsxWv1gXwNkn3mD/tH49N5Sk/WUb4vXwXNzeyyI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-JaUENbHAES1qdr9ks9DM7XHJJIF3hrzTNOzCmhFOSlk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6806,7 +6806,8 @@ async function mergeLayrData(bytes){
     try{const ac=await pdfAttachment(doc,LAYR_ORIG),jc=ac&&await pdfAttachment(doc,LAYR_DATA);if(!ac||!jc||jc.length>=64e6||ac.length>=1.5e9)return null;
       const data=JSON.parse(new TextDecoder().decode(jc));if(!data||typeof data!=='object'||Array.isArray(data))return null;
       if(data.form&&typeof data.form==='object'&&Object.keys(data.form).length)return{flat:true}; // the embedded original lacks the filled values: keep the saved pages
-      const ob=new Uint8Array(ac),d2=await pdfOpen(ob.slice()),n=d2.numPages;pdfClose(d2);imgsLoad(data.imgs);
+      const ob=new Uint8Array(ac),d2=await pdfOpen(ob.slice()),n=d2.numPages;pdfClose(d2);await PDFLib.PDFDocument.load(ob.slice(),{ignoreEncryption:true}); // pdf.js may open what pdf-lib cannot: then fall back to the flat pages
+      imgsLoad(data.imgs);
       return{bytes:ob,objs:sanPages(data.objs,n),notes:typeof data.notes==='string'?data.notes.slice(0,5e7):'',tasks:Array.isArray(data.tasks)?data.tasks.slice(0,1e5):[]}}
     finally{pdfClose(doc)}}catch(e){return null}}
 $('#mOk').onclick=async()=>{
