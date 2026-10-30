@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-aVLUmWebIyLeL0AUp+Q4n4yMlq0GtqhmSrsXosnv/K4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qkS+8Ezjope1ZptasZRjoumYKWKiuduI6e/KGWM4ubI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -581,7 +581,26 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .tool svg,.ib svg,.btn svg{transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
 .brand .logo{transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
 header .pill{transition:background .2s,color .2s,border-color .2s}
-#hdrSave{color:var(--accent)}#hdrSave.unsaved{color:var(--danger)}
+#hdrSave{position:relative;flex:none;display:inline-flex;align-items:center;gap:6px;height:22px;font:500 12.5px/1 var(--f-ui);color:var(--muted)}
+#hdrSave .sv-i{width:16px;height:16px;flex:none;display:block}
+:root[data-savestyle=text] #hdrSave .sv-i{width:10px;height:10px}:root[data-savestyle=text] #hdrSave .sv-spin{width:13px;height:13px;margin:-1.5px}
+#hdrSave[data-st=saved] .sv-i{color:var(--sv-ok)}
+#hdrSave.unsaved,#hdrSave.unsaved .sv-i{color:var(--danger)}
+.sv-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sv-spin{animation:sv-spin .9s linear infinite}
+@keyframes sv-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.sv-spin{animation:none}}
+:root[data-motion=off] .sv-spin{animation:none}
+:root{--sv-ok:#25702a;--sv-red:#b42318}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sv-ok:#6cc870;--sv-red:#f97066}}
+:root[data-theme="dark"]{--sv-ok:#6cc870;--sv-red:#f97066}
+:root[data-bars="contrast"] header,:root[data-bars="custom"].bars-dark header{--sv-ok:#6cc870;--danger:#ff8a80}
+:root[data-bars="custom"]:not(.bars-dark) header{--sv-ok:#25702a;--danger:#b42318}
+/* accent bars: red text on the bar colour fails contrast, so an unsaved state sits on a chip in the bar ink colour */
+:root[data-bars="accent"] header{--sv-ok:var(--bar-ink)}
+:root[data-bars="accent"] #hdrSave.unsaved{background:var(--bar-ink);padding:0 8px 0 6px;border-radius:11px}
+:root[data-bars="accent"] #hdrSave.unsaved,:root[data-bars="accent"] #hdrSave.unsaved .sv-i{color:var(--sv-red)}
+@media (forced-colors:active){#hdrSave,#hdrSave .sv-i{color:CanvasText!important;forced-color-adjust:none}:root[data-bars="accent"] #hdrSave.unsaved{background:Canvas}}
 .panel .sec{transition:background .2s}
 /* ---------- Animationen ---------- */
 @keyframes lyr-fade{from{opacity:0}to{opacity:1}}
@@ -1505,7 +1524,7 @@ header,.file{min-width:0}
 <div class="app" id="app">
   <header>
     <div class="brand" aria-label="Layr"><svg class="logo" width="24" height="28" viewBox="12 12 88 104" aria-hidden="true"><rect class="lg-b" x="34" y="18" width="60" height="76" rx="9"/><rect class="lg-m" x="26" y="26" width="60" height="76" rx="9"/><path class="lg-f" d="M27 34 H60 L78 52 V101 Q78 110 69 110 H27 Q18 110 18 101 V43 Q18 34 27 34 Z"/><path class="lg-o" d="M60 34 V45 Q60 52 67 52 H78 Z"/></svg><span class="hide-sm bt">layr</span></div>
-    <div class="file"><b id="fname">–</b><span class="pill" id="hdrSave" hidden></span><button type="button" class="pill fm-pill" id="hdrForm" hidden></button><button type="button" class="pill lk-pill" id="hdrLock" hidden title="Passwortgeschützt"><svg class="ph" aria-hidden="true"><use href="#ph-lock"/></svg></button></div>
+    <div class="file"><b id="fname">–</b><span id="hdrSave" role="status" aria-live="polite" hidden></span><button type="button" class="pill fm-pill" id="hdrForm" hidden></button><button type="button" class="pill lk-pill" id="hdrLock" hidden title="Passwortgeschützt"><svg class="ph" aria-hidden="true"><use href="#ph-lock"/></svg></button></div>
     <div class="grp">
       <button class="ib" id="bUndo" title="Rückgängig (Strg+Z)"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-u-up-left"/></svg></button>
       <button class="ib" id="bRedo" title="Wiederholen (Strg+Y)"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-u-up-right"/></svg></button>
@@ -2063,6 +2082,7 @@ header,.file{min-width:0}
       <span class="lbl">Position</span><div class="seg" id="dToastPos"><button data-v="bc">Unten mittig</button><button data-v="br">Unten rechts</button><button data-v="tc">Oben</button></div>
       <span class="lbl">Anzeigedauer</span><div class="seg" id="dToastDur"><button data-v="short">Kurz</button><button data-v="normal">Normal</button><button data-v="long">Lang</button></div>
       <button class="btn" id="dToastTest" style="align-self:flex-start"><svg class="ph" aria-hidden="true"><use href="#ph-bell"/></svg>Test-Meldung zeigen</button></section>
+    <section><h3>Speicheranzeige</h3><div class="seg" id="dSaveStyle"><button data-v="icon">Symbol</button><button data-v="text">Text</button></div><p class="hint">Oben links neben dem Dateinamen: nur ein Symbol oder Symbol mit Text.</p></section>
     <section><h3>Bewegung</h3><div class="seg" id="dMotion"><button data-v="on">Animationen an</button><button data-v="off">Aus</button></div></section>
     <section id="dAboutLink" hidden><h3>Layr &amp; Updates</h3><p class="hint">Version, Updates und „Zuletzt geöffnet“ haben ein eigenes Fenster (Knopf oben rechts).</p><button class="btn" id="abOpen2" style="align-self:flex-start">Layr &amp; Updates öffnen</button></section>
     <button class="btn" id="dReset">Alles auf Standard</button>
@@ -2215,7 +2235,7 @@ const I18N_EN={
 'Oberfläche':'Interface','Text-Leiste':'Text bar','Text-Leiste zurücksetzen':'Reset text bar','Text-Leiste: Stil':'Text bar: look','Werkzeugleiste':'Toolbar','Stil':'Look','Knöpfe':'Buttons','Unterstreichen':'Underline','Texthintergrund':'Text background','Hintergrund gibt es nicht für gestapelten Text':'No background for stacked text','Rosa':'Pink','Kein Hintergrund':'No background','Kursiv':'Italic','Kursiv (Strg+I)':'Italic (Ctrl+I)','Listen':'Lists','Einrücken':'Indent','Ecken':'Corners','Eckig':'Square','Abgerundet':'Rounded','Sehr rund':'Very round','Kompakt':'Compact','Normal':'Normal','Groß':'Large','Mittig':'Centred','Links':'Left',
 'Meldungen':'Notifications','Akzent':'Accent','Glas':'Glass','Eigene Meldungsfarbe wählen':'Choose custom notification colour','Unten mittig':'Bottom centre','Unten rechts':'Bottom right','Oben':'Top',
 'Anzeigedauer':'Display time','Kurz':'Short','Lang':'Long','Test-Meldung zeigen':'Show test notification',
-'Bewegung':'Motion','Animationen an':'Animations on','Aus':'Off','Alles auf Standard':'Reset everything','Alles wieder auf Standard.':'Everything is back to default.',
+'Bewegung':'Motion','Speicheranzeige':'Save indicator','Symbol':'Icon','Oben links neben dem Dateinamen: nur ein Symbol oder Symbol mit Text.':'Top left next to the file name: only an icon, or an icon with text.','Gespeichert':'Saved','Speichern fehlgeschlagen':'Saving failed','Alle Änderungen sind gespeichert':'All changes are saved','Es gibt ungespeicherte Änderungen':'There are unsaved changes','Wird gespeichert …':'Saving …','Automatisches Speichern ist fehlgeschlagen. Bitte manuell speichern.':'Automatic saving failed. Please save manually.','Animationen an':'Animations on','Aus':'Off','Alles auf Standard':'Reset everything','Alles wieder auf Standard.':'Everything is back to default.',
 'Updates kommen über den Microsoft Store.':'Updates come through the Microsoft Store.','Updates kommen über Flathub.':'Updates come through Flathub.','Layr & Updates':'Layr & updates','Automatisch nach Updates suchen':'Check for updates automatically','Jetzt suchen':'Check now','Downloads & Neuigkeiten':'Downloads & news',
 'Layr fragt dabei nur die öffentliche GitHub-Seite nach der neuesten Versionsnummer. Es werden keine Dateien, Notizen oder Daten übertragen.':'Layr only asks the public GitHub page for the latest version number. No files, notes or data are sent.',
 'Layr sucht ab jetzt selbst nach Updates.':'Layr will now check for updates on its own.','Automatische Update-Suche aus.':'Automatic update check off.','Noch keine Version veröffentlicht.':'No version published yet.',
@@ -4971,9 +4991,21 @@ async function save(saveAs){
 /* ---------- Automatisch speichern (nur in der Linux-App) ---------- */
 let autoT=0,autoBusy=false;
 S.rev=0;S.autoSave=true;try{S.autoSave=localStorage.getItem('pdfwerkbank:autosave')!=='0'}catch(e){}
+/* Save indicator (header, next to the file name): design.saveStyle 'icon' = icon only, 'text' = dot/icon plus text; the text is always there for screen readers */
+const SV_SVG=(c,b)=>'<svg class="sv-i'+(c?' '+c:'')+'" viewBox="0 0 16 16" aria-hidden="true">'+b+'</svg>',
+  SV_ST='fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"',
+  SV_IC={saved:SV_SVG('','<circle cx="8" cy="8" r="6.25" '+SV_ST+'/><path d="M5.3 8.2l1.9 1.9 3.6-3.9" '+SV_ST+'/>'),
+    dirty:SV_SVG('','<circle cx="8" cy="8" r="4.2" fill="currentColor"/>'),
+    busy:SV_SVG('sv-spin','<circle cx="8" cy="8" r="6" '+SV_ST+' stroke-dasharray="24 14"/>'),
+    error:SV_SVG('','<circle cx="8" cy="8" r="6.25" '+SV_ST+'/><path d="M8 4.8v3.8M8 11.1v.1" '+SV_ST+'/>')},
+  SV_DOT={...SV_IC,saved:SV_SVG('','<circle cx="8" cy="8" r="5.5" fill="currentColor"/>')},
+  SV_TXT={saved:['Gespeichert','Alle Änderungen sind gespeichert'],dirty:['Nicht gespeichert','Es gibt ungespeicherte Änderungen'],busy:['Speichert …','Wird gespeichert …'],error:['Speichern fehlgeschlagen','Automatisches Speichern ist fehlgeschlagen. Bitte manuell speichern.']};
+function svRender(hs,st){const text=design.saveStyle==='text',k=st+(text?'t':'i');if(hs._k===k)return;hs._k=k; // unchanged: leave the live region alone
+  const [t,tip]=SV_TXT[st];hs.title=tip;hs.setAttribute('aria-label',tip);
+  hs.innerHTML=(text?SV_DOT:SV_IC)[st]+'<span class="'+(text?'sv-t':'sv-sr')+'">'+t+'</span>'}
 function setSaveState(text){{const ns=document.getElementById('ntState');if(ns){ns.textContent=S.dirty?'Wird mit dem PDF gespeichert …':'Im PDF gespeichert';ns.classList.toggle('dirty',!!S.dirty)}}const el=$('#saveState'),hs=$('#hdrSave');if(!el)return;
-  if(hs){const was=hs.dataset.st,now=text?'busy':S.dirty?'dirty':'saved';hs.dataset.st=now;if(now==='saved'&&was==='busy')popEl(hs);
-    hs.hidden=!S.bytes||S.sample;hs.textContent=text?'Speichert …':S.dirty?'● Nicht gespeichert':'✓ Gespeichert';hs.classList.toggle('unsaved',!!S.dirty&&!text)}
+  if(hs){const was=hs.dataset.st,now=text?(text==='Speichert …'?'busy':'error'):S.dirty?'dirty':'saved';hs.dataset.st=now;if(now==='saved'&&was==='busy')popEl(hs);
+    hs.hidden=!S.bytes||S.sample;svRender(hs,now);hs.classList.toggle('unsaved',now==='dirty'||now==='error')}
   if(text){el.textContent=text;return}
   el.textContent=!window.werkbank?'Beschriftungen werden im Browser zwischengespeichert.':!S.autoSave?'Automatisch speichern ist aus.':S.dirty?'Ungespeicherte Änderungen …':(S.savedName?`Automatisch gespeichert in „${S.savedName}“.`:'Speichert automatisch in die geöffnete Datei.')}
 function scheduleAutoSave(){if(!window.werkbank||!S.autoSave||S.sample||!S.bytes)return;clearTimeout(autoT);autoT=setTimeout(autoSaveNow,2500)}
@@ -5002,7 +5034,7 @@ $('#bZoomIn').onclick=()=>zoomTo(S.zoom*1.2);$('#bZoomOut').onclick=()=>zoomTo(S
 $('#bPanel').onclick=()=>$('#panel').classList.toggle('open');
 // Design-Einstellungen (nur Oberfläche, pro Gerät gemerkt)
 let _acc='';function accentCol(){return _acc||(_acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#0b6570')}
-const DDEF={theme:'system',accent:'petrol',accentC:'',toolbar:'center',density:'normal',corners:'round',desk:'plain',deskc:'standard',sheet:'white',shadow:'soft',motion:'on',light:'standard',dark:'standard',bars:'standard',barsC:'',tbstyle:'bar',toast:'standard',toastC:'',toastPos:'bc',toastDur:'normal',qbar:'m',qbarOrder:['font','size','bold','it','ul','lists','indent','col','bg','del'],qbarHide:[],qbarStyle:'panel'};
+const DDEF={theme:'system',accent:'petrol',accentC:'',toolbar:'center',density:'normal',corners:'round',desk:'plain',deskc:'standard',sheet:'white',shadow:'soft',motion:'on',light:'standard',dark:'standard',bars:'standard',barsC:'',tbstyle:'bar',toast:'standard',toastC:'',toastPos:'bc',toastDur:'normal',qbar:'m',qbarOrder:['font','size','bold','it','ul','lists','indent','col','bg','del'],qbarHide:[],qbarStyle:'panel',saveStyle:'icon'};
 const QB_IDS=['font','size','bold','it','ul','lists','indent','col','bg','del']; // text quick bar buttons in default order
 const QB_GRP={font:0,size:1,bold:2,it:2,ul:2,lists:3,indent:3,col:3,bg:3,del:3}; // a separator goes between visible buttons of different groups
 // Returns a sanitised copy of the text quick bar keys; never mutates the input
@@ -5018,13 +5050,13 @@ const dSan=d=>{const o={...d},opts=id=>[...document.querySelectorAll('#'+id+' bu
   for(const k of['accentC','barsC','toastC'])if(o[k]!==''&&!/^#[0-9a-f]{6}$/i.test(o[k]))o[k]=DDEF[k];
   return o};
 const ACCENTS=[['petrol','Petrol','#0b6570'],['blue','Blau','#2457c5'],['indigo','Indigo','#4338ca'],['violet','Violett','#6d3fc8'],['pink','Beere','#b8336a'],['coral','Koralle','#c2412d'],['orange','Orange','#c0560a'],['gold','Gold','#a16207'],['green','Grün','#2f7d32'],['slate','Schiefer','#3d4b5c']];
-const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar'],['dQbStyle','qbarStyle']];
+const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar'],['dQbStyle','qbarStyle'],['dSaveStyle','saveStyle']];
 let design={...DDEF};try{Object.assign(design,JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}'));if(design.desk==='dots')design.desk='plain'}catch(e){}design=dSan(qbSan(design));
 const mixHex=(h,t)=>{const n=parseInt(h.slice(1),16),c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,'0'));return'#'+c.join('')};
 let designTheme=null; // theme of the last applyDesign call; only a real switch suspends transitions
 function applyDesign(save){const r=document.documentElement;design=dSan(qbSan(design));
   if(design.theme==='system')r.removeAttribute('data-theme');else r.dataset.theme=design.theme;
-  for(const k of ['accent','toolbar','density','corners','desk','deskc','sheet','shadow','motion','light','dark','bars','tbstyle','qbar'])r.dataset[k]=design[k];
+  for(const k of ['accent','toolbar','density','corners','desk','deskc','sheet','shadow','motion','light','dark','bars','tbstyle','qbar'])r.dataset[k]=design[k];r.dataset.savestyle=design.saveStyle;
   r.dataset.qbstyle=design.qbarStyle;
   if(design.bars==='custom'&&!design.barsC)design.barsC='#1b2129';
   if(design.bars==='custom'&&/^#[0-9a-f]{6}$/i.test(design.barsC)){const h=design.barsC,n=parseInt(h.slice(1),16),L=(.2126*((n>>16)&255)+.7152*((n>>8)&255)+.0722*(n&255))/255,dk=L<.55,ink=dk?'#eef2f6':'#17202b';
@@ -5042,7 +5074,7 @@ function applyDesign(save){const r=document.documentElement;design=dSan(qbSan(de
   if(design.accentC)$('#dAccC').value=design.accentC;
   _acc='';requestAnimationFrame(()=>moveToolInd&&moveToolInd());
   const tc=design.theme!==designTheme;designTheme=design.theme;
-  if(save){if(tc){r.classList.add('theme-anim');clearTimeout(applyDesign.t);applyDesign.t=setTimeout(()=>r.classList.remove('theme-anim'),420)}try{localStorage.setItem('pdfwerkbank:design',JSON.stringify(design))}catch(e){}if(S.pages)redrawAll()}}
+  if(save){if(tc){r.classList.add('theme-anim');clearTimeout(applyDesign.t);applyDesign.t=setTimeout(()=>r.classList.remove('theme-anim'),420)}try{localStorage.setItem('pdfwerkbank:design',JSON.stringify(design))}catch(e){}if(S.pages)redrawAll();setSaveState()}}
 for(const [k,n,c] of ACCENTS){const b=document.createElement('button');b.className='acc';b.dataset.v=k;b.title=n;b.setAttribute('aria-label',n);b.style.setProperty('--c',c);b.onclick=()=>{design.accent=k;applyDesign(true)};$('#dAccent').appendChild(b)}
 {const b=document.createElement('button');b.className='acc custom';b.dataset.v='custom';b.title='Eigene Farbe';b.setAttribute('aria-label','Eigene Farbe');b.onclick=()=>{if(!design.accentC)$('#dAccC').click();else{design.accent='custom';applyDesign(true)}};$('#dAccent').appendChild(b)}
 {const live=rafLast(v=>{design.barsC=v;design.bars='custom';applyDesign(false)});$('#dBarC').addEventListener('input',e=>live(e.target.value));$('#dBarC').addEventListener('change',()=>applyDesign(true))}

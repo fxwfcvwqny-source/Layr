@@ -765,6 +765,30 @@ else {
   // Numbers use the UI font with tabular figures (C2)
   ok('UI numbers (page, zoom, value labels) use the UI font with tabular figures, not the mono font',
     await ev("['.status .pg','.zoomv','.val','.page .pno'].every(q=>{const e=document.querySelector(q);if(!e)return false;const c=getComputedStyle(e);return c.fontFamily===getComputedStyle(document.body).fontFamily&&c.fontVariantNumeric.includes('tabular-nums')})") === true);
+  // Save indicator (B11): states, aria, setting, sanitiser, contrast
+  const sv1 = await ev("(()=>{const h=document.querySelector('#hdrSave'),d0=S.dirty,st0=design.saveStyle,r={};r.live=h.getAttribute('role')==='status'&&h.getAttribute('aria-live')==='polite';"
+    + "const get=()=>[h.dataset.st,h.getAttribute('aria-label'),h.textContent,!!h.querySelector('svg')];"
+    + "for(const sty of ['icon','text']){design.saveStyle=sty;applyDesign(false);h._k=null;"
+    + "S.dirty=false;setSaveState();const a=get();S.dirty=true;setSaveState();const b=get();setSaveState('Speichert …');const c=get();setSaveState('Automatisches Speichern fehlgeschlagen.');const e=get();"
+    + "r[sty]=a[0]==='saved'&&b[0]==='dirty'&&c[0]==='busy'&&e[0]==='error'&&new Set([a[1],b[1],c[1],e[1]]).size===4&&a[2]==='Gespeichert'&&b[2]==='Nicht gespeichert'&&c[2]==='Speichert …'&&e[2]==='Speichern fehlgeschlagen'&&a[3]&&b[3]&&c[3]&&e[3]&&getComputedStyle(document.documentElement).getPropertyValue('--x')==='';"
+    + "S.dirty=true;setSaveState();r['cls'+sty]=h.classList.contains('unsaved')}"
+    + "r.sr=(()=>{design.saveStyle='icon';h._k=null;setSaveState();return h.querySelector('.sv-sr')&&getComputedStyle(h.querySelector('.sv-sr')).width==='1px'})();"
+    + "design.saveStyle='text';applyDesign(true);r.persist=JSON.parse(localStorage.getItem('pdfwerkbank:design')).saveStyle==='text'&&document.documentElement.dataset.savestyle==='text';"
+    + "r.san=dSan({...design,saveStyle:'x'}).saveStyle==='icon'&&dSan({...design,saveStyle:'text'}).saveStyle==='text'&&DDEF.saveStyle==='icon';"
+    + "design.saveStyle=st0;applyDesign(true);S.dirty=d0;setSaveState();return JSON.stringify(r)})()");
+  const sv1j = JSON.parse(sv1 || '{}');
+  ok('Save indicator: state, text and aria-label for saved/unsaved/saving/error in both styles, live region, setting persists, invalid value rejected',
+    sv1j.live && sv1j.icon && sv1j.text && sv1j.clsicon && sv1j.clstext && sv1j.sr && sv1j.persist && sv1j.san, sv1j);
+  const sv2 = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),h=document.querySelector('#hdrSave'),hd=document.querySelector('header'),d0={...design};"
+    + "const rgb=c=>{let m=c.match(/color\\(srgb ([\\d.e-]+) ([\\d.e-]+) ([\\d.e-]+)/);if(m)return m.slice(1,4).map(x=>x*255);m=c.match(/rgba?\\(([\\d.]+)[, ]+([\\d.]+)[, ]+([\\d.]+)/);return m.slice(1,4).map(Number)};"
+    + "const L=c=>{const [r,g,b]=rgb(c).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b},cr=(a,b)=>{const x=L(a),y=L(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};"
+    + "design.saveStyle='text';const res=[];let min=99;"
+    + "for(const th of ['light','dark'])for(const bars of ['standard','tint','contrast','accent'])for(const dirty of [true,false]){design.theme=th;design.bars=bars;design.motion='off';applyDesign(false);S.dirty=dirty;h._k=null;setSaveState();await w(120);"
+    + "const bg=getComputedStyle(h).backgroundColor,bgc=/\\(.*,\\s*0\\)$|\\/ 0\\)/.test(bg)||bg==='rgba(0, 0, 0, 0)'?getComputedStyle(hd).backgroundColor:bg;"
+    + "for(const q of ['.sv-i','.sv-t']){const e=h.querySelector(q),c=getComputedStyle(e).color,k=cr(c,bgc);min=Math.min(min,k);if(k<4.5)res.push([th,bars,dirty,q,Math.round(k*100)/100])}}"
+    + "Object.assign(design,d0);applyDesign(true);S.dirty=false;setSaveState();return JSON.stringify({min:Math.round(min*100)/100,bad:res})})()", 60000);
+  const sv2j = JSON.parse(sv2 || '{}');
+  ok('Save indicator: icon and text contrast >= 4.5:1 in light/dark with standard, tint, contrast and accent bars (saved and unsaved)', sv2j.bad && sv2j.bad.length === 0 && sv2j.min >= 4.5, sv2j);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
