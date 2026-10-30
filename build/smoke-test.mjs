@@ -1401,6 +1401,17 @@ else {
     const sp = await ev("(()=>{const T=Array.from({length:3300},(_,i)=>'wor'+(i%10)).join(' ').slice(0,20000),sty=[];for(let k=0;k<200;k++)sty.push({a:k*90+5,b:k*90+30,bold:k%2===0,underline:true});const o={type:'text',x:0,y:0,text:T,fs:14,color:'#000000',orient:'h',lw:0,wrapW:500,sty};const cv=document.createElement('canvas');cv.width=600;cv.height=200;const c=cv.getContext('2d');const t0=performance.now();for(let i=0;i<20;i++){o.text=T+'x'.repeat(i);textBox(o);drawText(c,o)}return JSON.stringify([Math.round((performance.now()-t0)/20),T.length])})()", 60000).then(JSON.parse);
     ok('Review 7: 20000 Zeichen mit 200 Bereichen: Messen und Zeichnen je Tastendruck unter 80 ms', sp[0] < 80 && sp[1] === 20000, sp);
   }
+  // Review fix 3: after Backspace undoes an autocorrect in the notes field the caret is collapsed (next character does not overwrite)
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("S.autoChar=true;S.autoCap=false;notesOpen(true);const t=document.getElementById('ntText');t.value='';t.scrollIntoView();t.focus()"); await sleep(400);
+    for (const ch of 'a ->') await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, text: ch, unmodifiedText: ch });
+    await key('Backspace', 'Backspace', 8);
+    await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'X', text: 'X', unmodifiedText: 'X' });
+    const nv = await ev("document.getElementById('ntText').value");
+    ok("Review 3: Notizen: 'a ->', Rückschritt, 'X' ergibt 'a ->X'", nv === 'a ->X', nv);
+    await ev("document.getElementById('ntText').value='';notesOpen(false);S.autoCap=true");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

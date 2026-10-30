@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WhPy/FOd/JFvG52In2xDbU1TjkaJcVQdZRe4GAbXKVU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-yCDFzhLEzC/1Ww48Bdi2Os8zR/Fb01hjnOUxpIDAY90=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6725,7 +6725,7 @@ function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;
   else if(t===')'){const m=/\((c|r|tm)$/i.exec(before);if(m)return[m[0].length,{c:'©',r:'®',tm:'™'}[m[1].toLowerCase()]]}
   return null}
 {const nt=document.getElementById('ntText');if(nt){let acN=null;
-  nt.addEventListener('keydown',e=>{if(e.key==='Backspace'&&acN&&acN.v===nt.value&&acN.p===nt.selectionStart&&nt.selectionStart===nt.selectionEnd){e.preventDefault();document.execCommand('undo')}acN=null;
+  nt.addEventListener('keydown',e=>{if(e.key==='Backspace'&&acN&&acN.v===nt.value&&acN.p===nt.selectionStart&&nt.selectionStart===nt.selectionEnd){e.preventDefault();document.execCommand('undo');nt.setSelectionRange(nt.selectionEnd,nt.selectionEnd)}acN=null;
     if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='k'){e.preventDefault();openCharPop(nt,ch=>document.execCommand('insertText',false,ch),()=>nt.focus(),true)}});
   nt.addEventListener('beforeinput',e=>{
     if(e.inputType!=='insertText'||e.isComposing||nt.selectionStart!==nt.selectionEnd||!e.data)return;const r=acRule(nt.value.slice(0,nt.selectionStart),e.data);if(!r)return;
