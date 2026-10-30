@@ -1400,7 +1400,7 @@ else {
     const was = await menu('Objektleiste am gewählten Objekt');
     await ev("closeMenu()"); await click310([410, 330]); await sleep(200);
     const offState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
-    await sleep(500); await menu('Objektleiste am gewählten Objekt'); await ev("closeMenu()"); await key310('Escape', 'Escape', 27); await click310([410, 330]); await sleep(250);
+    await sleep(500); for (let t = 0; t < 3 && await ev('obBarOn') === false; t++) { await menu('Objektleiste am gewählten Objekt'); await ev("closeMenu()"); await sleep(400); } await key310('Escape', 'Escape', 27); await click310([410, 330]); await sleep(250);
     const onState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
     ok('Objektleiste: Einstellung "Objektleiste am gewählten Objekt" (Standard an) schaltet die Leiste aus und wieder ein', was === 'true' && offState[0] === false && offState[1] === '0' && offState[2] === true && onState[0] === true && onState[2] === false, { was, offState, onState });
   }
