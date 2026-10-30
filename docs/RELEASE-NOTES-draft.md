@@ -23,7 +23,7 @@ Release notes for version 3.10.0.
 - Symbol group "Storage & backup": RAID 0/1/5/6/10, NAS, backup server, tape, cloud backup, snapshot, replication, external disk, SAN switch.
 
 ### Select tool
-- Shift+click adds a whole group to the selection; the status line shows "N Objekte gewählt".
+- Shift+click adds a whole group to the selection; a label at the selection shows "N Objekte gewählt" (also announced to screen readers).
 - Ctrl+G groups the selection (`gg`), Ctrl+Shift+G ungroups; also in the context menu.
 - Align and distribute treat templates and user groups as one unit.
 - Smart guides while moving and while resizing corners, with snapping to the 36 pt page margins; Alt switches them off briefly.
@@ -64,8 +64,8 @@ Release notes for version 3.10.0.
 
 - Sheet no longer shifts sideways while typing (scrollbar gutter reserved).
 - Lost pointer events (window focus, tablet) no longer leave stale drags or missing ink layers.
-- Long notes and to-dos are no longer cut off when read back from the PDF (higher caps).
-- Merge: text boxes and other Layr objects stay editable; falls back to the saved pages when the embedded original cannot be loaded.
+- Long notes and to-dos are no longer cut off when read back from the PDF (notes up to 5 million characters; 5000 to-dos like in 3.9.0, each up to 20000 characters).
+- Merge: text boxes and other Layr objects stay editable; falls back to the saved pages when the embedded original cannot be loaded or has a different page count.
 - Tables grow with their content instead of clipping, and refit after font size and column changes.
 - Local recovery key includes a content fingerprint, so two different files with the same name and size cannot restore each other's annotations. Old data is adopted and the old key is removed.
 - Double-click that follows a saved edit no longer undoes it; dblclick undo works with a capped history.
@@ -81,15 +81,14 @@ Release notes for version 3.10.0.
 | Vorlagen als Gruppe auswählen | on | Settings menu |
 | Topologie-Bausteine als bearbeitbare Knoten | on | Settings menu |
 | Doppelklick bearbeitet in allen Werkzeugen | on | Settings menu |
-| Hilfslinien (beim Verschieben und Größe ändern) | on | Settings menu |
 | Objektleiste am gewählten Objekt | on | Settings menu |
 | Tab wechselt zwischen Objekten | on | Settings menu |
 | Bilder frei strecken (Seitengriffe) | on | Settings menu |
 | Tabelle wächst mit dem Text | on | Table panel |
-| Autokorrektur für Zeichen | on | Schreiben & Rechtschreibung |
+| Autokorrektur für Zeichen (→, –, …) | on (Zeichen ersetzen) | Schreiben & Rechtschreibung |
 | Verschiebe-Pfeile an der Seitenvorschau | off | Schreiben & Rechtschreibung |
 | Speicheranzeige (Symbol / Text) | Symbol | Design |
-| Seitenwahl (schwebend / in der Vorschau / aus) | schwebend | Design |
+| Seitenwahl (Unten schwebend / In der Seitenvorschau / Aus) | Unten schwebend | Design |
 | Tipps in der Seitenleiste | on | Design |
 
 ## Changes of behaviour
@@ -103,6 +102,7 @@ Release notes for version 3.10.0.
 - The save status indicator looks different (icon by default, red when unsaved).
 - Autocorrect replaces typed character sequences; undo with Backspace or Ctrl+Z.
 - Clicking a template part selects the whole template (Alt+click: one part).
+- Guides (existing switch, default on) now also work while resizing corners and snap to the 36 pt margins; the switch is now also in the Settings menu.
 
 ## Known limits
 
@@ -116,6 +116,10 @@ Release notes for version 3.10.0.
 - Alt+click / Alt+drag may be taken by the window manager on some Linux desktops (KDE, Xfce); the same actions are available without Alt where possible.
 - With the "Night mode for pages" switch on, the sheet option "White" is shown dark.
 - Under Wayland/GNOME the window icon comes from the .desktop file and stays black.
+- New symbols (group "Storage & backup") are unknown to older versions: they are not shown there and are removed when the file is saved again in an older version.
+- Older versions keep at most 5000 to-dos.
+- Local recovery data from 3.9.0 has no content fingerprint: if two files with the same name and size were edited unsaved, the file opened first takes it over.
+- Ctrl+Alt+Shift+Up/Down may be taken by the window manager on some Linux desktops.
 
 ## Also since 3.9.0: notes for users of older versions
 

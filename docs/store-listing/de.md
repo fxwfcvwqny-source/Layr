@@ -58,7 +58,7 @@ PDF, PDF bearbeiten, Unterschrift, Notizen, Diktieren, Diagramm, Subnetz
 • Neue Symbole für Speicher und Backup (RAID, NAS, Band, Backupserver).
 • Autokorrektur für Zeichen (→, –, …) und Sonderzeichen-Auswahl.
 • Neue Speicheranzeige, Tipps in der Seitenleiste, Tabellen wachsen mit dem Text.
-• Alle neuen Funktionen lassen sich in den Einstellungen ausschalten.
+• Neue Funktionen, die stören könnten, lassen sich in den Einstellungen ausschalten.
 
 ## Neuerungen (erste Version)
 

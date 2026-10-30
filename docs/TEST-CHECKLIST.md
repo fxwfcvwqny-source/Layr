@@ -40,6 +40,7 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Objekt wählen → kleine Objektleiste darüber (Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten); jeder Knopf wirkt.
 - [ ] F6 → Fokus springt in die Objektleiste, Pfeile/Tab/Enter bedienen sie, Esc zurück.
 - [ ] Schalter "Objektleiste am gewählten Objekt" (Standard AN) AUS → keine Leiste.
+- [ ] Objekt gewählt, Dialog öffnen (z. B. Drucken) → Objektleiste nicht über dem Dialog.
 - [ ] Alt auf einer Eckgriff-Skalierung → Größe ändert sich von der Mitte aus. [Linux] kann vom Fenstermanager abgefangen werden.
 - [ ] Strg+] / Strg+[ → Objekt eine Ebene nach vorn/hinten; Strg+Umschalt+] / [ → ganz nach vorn/hinten.
 - [ ] Deutsche Tastatur, Alternativen: Strg+Umschalt+Hoch/Runter (eine Ebene), Strg+Alt+Umschalt+Hoch/Runter (ganz) → gleiche Wirkung.
@@ -61,9 +62,9 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Tippen von `->` `<-` `<->` `=>` `...` `(c)` `(tm)` `+-` `!=` mit Leerzeichen → werden ersetzt; Rückschritt direkt danach bringt die Zeichen zurück.
 - [ ] `--` zwischen Leerzeichen → Gedankenstrich. In URL, Optionen (`--help`) und Aufzählung → keine Ersetzung.
 - [ ] Autokorrektur auch in Tabellenzellen, Beschriftungen und Notizen → funktioniert; in Notizen nach Rückschritt kein Rest-Auswahlbereich.
-- [ ] Einstellung "Autokorrektur für Zeichen" (Standard AN) auf Aus → nichts wird ersetzt.
+- [ ] Einstellung "Autokorrektur für Zeichen (→, –, …)" (Standard: "Zeichen ersetzen") auf "Aus" → nichts wird ersetzt.
 - [ ] Strg+Umschalt+K → Sonderzeichen-Auswahl (Aufzählungszeichen, Pfeile); Zeichen einfügen. Auch über den Knopf in der Schnellleiste.
-- [ ] Tastenkürzel-Liste → "Sonderzeichen" ist dort, umbelegbar, Konflikte werden gemeldet.
+- [ ] Tastenkürzel-Liste (auch ohne gewähltes Objekt) → "Sonderzeichen-Auswahl", Gruppieren und die Reihenfolge-Einträge sind dort, umbelegbar, Konflikte werden gemeldet.
 - [ ] Lineal: drehen, Winkel im Feld eintippen, Umschalt rastet in 15° → Drehung um die Mitte.
 - [ ] Tabelle mit viel Zellentext → Zeile wächst nach unten, Tabelle bleibt auf der Seite; Schriftgröße/Spalte ändern → passt neu.
 - [ ] Schalter "Tabelle wächst mit dem Text" (Standard AN, Tabellenpanel) AUS → Text wird wie früher abgeschnitten.
@@ -84,11 +85,11 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Seitenvorschau: "+" und Einfügeleisten zwischen den Miniaturen → neue Seite an der Stelle.
 - [ ] Miniatur ziehen → Reihenfolge ändert sich; Lesezeichen-Warnung erscheint, wenn das Dokument welche hat (bekannte Grenze).
 - [ ] Verschiebe-Pfeile an den Miniaturen sind standardmäßig aus; Alt+Hoch/Runter und Rechtsklick-Menü gehen weiter.
-- [ ] Einstellung "Verschiebe-Pfeile an der Seitenvorschau" (Standard AUS) auf "Pfeile zeigen" → zwei Knöpfe je Miniatur.
+- [ ] Einstellung "Verschiebe-Pfeile an der Seitenvorschau" (Standard AUS) auf "Pfeile zeigen" → zwei Knöpfe über der Liste (verschieben die aktuelle Seite).
 - [ ] Viele Seiten: Miniaturen laden beim Scrollen, kein Ruckeln.
 - [ ] Feld "Seite 3 / 12": Zahl tippen, Enter → Sprung; zu große Zahl wird begrenzt; Esc stellt zurück.
 - [ ] Strg+Alt+G → Fokus im Seitenfeld, auch wenn es transparent war.
-- [ ] Design "Seitenwahl": schwebend (Standard) / in der Vorschau / aus → entsprechend; bei "Aus" nur Anzeige unten links.
+- [ ] Design "Seitenwahl": Unten schwebend (Standard) / In der Seitenvorschau / Aus → entsprechend; bei "Aus" nur Anzeige unten links.
 - [ ] Zeichenwerkzeug oder bereitgehaltene Vorlage aktiv → schwebende Seitenwahl ist blass und lässt Klicks durch.
 - [ ] Präsentation und schmale geteilte Ansicht → Seitenwahl ausgeblendet.
 - [ ] Zwei PDFs zusammenführen (eine mit Layr-Textfeldern) → Textfelder bleiben bearbeitbar, Notizen und Aufgaben beider werden zusammengeführt.
@@ -131,6 +132,7 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - Textebene fehlt in geteilter Ansicht und Präsentation.
 - Alt+Klick/Alt+Ziehen kann unter KDE/Xfce vom Fenstermanager belegt sein.
 - Mit "Nachtmodus für Seiten" wird die Blattfarbe "Weiß" dunkel gezeigt.
+- Neue Speicher-&-Backup-Symbole fehlen in älteren Versionen und gehen verloren, wenn die Datei dort erneut gespeichert wird.
 - Ältere Layr-Versionen ignorieren Wortformatierung, Zuschnitt und Gruppen; Teile einer Vorlage, die in älteren Versionen dupliziert wurden, bilden in 3.10 mit dem Original eine Gruppe.
 - [Linux] Fenstersymbol unter GNOME/Wayland bleibt schwarz.
 

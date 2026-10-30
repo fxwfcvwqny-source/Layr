@@ -58,7 +58,7 @@ PDF, annotate PDF, sign PDF, notes, dictation, diagram, subnet
 • New symbols for storage and backup (RAID, NAS, tape, backup server).
 • Character autocorrect (→, –, …) and a special character picker.
 • New save status indicator, sidebar tips, tables that grow with their text.
-• All new behaviours can be switched off in Settings.
+• New behaviours that could get in the way can be switched off in Settings.
 
 ## What's new (first version)
 
