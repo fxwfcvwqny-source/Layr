@@ -1017,6 +1017,28 @@ else {
     ok('Esc bei offenem Dialog bricht Vorlage/«include» nicht ab, ohne Dialog schon', withDlg === true && without === true, { withDlg, without });
     await ev("armOff();lnPreOff();setTool('select')");
   }
+  // B1 ghost: follows scrolling without mouse move; clamped like the result (drag too, captions inside the page)
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');zoomTo(1)"); await sleep(300);
+    await ev("S.pages[0].el.scrollIntoView({block:'end'})"); await sleep(250);
+    const pg = await ev("(()=>{const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width/2,r.bottom-4,r.top]})()");
+    await ev("armOn('net_home')"); await mv(pg[0], pg[1]); await sleep(80);
+    const click3 = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(80); };
+    const gh = () => ev("(()=>{const e=document.querySelector('.armghost');const r=e.getBoundingClientRect();return {t:r.top,h:r.height,b:r.bottom}})()");
+    const g0 = await gh();
+    await click3(pg[0], pg[1]); await sleep(150);
+    const pl = await ev("(()=>{const P=S.pages[0],sy=P.objs.filter(o=>o.type==='sym'),bb=orgBBox(sy),fs=sy[0].fs;return {bottom:bb.y+bb.h+1.5*fs,ph:P.h,y:bb.y,z:S.zoom,top:P.el.getBoundingClientRect().top}})()");
+    ok('Vorlage am unteren Seitenrand: Beschriftungen bleiben auf der Seite, Vorschau = Ergebnis', pl.bottom <= pl.ph + 0.5 && Math.abs(pl.top + pl.y * pl.z - g0.t) < 2, { pl, g0 });
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);S.pages[0].el.scrollIntoView({block:'end'})"); await sleep(250);
+    const pg2 = await ev("(()=>{const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width/2,r.bottom-4]})()");
+    await ev("armOn('net_home')"); await mv(pg2[0], pg2[1]); await sleep(80);
+    const a0 = await gh(), pt0 = await ev("S.pages[0].el.getBoundingClientRect().top"); await ev("viewer.scrollTop-=60"); await sleep(250);
+    const a1 = await gh(), pt1 = await ev("S.pages[0].el.getBoundingClientRect().top");
+    // the page moved by d; the clamped ghost sits at the same page position, so it moved by d as well (a stale ghost would stay put)
+    ok('Vorlage: Vorschau folgt dem Scrollen ohne Mausbewegung (neu berechnet)', Math.abs(pt1 - pt0) > 20 && Math.abs((a1.t - a0.t) - (pt1 - pt0)) < 3, { d: pt1 - pt0, g: a1.t - a0.t });
+    await ev("armOff();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
