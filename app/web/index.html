@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-O0s0RF4+yQWipzoXcWN5KZ5pLnXahOuGtxsSIT/X+7o=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-CVxwXpaaQ/MoEJEpsoAauxoIT7hmIbW9gooZsv6Xmqw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5176,7 +5176,7 @@ async function openPdf(bytes,name,opt={}){
   if(!opt.objs){try{const ac=await pdfAttachment(doc,LAYR_ORIG),jc=ac&&await pdfAttachment(doc,LAYR_DATA);
     if(ac&&jc&&jc.length<64e6&&ac.length<1.5e9){const data=JSON.parse(new TextDecoder().decode(jc));if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('layr-data');
       const ob=new Uint8Array(ac);const d2=await pdfOpen(ob.slice());
-      pdfClose(doc);doc=d2;bytes=ob;imgsLoad(data.imgs);opt={...opt,form:data.form&&typeof data.form==='object'?data.form:null,objs:sanPages(data.objs,d2.numPages),notes:typeof data.notes==='string'?data.notes.slice(0,5e7):'',tasks:Array.isArray(data.tasks)?data.tasks.slice(0,1e5):[],cards:lkSan(data.cards)};fromLayr=true;dbg('Layr-Anhang geladen: '+opt.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
+      pdfClose(doc);doc=d2;bytes=ob;imgsLoad(data.imgs);opt={...opt,form:data.form&&typeof data.form==='object'?data.form:null,objs:sanPages(data.objs,d2.numPages),notes:typeof data.notes==='string'?data.notes.slice(0,5e6):'',tasks:tasksCap(data.tasks),cards:lkSan(data.cards)};fromLayr=true;dbg('Layr-Anhang geladen: '+opt.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
   catch(e){dbg('Anhang nicht lesbar: '+e)}}
   const fp=await docFp(bytes);
   if(S.doc)pdfClose(S.doc);renderGen++;S.doc=doc;S.bytes=bytes;S.fp=fp;S.crypt=crypt;crBadge();if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
@@ -5475,7 +5475,8 @@ function notesUpd(){const v=S.notes||'',n=(v.trim().match(/\S+/g)||[]).length,T=
 function tasksText(){return(S.tasks||[]).map(t=>(t.d?'☑ ':'☐ ')+t.t).join('\n')}
 const notesFile=()=>LANG==='en'?'Notes.txt':'Notizen.txt';
 function notesExport(){const a=tasksText(),b=(S.notes||'').trim();return(a?tr('Aufgaben')+'\n'+a+(b?'\n\n':''):'')+(b?S.notes:'')}
-function tasksSet(arr){S.tasks=Array.isArray(arr)?arr.filter(t=>t&&typeof t.t==='string').map(t=>({t:t.t,d:!!t.d})):[];renderTasks()}
+function tasksCap(arr){return Array.isArray(arr)?arr.slice(0,5000).filter(t=>t&&typeof t.t==='string').map(t=>({t:t.t.slice(0,20000),d:!!t.d})):[]} // 5000 to-dos like 3.9.0, 20000 characters each
+function tasksSet(arr){S.tasks=tasksCap(arr);renderTasks()}
 function tasksMigrate(){if((S.tasks||[]).length)return;const keep=[],T=[];for(const l of String(S.notes||'').split('\n')){const m=l.match(/^\s*([☐☑])\s?(.*)$/);if(m&&m[2].trim())T.push({t:m[2].trim(),d:m[1]==='☑'});else keep.push(l)}
   if(T.length){S.tasks=T;notesSet(keep.join('\n').replace(/^\n+/,''));renderTasks();try{if(!S.sample&&!crNoStore()){localStorage.setItem(storeKey()+':tasks',JSON.stringify(S.tasks));localStorage.setItem(storeKey()+':notes',S.notes)}}catch(e){}}}
 let tkT=0;
@@ -7441,7 +7442,7 @@ async function mergeLayrData(bytes){
       if(data.form&&typeof data.form==='object'&&Object.keys(data.form).length)return{flat:true}; // the embedded original lacks the filled values: keep the saved pages
       const ob=new Uint8Array(ac),d2=await pdfOpen(ob.slice()),n=d2.numPages;pdfClose(d2);await PDFLib.PDFDocument.load(ob.slice(),{ignoreEncryption:true}); // pdf.js may open what pdf-lib cannot: then fall back to the flat pages
       imgsLoad(data.imgs);
-      return{bytes:ob,objs:sanPages(data.objs,n),notes:typeof data.notes==='string'?data.notes.slice(0,5e7):'',tasks:Array.isArray(data.tasks)?data.tasks.slice(0,1e5):[]}}
+      return{bytes:ob,objs:sanPages(data.objs,n),notes:typeof data.notes==='string'?data.notes.slice(0,5e6):'',tasks:tasksCap(data.tasks)}}
     finally{pdfClose(doc)}}catch(e){return null}}
 $('#mOk').onclick=async()=>{
   if(mItems.length<2){toast('Bitte mindestens zwei PDFs hinzufügen.');return}
@@ -7454,7 +7455,7 @@ $('#mOk').onclick=async()=>{
     orgRemap(mine); // ids are random, but the same file merged twice would clash: give every source its own ids so docked lines stay with their own devices
     if(String(inote).trim())notes.push(inote);tasks.push(...itasks)}
   const name=($('#mName').value.trim()||'Zusammengeführt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
-  closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs,notes:notes.join('\n\n----------\n\n'),tasks})},true));
+  closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs,notes:notes.join('\n\n----------\n\n').slice(0,5e6),tasks:tasksCap(tasks)})},true));
   if(!ok)return;markDirty();
   toast(`${mItems.length} Dateien mit zusammen ${S.pages.length} Seiten zusammengeführt. Mit „Speichern“ sicherst du „${name}“.`);
   if(flat.length)toast(`${flat.join(', ')}: Ausgefüllte Formularwerte bleiben erhalten, Beschriftungen dieser Datei sind flach in die Seiten eingebettet. Lernkarten werden nicht übernommen.`);

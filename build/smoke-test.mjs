@@ -644,10 +644,10 @@ else {
   await mv(5, 5); await pressAt(5, 5);
   const stDown = await ev("JSON.stringify({drag:!!DRAG,pe:S.pages[0].ink.style.pointerEvents})"); await releaseAt(5, 5);
   ok('A press drops stale drag layers and resets stale transparent ink before anything else', stPre === true && stDown === '{"drag":false,"pe":""}', { stPre, stDown });
-  // Notes and to-dos survive save + reopen + second save at full length (old caps: 2e6 characters, 5000 to-dos)
-  const nrt = await ev("(async()=>{const mk=n=>{let s='';const u='Ärger ß 😀 Zeile\\n';while(s.length<n)s+=u;return s.slice(0,n)},tasks=Array.from({length:6000},(_,i)=>({t:'Aufgabe '+i+' 😀 ä',d:i%3===0})),res=[];await openPdf(await (async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);return d.save()})(),'notes.pdf');await new Promise(r=>setTimeout(r,500));"
-    + "for(const n of [5e3,5e4,5e5,2.5e6]){const notes=mk(n);notesSet(notes);tasksSet(n>1e6?tasks:[]);let out=await buildOutput();let okk=true;for(let k=0;k<2;k++){await openPdf(out,'notes.pdf');okk=okk&&S.notes===notes&&S.tasks.length===(n>1e6?6000:0)&&(n<=1e6||S.tasks[5999].t===tasks[5999].t);out=await buildOutput()}res.push([n,okk])}return JSON.stringify(res)})()", 150000);
-  ok('Long notes and 6000 to-dos round-trip exactly (5k, 50k, 500k, 2.5M characters, saved twice)', typeof nrt === 'string' && JSON.parse(nrt).every(r => r[1] === true), nrt);
+  // Notes and to-dos survive save + reopen + second save at full length (caps: 5e6 characters, 5000 to-dos)
+  const nrt = await ev("(async()=>{const mk=n=>{let s='';const u='Ärger ß 😀 Zeile\\n';while(s.length<n)s+=u;return s.slice(0,n)},tasks=Array.from({length:5000},(_,i)=>({t:'Aufgabe '+i+' 😀 ä',d:i%3===0})),res=[];await openPdf(await (async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);return d.save()})(),'notes.pdf');await new Promise(r=>setTimeout(r,500));"
+    + "for(const n of [5e3,5e4,5e5,4.5e6]){const notes=mk(n);notesSet(notes);tasksSet(n>1e6?tasks:[]);let out=await buildOutput();let okk=true;for(let k=0;k<2;k++){await openPdf(out,'notes.pdf');okk=okk&&S.notes===notes&&S.tasks.length===(n>1e6?5000:0)&&(n<=1e6||S.tasks[4999].t===tasks[4999].t);out=await buildOutput()}res.push([n,okk])}return JSON.stringify(res)})()", 150000);
+  ok('Long notes and 5000 to-dos round-trip exactly (5k, 50k, 500k, 4.5M characters, saved twice)', typeof nrt === 'string' && JSON.parse(nrt).every(r => r[1] === true), nrt);
   // Merging Layr-saved PDFs keeps their objects editable, remaps ids (same file twice) and joins the notes
   const mg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),mkDoc=async(n)=>{const d=await PDFLib.PDFDocument.create();for(let k=0;k<n;k++)d.addPage([595,842]);await openPdf(await d.save(),'m.pdf');await w(400)};"
     + "await mkDoc(2);setTool('select');insertOrgTemplate('topo_star');S.pages[0].objs.push({type:'text',x:60,y:60,text:'Merge Hallo',fs:20,color:'#000000',lw:0,orient:'h'});S.pages[1].objs.push({type:'text',x:60,y:60,text:'Seite zwei',fs:20,color:'#000000',lw:0,orient:'h'});notesSet('Notiz A');tasksSet([{t:'Aufgabe A',d:false}]);markDirty();"
@@ -2105,6 +2105,12 @@ else {
   {
     const ids = await ev("(()=>{const bad=['__proto__','constructor','toString'];const raw=[{type:'rect',x:1,y:1,w:20,h:20,color:'#000000',lw:1,gid:'__proto__',gg:'constructor',oid:'constructor'},{type:'line',x1:0,y1:0,x2:5,y2:5,color:'#000000',lw:1,link:{a:'constructor',b:'toString',ta:'auto',tb:'auto'}},{type:'rect',x:1,y:1,w:20,h:20,color:'#000000',lw:1,gid:'toString',oid:'o1'}];let err=null,j='';try{const C=raw.map(sanObj).filter(Boolean);orgRemap(C);j=JSON.stringify(C)}catch(e){err=String(e)}const C2=raw.map(o=>JSON.parse(JSON.stringify(o)));let err2=null;try{orgRemap(C2.map(o=>(o.gid=o.gid||undefined,o)));}catch(e){err2=String(e)}return JSON.stringify({err,err2,hasBad:bad.some(b=>j.includes('\"'+b+'\"')),types:j.length>0&&JSON.parse(j).every(o=>(o.gid==null||typeof o.gid==='string')&&(o.oid==null||typeof o.oid==='string'))})})()").then(JSON.parse);
     ok('Review: reservierte IDs (__proto__, constructor) bleiben beim Zusammenführen/Einfügen harmlos', ids.err === null && ids.err2 === null && ids.hasBad === false && ids.types === true, ids);
+  }
+  // Review fix 4
+  {
+    const tk = await ev("(()=>{const T=Array.from({length:5200},(_,i)=>({t:'x'.repeat(i===0?30000:3),d:false}));tasksSet(T);return JSON.stringify([S.tasks.length,S.tasks[0].t.length])})()").then(JSON.parse);
+    ok('Review: Aufgaben auf 5000 Stück und 20000 Zeichen begrenzt', tk[0] === 5000 && tk[1] === 20000, tk);
+    await ev("tasksSet([])");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
