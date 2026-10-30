@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-++2M8YBlwmzaaab5mJaYoU3hEkGTFMq/+w1ith2QAxU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pKHtufGRgOfu6dIbc7DNsoqrQhXu8BoZ+XSHJzcruhg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2542,7 +2542,7 @@ const I18N_EN={
 'Markierung auf Seite ':'Highlight on page ','Eigene Karte':'Own card','1 Karte':'1 card',' Karten':' cards','Fach':'Box','Karte löschen':'Delete card',
 'Noch keine Karten. Markiere wichtige Stellen mit dem Textmarker (Taste M) – jede Markierung wird zu einer Karte. Oder lege unten eigene Karten an.':'No cards yet. Highlight important passages with the highlighter (key M) – every highlight becomes a card. Or add your own cards below.',
 'Fertig!':'Done!',' gewusst, ':' known, ',' noch einmal üben.':' to practise again.','Bitte Frage und Antwort eingeben.':'Please enter a question and an answer.','-Lernkarten':'-flashcards',
-'Hilfslinien':'Guides','Beim Verschieben an Kanten einrasten':'Snap to edges while moving','Raster (5 mm)':'Grid (5 mm)','Punkte anzeigen und daran ausrichten':'Show dots and snap to them','Auswahl nach dem Setzen':'Keep selection after placing','Neue Objekte bleiben ausgewählt':'New objects stay selected','Gesperrte Objekte: Klicks gehen durch':'Locked objects: clicks pass through','Klicks auf gesperrte Objekte wirken auf das darunter':'Clicks on locked objects affect the object below','Position sperren':'Lock position','Gerade ausrichten':'Straighten','Entsperren':'Unlock','Das Objekt ist gesperrt.':'The object is locked.','Vorlagen per Klick platzieren':'Place templates by clicking','Vorlagen als Gruppe auswählen':'Select templates as a group','Klick auf ein Teil wählt die ganze Vorlage (Alt: nur das Teil)':'Clicking one part selects the whole template (Alt: only that part)','Vorlage wählen, dann aufs Blatt klicken (aus: in die Mitte)':'Pick a template, then click the page (off: centre)','Klicken zum Platzieren, Esc bricht ab':'Click to place, Esc cancels',
+'Hilfslinien':'Guides','Beim Verschieben an Kanten einrasten':'Snap to edges while moving','Raster (5 mm)':'Grid (5 mm)','Punkte anzeigen und daran ausrichten':'Show dots and snap to them','Auswahl nach dem Setzen':'Keep selection after placing','Neue Objekte bleiben ausgewählt':'New objects stay selected','Gesperrte Objekte: Klicks gehen durch':'Locked objects: clicks pass through','Klicks auf gesperrte Objekte wirken auf das darunter':'Clicks on locked objects affect the object below','Position sperren':'Lock position','Gerade ausrichten':'Straighten','Entsperren':'Unlock','Das Objekt ist gesperrt.':'The object is locked.','Vorlagen per Klick platzieren':'Place templates by clicking','Vorlagen als Gruppe auswählen':'Select templates as a group','Topologie-Bausteine als bearbeitbare Knoten':'Topology blocks as editable nodes','Stern, Ring, Bus usw. werden als einzelne Geräte mit Linien platziert (aus: ein Symbol)':'Star, ring, bus etc. are placed as single devices with lines (off: one symbol)','Klick auf ein Teil wählt die ganze Vorlage (Alt: nur das Teil)':'Clicking one part selects the whole template (Alt: only that part)','Vorlage wählen, dann aufs Blatt klicken (aus: in die Mitte)':'Pick a template, then click the page (off: centre)','Klicken zum Platzieren, Esc bricht ab':'Click to place, Esc cancels',
 'Tablet-Modus':'Tablet mode','Nur der Stift zeichnet, Finger scrollen':'Only the pen draws, fingers scroll','Präsentation':'Presentation','Vorherige Seite':'Previous page','Nächste Seite':'Next page','Laserpointer':'Laser pointer','Beenden (Esc)':'End (Esc)',
 '← → blättern · L Laserpointer · C Laserfarbe · B schwarz · W weiß · Esc beenden':'← → turn pages · L laser pointer · C laser colour · B black · W white · Esc end',
 'Passwort eingeben':'Enter password','ist mit einem Passwort geschützt.':'is protected with a password.','Passwort anzeigen':'Show password','Das Passwort stimmt nicht.':'The password is wrong.',
@@ -3413,9 +3413,19 @@ def('star','Markierung','Stern',22,22,'',(c,o,x,y,w,h)=>{const p=[];for(let i=0;
 def('num','Markierung','Nummer (zählt hoch)',20,20,'1',(c,o,x,y,w,h)=>{c.beginPath();c.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7);c.fill();c.save();c.fillStyle='#fff';c.font=`600 ${h*.6}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(o.label,x+w/2,y+h*.54);c.restore()});
 /* Topologie-Vorlagen: echte Einzelgeräte mit eigener Beschriftung und angedockten Linien. Bewusst nach dem letzten def(),
    damit die Symbolbibliothek (Altdokumente) unverändert bleibt; NET_TPL.push, damit insertOrgTemplate sie ohne Änderung findet. */
+const TOPO_X=[];
 const TOPO_TPL=(()=>{
   const at=(M,s,l,cx,cy)=>{const d=SYM[s];return M.add(s,l,cx-d.w/2,cy-d.h/2)};
   const ringAt=(n,cx,cy,rx,ry)=>Array.from({length:n},(_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+rx*Math.cos(a),cy+ry*Math.sin(a)]});
+  // equivalents of the old single symbols that have no tile of their own (hidden from the tile list, found via NET_TPL)
+  TOPO_X.push(
+  {k:'topo_line',n:'Linie',topo:1,max:1.5,b:()=>{const M=netMk(),N=[['pc','Station 1'],['laptop','Station 2'],['server','Station 3'],['pc','Station 4']].map(([s,l],i)=>at(M,s,l,60+i*160,200));
+    N.forEach((n,i)=>i&&M.ln(N[i-1],n));return M.o}},
+  {k:'topo_partmesh',n:'Teilvermascht',topo:1,max:1.5,b:()=>{const M=netMk(),N=ringAt(6,300,200,230,150).map(([x,y],i)=>at(M,'router','Router '+'ABCDEF'[i],x,y));
+    N.forEach((n,i)=>M.ln(n,N[(i+1)%6]));M.ln(N[0],N[3]);M.ln(N[1],N[4]);return M.o}},
+  {k:'topo_xstar',n:'Erweiterter Stern',topo:1,max:1.5,b:()=>{const M=netMk(),c=at(M,'switch','Core-Switch',300,190),
+    L=[[140,'Switch 1',[[40,40,'PC 1'],[40,340,'PC 2']]],[460,'Switch 2',[[560,40,'PC 3'],[560,340,'PC 4']]]];
+    L.forEach(([x,l,ch])=>{const s=at(M,'switch',l,x,190);M.ln(c,s);ch.forEach(([px,py,pl])=>M.ln(s,at(M,'pc',pl,px,py)))});M.ln(c,at(M,'server','Server',300,340));return M.o}});
   return[
   {k:'topo_star',n:'Stern',topo:1,max:1.5,b:()=>{const M=netMk(),c=at(M,'switch','Switch',300,200);
     ringAt(6,300,200,230,150).forEach(([x,y],i)=>M.ln(c,at(M,['server','pc','pc','laptop','printer','nas'][i],['Server','PC 1','PC 2','Laptop','Drucker','NAS'][i],x,y)));return M.o}},
@@ -3429,7 +3439,10 @@ const TOPO_TPL=(()=>{
   {k:'topo_mesh',n:'Vermascht',topo:1,max:1.5,b:()=>{const M=netMk(),N=ringAt(5,300,200,220,150).map(([x,y],i)=>at(M,'router','Router '+'ABCDE'[i],x,y));
     for(let i=0;i<5;i++)for(let j=i+1;j<5;j++)M.ln(N[i],N[j]);return M.o}},
   ]})();
-NET_TPL.push(...TOPO_TPL);
+NET_TPL.push(...TOPO_TPL,...TOPO_X);
+/* Old single topology symbols -> editable template (setting topoEditOn; documents with the old symbols stay as they are) */
+var topoEditOn=true;try{topoEditOn=localStorage.getItem('pdfwerkbank:topoEdit')!=='0'}catch(e){}
+const TOPO_MAP={t_star:'topo_star',t_ring:'topo_ring',t_bus:'topo_bus',t_line:'topo_line',t_mesh:'topo_mesh',t_partmesh:'topo_partmesh',t_tree:'topo_tree',t_xstar:'topo_xstar'};
 // Rows grow downward when a cell's wrapped text needs more room (applied when a cell edit is committed, so old tables render unchanged)
 var tblGrow=true;try{tblGrow=localStorage.getItem('pdfwerkbank:tblgrow')!=='0'}catch(e){}
 function tblFit(o){if(!tblGrow)return false;const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;
@@ -4833,6 +4846,9 @@ function thumb(id){
   s.draw(c,o,0,0,s.w,s.h);return cv;
 }
 let symPop=null,symPopBtn=null;
+function tplTile(e,k,after){if(!tplClickOn){insertOrgTemplate(k);after&&after();return}
+  if(e.detail===0){if(ARM&&ARM.k===k){armOff();insertOrgTemplate(k);after&&after()}else armOn(k);return} // keyboard: Enter arms, Enter again places at the centre as before
+  armOn(k);after&&after()}
 function fillSym(sel,grid,after){
   sel.innerHTML='';for(const c of CATS){const op=document.createElement('option');op.value=c;op.textContent=c+' ('+Object.values(SYM).filter(s=>s.cat===c).length+')';sel.appendChild(op)}
   sel.value=S.cat;sel.onchange=()=>{S.cat=sel.value;buildCats()};
@@ -4841,14 +4857,12 @@ function fillSym(sel,grid,after){
   if(TPLS){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
     for(const t of TPLS){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
       b.dataset.k=t.k;b.setAttribute('aria-pressed',!!ARM&&ARM.k===t.k);
-      b.onclick=e=>{if(!tplClickOn){insertOrgTemplate(t.k);after&&after();return}
-        if(e.detail===0){if(ARM&&ARM.k===t.k){armOff();insertOrgTemplate(t.k);after&&after()}else armOn(t.k);return} // keyboard: Enter arms, Enter again places at the centre as before
-        armOn(t.k);after&&after()};grid.appendChild(b)}
+      b.onclick=e=>tplTile(e,t.k,after);grid.appendChild(b)}
     const h2=document.createElement('div');h2.className='tpl-h';h2.textContent=S.cat==='Netzwerk'?'Geräte':'Bausteine';grid.appendChild(h2)}
   for(const s of Object.values(SYM).filter(s=>s.cat===S.cat)){
     const b=document.createElement('button');b.type='button';b.className='sym';b.title=s.name;b.dataset.s=s.id;b.setAttribute('aria-pressed',s.id===S.sym&&S.tool==='symbol');
     b.append(thumb(s.id));const sp=document.createElement('span');sp.textContent=s.name;b.append(sp);
-    b.onclick=()=>{S.sym=s.id;setTool('symbol');buildCats();after&&after()};grid.appendChild(b);
+    b.onclick=e=>{if(topoEditOn&&TOPO_MAP[s.id]){tplTile(e,TOPO_MAP[s.id],after);return}S.sym=s.id;setTool('symbol');buildCats();after&&after()};grid.appendChild(b);
   }
 }
 function buildCats(){
@@ -7217,6 +7231,7 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
   {ic:'tools',t:'Werkzeugleiste anpassen',d:'Festlegen, was oben steht',run:()=>tbOpen()},
   {ic:'tools',t:'Vorlagen per Klick platzieren',d:'Vorlage wählen, dann aufs Blatt klicken (aus: in die Mitte)',get:()=>tplClickOn,run:()=>{tplClickOn=!tplClickOn;try{localStorage.setItem('pdfwerkbank:tplClick',tplClickOn?'1':'0')}catch(e){}if(!tplClickOn)armOff()}},
   {ic:'tools',t:'Vorlagen als Gruppe auswählen',d:'Klick auf ein Teil wählt die ganze Vorlage (Alt: nur das Teil)',get:()=>tplGroupOn,run:()=>{tplGroupOn=!tplGroupOn;try{localStorage.setItem('pdfwerkbank:tplGroup',tplGroupOn?'1':'0')}catch(e){}}},
+  {ic:'tools',t:'Topologie-Bausteine als bearbeitbare Knoten',d:'Stern, Ring, Bus usw. werden als einzelne Geräte mit Linien platziert (aus: ein Symbol)',get:()=>topoEditOn,run:()=>{topoEditOn=!topoEditOn;try{localStorage.setItem('pdfwerkbank:topoEdit',topoEditOn?'1':'0')}catch(e){}}},
   {ic:'tools',t:'Auswahl nach dem Setzen',d:'Neue Objekte bleiben ausgewählt',get:()=>keepSelOn,run:()=>{keepSelOn=!keepSelOn;try{localStorage.setItem('pdfwerkbank:keepSel',keepSelOn?'1':'0')}catch(e){}}},
   {ic:'lock',t:'Gesperrte Objekte: Klicks gehen durch',d:'Klicks auf gesperrte Objekte wirken auf das darunter',get:()=>lockPassOn,run:()=>{lockPassOn=!lockPassOn;try{localStorage.setItem('pdfwerkbank:lockPass',lockPassOn?'1':'0')}catch(e){}redrawAll()}},
   {sep:1,hidden:$('#bInfo').hidden},

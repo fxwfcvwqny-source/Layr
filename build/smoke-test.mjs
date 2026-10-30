@@ -524,10 +524,11 @@ else {
   ok('Hintergrund: gespeichert und neu geöffnet: Gelb sichtbar, Objekt bearbeitbar mit Kursiv und Hintergrund', bgR && bgR.n === 1 && bgR.hbg === '#ffd60a' && bgR.it === true && bgR.objPx && bgR.objPx.join() === '255,214,10,255' && Math.abs(bgR.pdfPx[0] - 255) < 6 && Math.abs(bgR.pdfPx[1] - 214) < 6 && bgR.pdfPx[2] < 20, bgR);
   // Topology templates: every device carries its own editable label; a device wins over a line crossing its caption
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  await ev(`window.tpPt=o=>{const s=SYM[o.sym],fs=o.fs||11;return[o.x+o.w/2,s.below?o.y+o.h+2+fs*.7:o.y+o.h/2]};
+  const TPJS = `window.tpPt=o=>{const s=SYM[o.sym],fs=o.fs||11;return[o.x+o.w/2,s.below?o.y+o.h+2+fs*.7:o.y+o.h/2]};
   window.tpScr=p=>{const P=S.pages[0];P.el.scrollIntoView({block:'start'});viewer.scrollTop+=P.el.getBoundingClientRect().top+p[1]*S.zoom-450;const r=P.el.getBoundingClientRect();return[r.left+p[0]*S.zoom,r.top+p[1]*S.zoom]};
   window.tpSet=objs=>{const P=S.pages[0];P.objs.length=0;P.objs.push(...objs);setTool('select');redraw(0);return objs.length};
-  window.tpEsc=()=>{closeEditor();setSel(null)}`);
+  window.tpEsc=()=>{closeEditor();setSel(null)}`;
+  await ev(TPJS);
   const tpDbl = async o => { const p = await ev(`tpScr(tpPt(S.pages[0].objs[${o}]))`); await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p[0], y: p[1], button: 'none', buttons: 0 }); await sleep(60);
     for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n }); await sleep(150); };
   const tpSave = await ev("(window.tpOld=S.pages[0].objs.slice(),1)");
@@ -885,6 +886,52 @@ else {
       ok('Vorlage: Tastatur (Enter, Enter) platziert wie bisher in der Mitte', kb === true, kb);
       await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
     }
+  }
+  // B3: the 8 old single topology tiles create grouped, real, editable nodes (setting topoEditOn); OFF keeps the single symbol
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev(TPJS); // helpers are gone after the openPdf of the previous block
+    await ev("tplClickOn=true;topoEditOn=true;tplGroupOn=true;setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
+    const click3 = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(80); };
+    const tile3 = s => ev(`(()=>{S.cat='Topologien';buildCats();const b=document.querySelector('#symgrid .sym[data-s="${s}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    const res = {};
+    for (const sy of ['t_star', 't_ring', 't_bus', 't_line', 't_mesh', 't_partmesh', 't_tree', 't_xstar']) {
+      await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
+      const t = await tile3(sy); await click3(t[0], t[1]);
+      const armed = await ev("!!ARM&&S.pages.every(P=>P.objs.length===0)");
+      await ev("S.pages[0].el.scrollIntoView({block:'start'})"); await sleep(250);
+      const g = await ev("(()=>{const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height*.4]})()");
+      await mv(g[0], g[1]); await click3(g[0], g[1]); await sleep(120);
+      const st = await ev("(()=>{const o=S.pages[0].objs,sy=o.filter(q=>q.type==='sym'),ln=o.filter(q=>q.type==='line');return {sym:sy.length,ln:ln.length,oneGid:new Set(o.map(q=>q.gid)).size===1&&!!o[0].gid,linked:ln.every(l=>l.link&&sy.some(q=>q.oid===l.link.a)&&sy.some(q=>q.oid===l.link.b)),old:sy.some(q=>/^t_/.test(q.sym)),hu:H.u.length,arm:ARM}})()");
+      let good = 0;
+      const idx = await ev("S.pages[0].objs.map((o,i)=>o.type==='sym'&&o.label?i:-1).filter(i=>i>=0)");
+      for (const i of idx) { await tpDbl(i); if (await ev(`!!editorEl&&editingObj===S.pages[0].objs[${i}]`) === true) good++;; await ev('tpEsc()'); await sleep(60); }
+      await ev("setSel(null)");
+      const un = await ev("(()=>{undo();return S.pages.every(P=>P.objs.length===0)})()");
+      res[sy] = { armed, ...st, lab: idx.length, good, un };
+      ok(`Topologie-Baustein ${sy}: Gruppe aus echten Knoten, Linien angedockt, Doppelklick je Knoten, Undo = 1 Schritt`,
+        armed && st.sym >= 4 && st.ln >= st.sym - 1 && st.oneGid && st.linked && !st.old && st.hu === 1 && st.arm === null && idx.length === st.sym && good === idx.length && un, res[sy]);
+    }
+    // setting OFF: the single symbol as before
+    await ev("topoEditOn=false;S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select')");
+    const t = await tile3('t_star'); await click3(t[0], t[1]);
+    const off = await ev("({arm:ARM,tool:S.tool,sym:S.sym})");
+    await ev("topoEditOn=true;setTool('select')");
+    ok('Topologie-Baustein: Einstellung aus wählt wie früher das Einzelsymbol (nicht armiert)', off.arm === null && off.tool === 'symbol' && off.sym === 't_star', off);
+    // old documents: single symbols still select, move and resize with the mouse
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'t_ring',x:200,y:200,w:120,h:90,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'X'}));redraw(0);S.pages[0].el.scrollIntoView({block:'start'})");
+    await sleep(300);
+    const sc3 = await ev("(()=>{const r=S.pages[0].el.getBoundingClientRect();return [r.left,r.top,S.zoom]})()");
+    const P3 = (x, y) => [sc3[0] + x * sc3[2], sc3[1] + y * sc3[2]];
+    let c = P3(260, 245); await click3(c[0], c[1]);
+    const sel3 = await ev("!!S.sel&&S.sel.o.sym==='t_ring'");
+    await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 6; i++) await dragTo(c[0] + 10 * i, c[1] + 5 * i); await releaseAt(c[0] + 60, c[1] + 30); await sleep(100);
+    const mvd = await ev("(()=>{const o=S.pages[0].objs[0];return [o.x,o.y]})()");
+    const br = await ev("(()=>{const h=handles(S.sel.o).find(h=>h.k==='br');return [h.x,h.y]})()"); c = P3(br[0], br[1]);
+    await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 6; i++) await dragTo(c[0] + 8 * i, c[1] + 6 * i); await releaseAt(c[0] + 48, c[1] + 36); await sleep(100);
+    const rsz = await ev("(()=>{const o=S.pages[0].objs[0];return [o.w,o.h]})()");
+    ok('Alte Topologie-Symbole (Altdokument): Auswahl, Verschieben und Größe ziehen funktionieren', sel3 && Math.abs(mvd[0] - 260) < 1 && Math.abs(mvd[1] - 230) < 1 && Math.abs(rsz[0] - 168) < 1 && Math.abs(rsz[1] - 126) < 1, { sel3, mvd, rsz });
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
