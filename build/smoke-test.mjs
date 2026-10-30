@@ -1144,6 +1144,37 @@ else {
     ok('Gruppen: Klick auf leere Fläche hebt die Auswahl auf', await ev("!S.sel") === true);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
+  // C1: category 'Speicher & Backup' (13 symbols), drawn, placed by click and by drag, docking, de/en, old categories intact
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'st.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()");
+    await sleep(500);
+    const ids = await ev("JSON.stringify(Object.values(SYM).filter(s=>s.cat==='Speicher & Backup').map(s=>s.id))").then(JSON.parse);
+    const cats = await ev("JSON.stringify(CATS)").then(JSON.parse);
+    ok('Speicher & Backup: Gruppe mit 13 Symbolen, alte Gruppen unverändert vorhanden', ids.length === 13 && cats.includes('Speicher & Backup') && ['Formen', 'Netzwerk', 'Topologien', 'IT-Sicherheit', 'Markierung'].every(c => cats.includes(c)) && ids.every(i => /^st_/.test(i)), { ids, cats });
+    const px = await ev("JSON.stringify(Object.values(SYM).filter(s=>s.cat==='Speicher & Backup').map(s=>{const cv=document.createElement('canvas');cv.width=220;cv.height=180;const c=cv.getContext('2d');c.strokeStyle=c.fillStyle='#000';c.lineWidth=1.2;s.draw(c,{type:'sym',sym:s.id,color:'#000',lw:1.2,fill:'white',fs:11,label:s.label},20,20,s.w,s.h);const d=c.getImageData(0,0,220,180).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i])n++;return n}))").then(JSON.parse);
+    ok('Speicher & Backup: jedes Symbol zeichnet Pixel', px.length === 13 && px.every(n => n > 300), px);
+    const tile = id => ev(`(()=>{S.cat='Speicher & Backup';buildCats();const b=document.querySelector('#symgrid .sym[data-s="${id}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    const pg = (u, v) => ev(`(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+${u}*S.zoom,r.top+${v}*S.zoom]})()`);
+    // by click (tile, then click on the page)
+    let t = await tile('st_raid5'); await mv(t[0], t[1]); await pressAt(t[0], t[1]); await releaseAt(t[0], t[1]); await sleep(150);
+    let g = await pg(150, 150); await mv(g[0], g[1]); await pressAt(g[0], g[1]); await releaseAt(g[0], g[1]); await sleep(200);
+    const c1 = await ev("(()=>{const o=S.pages[0].objs.filter(o=>o.sym==='st_raid5');return JSON.stringify([o.length,o[0]&&Math.abs(o[0].x+o[0].w/2-150)<6,o[0]&&o[0].w===SYM.st_raid5.w,o[0]&&o[0].label])})()").then(JSON.parse);
+    ok('Speicher & Backup: Platzieren per Klick (zentriert, Standardgröße, Beschriftung)', c1[0] === 1 && c1[1] === true && c1[2] === true && c1[3] === 'RAID 5', c1);
+    // by drag
+    t = await tile('st_cloud'); await mv(t[0], t[1]); await pressAt(t[0], t[1]); await releaseAt(t[0], t[1]); await sleep(150);
+    const a = await pg(300, 100), b = await pg(420, 160); await mv(a[0], a[1]); await pressAt(a[0], a[1]); await dragTo((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); await dragTo(b[0], b[1]); await releaseAt(b[0], b[1]); await sleep(200);
+    const d1 = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='st_cloud');return JSON.stringify(o?[o.w,o.h]:null)})()").then(JSON.parse);
+    ok('Speicher & Backup: Platzieren per Ziehen bestimmt die Größe', d1 && Math.abs(d1[0] - 120) < 6 && Math.abs(d1[1] - 60) < 6, d1);
+    // docking: anchors exist and a docked line follows a moved symbol
+    const dk = await ev(`(()=>{const P=S.pages[0],out={};for(const id of ${JSON.stringify(ids)}){const s=SYM[id],o={type:'sym',sym:id,x:50,y:50,w:s.w,h:s.h,label:s.label};const ids2=dockIds(o),pts=ids2.map(t=>orgAnchor(o,t));out[id]=ids2.length>=4&&pts.every(p=>isFinite(p[0])&&isFinite(p[1]))}
+      const A={type:'sym',sym:'st_nas',oid:'a1',x:50,y:300,w:50,h:42,label:'NAS',color:'#000',lw:1.2,fill:'white',fs:11},B={type:'sym',sym:'st_repl',oid:'b1',x:300,y:300,w:104,h:44,label:'Replikation',color:'#000',lw:1.2,fill:'white',fs:11};
+      const before=orgAnchor(A,'r2')[0];A.x+=40;return JSON.stringify({all:Object.values(out).every(Boolean),moved:orgAnchor(A,'r2')[0]-before,rect:anchorRect(A)})})()`).then(JSON.parse);
+    ok('Speicher & Backup: Andockpunkte für alle Symbole vorhanden und folgen dem Symbol', dk.all === true && Math.abs(dk.moved - 40) < 0.01 && dk.rect === true, dk);
+    const en = await ev("(()=>{setLang('en');const r=[tr('Speicher & Backup'),tr('Bandlaufwerk'),tr('Replikation'),tr('Backup-Server'),SYM.st_tape.label,SYM.st_repl.label,1];setLang('de');return JSON.stringify([r,SYM.st_tape.label])})()").then(JSON.parse);
+    ok('Speicher & Backup: englische Namen und Beschriftungen', en[0][0] === 'Storage & backup' && en[0][1] === 'Tape drive' && en[0][4] === 'Tape drive' && en[0][5] === 'Replication' && en[0][3] === 'Backup server' && en[1] === 'Bandlaufwerk', en);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redrawAll()");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

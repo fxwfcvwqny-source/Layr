@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-d2wKR1WvtJvyRVAF98Un24ByBmkbeSZWJHA4eALOrF0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZOPFOR//SWtpYE+7ZSkpsXGTuFNwNLRBJ0Z6mNbBQuI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3454,6 +3454,52 @@ const TOPO_TPL=(()=>{
     for(let i=0;i<5;i++)for(let j=i+1;j<5;j++)M.ln(N[i],N[j]);return M.o}},
   ]})();
 NET_TPL.push(...TOPO_TPL,...TOPO_X);
+/* Speicher & Backup: RAID-Stufen, NAS, Backup, Band, Cloud, Snapshot, Replikation, USB-Platte, SAN-Switch. Bewusst nach dem letzten def() in Spalte 0
+   (Texte-Fingerabdruck der Symbolbibliothek bleibt unveraendert); die Gruppe wird hinter 'Topologien' einsortiert. */
+;(function(){
+  const CAT='Speicher & Backup',nCats=CATS.length;
+  const txt=(c,o,t,cx,cy,s)=>{c.save();c.setLineDash([]);c.fillStyle=o.color;c.font=`600 ${s}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(t,cx,cy);c.restore()};
+  // RAID: one cylinder per drive with its content (A, B = data blocks, P/Q = parity); level is the label below
+  const raid=(id,name,lab,L,pairs)=>{
+    def(id,CAT,name,L.length>3?72:58,52,lab,(c,o,x,y,w,h)=>{
+      const n=L.length,top=pairs?h*.3:0,gap=w*.04,cw=(w-gap*(n-1))/n,ch=h-top,mid=i=>x+i*(cw+gap)+cw/2;
+      L.forEach((t,i)=>{const cx=x+i*(cw+gap);cyl(c,o,cx,y+top,cw,ch,.16);txt(c,o,t,cx+cw/2,y+top+ch*.64,Math.max(5,Math.min(cw*.55,ch*.3)))});
+      if(pairs)thin(c,o,()=>{for(let i=0;i<n;i+=2){const a=mid(i),b=mid(i+1),yb=y+top,yy=y+top*.62;c.beginPath();c.moveTo(a,yb);c.lineTo(a,yy);c.lineTo(b,yy);c.lineTo(b,yb);c.stroke()}
+        const p=(mid(0)+mid(1))/2,q=(mid(2)+mid(3))/2,ys=y+top*.62,yt=y+top*.1;c.beginPath();c.moveTo(p,ys);c.lineTo(p,yt);c.lineTo(q,yt);c.lineTo(q,ys);c.stroke()});
+      below(c,o,x,y,w,h)},{below:1})};
+  raid('st_raid0','RAID 0 (Striping)','RAID 0',['A1','A2']);
+  raid('st_raid1','RAID 1 (Spiegelung)','RAID 1',['A','A']);
+  raid('st_raid5','RAID 5 (Parität)','RAID 5',['A','B','P']);
+  raid('st_raid6','RAID 6 (Dual-Parität)','RAID 6',['A','B','P','Q']);
+  raid('st_raid10','RAID 10 (1+0)','RAID 10',['A','A','B','B'],1);
+  def('st_nas',CAT,'NAS-Speicher',50,42,'NAS',(c,o,x,y,w,h)=>{rr(c,x,y,w,h,3);fillStroke(c,o);
+    for(let i=0;i<2;i++){const yy=y+h*(.12+i*.34);c.strokeRect(x+w*.1,yy,w*.8,h*.26);thin(c,o,()=>{seg(c,x+w*.18,yy+h*.13,x+w*.5,yy+h*.13);c.beginPath();c.arc(x+w*.78,yy+h*.13,Math.max(.9,w*.035),0,7);c.fill()})}
+    thin(c,o,()=>{for(let k=0;k<3;k++)c.strokeRect(x+w*(.36+k*.12),y+h*.82,w*.08,h*.08)});below(c,o,x,y,w,h)},{below:1});
+  def('st_bsrv',CAT,'Backup-Server',44,50,'Backup-Server',(c,o,x,y,w,h)=>{const bw=w*.84,bh=h*.9;rr(c,x,y,bw,bh,3);fillStroke(c,o);
+    for(let i=1;i<=3;i++){const yy=y+bh*i/4.2;seg(c,x+bw*.15,yy,x+bw*.62,yy);c.beginPath();c.arc(x+bw*.82,yy,Math.max(1,bw*.05),0,7);c.fill()}
+    const cx=x+w*.76,cy=y+h*.76,r=w*.25;badge(c,o,cx,cy,r);thin(c,o,()=>{c.beginPath();c.arc(cx,cy,r*.55,-Math.PI*.1,Math.PI*1.45);c.stroke();const a=Math.PI*1.45,px=cx+Math.cos(a)*r*.55,py=cy+Math.sin(a)*r*.55,L=r*.35;c.beginPath();c.moveTo(px-L,py-L*.2);c.lineTo(px,py);c.lineTo(px+L*.3,py+L);c.stroke()});
+    below(c,o,x,y,w,h)},{below:1});
+  def('st_tape',CAT,'Bandlaufwerk (Tape)',52,36,'Bandlaufwerk',(c,o,x,y,w,h)=>{rr(c,x,y,w,h,3);fillStroke(c,o);
+    thin(c,o,()=>{rr(c,x+w*.1,y+h*.14,w*.8,h*.42,h*.2);c.stroke();for(const u of [.3,.7]){c.beginPath();c.arc(x+w*u,y+h*.35,h*.12,0,7);c.stroke()}
+      poly(c,[[x+w*.2,y+h],[x+w*.28,y+h*.7],[x+w*.72,y+h*.7],[x+w*.8,y+h]]);c.stroke()});below(c,o,x,y,w,h)},{below:1});
+  def('st_cloud',CAT,'Cloud-Backup',72,48,'Cloud-Backup',(c,o,x,y,w,h)=>{c.beginPath();c.moveTo(x+w*.25,y+h*.88);c.bezierCurveTo(x-w*.02,y+h*.88,x-w*.02,y+h*.45,x+w*.22,y+h*.45);c.bezierCurveTo(x+w*.2,y+h*.08,x+w*.5,y-h*.02,x+w*.56,y+h*.24);c.bezierCurveTo(x+w*.66,y+h*.02,x+w*.94,y+h*.12,x+w*.86,y+h*.42);c.bezierCurveTo(x+w*1.04,y+h*.46,x+w*1.04,y+h*.88,x+w*.8,y+h*.88);c.closePath();fillStroke(c,o);
+    thin(c,o,()=>{const cx=x+w/2,L=Math.max(3,h*.12);arrowHead(c,cx,y+h*.76,cx,y+h*.3,L);seg(c,cx-w*.1,y+h*.76,cx+w*.1,y+h*.76)});below(c,o,x,y,w,h)},{below:1});
+  def('st_snap',CAT,'Snapshot',48,48,'Snapshot',(c,o,x,y,w,h)=>{const cw=w*.68,ch=h*.74;
+    c.save();c.setLineDash([3,2.5]);cyl(c,o,x+w*.3,y,cw,ch,.16);c.restore();cyl(c,o,x,y+h*.16,cw,ch,.16);
+    const cx=x+w*.76,cy=y+h*.74,r=w*.24;badge(c,o,cx,cy,r);thin(c,o,()=>{c.beginPath();c.arc(cx,cy+r*.06,r*.38,0,7);c.stroke();c.strokeRect(cx-r*.22,cy-r*.62,r*.44,r*.2)});below(c,o,x,y,w,h)},{below:1});
+  def('st_repl',CAT,'Offsite-Kopie / Replikation',104,44,'Replikation',(c,o,x,y,w,h)=>{const cw=w*.26;cyl(c,o,x,y,cw,h,.16);cyl(c,o,x+w-cw,y,cw,h,.16);
+    thin(c,o,()=>{const L=Math.max(3,h*.13),a=x+cw+w*.05,b=x+w-cw-w*.05,m=y+h*.52;arrowHead(c,(a+b)/2,m,b,m,L);arrowHead(c,(a+b)/2,m,a,m,L)});below(c,o,x,y,w,h)},{below:1});
+  def('st_usb',CAT,'USB-/externe Festplatte',58,36,'Ext. Festplatte',(c,o,x,y,w,h)=>{rr(c,x+w*.2,y,w*.8,h,4);fillStroke(c,o);rr(c,x,y+h*.3,w*.22,h*.4,1.5);fillStroke(c,o);
+    thin(c,o,()=>{c.beginPath();c.arc(x+w*.55,y+h*.5,h*.3,0,7);c.stroke();c.beginPath();c.arc(x+w*.55,y+h*.5,Math.max(.9,h*.05),0,7);c.fill();c.beginPath();c.arc(x+w*.9,y+h*.82,Math.max(.9,h*.05),0,7);c.fill();for(const k of [.4,.6])c.fillRect(x+w*.06,y+h*(k-.02),w*.04,h*.04)});below(c,o,x,y,w,h)},{below:1});
+  def('st_sansw',CAT,'SAN-Switch',64,30,'SAN-Switch',(c,o,x,y,w,h)=>{rr(c,x,y,w,h,3);fillStroke(c,o);
+    thin(c,o,()=>{for(let r=0;r<2;r++)for(let k=0;k<4;k++)c.strokeRect(x+w*(.08+k*.14),y+h*(.2+r*.38),w*.09,h*.26)});cyl(c,o,x+w*.7,y+h*.2,w*.2,h*.6,.2);below(c,o,x,y,w,h)},{below:1});
+  for(const k of ['st_nas','st_bsrv','st_tape','st_sansw'])ANCHOR_RECT_SYMS.add(k); // boxy outline: fixed points on the thirds like 'server'
+  // group placed after 'Topologien' in the list; labels and names for English
+  const mv=CATS.splice(nCats);const at=CATS.indexOf('Topologien');CATS.splice(at<0?CATS.length:at+1,0,...mv);
+  Object.assign(I18N_EN,{'Speicher & Backup':'Storage & backup','RAID 0 (Striping)':'RAID 0 (striping)','RAID 1 (Spiegelung)':'RAID 1 (mirroring)','RAID 5 (Parität)':'RAID 5 (parity)','RAID 6 (Dual-Parität)':'RAID 6 (dual parity)','RAID 10 (1+0)':'RAID 10 (1+0)',
+    'NAS-Speicher':'NAS storage','Backup-Server':'Backup server','Bandlaufwerk (Tape)':'Tape drive','Bandlaufwerk':'Tape drive','Cloud-Backup':'Cloud backup','Offsite-Kopie / Replikation':'Offsite copy / replication','Replikation':'Replication',
+    'USB-/externe Festplatte':'USB / external hard disk','Ext. Festplatte':'External disk',...I18N_EN});
+})();
 /* Double-click in any placement/shape tool (setting dblAllOn): remember the history length at the first click so the dblclick handler can take back what that click placed */
 var dblAllOn=true;try{dblAllOn=localStorage.getItem('pdfwerkbank:dblAll')!=='0'}catch(e){}
 {const l0=layout;layout=function(){const r=l0.apply(this,arguments);armRefresh();return r}}
