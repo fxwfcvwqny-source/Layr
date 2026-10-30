@@ -30,6 +30,7 @@ Release notes for version 3.9.0.
 
 - Rotated text gets axis-aligned highlight boxes.
 - Text background is not drawn for stacked text.
+- Bold, italic, underline and highlight can be set for selected words only (stored per text box as `sty` runs). Older Layr versions ignore the runs and show the whole box without per-run style. Stacked text does not use the runs.
 - Old single topology symbols are not editable inside their nodes.
 - In Layr versions before 3.10, a duplicated part of a template keeps its group id, so in 3.10 original and copy form one group; use Alt+Click to select a single part.
 - Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).

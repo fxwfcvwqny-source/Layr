@@ -1237,6 +1237,54 @@ else {
     } else ok('Autokorrektur: Notizenfeld nicht fokussierbar (Prüfung übersprungen)', true);
     await ev("document.getElementById('ntText').value='';notesOpen(false);S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
+  // B8: bold/italic/underline/background for the selection only (o.sty runs), mixed state, rendering, wrapping, round trip, undo, sanitiser
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'sty.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()");
+    await sleep(400);
+    await ev("(()=>{const o={type:'text',x:72,y:200,text:'Hello bold world',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.stO=o;window.stK=(k,m={})=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...m}));window.stP=k=>document.querySelector('.tbx [data-a='+k+']').getAttribute('aria-pressed');return 1})()");
+    await sleep(300);
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    await ev("ED.eng.select(6,10);stK('b',{ctrlKey:true})");
+    const s1 = await J("[stO.sty,!!stO.bold,stP('bold')]");
+    ok('Teilformat: Strg+B formatiert nur die Auswahl (Bereich in sty, Feld bleibt unfett), Knopf zeigt gedrückt', JSON.stringify(s1[0]) === '[{"a":6,"b":10,"bold":true}]' && s1[1] === false && s1[2] === 'true', s1);
+    await ev("ED.eng.select(3,10)");
+    const s2 = await J("[stP('bold'),document.querySelector('#tfmt [data-k=bold]').getAttribute('aria-pressed')]");
+    ok("Teilformat: gemischte Auswahl zeigt aria-pressed='mixed' (Leiste und Seitenleiste)", s2[0] === 'mixed' && s2[1] === 'mixed', s2);
+    await ev("stK('b',{ctrlKey:true})");
+    const s3 = await J("[stO.sty,stP('bold')]");
+    ok('Teilformat: gemischt wird zuerst ganz fett, nochmal schaltet aus (kein sty übrig)', JSON.stringify(s3[0]) === '[{"a":3,"b":10,"bold":true}]' && s3[1] === 'true', s3);
+    await ev("stK('b',{ctrlKey:true})");
+    ok('Teilformat: aus, wenn alles schon fett ist', await J("[stO.sty===undefined,stP('bold')]").then(a => a[0] === true && a[1] === 'false'));
+    await ev("ED.eng.select(0,5);stK('i',{ctrlKey:true});ED.eng.select(11,16);stK('u',{ctrlKey:true});ED.set({hbg:'#ffd60a'})");
+    const s4 = await J("stO.sty");
+    ok('Teilformat: Kursiv, Unterstrichen, Hintergrund je Bereich', JSON.stringify(s4) === '[{"a":0,"b":5,"italic":true},{"a":11,"b":16,"underline":true,"hbg":"#ffd60a"}]', s4);
+    // ohne Auswahl wirkt der Knopf auf das ganze Feld wie früher
+    await ev("ED.eng.select(2,2);document.querySelector('.tbx [data-a=bold]').click()");
+    const s5 = await J("[!!stO.bold,stO.sty.length]");
+    ok('Teilformat: ohne Auswahl gilt der Knopf für das ganze Feld (wie früher)', s5[0] === true && s5[1] >= 1, s5);
+    await ev("document.querySelector('.tbx [data-a=bold]').click()");
+    // Tippen an der Bereichsgrenze erbt das Format davor
+    await ev("stO.sty=[{a:6,b:10,bold:true}];ED.eng.select(6,10);ED.eng.select(10,10);stK('X')");
+    const s6 = await J("[stO.text,stO.sty]");
+    ok('Teilformat: Tippen am Ende eines Bereichs erbt das Format, Rest verschiebt sich', s6[0] === 'Hello boldXworld'.slice(0, 10) + 'X' + ' world' && JSON.stringify(s6[1]) === '[{"a":6,"b":11,"bold":true}]', s6);
+    // Breite und Umbruch
+    const w = await J("(()=>{const o={...stO,text:'Hello bold world',sty:undefined,bold:false};const pl=textBox(o).w;const bo=textBox({...o,sty:[{a:0,b:16,bold:true}]}).w;const part=textBox({...o,sty:[{a:6,b:10,bold:true}]}).w;"
+      + "const wrapP=textBox({...o,wrapW:Math.ceil(pl)+1}),wrapB=textBox({...o,sty:[{a:0,b:16,bold:true}],wrapW:Math.ceil(pl)+1});const lh=[wrapP.lines.length,wrapB.lines.length,wrapB.lines.join(' ')===o.text,new Set([wrapB.lh,wrapP.lh]).size];return [pl,bo,part,...lh]})()");
+    ok('Teilformat: fetter Bereich ist breiter, Umbruch misst je Bereich, Zeilenhöhe bleibt gleich', w[1] > w[0] + 3 && w[2] > w[0] && w[2] < w[1] && w[3] === 1 && w[4] >= 2 && w[5] === true && w[6] === 1, w);
+    const px = await J("(()=>{const ink=o=>{const cv=document.createElement('canvas');cv.width=400;cv.height=60;const c=cv.getContext('2d');drawText(c,{...o,x:10,y:10});const d=c.getImageData(0,0,400,60).data;let n=0,mx=0;for(let y=0;y<60;y++)for(let x=0;x<400;x++)if(d[(y*400+x)*4+3]>40){n++;if(x>mx)mx=x}return[n,mx]};const o={type:'text',x:0,y:0,text:'Hello bold world',fs:16,color:'#000000',orient:'h',lw:0};return[ink(o),ink({...o,sty:[{a:6,b:10,bold:true}]}),ink({...o,sty:[{a:6,b:10,bold:true,underline:true,hbg:'#ffd60a'}]})]})()");
+    ok('Teilformat: Zeichnen: fetter Bereich bringt mehr Pixel und ragt weiter, Unterstreichung/Hintergrund zeichnen', px[1][0] > px[0][0] && px[1][1] > px[0][1] && px[2][0] > px[1][0], px);
+    // Rundreise: Speichern, Öffnen, Textebene vollständig
+    const rt = await ev("(async()=>{stO.sty=[{a:0,b:5,italic:true},{a:6,b:10,bold:true,hbg:'#ffd60a'}];stO.text=ED.eng.st.v='Hello bold world';closeEditor();const out=await buildOutput();const d=await pdfOpen(out.slice());const t=(await (await d.getPage(1)).getTextContent()).items.map(x=>x.str).join('').replace(/\\s+/g,'');await openPdf(out,'sty2.pdf');await new Promise(r=>setTimeout(r,800));const o=S.pages[0].objs.find(o=>o.type==='text');return JSON.stringify([t.includes('Helloboldworld')||t,o&&o.sty])})()", 60000).then(JSON.parse);
+    ok('Teilformat: Speichern und Wiederöffnen behält die Bereiche, Textebene im PDF vollständig', rt[0] === true && JSON.stringify(rt[1]) === '[{"a":0,"b":5,"italic":true},{"a":6,"b":10,"bold":true,"hbg":"#ffd60a"}]', rt);
+    // Rückgängig: ein Schritt für die Formatierung beim Bearbeiten
+    const un = await J("(()=>{const o=S.pages[0].objs.find(o=>o.type==='text');const n=H.u.length;openTextEditor(0,o,false);ED.eng.select(12,16);ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:'b',ctrlKey:true,bubbles:true,cancelable:true}));closeEditor();const added=H.u.length-n;const sty=JSON.stringify(o.sty);undo();return [added,sty.includes('12'),JSON.stringify(S.pages[0].objs.find(o=>o.type==='text').sty).includes('12')]})()");
+    ok('Teilformat: Formatieren und Schließen ist ein Rückgängig-Schritt', un[0] === 1 && un[1] === true && un[2] === false, un);
+    // Altdokumente und Bereinigung
+    const sn = await J("(()=>{const b={type:'text',x:1,y:1,text:'abcdef',fs:14,color:'#000000',orient:'h'};const t=s=>sanObj({...b,sty:s});return [t('x').sty,t([{a:0,b:3,bold:'yes'}]).sty,t([{a:2,b:9,bold:true},{a:0,b:4,italic:true}]).sty,t(Array.from({length:3000},(_,i)=>({a:0,b:1,bold:true}))).sty.length<=1,t([{a:0,b:3,bold:true,hbg:'javascript:x'}]).sty,sanObj({...b,orient:'stack',sty:[{a:0,b:2,bold:true}]}).sty,sanObj(b).sty,sanObj({...b,sty:[{a:0,b:2,hbg:'#ff0000'}]}).sty]})()");
+    ok('Teilformat: sanObj prüft Bereiche (Typen, Überlappung, Zahl, stack), Altdokumente ohne sty bleiben gleich', sn[0] == null && sn[1] == null && JSON.stringify(sn[2]) === '[{"a":0,"b":4,"italic":true},{"a":4,"b":6,"bold":true}]' && sn[3] === true && JSON.stringify(sn[4]) === '[{"a":0,"b":3,"bold":true}]' && sn[5] == null && sn[6] == null && JSON.stringify(sn[7]) === '[{"a":0,"b":2,"hbg":"#ff0000"}]', sn);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

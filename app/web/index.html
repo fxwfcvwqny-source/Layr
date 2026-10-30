@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZIegy+1Fk1fxDtGwK1B70Amy4Uk3ywWxnSajNCbxa3A=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-rjegUmVXHh3zI9H9b3RlWTIEPZg2Y2hesaN+QRBeCCs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -317,6 +317,7 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .edbar .edsw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--accent)}
 .edbgp .edsws{grid-template-columns:repeat(5,22px)}
 .edbar .edsw-none{background:linear-gradient(135deg,var(--panel) 44%,var(--ink) 44%,var(--ink) 56%,var(--panel) 56%)}
+.edbar button[aria-pressed=mixed],#tfmt button[aria-pressed=mixed]{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent);border-style:dashed}
 .tfmt{gap:8px}.tfmt .seg{flex:1}.tfmt .seg svg{width:16px;height:16px}.tfbg{position:relative;flex:none;left:auto;bottom:auto;z-index:auto;background:var(--fill);border:1px solid transparent;border-radius:var(--r);box-shadow:none;padding:0}.tfbg .edcol{height:30px;min-width:34px}.tfpw{position:static;border:0;box-shadow:none;background:none;padding:0;display:block}.tfpw .edpal{position:static;box-shadow:none;border:0;padding:0;background:none}.tfbg button[aria-expanded="true"],.tfbg button.on{background:var(--accent-soft);color:var(--accent)}
 .edcust{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer}
 .edcust input{width:26px;height:22px;padding:0;border:1px solid var(--line);border-radius:5px;background:var(--panel)}
@@ -3631,9 +3632,9 @@ function pickFont(why){let pick=null;
 setTimeout(()=>pickFont('start'),0);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>setTimeout(()=>pickFont('fonts'),0));
 function textBox(o){
-  mctx.font=tfont(o);const wrapped=o.orient==='h'&&o.wrapW>0;const lines=wrapped?wrapLines(mctx,String(o.text),o.wrapW):String(o.text).split('\n'),lh=o.fs*1.25;let w=0;
+  mctx.font=tfont(o);const rich=isRich(o),wrapped=o.orient==='h'&&o.wrapW>0;const lines=wrapped?(rich?wrapRich(o,o.wrapW):wrapLines(mctx,String(o.text),o.wrapW)):String(o.text).split('\n'),lh=o.fs*1.25;let w=0;
   if(o.orient==='stack'){const cw=o.fs*1.2;let n=0;for(const l of lines)n=Math.max(n,[...l].length);return{w:Math.max(1,lines.length)*cw,h:Math.max(1,n)*o.fs*1.1,lines,lh,cw}}
-  for(const l of lines)w=Math.max(w,mctx.measureText(l).width);w=wrapped?o.wrapW:Math.max(w,o.fs*.6);
+  if(rich){let n=0;lines.forEach((l,k)=>{w=Math.max(w,tw(o,l,n));n+=l.length+wrapGap(lines,k)})}else for(const l of lines)w=Math.max(w,mctx.measureText(l).width);w=wrapped?o.wrapW:Math.max(w,o.fs*.6);
   return o.orient==='v'?{w:lines.length*lh,h:w,lines,lh}:{w,h:Math.max(lines.length*lh,o.minH>0?o.minH:0),lines,lh};
 }
 function linePts(o){
@@ -4780,9 +4781,9 @@ addEventListener('blur',()=>{if(editorEl)dbg('window blur')});
 // Geometrie des Textes beim Bearbeiten (waagerecht): Zeilen, Zeilenanfänge, Position eines Zeichens
 function hGeo(o){const b=textBox({...o,orient:'h'}),starts=[];let n=0;b.lines.forEach((L,k)=>{starts.push(n);n+=L.length+wrapGap(b.lines,k)});return{b,starts}}
 function idxPos(o,g,idx){const{b,starts}=g;let li=b.lines.length-1;for(let k=0;k<b.lines.length;k++)if(idx<starts[k]+b.lines[k].length+wrapGap(b.lines,k)){li=k;break}
-  const col=clamp(idx-starts[li],0,b.lines[li].length);mctx.font=tfont(o);return{li,col,x:mctx.measureText(b.lines[li].slice(0,col)).width,y:li*b.lh}}
+  const col=clamp(idx-starts[li],0,b.lines[li].length);mctx.font=tfont(o);return{li,col,x:tw(o,b.lines[li].slice(0,col),starts[li]),y:li*b.lh}}
 function posIdx(o,g,x,y){const{b,starts}=g;const li=clamp(Math.floor(y/b.lh),0,b.lines.length-1),L=b.lines[li]||'';mctx.font=tfont(o);let best=0,bd=1e9;
-  for(let j=0;j<=L.length;j++){const d=Math.abs(mctx.measureText(L.slice(0,j)).width-x);if(d<bd){bd=d;best=j}}return Math.min(starts[li]+best,String(o.text).length)}
+  for(let j=0;j<=L.length;j++){const d=Math.abs(tw(o,L.slice(0,j),starts[li])-x);if(d<bd){bd=d;best=j}}return Math.min(starts[li]+best,String(o.text).length)}
 document.addEventListener('pointerdown',e=>{if(!editorEl)return;const t=e.target;if(editorEl.contains(t)||(fontPop&&fontPop.contains(t))||(charPop&&charPop.contains(t)))return;
   if(t.closest&&t.closest('#panel,.ctx,#ruler,.modal,#bMic'))return;if(t.classList&&t.classList.contains('ink'))return;closeEditor()},true);
 const QB_HTML={
@@ -4800,7 +4801,8 @@ const QB_HTML={
 /* Sidebar text format toggles (bold/italic/underline/background): defaults for new text boxes AND applied to the selection or open editor */
 function fmtTarget(o){return o&&o.type==='text'?o:ED?ED.o:selItems().find(x=>x.type==='text')||null}
 function syncFmt(o){o=fmtTarget(o);const g=k=>o?o[k]:S[k];
-  document.querySelectorAll('#tfmt button').forEach(b=>b.setAttribute('aria-pressed',!!g(b.dataset.k)));
+  const sel=ED&&ED.o===o&&ED.eng&&o.orient!=='stack'?(q=>[Math.min(q.c,q.a),Math.max(q.c,q.a)])(ED.eng.st):[0,0];
+  document.querySelectorAll('#tfmt button').forEach(b=>b.setAttribute('aria-pressed',String(sel[1]>sel[0]&&b.dataset.k!=='hbg'?styState(o,sel[0],sel[1],b.dataset.k):!!g(b.dataset.k))));
   const bg=$('#tfbg'),b=bg.querySelector('[data-a=bg]'),h=g('hbg')||'',stk=(o?o.orient:S.orient)==='stack';
   b.setAttribute('aria-pressed',!!h);b.disabled=stk;b.title=tr(stk?'Hintergrund gibt es nicht für gestapelten Text':'Texthintergrund');b.setAttribute('aria-label',b.title);
   bg.querySelector('.cbar').style.background=h||'transparent';
@@ -4808,7 +4810,7 @@ function syncFmt(o){o=fmtTarget(o);const g=k=>o?o[k]:S[k];
   const ci=$('#tfpw .edcin');if(/^#[0-9a-f]{6}$/i.test(h))ci.value=h}
 {const bg=$('#tfbg');bg.innerHTML=QB_HTML.bg;const b=bg.querySelector('[data-a=bg]'),pal=bg.querySelector('.edpal'),ci=bg.querySelector('.edcin'),pw=$('#tfpw');pal.hidden=false;pw.appendChild(pal); // palette opens inline: .sec clips popovers
   const pick=(c,range)=>{S.hbg=c;applySel({hbg:c},range);syncFmt()},open=v=>{if(v)showEl(pw);else animHide(pw);b.setAttribute('aria-expanded',v)};
-  document.querySelectorAll('#tfmt button').forEach(x=>x.onclick=()=>{const k=x.dataset.k,v=!x.matches('[aria-pressed=true]');S[k]=v;applySel({[k]:v});syncFmt();if(ED&&ED.focus)ED.focus()});
+  document.querySelectorAll('#tfmt button').forEach(x=>x.onclick=()=>{const k=x.dataset.k,v=!x.matches('[aria-pressed=true]'),q=ED&&ED.eng&&ED.eng.st;if(!(q&&q.c!==q.a))S[k]=v;applySel({[k]:v});syncFmt();if(ED&&ED.focus)ED.focus()});
   b.onclick=()=>open(pw.hidden||!!pw._ah);
   pal.querySelectorAll('.edsw').forEach(x=>x.onclick=()=>{pick(x.dataset.c);open(false)});
   {const live=rafLast(c=>pick(c,true));ci.addEventListener('input',()=>live(ci.value))}ci.addEventListener('change',()=>{ctrlHist=false;open(false)});
@@ -4857,15 +4859,19 @@ function openTextEditor(i,o,isNew,at){
       if(refresh._c!==st.c){refresh._c=st.c;caret.style.animation='none';void caret.offsetWidth;caret.style.animation=''}
       
       selL.innerHTML='';if(l!==h){const pa=idxPos(o,g,l),pb=idxPos(o,g,h);mctx.font=tfont(o);
-        for(let li=pa.li;li<=pb.li;li++){const x0=li===pa.li?pa.x:0,x1=li===pb.li?pb.x:mctx.measureText(g.b.lines[li]).width+o.fs*.3;
+        for(let li=pa.li;li<=pb.li;li++){const x0=li===pa.li?pa.x:0,x1=li===pb.li?pb.x:tw(o,g.b.lines[li],g.starts[li])+o.fs*.3;
           const d=document.createElement('b');d.style.left=x0*z+'px';d.style.top=li*lh+'px';d.style.width=Math.max(2,(x1-x0)*z)+'px';d.style.height=lh+'px';selL.appendChild(d)}}}
     {const fn=bF.firstChild;fn.textContent=fontName(o.font);const fc=FONT_MAP[o.font||''];fn.style.fontFamily=fc&&fc.css?fc.css:''}
-    if(document.activeElement!==fsIn)fsIn.value=o.fs;bB.setAttribute('aria-pressed',!!o.bold);bU.setAttribute('aria-pressed',!!o.underline);bI.setAttribute('aria-pressed',!!o.italic);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;const stk=o.orient==='stack';bBg.disabled=stk;bBg.title=tr(stk?'Hintergrund gibt es nicht für gestapelten Text':'Texthintergrund');cbarB.style.background=o.hbg||'transparent';palB.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(o.hbg||'').toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(o.hbg))edcinB.value=o.hbg;
+    if(document.activeElement!==fsIn)fsIn.value=o.fs;{const q=eng?eng.st:null,l=q?Math.min(q.c,q.a):0,h=q?Math.max(q.c,q.a):0,pr=k=>String(h>l&&o.orient!=='stack'?styState(o,l,h,k):!!o[k]);bB.setAttribute('aria-pressed',pr('bold'));bU.setAttribute('aria-pressed',pr('underline'));bI.setAttribute('aria-pressed',pr('italic'))}syncFmt(o);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;const stk=o.orient==='stack';bBg.disabled=stk;bBg.title=tr(stk?'Hintergrund gibt es nicht für gestapelten Text':'Texthintergrund');cbarB.style.background=o.hbg||'transparent';palB.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(o.hbg||'').toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(o.hbg))edcinB.value=o.hbg;
     root.classList.toggle('flip',o.y*z<46*({s:1,m:1.1,l:1.3}[design.qbar]||1))};
   const set=props=>{
     // Farbe bei markiertem Text: nur für die markierten Zeichen
     if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
     if(o.orient==='stack'&&'hbg' in props){props={...props};delete props.hbg}
+    // Fett/Kursiv/Unterstrichen/Hintergrund bei markiertem Text: nur für die markierten Zeichen (aus, wenn schon alle so formatiert sind)
+    if(eng&&o.orient!=='stack'){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);
+      if(h>l&&['bold','italic','underline','hbg'].some(k=>k in props)){props={...props};keepCtr(o,()=>{for(const k of['bold','italic','underline','hbg'])if(k in props){const v=k==='hbg'?props.hbg||'':styState(o,l,h,k)!==true;setSty(o,l,h,k,v);delete props[k]}});
+        if(!Object.keys(props).length){syncFmt(o);refresh();redraw(i);return}}}
     keepCtr(o,()=>{for(const k of['fs','color','bold','orient','underline','italic','hbg','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];if(!o.hbg)delete o.hbg});
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}for(const k of['bold','underline','italic','hbg'])if(k in props)S[k]=k==='hbg'?(o.hbg||''):!!o[k];syncFmt(o);if('color' in props)setColor(o.color,true);textClamp(o,P,true);refresh();redraw(i)};
@@ -4938,7 +4944,7 @@ function openTextEditor(i,o,isNew,at){
   editorDone=v=>{
     const t=v.trimEnd();
     if(!isNew&&o.locked&&!t){for(const k of Object.keys(o))delete o[k];Object.assign(o,JSON.parse(origJson))}
-    else{o.text=t;normSpans(o)}
+    else{o.text=t;normSpans(o);normSty(o)}
     if(isNew){if(t.trim()){pushHist();P.objs.push(o);markDirty();if(keepSelOn)setSel({p:i,o})}}
     else if(!t&&!o.locked){H.u.push(before);H.r=[];updUndo();P.objs.splice(P.objs.indexOf(o),1);if(S.sel&&S.sel.o===o)S.sel=null;markDirty()}
     else if(JSON.stringify(o)!==origJson){H.u.push(before);H.r=[];updUndo();markDirty()}
@@ -6078,12 +6084,12 @@ function spLine(L){const out=[];if(!SP.on)return out;for(const ch of L.matchAll(
 /* Lage der falschen Wörter eines Objekts (relativ zu o.x/o.y), mit Zwischenspeicher */
 function spItems(o){
   if(!SP.on||o===editingObj)return[];
-  let key;if(o.type==='text'){if(o.orient!=='h'||!o.text||rotOf(o))return[];key='t|'+o.text+'|'+tfont(o)+'|'+(o.wrapW||0)}
+  let key;if(o.type==='text'){if(o.orient!=='h'||!o.text||rotOf(o))return[];key='t|'+o.text+'|'+tfont(o)+'|'+(o.wrapW||0)+(o.sty?'|'+JSON.stringify(o.sty):'')}
   else if(o.type==='table'){key='b|'+JSON.stringify(o.cells)+'|'+o.w+'|'+o.h+'|'+o.cw+'|'+o.rh+'|'+(o.fs||11)+'|'+famOf(o)+'|'+o.head}
   else return[];key+='|'+SP.ver;
   const c=SP.box.get(o);if(c&&c.key===key)return c.items;const items=[];
   if(o.type==='text'){const b=textBox(o),off=(b.lh-o.fs)/2;mctx.font=tfont(o);let pos=0;
-    b.lines.forEach((L,li)=>{for(const r of spLine(L)){if(spCut(b.lines,li,r))continue;const x=mctx.measureText(L.slice(0,r.a)).width,w=mctx.measureText(L.slice(r.a,r.b)).width;items.push({x,y:li*b.lh+off,w,h:o.fs,base:li*b.lh+off+o.fs*1.02,i:pos+r.a,n:r.b-r.a,word:r.w,cell:null})}pos+=L.length+wrapGap(b.lines,li)})}
+    b.lines.forEach((L,li)=>{for(const r of spLine(L)){if(spCut(b.lines,li,r))continue;const x=tw(o,L.slice(0,r.a),pos),w=tw(o,L.slice(r.a,r.b),pos+r.a);items.push({x,y:li*b.lh+off,w,h:o.fs,base:li*b.lh+off+o.fs*1.02,i:pos+r.a,n:r.b-r.a,word:r.w,cell:null})}pos+=L.length+wrapGap(b.lines,li)})}
   else{const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.22,fam=famOf(o);
     for(let r=0;r<o.rows;r++)for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;
       const cw=X[k+1]-X[k],ch=Y[r+1]-Y[r],L=wrapLines(mctx,t,Math.max(10,cw-8)),y0=cellY0(Y[r],ch,lh,L.length);let pos=0;
@@ -6281,6 +6287,8 @@ function sanObj(o){
     case'rect':case'ellipse':return box()?r:null;
     case'text':if(!isNum(r.x)||!isNum(r.y)||typeof r.text!=='string')return null;if(r.minH!=null&&!(isNum(r.minH)&&r.minH>0&&r.minH<=2e4))delete r.minH;if(!['h','v','stack'].includes(r.orient))r.orient='h';if(!isNum(r.fs))r.fs=14;
       if(r.spans!=null){r.spans=Array.isArray(r.spans)?r.spans.filter(s=>s&&isNum(s.a)&&isNum(s.b)&&s.b>s.a&&typeof s.color==='string'&&COL_RX.test(s.color)).slice(0,2000).map(s=>({a:Math.max(0,s.a|0),b:Math.min(r.text.length,s.b|0),color:s.color})).filter(s=>s.b>s.a):[];if(!r.spans.length)delete r.spans}
+      if(r.sty!=null){let e=0;r.sty=Array.isArray(r.sty)?r.sty.filter(s=>s&&isNum(s.a)&&isNum(s.b)&&s.b>s.a).slice(0,2000).map(s=>{const q={a:Math.max(0,s.a|0),b:Math.min(r.text.length,s.b|0)};for(const k of['bold','italic','underline'])if(typeof s[k]==='boolean')q[k]=s[k];
+        if(typeof s.hbg==='string'&&(s.hbg===''||COL_RX.test(s.hbg)&&(typeof CSS==='undefined'||!CSS.supports||CSS.supports('color',s.hbg))))q.hbg=s.hbg;return q}).sort((x,y)=>x.a-y.a).map(q=>{q.a=Math.max(q.a,e);e=Math.max(e,q.b);return q}).filter(q=>q.b>q.a&&Object.keys(q).length>2):[];if(!r.sty.length||r.orient==='stack')delete r.sty}
       if(r.rot!=null){if(isNum(r.rot)&&r.rot)r.rot=clamp(r.rot,-360,360);else delete r.rot}
       return r;
     case'deco':{if(!box()||!['num','head','foot','wm'].includes(r.kind)||typeof r.text!=='string')return null;r.text=r.text.slice(0,200);
@@ -6317,12 +6325,48 @@ function setSpanColor(o,a,b,color){if(b<=a)return;
   const sp=(o.spans||[]).flatMap(s=>{if(s.b<=a||s.a>=b)return[s];const r=[];if(s.a<a)r.push({a:s.a,b:a,color:s.color});if(s.b>b)r.push({a:b,b:s.b,color:s.color});return r});
   sp.push({a,b,color});o.spans=sp;normSpans(o)}
 // Text geändert (Tippen, Löschen, Einfügen): Bereiche mitschieben; Neues übernimmt die Farbe des Zeichens davor
-function shiftSpans(o,oldT,newT){oldT=String(oldT);newT=String(newT);if(!o.spans||oldT===newT){o.text=newT;return}
+function shiftSpans(o,oldT,newT){oldT=String(oldT);newT=String(newT);if((!o.spans&&!o.sty)||oldT===newT){o.text=newT;return}
   let p=0;const mx=Math.min(oldT.length,newT.length);while(p<mx&&oldT[p]===newT[p])p++;
   let q=0;while(q<mx-p&&oldT[oldT.length-1-q]===newT[newT.length-1-q])q++;
   const oe=oldT.length-q,d=newT.length-oldT.length,ins=newT.length-q-p;
   const mapA=x=>x<=p?x:x>=oe?x+d:p,mapB=(x,a)=>x<p?x:x>=oe?x+d:(a<=p?p+ins:p);
-  o.spans=o.spans.map(s=>({a:mapA(s.a),b:mapB(s.b,s.a),color:s.color}));o.text=newT;normSpans(o)}
+  if(o.spans)o.spans=o.spans.map(s=>({a:mapA(s.a),b:mapB(s.b,s.a),color:s.color}));if(o.sty)o.sty=o.sty.map(s=>({...s,a:mapA(s.a),b:mapB(s.b,s.a)}));
+  o.text=newT;if(o.spans)normSpans(o);if(o.sty)normSty(o)}
+/* Format je Bereich (Fett/Kursiv/Unterstrichen/Hintergrund nur für markierte Zeichen): o.sty=[{a,b,bold?,italic?,underline?,hbg?}], sortiert, ohne Überlappung.
+   Ein Schlüssel steht nur da, wo er vom Wert des ganzen Feldes (o.bold ...) abweicht; ohne o.sty gilt alles wie bisher.
+   shortcut: Breiten pro Zeichen einzeln gemessen (ohne Kerning über Zeichen), bei Bedarf Zeilen-Messung je Bereich. */
+const STY_BOX=(o,k)=>k==='hbg'?(o.hbg||''):!!o[k];
+function styVal(o,i,k){const s=(o.sty||[]).find(s=>s.a<=i&&i<s.b);return s&&k in s?s[k]:STY_BOX(o,k)}
+function normSty(o){const n=String(o.text||'').length;let sp=(o.sty||[]).map(s=>{const q={a:Math.max(0,s.a|0),b:Math.min(n,s.b|0)};for(const k of['bold','italic','underline','hbg'])if(k in s&&s[k]!==STY_BOX(o,k))q[k]=s[k];return q}).filter(q=>q.b>q.a&&Object.keys(q).length>2).sort((x,y)=>x.a-y.a);
+  const key=q=>JSON.stringify([q.bold,q.italic,q.underline,q.hbg]),out=[];for(const q of sp){const l=out[out.length-1];if(l&&l.b===q.a&&key(l)===key(q))l.b=q.b;else out.push(q)}
+  if(out.length)o.sty=out;else delete o.sty}
+// set k to v for all characters in [a,b): split the runs at the edges, fill gaps
+function setSty(o,a,b,k,v){if(b<=a)return;const old=(o.sty||[]).slice().sort((x,y)=>x.a-y.a),out=[];let p=a;
+  for(const s of old){if(s.b<=a||s.a>=b){out.push(s);continue}
+    if(s.a<a)out.push({...s,b:a});const m0=Math.max(s.a,a),m1=Math.min(s.b,b);if(m0>p)out.push({a:p,b:m0,[k]:v});out.push({...s,a:m0,b:m1,[k]:v});p=m1;if(s.b>b)out.push({...s,a:b})}
+  if(p<b)out.push({a:p,b,[k]:v});o.sty=out;normSty(o)}
+// state of a switch over [a,b): true, false or 'mixed'
+function styState(o,a,b,k){let t=0,f=0;for(let i=a;i<b;i++){if(k==='hbg'?styVal(o,i,k):styVal(o,i,k))t++;else f++;if(t&&f)return'mixed'}return t>0}
+const STY_FONT=new Map();
+function styFont(o,i){const b=styVal(o,i,'bold'),it=styVal(o,i,'italic'),k=b+'|'+it+'|'+tfont(o);let f=STY_FONT.get(k);if(!f){if(STY_FONT.size>60)STY_FONT.clear();f=tfont({...o,bold:b,italic:it});STY_FONT.set(k,f)}return f}
+const STY_P=new Map();
+// prefix widths of o.text: P[i]=width of the first i characters, each in the font of its own run
+function richP(o){const T=String(o.text),key=tfont(o)+''+JSON.stringify(o.sty)+''+T;let P=STY_P.get(key);if(P)return P;
+  P=new Float64Array(T.length+1);let last='';for(let i=0;i<T.length;){const cp=T.codePointAt(i),n=cp>65535?2:1,f=styFont(o,i);if(f!==last){mctx.font=f;last=f}
+    P[i+n]=P[i]+mctx.measureText(T.slice(i,i+n)).width;if(n===2)P[i+1]=P[i];i+=n}
+  if(STY_P.size>40)STY_P.clear();STY_P.set(key,P);return P}
+const isRich=o=>!!(o.sty&&o.sty.length&&o.orient!=='stack');
+// width of str, which sits at index start of o.text
+function tw(o,str,start){if(isRich(o)&&start+str.length<=String(o.text).length){const P=richP(o);return P[start+str.length]-P[start]}mctx.font=tfont(o);return mctx.measureText(str).width}
+// same line breaking as wrapLines, but on text indexes with per-run widths
+function wrapRich(o,maxW){const T=String(o.text),P=richP(o),W=(a,b)=>P[b]-P[a],out=[];out.soft=new Set();let off=0;
+  const cut=(a,b)=>{let i=a;while(b-i>1&&W(i,b)>maxW){let k=i+1;while(k<b&&W(i,k+1)<=maxW)k++;out.soft.add(out.length);out.push(T.slice(i,k));i=k}return i};
+  for(const para of T.split('\n')){const end=off+para.length;let cs=off,ce=off,ws=off;
+    for(;;){let we=T.indexOf(' ',ws);if(we<0||we>end)we=end;
+      if(ce>cs&&W(cs,we)>maxW){cs=cut(cs,ce);if(W(cs,we)>maxW){out.push(T.slice(cs,ce));cs=ws;ce=we}else ce=we}else ce=we;
+      if(we>=end)break;ws=we+1}
+    out.push(T.slice(cut(cs,ce),ce));off=end+1}
+  return out}
 function spanColorAt(o,i){const s=(o.spans||[]).find(s=>s.a<=i&&i<s.b);return s?s.color:o.color}
 
 function drawText(c,o){
@@ -6336,7 +6380,15 @@ function drawText(c,o){
     for(const[a,e,col]of spanRuns(o,st,st+L.length)){const s=L.slice(a-st,e-st),dx=a>st?c.measureText(L.slice(0,a-st)).width:0;c.fillStyle=col;c.fillText(s,x+dx,y);ul(s,x+dx,y,col)}};
   let n=0;const starts=b.lines.map((L,k)=>{const s=n;n+=L.length+wrapGap(b.lines,k);return s});
   const hb=(l,x,y)=>{if(!o.hbg||!l)return;c.fillStyle='transparent';c.fillStyle=o.hbg;c.fillRect(x,y,c.measureText(l).width,b.lh)}; // background behind each line, all lines before any text
-  if(o.orient==='h'){b.lines.forEach((l,i)=>hb(l,o.x,o.y+i*b.lh));b.lines.forEach((l,i)=>line(l,starts[i],o.x,o.y+i*b.lh+off))}
+  // formatted runs: each piece of a line with the same colour/weight/slant/underline/background is drawn on its own at its measured position
+  const richDraw=(ox,oy)=>{const P=richP(o),segs=b.lines.map((l,i)=>{const st=starts[i],out=[];let a=0;
+      const at=k=>[spanColorAt(o,k),styVal(o,k,'bold'),styVal(o,k,'italic'),styVal(o,k,'underline'),styVal(o,k,'hbg')].join('|');
+      while(a<l.length){let e=a+1;const key=at(st+a);while(e<l.length&&at(st+e)===key)e++;const q=key.split('|');out.push({t:l.slice(a,e),x:P[st+a]-P[st],w:P[st+e]-P[st+a],col:spanColorAt(o,st+a),bold:q[1]==='true',ul:q[3]==='true',hbg:q[4],font:styFont(o,st+a)});a=e}return out});
+    segs.forEach((sg,i)=>sg.forEach(s=>{if(s.hbg){c.fillStyle=s.hbg;c.fillRect(ox+s.x,oy+i*b.lh,s.w,b.lh)}}));
+    segs.forEach((sg,i)=>sg.forEach(s=>{const y=oy+i*b.lh;c.font=s.font;c.fillStyle=s.col;c.fillText(s.t,ox+s.x,y+off);
+      if(s.ul){c.save();c.strokeStyle=s.col;c.setLineDash([]);c.globalAlpha=1;c.lineWidth=Math.max(.6,o.fs/(s.bold?11:14));c.beginPath();c.moveTo(ox+s.x,y+off+o.fs*.98);c.lineTo(ox+s.x+s.w,y+off+o.fs*.98);c.stroke();c.restore()}}));c.font=tfont(o)};
+  if(isRich(o)){if(o.orient==='h')richDraw(o.x,o.y);else{c.translate(o.x,o.y+b.h);c.rotate(-Math.PI/2);richDraw(0,0)}}
+  else if(o.orient==='h'){b.lines.forEach((l,i)=>hb(l,o.x,o.y+i*b.lh));b.lines.forEach((l,i)=>line(l,starts[i],o.x,o.y+i*b.lh+off))}
   else if(o.orient==='v'){c.translate(o.x,o.y+b.h);c.rotate(-Math.PI/2);b.lines.forEach((l,i)=>hb(l,0,i*b.lh));b.lines.forEach((l,i)=>line(l,starts[i],0,i*b.lh+off))}
   else{c.textAlign='center';b.lines.forEach((l,i)=>{let k=starts[i];[...l].forEach((ch,j)=>{c.fillStyle=rich?spanColorAt(o,k):o.color;c.fillText(ch,o.x+i*b.cw+b.cw/2,o.y+j*o.fs*1.1);k+=ch.length})})}
 }
