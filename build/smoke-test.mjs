@@ -263,7 +263,7 @@ else {
   for (let i = 0; i < 30; i++) { if (await ev("typeof S==='object'&&typeof openPdf==='function'") === true) break; await sleep(500); }
   ok('Alte Werkzeug-Einstellung (textsel) stört nicht: Werkzeugleiste baut sich auf', await ev("document.querySelectorAll('#tools .tool').length>5&&!document.querySelector('.tool[data-t=textsel]')&&typeof setTool==='function'") === true);
   // Text-Leiste: Standard wie früher; ausgeblendeter Knopf bleibt funktionsfähig
-  ok('Text-Leiste: Standard zeigt 10 Knöpfe in Standardreihenfolge mit 3 Trennern', await ev("(()=>{design.qbarOrder=QB_IDS.slice();design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar');const r=[bar.querySelectorAll(':scope>.edsep').length,[...bar.querySelectorAll('[data-a]')].filter(b=>!b.closest('.edoff')).map(b=>b.dataset.a).join()];closeEditor();return r[0]===3&&r[1]==='font,dn,up,bold,it,ul,lb,ln,out,in,col,bg,del'})()") === true);
+  ok('Text-Leiste: Standard zeigt 11 Knöpfe in Standardreihenfolge mit 3 Trennern', await ev("(()=>{design.qbarOrder=QB_IDS.slice();design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar');const r=[bar.querySelectorAll(':scope>.edsep').length,[...bar.querySelectorAll('[data-a]')].filter(b=>!b.closest('.edoff')).map(b=>b.dataset.a).join()];closeEditor();return r[0]===3&&r[1]==='font,dn,up,bold,it,ul,lb,ln,out,in,col,bg,chars,del'})()") === true);
   ok('Text-Leiste: ausgeblendeter Fett-Knopf ist unsichtbar, Fett und Strg+B wirken trotzdem', await ev("(()=>{design.qbarHide=['bold'];newText(0,120,200);ED.eng.put('Hallo');const vis=document.querySelector('.edbar [data-a=bold]').getClientRects().length>0;ED.set({bold:true});const a=ED.o.bold===true;ED.set({bold:false});document.querySelector('.tbx-in').dispatchEvent(new KeyboardEvent('keydown',{key:'b',ctrlKey:true,bubbles:true}));const c=ED.o.bold===true;closeEditor();design.qbarHide=[];return !vis&&a&&c})()") === true);
   ok('Kursiv: Knopf und Strg+I schalten um (auch ausgeblendet), Strg+B/U bleiben, tfont/sanObj/Verlauf stimmen', await ev("(()=>{const n0=S.pages[0].objs.length;design.qbarHide=['it','bold','ul'];newText(0,120,200);ED.eng.put('Hallo');const ta=document.querySelector('.tbx-in'),kd=(k)=>ta.dispatchEvent(new KeyboardEvent('keydown',{key:k,ctrlKey:true,bubbles:true}));const vis=document.querySelector('.edbar [data-a=it]').getClientRects().length>0;const b0=!!ED.o.bold,u0=!!ED.o.underline;kd('i');const a=ED.o.italic===true&&/^italic /.test(tfont(ED.o));kd('b');kd('u');const b=!!ED.o.bold===!b0&&!!ED.o.underline===!u0;kd('i');const c=!ED.o.italic;design.qbarHide=[];ED.set({bold:false,underline:false});closeEditor();S.pages[0].objs.length=n0;return !vis&&a&&b&&c&&sanObj({type:'text',x:1,y:1,text:'a',italic:true}).italic===true&&!('italic' in sanObj({type:'text',x:1,y:1,text:'a',italic:'yes'}))&&tfont({fs:14})==='14px '+famOf({fs:14})})()") === true);
   ok('Kursiv: Knopf wirkt, aria-pressed folgt, zweiter Klick schaltet zurück', await ev("(()=>{const n0=S.pages[0].objs.length;design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bt=document.querySelector('.edbar [data-a=it]');bt.click();const a=ED.o.italic===true&&bt.getAttribute('aria-pressed')==='true';bt.click();const b=!ED.o.italic&&bt.getAttribute('aria-pressed')==='false';closeEditor();S.pages[0].objs.length=n0;return a&&b})()") === true);
@@ -320,7 +320,7 @@ else {
   await ev("document.querySelector('#dQbReset').click();studioOpen(false)");
   // Text-Leiste: Einstellungen werden bereinigt, alte Design-Daten laden ohne Fehler
   ok('Text-Leiste: ungültige Einstellungen werden bereinigt', await ev("(()=>{const d=qbSan({qbarOrder:['x','bold','bold'],qbarHide:QB_IDS.slice(),qbar:'zz',qbarStyle:'zz'});return d.qbarOrder.join()===QB_IDS.join()&&d.qbarHide.length===0&&d.qbar==='m'&&d.qbarStyle==='panel'})()") === true);
-  ok('Text-Leiste: Knöpfe aus altem Design stehen an Standardposition (Kursiv nach Fett, Hintergrund nach Farbe), Rest bleibt', await ev("(()=>{const old=['font','size','bold','ul','lists','indent','col','del'];const a=qbSan({qbarOrder:old,qbarHide:['ul']});const b=qbSan({qbarOrder:['del','col','bold','font'],qbarHide:[]});const c=qbSan({qbarOrder:'x',qbarHide:5});return a.qbarOrder.join()==='font,size,bold,it,ul,lists,indent,col,bg,del'&&a.qbarHide.join()==='ul'&&b.qbarOrder.join()==='del,col,bg,bold,it,ul,lists,indent,font,size'&&c.qbarOrder.join()===QB_IDS.join()&&b.qbarOrder.length===QB_IDS.length})()") === true);
+  ok('Text-Leiste: Knöpfe aus altem Design stehen an Standardposition (Kursiv nach Fett, Hintergrund nach Farbe), Rest bleibt', await ev("(()=>{const old=['font','size','bold','ul','lists','indent','col','del'];const a=qbSan({qbarOrder:old,qbarHide:['ul']});const b=qbSan({qbarOrder:['del','col','bold','font'],qbarHide:[]});const c=qbSan({qbarOrder:'x',qbarHide:5});return a.qbarOrder.join()==='font,size,bold,it,ul,lists,indent,col,bg,chars,del'&&a.qbarHide.join()==='ul'&&b.qbarOrder.join()==='del,col,bg,chars,bold,it,ul,lists,indent,font,size'&&c.qbarOrder.join()===QB_IDS.join()&&b.qbarOrder.length===QB_IDS.length})()") === true);
   ok('Text-Leiste: kaputte gespeicherte Design-Werte brechen nichts', await ev("(()=>{const bad=[null,5,'abc',[1],{qbarOrder:{a:1},qbarHide:'it'},{qbarOrder:[null,{},'it','it'],qbarHide:[3,'zz']}];return bad.every(v=>{const d=dSan(qbSan({...DDEF,...(v&&typeof v==='object'?v:{})}));return Array.isArray(d.qbarOrder)&&d.qbarOrder.length===QB_IDS.length&&new Set(d.qbarOrder).size===QB_IDS.length&&Array.isArray(d.qbarHide)&&d.qbarHide.every(x=>QB_IDS.includes(x))})})()") === true);
   // Gespeicherte Design-Werte: unbekannte Werte fallen auf den Standard, gültige bleiben
   ok('Design: unbekannte gespeicherte Werte fallen auf Standard', await ev("(()=>{const g=Object.fromEntries(DKEYS.map(([,k])=>[k,'zz']));Object.assign(g,{accent:'nope',accentC:'red',barsC:null,toastC:'#12'});const d=dSan({...DDEF,...g});return DKEYS.every(([,k])=>d[k]===DDEF[k])&&d.accent===DDEF.accent&&d.accentC===''&&d.barsC===''&&d.toastC===''})()") === true);
@@ -1643,10 +1643,8 @@ else {
     ok('Zuschnitt: beim Übernehmen Hinweis, dass das ganze Bild in der Datei bleibt (einmal pro Sitzung), auch als Tooltip am Knopf', r3[0] === true && r3[1] === true && r3[2] === true, r3);
     {
       await open310("S.pages[0].objs.push({type:'rect',x:100,y:0,w:300,h:2000,color:'#000000',lw:1,oid:'tall'})");
-      await ev("(()=>{const d=document.createElement('div');d.className='pager';d.id='fakePager';d.style.cssText='position:fixed;left:40%;bottom:10px;width:120px;height:50px;background:#888;z-index:5';document.body.appendChild(d)})()");
       await click310([200, 400]); await sleep(300);
-      const pb = await ev("JSON.stringify([obBar.hidden,obBar.getBoundingClientRect().bottom,document.getElementById('fakePager').getBoundingClientRect().top])").then(JSON.parse);
-      await ev("document.getElementById('fakePager').remove();obUpdate()");
+      const pb = await ev("JSON.stringify([obBar.hidden,obBar.getBoundingClientRect().bottom,document.querySelector('.pager').getBoundingClientRect().top])").then(JSON.parse);
       ok('Objektleiste: bleibt oberhalb der Seiten-Pille (.pager), wenn diese sichtbar ist', pb[0] === false && pb[1] <= pb[2], pb);
     }
     {
@@ -1682,6 +1680,406 @@ else {
       const c = await ev("(()=>{const P=S.pages[0],a=P.objs[0],c=gdCands(P,[a]);return JSON.stringify([c.X.some(v=>v[0]===444),gdCands(P,[P.objs[1]]).X.some(v=>v[0]===444)])})()").then(JSON.parse);
       ok('Hilfslinien: an das bewegte Objekt gedockte Linien liefern keine Einrastkanten', c[0] === false, c);
     }
+  }
+  // C1: category 'Speicher & Backup' (13 symbols), drawn, placed by click and by drag, docking, de/en, old categories intact
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'st.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()");
+    await sleep(500);
+    const ids = await ev("JSON.stringify(Object.values(SYM).filter(s=>s.cat==='Speicher & Backup').map(s=>s.id))").then(JSON.parse);
+    const cats = await ev("JSON.stringify(CATS)").then(JSON.parse);
+    ok('Speicher & Backup: Gruppe mit 13 Symbolen, alte Gruppen unverändert vorhanden', ids.length === 13 && cats.includes('Speicher & Backup') && ['Formen', 'Netzwerk', 'Topologien', 'IT-Sicherheit', 'Markierung'].every(c => cats.includes(c)) && ids.every(i => /^st_/.test(i)), { ids, cats });
+    const px = await ev("JSON.stringify(Object.values(SYM).filter(s=>s.cat==='Speicher & Backup').map(s=>{const cv=document.createElement('canvas');cv.width=220;cv.height=180;const c=cv.getContext('2d');c.strokeStyle=c.fillStyle='#000';c.lineWidth=1.2;s.draw(c,{type:'sym',sym:s.id,color:'#000',lw:1.2,fill:'white',fs:11,label:s.label},20,20,s.w,s.h);const d=c.getImageData(0,0,220,180).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i])n++;return n}))").then(JSON.parse);
+    ok('Speicher & Backup: jedes Symbol zeichnet Pixel', px.length === 13 && px.every(n => n > 300), px);
+    const tile = id => ev(`(()=>{S.cat='Speicher & Backup';buildCats();const b=document.querySelector('#symgrid .sym[data-s="${id}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    const pg = (u, v) => ev(`(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+${u}*S.zoom,r.top+${v}*S.zoom]})()`);
+    // by click (tile, then click on the page)
+    let t = await tile('st_raid5'); await mv(t[0], t[1]); await pressAt(t[0], t[1]); await releaseAt(t[0], t[1]); await sleep(150);
+    let g = await pg(150, 150); await mv(g[0], g[1]); await pressAt(g[0], g[1]); await releaseAt(g[0], g[1]); await sleep(200);
+    const c1 = await ev("(()=>{const o=S.pages[0].objs.filter(o=>o.sym==='st_raid5');return JSON.stringify([o.length,o[0]&&Math.abs(o[0].x+o[0].w/2-150)<6,o[0]&&o[0].w===SYM.st_raid5.w,o[0]&&o[0].label])})()").then(JSON.parse);
+    ok('Speicher & Backup: Platzieren per Klick (zentriert, Standardgröße, Beschriftung)', c1[0] === 1 && c1[1] === true && c1[2] === true && c1[3] === 'RAID 5', c1);
+    // by drag
+    t = await tile('st_cloud'); await mv(t[0], t[1]); await pressAt(t[0], t[1]); await releaseAt(t[0], t[1]); await sleep(150);
+    const a = await pg(300, 100), b = await pg(420, 160); await mv(a[0], a[1]); await pressAt(a[0], a[1]); await dragTo((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); await dragTo(b[0], b[1]); await releaseAt(b[0], b[1]); await sleep(200);
+    const d1 = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='st_cloud');return JSON.stringify(o?[o.w,o.h]:null)})()").then(JSON.parse);
+    ok('Speicher & Backup: Platzieren per Ziehen bestimmt die Größe', d1 && Math.abs(d1[0] - 120) < 6 && Math.abs(d1[1] - 60) < 6, d1);
+    // docking: anchors exist and a docked line follows a moved symbol
+    const dk = await ev(`(()=>{const P=S.pages[0],out={};for(const id of ${JSON.stringify(ids)}){const s=SYM[id],o={type:'sym',sym:id,x:50,y:50,w:s.w,h:s.h,label:s.label};const ids2=dockIds(o),pts=ids2.map(t=>orgAnchor(o,t));out[id]=ids2.length>=4&&pts.every(p=>isFinite(p[0])&&isFinite(p[1]))}
+      const A={type:'sym',sym:'st_nas',oid:'a1',x:50,y:300,w:50,h:42,label:'NAS',color:'#000',lw:1.2,fill:'white',fs:11},B={type:'sym',sym:'st_repl',oid:'b1',x:300,y:300,w:104,h:44,label:'Replikation',color:'#000',lw:1.2,fill:'white',fs:11};
+      const before=orgAnchor(A,'r2')[0];A.x+=40;return JSON.stringify({all:Object.values(out).every(Boolean),moved:orgAnchor(A,'r2')[0]-before,rect:anchorRect(A)})})()`).then(JSON.parse);
+    ok('Speicher & Backup: Andockpunkte für alle Symbole vorhanden und folgen dem Symbol', dk.all === true && Math.abs(dk.moved - 40) < 0.01 && dk.rect === true, dk);
+    const en = await ev("(()=>{setLang('en');const r=[tr('Speicher & Backup'),tr('Bandlaufwerk'),tr('Replikation'),tr('Backup-Server'),SYM.st_tape.label,SYM.st_repl.label,1];setLang('de');return JSON.stringify([r,SYM.st_tape.label])})()").then(JSON.parse);
+    ok('Speicher & Backup: englische Namen und Beschriftungen', en[0][0] === 'Storage & backup' && en[0][1] === 'Tape drive' && en[0][4] === 'Tape drive' && en[0][5] === 'Replication' && en[0][3] === 'Backup server' && en[1] === 'Bandlaufwerk', en);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redrawAll()");
+  }
+  // B9: character autocorrect (rules, undo by Backspace/Ctrl+Z, switch, not in code blocks), special character picker, quick bar id, PDF text layer
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ac.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()");
+    await sleep(400);
+    await ev("(()=>{const o={type:'text',x:72,y:200,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);return 1})()");
+    await sleep(300);
+    await ev("window.acKey=(k,o={})=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...o}));window.acType=s=>{for(const ch of s)acKey(ch)};window.acSet=()=>{const st=ED.eng.st;st.v='';st.c=st.a=0};window.acV=()=>ED.eng.st.v");
+    const cases = [['->', '→'], ['<- ', '← '], ['<->', '↔'], ['=>', '⇒'], ['1 -- 2', '1 – 2'], ['1...', '1…'], ['(c)', '©'], ['(R)', '®'], ['(tm)', '™'], ['+-5', '±5'], ['!=', '≠']];
+    const got = [];
+    for (const [i, o] of cases) { await ev(`acSet();acType(${JSON.stringify(i)})`); got.push(await ev('acV()')); }
+    ok('Autokorrektur: alle Regeln lösen beim letzten Zeichen aus', JSON.stringify(got) === JSON.stringify(cases.map(c => c[1])), got);
+    await ev("acSet();acType('1-b 3 - 4 2*3')");
+    ok('Autokorrektur: einzelner Bindestrich und normaler Text bleiben unverändert', await ev('acV()') === '1-b 3 - 4 2*3');
+    await ev("acSet();acType('->');acKey('Backspace')");
+    const bs = await ev('acV()');
+    await ev("acSet();acType('...');acKey('z',{ctrlKey:true})");
+    const uz = await ev('acV()');
+    await ev("acSet();acType('->');acKey('Backspace');acType('x');acKey('Backspace')");
+    const bs2 = await ev('acV()');
+    await ev("acSet();acType('->x');acKey('Backspace');acKey('Backspace')");
+    const bs3 = await ev('acV()');
+    ok('Autokorrektur: Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück', bs === '->' && uz === '...' && bs2 === '->' && bs3 === '', { bs, uz, bs2, bs3 });
+    await ev("S.autoChar=false;acSet();acType('-> => (c)')");
+    const off = await ev('acV()'); await ev('S.autoChar=true');
+    ok('Autokorrektur: ausgeschaltet bleibt der Text wie getippt', off === '-> => (c)', off);
+    // switch in settings and default
+    const sw = await ev("JSON.stringify([!!document.getElementById('dAutoChar'),document.querySelector('#dAutoChar button[data-v=on]').getAttribute('aria-pressed'),/->/.test(document.querySelector('#dAutoChar').parentNode.textContent)])").then(JSON.parse);
+    ok('Autokorrektur: Schalter in den Einstellungen, standardmäßig an, Regeln in der Beschreibung', sw[0] && sw[1] === 'true' && sw[2], sw);
+    // picker: quick bar button, keyboard, insert
+    await ev("acSet();acType('A')");
+    const pk = await ev("(async()=>{const b=ED.eng.sink.closest('.tbx').querySelector('[data-a=chars]');b.click();await new Promise(r=>setTimeout(r,200));const P=document.querySelector('.charPop');const n=P&&P.querySelectorAll('.cp-b').length;const al=P&&[...P.querySelectorAll('.cp-b')].every(x=>x.getAttribute('aria-label'));const lbl=P&&P.getAttribute('aria-label');"
+      + "const first=P.querySelector('.cp-b');first.focus();first.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));const moved=document.activeElement!==first;const cur=document.activeElement;cur.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true,cancelable:true}));const down=document.activeElement!==cur;"
+      + "const ch=document.activeElement.textContent;document.activeElement.click();await new Promise(r=>setTimeout(r,300));return JSON.stringify({n,al,lbl,moved,down,ch,v:acV(),closed:P.hidden||P.classList.contains('closing'),ed:!!editorEl})})()").then(JSON.parse);
+    ok('Sonderzeichen-Auswahl: Schnellleiste öffnet, Pfeiltasten wandern, Klick/Enter fügt ein, Beschriftungen vorhanden', pk.n >= 50 && pk.al && pk.moved && pk.down && pk.ch && pk.v === 'A' + pk.ch && pk.closed && pk.ed, pk);
+    await ev("acKey('K',{ctrlKey:true,shiftKey:true})"); await sleep(250);
+    const sc = await ev("(()=>{const P=document.querySelector('.charPop');return JSON.stringify([!P.hidden,document.activeElement.classList.contains('cp-b')])})()").then(JSON.parse);
+    await key('Escape', 'Escape', 27); await sleep(300);
+    const sc2 = await ev("JSON.stringify([!!editorEl,document.querySelector('.charPop').hidden||document.querySelector('.charPop').classList.contains('closing')])").then(JSON.parse);
+    ok('Sonderzeichen-Auswahl: Strg+Umschalt+K öffnet mit Fokus im Raster, Esc schließt nur die Auswahl', sc[0] && sc[1] && sc2[0] && sc2[1], { sc, sc2 });
+    // quick bar: new id in the default order, old saved design (without 'chars') gets it after the background button; hide/order via the existing customisation
+    const qb = await ev("JSON.stringify([QB_IDS.includes('chars'),DDEF.qbarOrder.join()===QB_IDS.join(),qbSan({qbarOrder:['font','size','bold','it','ul','lists','indent','col','bg','del'],qbarHide:['indent']}),qbSan({qbarOrder:['del','font'],qbarHide:[]}).qbarOrder,QB_NAME.chars,!!QB_ICON.chars,!!QB_HTML.chars])").then(JSON.parse);
+    ok('Schnellleiste: Sonderzeichen-Knopf in Standardfolge, alte Designs bekommen ihn nach dem Hintergrund-Knopf, Name und Symbol vorhanden', qb[0] && qb[1] && qb[2].qbarOrder.join() === 'font,size,bold,it,ul,lists,indent,col,bg,chars,del' && qb[2].qbarHide.join() === 'indent' && qb[3].includes('chars') && qb[4] && qb[5] && qb[6], qb);
+    // saved PDF carries the characters in the invisible text layer
+    await ev("closeEditor();acSet()");
+    const tl = await ev("(async()=>{const o=S.pages[0].objs.find(o=>o.type==='text');o.text='Pfad A → B – fertig … ©';redraw(0);const out=await buildOutput();const d=await pdfOpen(out.slice());const t=await (await d.getPage(1)).getTextContent();return t.items.map(x=>x.str).join('|')})()", 60000);
+    ok('Gespeichertes PDF enthält → – … © in der Textebene', /→/.test(String(tl)) && /–/.test(String(tl)) && /…/.test(String(tl)) && /©/.test(String(tl)), String(tl).slice(-80));
+    // code block dialog and notes
+    await ev("S.pages.forEach(P=>P.objs=[]);cdOpen(null)"); await sleep(400);
+    await ev("document.getElementById('cdText').focus()");
+    for (const ch of '->(c)') await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, text: ch, unmodifiedText: ch });
+    ok('Autokorrektur: im Codeblock-Dialog wird nichts ersetzt', await ev("document.getElementById('cdText').value") === '->(c)', await ev("document.getElementById('cdText').value"));
+    await ev("document.getElementById('cdDlg').hidden=true");
+    const nt = await ev("(()=>{notesOpen(true);const t=document.getElementById('ntText');t.value='';t.scrollIntoView();t.focus();return document.activeElement===t})()");
+    if (nt) {
+      await sleep(300);
+      for (const ch of '1 -> 2') await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, text: ch, unmodifiedText: ch });
+      const n1 = await ev("document.getElementById('ntText').value");
+      ok('Autokorrektur: Notizen ersetzen -> beim Tippen', n1 === '1 → 2', n1);
+    } else ok('Autokorrektur: Notizenfeld nicht fokussierbar (Prüfung übersprungen)', true);
+    await ev("document.getElementById('ntText').value='';notesOpen(false);S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
+  // B8: bold/italic/underline/background for the selection only (o.sty runs), mixed state, rendering, wrapping, round trip, undo, sanitiser
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'sty.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()");
+    await sleep(400);
+    await ev("(()=>{const o={type:'text',x:72,y:200,text:'Hello bold world',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.stO=o;window.stK=(k,m={})=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...m}));window.stP=k=>document.querySelector('.tbx [data-a='+k+']').getAttribute('aria-pressed');return 1})()");
+    await sleep(300);
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    await ev("ED.eng.select(6,10);stK('b',{ctrlKey:true})");
+    const s1 = await J("[stO.sty,!!stO.bold,stP('bold')]");
+    ok('Teilformat: Strg+B formatiert nur die Auswahl (Bereich in sty, Feld bleibt unfett), Knopf zeigt gedrückt', JSON.stringify(s1[0]) === '[{"a":6,"b":10,"bold":true}]' && s1[1] === false && s1[2] === 'true', s1);
+    await ev("ED.eng.select(3,10)");
+    const s2 = await J("[stP('bold'),document.querySelector('#tfmt [data-k=bold]').getAttribute('aria-pressed')]");
+    ok("Teilformat: gemischte Auswahl zeigt aria-pressed='mixed' (Leiste und Seitenleiste)", s2[0] === 'mixed' && s2[1] === 'mixed', s2);
+    await ev("stK('b',{ctrlKey:true})");
+    const s3 = await J("[stO.sty,stP('bold')]");
+    ok('Teilformat: gemischt wird zuerst ganz fett, nochmal schaltet aus (kein sty übrig)', JSON.stringify(s3[0]) === '[{"a":3,"b":10,"bold":true}]' && s3[1] === 'true', s3);
+    await ev("stK('b',{ctrlKey:true})");
+    ok('Teilformat: aus, wenn alles schon fett ist', await J("[stO.sty===undefined,stP('bold')]").then(a => a[0] === true && a[1] === 'false'));
+    await ev("ED.eng.select(0,5);stK('i',{ctrlKey:true});ED.eng.select(11,16);stK('u',{ctrlKey:true});ED.set({hbg:'#ffd60a'})");
+    const s4 = await J("stO.sty");
+    ok('Teilformat: Kursiv, Unterstrichen, Hintergrund je Bereich', JSON.stringify(s4) === '[{"a":0,"b":5,"italic":true},{"a":11,"b":16,"underline":true,"hbg":"#ffd60a"}]', s4);
+    // ohne Auswahl wirkt der Knopf auf das ganze Feld wie früher
+    await ev("ED.eng.select(2,2);document.querySelector('.tbx [data-a=bold]').click()");
+    const s5 = await J("[!!stO.bold,stO.sty.length]");
+    ok('Teilformat: ohne Auswahl gilt der Knopf für das ganze Feld (wie früher)', s5[0] === true && s5[1] >= 1, s5);
+    await ev("document.querySelector('.tbx [data-a=bold]').click()");
+    // Tippen an der Bereichsgrenze erbt das Format davor
+    await ev("stO.sty=[{a:6,b:10,bold:true}];ED.eng.select(6,10);ED.eng.select(10,10);stK('X')");
+    const s6 = await J("[stO.text,stO.sty]");
+    ok('Teilformat: Tippen am Ende eines Bereichs erbt das Format, Rest verschiebt sich', s6[0] === 'Hello boldXworld'.slice(0, 10) + 'X' + ' world' && JSON.stringify(s6[1]) === '[{"a":6,"b":11,"bold":true}]', s6);
+    // Breite und Umbruch
+    const w = await J("(()=>{const o={...stO,text:'Hello bold world',sty:undefined,bold:false};const pl=textBox(o).w;const bo=textBox({...o,sty:[{a:0,b:16,bold:true}]}).w;const part=textBox({...o,sty:[{a:6,b:10,bold:true}]}).w;"
+      + "const wrapP=textBox({...o,wrapW:Math.ceil(pl)+1}),wrapB=textBox({...o,sty:[{a:0,b:16,bold:true}],wrapW:Math.ceil(pl)+1});const lh=[wrapP.lines.length,wrapB.lines.length,wrapB.lines.join(' ')===o.text,new Set([wrapB.lh,wrapP.lh]).size];return [pl,bo,part,...lh]})()");
+    ok('Teilformat: fetter Bereich ist breiter, Umbruch misst je Bereich, Zeilenhöhe bleibt gleich', w[1] > w[0] + 3 && w[2] > w[0] && w[2] < w[1] && w[3] === 1 && w[4] >= 2 && w[5] === true && w[6] === 1, w);
+    const px = await J("(()=>{const ink=o=>{const cv=document.createElement('canvas');cv.width=400;cv.height=60;const c=cv.getContext('2d');drawText(c,{...o,x:10,y:10});const d=c.getImageData(0,0,400,60).data;let n=0,mx=0;for(let y=0;y<60;y++)for(let x=0;x<400;x++)if(d[(y*400+x)*4+3]>40){n++;if(x>mx)mx=x}return[n,mx]};const o={type:'text',x:0,y:0,text:'Hello bold world',fs:16,color:'#000000',orient:'h',lw:0};return[ink(o),ink({...o,sty:[{a:6,b:10,bold:true}]}),ink({...o,sty:[{a:6,b:10,bold:true,underline:true,hbg:'#ffd60a'}]})]})()");
+    ok('Teilformat: Zeichnen: fetter Bereich bringt mehr Pixel und ragt weiter, Unterstreichung/Hintergrund zeichnen', px[1][0] > px[0][0] && px[1][1] > px[0][1] && px[2][0] > px[1][0], px);
+    // Rundreise: Speichern, Öffnen, Textebene vollständig
+    const rt = await ev("(async()=>{stO.sty=[{a:0,b:5,italic:true},{a:6,b:10,bold:true,hbg:'#ffd60a'}];stO.text=ED.eng.st.v='Hello bold world';closeEditor();const out=await buildOutput();const d=await pdfOpen(out.slice());const t=(await (await d.getPage(1)).getTextContent()).items.map(x=>x.str).join('').replace(/\\s+/g,'');await openPdf(out,'sty2.pdf');await new Promise(r=>setTimeout(r,800));const o=S.pages[0].objs.find(o=>o.type==='text');return JSON.stringify([t.includes('Helloboldworld')||t,o&&o.sty])})()", 60000).then(JSON.parse);
+    ok('Teilformat: Speichern und Wiederöffnen behält die Bereiche, Textebene im PDF vollständig', rt[0] === true && JSON.stringify(rt[1]) === '[{"a":0,"b":5,"italic":true},{"a":6,"b":10,"bold":true,"hbg":"#ffd60a"}]', rt);
+    // Rückgängig: ein Schritt für die Formatierung beim Bearbeiten
+    const un = await J("(()=>{const o=S.pages[0].objs.find(o=>o.type==='text');const n=H.u.length;openTextEditor(0,o,false);ED.eng.select(12,16);ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:'b',ctrlKey:true,bubbles:true,cancelable:true}));closeEditor();const added=H.u.length-n;const sty=JSON.stringify(o.sty);undo();return [added,sty.includes('12'),JSON.stringify(S.pages[0].objs.find(o=>o.type==='text').sty).includes('12')]})()");
+    ok('Teilformat: Formatieren und Schließen ist ein Rückgängig-Schritt', un[0] === 1 && un[1] === true && un[2] === false, un);
+    // Altdokumente und Bereinigung
+    const sn = await J("(()=>{const b={type:'text',x:1,y:1,text:'abcdef',fs:14,color:'#000000',orient:'h'};const t=s=>sanObj({...b,sty:s});return [t('x').sty,t([{a:0,b:3,bold:'yes'}]).sty,t([{a:2,b:9,bold:true},{a:0,b:4,italic:true}]).sty,t(Array.from({length:3000},(_,i)=>({a:0,b:1,bold:true}))).sty.length<=1,t([{a:0,b:3,bold:true,hbg:'javascript:x'}]).sty,sanObj({...b,orient:'stack',sty:[{a:0,b:2,bold:true}]}).sty,sanObj(b).sty,sanObj({...b,sty:[{a:0,b:2,hbg:'#ff0000'}]}).sty]})()");
+    ok('Teilformat: sanObj prüft Bereiche (Typen, Überlappung, Zahl, stack), Altdokumente ohne sty bleiben gleich', sn[0] == null && sn[1] == null && JSON.stringify(sn[2]) === '[{"a":0,"b":4,"italic":true},{"a":4,"b":6,"bold":true}]' && sn[3] === true && JSON.stringify(sn[4]) === '[{"a":0,"b":3,"bold":true}]' && sn[5] == null && sn[6] == null && JSON.stringify(sn[7]) === '[{"a":0,"b":2,"hbg":"#ff0000"}]', sn);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
+  // B6: page sidebar (add page, drag reorder, arrows setting), page selector (pager) with its placements and shortcut, big documents
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    await ev("(async()=>{design.motion='off';design.pager=DDEF.pager;applyDesign(true);const d=await PDFLib.PDFDocument.create();for(let i=0;i<5;i++)d.addPage([595,842]);await openPdf(await d.save(),'pg5.pdf');await new Promise(r=>setTimeout(r,600));S.pages.forEach((P,i)=>P.objs.push({type:'text',x:60,y:80,text:'P'+(i+1),fs:20,color:'#000000',orient:'h',lw:0}));setSel(null);redrawAll();zoomTo(.5);if(!thumbsOn)toggleThumbs(true);await new Promise(r=>setTimeout(r,900));return 1})()", 60000);
+    const order = () => J("S.pages.map(P=>(P.objs.find(o=>o.type==='text')||{}).text||'-').join()");
+    const wait = async (c, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await ev(c) === true) return true; await sleep(150); } return false; };
+    // arrows: off by default, on with the setting
+    const a0 = await ev("!document.querySelector('#thumbs .th-bar')&&thArrows===false");
+    await ev("document.querySelector('#dThArrows button[data-v=on]').click()"); await sleep(300);
+    const a1 = await J("[!!document.querySelector('#thumbs .th-bar'),document.querySelector('#thumbs .th-bar button').title,localStorage.getItem('pdfwerkbank:tharrows')]");
+    await ev("document.querySelector('#dThArrows button[data-v=off]').click()"); await sleep(300);
+    const a2 = await ev("!document.querySelector('#thumbs .th-bar')");
+    ok('Seitenvorschau: Verschiebe-Pfeile standardmäßig aus, mit Einstellung an (Tooltip „Seite nach oben verschieben“), wieder aus', a0 === true && a1[0] === true && /^Seite nach oben verschieben/.test(a1[1]) && a1[2] === '1' && a2 === true, { a0, a1, a2 });
+    // add page with the + button at the end (menu)
+    const ctr = sel => ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    let p = await ctr('#thAdd'); await mv(p[0], p[1]); await pressAt(p[0], p[1]); await releaseAt(p[0], p[1]); await sleep(300);
+    const item = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(b=>/Größe der letzten/.test(b.textContent));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+    if (item) { await mv(item[0], item[1]); await pressAt(item[0], item[1]); await releaseAt(item[0], item[1]); }
+    const added = await wait("S.pages.length===6&&!rbBusy");
+    const o1 = await order();
+    ok('Seitenvorschau: „+“ am Ende fügt eine leere Seite hinzu, Beschriftungen bleiben bei ihren Seiten', added && o1 === 'P1,P2,P3,P4,P5,-', o1);
+    const hu = await ev("H.u.length"); await ev("undo()"); const un1 = await wait("S.pages.length===5"); const o2 = await order();
+    ok('Seitenvorschau: Seite hinzufügen ist ein Rückgängig-Schritt', un1 && o2 === 'P1,P2,P3,P4,P5', o2);
+    await ev("if(thumbsOn)buildThumbs()"); await sleep(600);
+    // insertion line between two thumbnails
+    const gap = await ev("(()=>{const t=[...document.querySelectorAll('#thumbs .th')],a=t[1].getBoundingClientRect(),b=t[2].getBoundingClientRect();return [(a.left+a.right)/2,(a.bottom+b.top)/2]})()");
+    await mv(gap[0] - 30, gap[1] - 20); await mv(gap[0] - 30, gap[1]); await sleep(150);
+    const insv = await J("(()=>{const i=document.querySelector('#thumbs .th-ins');if(!i||i.hidden)return null;const b=i.querySelector('button').getBoundingClientRect();return [+i.dataset.at,b.left+b.width/2,b.top+b.height/2]})()");
+    if (insv) { await mv(insv[1], insv[2]); await pressAt(insv[1], insv[2]); await releaseAt(insv[1], insv[2]); }
+    const ins = await wait("S.pages.length===6&&!rbBusy"); const o3 = await order();
+    ok('Seitenvorschau: Einfügestreifen zwischen zwei Seiten fügt dort eine leere Seite ein', !!insv && insv[0] === 2 && ins && o3 === 'P1,P2,-,P3,P4,P5', { insv, o3 });
+    await ev("undo()"); await wait("S.pages.length===5"); await ev("buildThumbs()"); await sleep(600);
+    // drag reorder with the mouse: page 1 to between 3 and 4
+    const dragTh = async (k, toY, steps = 8) => { const t = await ev(`(()=>{const e=document.querySelectorAll('#thumbs .th')[${k}];e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+      await mv(t[0], t[1]); await pressAt(t[0], t[1]); for (let s = 1; s <= steps; s++) await dragTo(t[0], t[1] + (toY(t) - t[1]) * s / steps); return t };
+    const nFirst = await ev("H.u.length");
+    let t0 = await dragTh(0, t => t[1]); // placeholder to measure geometry
+    await releaseAt(t0[0], t0[1]); await sleep(200);
+    const tgt = await ev("(()=>{const t=document.querySelectorAll('#thumbs .th'),a=t[2].getBoundingClientRect(),b=t[3].getBoundingClientRect();return (a.bottom+b.top)/2})()");
+    t0 = await dragTh(0, () => tgt);
+    const line = await ev("!!document.querySelector('#thumbs .th-drop')&&document.querySelector('#thumbs').classList.contains('th-drag-on')");
+    await releaseAt(t0[0], tgt);
+    const dr = await wait("!rbBusy&&S.pages.length===5&&(S.pages[0].objs.find(o=>o.type==='text')||{}).text==='P2'"); const o4 = await order();
+    const cp = await ev("curPage()===2||TM.sel===2");
+    ok('Seitenvorschau: Ziehen verschiebt die Seite (Linie sichtbar, Beschriftung folgt), die Seite bleibt gewählt', line && dr && o4 === 'P2,P3,P1,P4,P5' && cp, { line, o4, cp });
+    const h2 = await ev("H.u.length"); await ev("undo()"); await wait("(S.pages[0].objs.find(o=>o.type==='text')||{}).text==='P1'"); const o5 = await order();
+    ok('Seitenvorschau: Ziehen ist ein Rückgängig-Schritt', o5 === 'P1,P2,P3,P4,P5' && h2 - nFirst === 1, { o5, d: h2 - nFirst });
+    await ev("buildThumbs()"); await sleep(600);
+    t0 = await dragTh(1, () => tgt + 10);
+    const ln2 = await ev("!!document.querySelector('#thumbs .th-drop')");
+    await key('Escape', 'Escape', 27); await releaseAt(t0[0], tgt); await sleep(500);
+    const o6 = await order(); const st = await ev("[!!document.querySelector('#thumbs .th-drop'),document.querySelector('#thumbs').classList.contains('th-drag-on'),rbBusy]");
+    ok('Seitenvorschau: Esc bricht das Ziehen ab (Reihenfolge unverändert, Linie weg)', ln2 && o6 === 'P1,P2,P3,P4,P5' && st[0] === false && st[1] === false, { o6, st });
+    // page selector: default floating, jump, clamp, Esc, arrows, shortcut
+    const pg0 = await J("[design.pager,document.getElementById('pager').parentNode.tagName,getComputedStyle(document.getElementById('pgInfo')).display,document.getElementById('pgNum').value,document.getElementById('pgTot').textContent,getComputedStyle(document.getElementById('pgNum')).fontVariantNumeric]");
+    ok('Seitenwahl: standardmäßig unten schwebend, ersetzt die Anzeige „Seite x / y“ (kein Doppel), Zahlen tabellarisch', pg0[0] === 'float' && pg0[1] === 'MAIN' && pg0[2] === 'none' && +pg0[3] >= 1 && /5/.test(pg0[4]) && /tabular/.test(pg0[5]), pg0);
+    const typeNum = async s => { await ev("(()=>{const i=document.getElementById('pgNum');i.focus();i.select()})()"); for (const ch of s) await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, code: 'Digit' + ch, windowsVirtualKeyCode: 48 + +ch, text: ch }); };
+    await typeNum('4'); await key('Enter', 'Enter', 13);
+    const j4 = await wait("curPage()===3");
+    await typeNum('99'); await key('Enter', 'Enter', 13); const j5 = await wait("curPage()===4");
+    const v5 = await ev("document.getElementById('pgNum').value");
+    await typeNum('2'); const mid = await ev("document.getElementById('pgNum').value"); await key('Escape', 'Escape', 27); await sleep(200);
+    const rev = await J("[document.getElementById('pgNum').value,document.activeElement===document.getElementById('pgNum'),curPage()]");
+    await ev("document.getElementById('pgNum').focus()"); await key('ArrowUp', 'ArrowUp', 38); const up = await wait("curPage()===3");
+    ok('Seitenwahl: Zahl + Enter springt (4), zu große Zahl wird begrenzt (5), Esc stellt zurück, Pfeil hoch blättert zurück', j4 && j5 && v5 === '5' && mid === '2' && rev[0] === '5' && rev[1] === false && rev[2] === 4 && up, { j4, j5, v5, mid, rev, up });
+    await ev("document.getElementById('pgNum').blur();document.body.focus()");
+    await ev("document.dispatchEvent(new KeyboardEvent('keydown',{key:'g',code:'KeyG',ctrlKey:true,altKey:true,bubbles:true,cancelable:true}))"); await sleep(200);
+    const sc = await J("[document.activeElement===document.getElementById('pgNum'),!!KB_DEF.find(a=>a.id==='gotoPage'&&a.def==='Ctrl+Alt+G')]").catch(() => null);
+    ok('Seitenwahl: Strg+Alt+G fokussiert das Seitenfeld, Eintrag in der Tastenkürzel-Tabelle', sc && sc[0] === true && sc[1] === true, sc);
+    await ev("document.getElementById('pgNum').blur()");
+    // placements
+    const pl = {};
+    for (const v of ['side', 'off', 'float']) { await ev(`design.pager='${v}';applyDesign(true)`); await sleep(250);
+      pl[v] = await J("[document.getElementById('pager').parentNode.id,getComputedStyle(document.getElementById('pager')).display,getComputedStyle(document.getElementById('pgInfo')).display,document.getElementById('pager').classList.contains('in-thumbs')]"); }
+    await ev("toggleThumbs(false)"); await ev("design.pager='side';applyDesign(true)"); await sleep(300);
+    const sc2 = await J("[document.getElementById('pager').parentNode.tagName,getComputedStyle(document.getElementById('pager')).display]"); await ev("design.pager='float';applyDesign(true);toggleThumbs(true)");
+    const san = await J("[dSan({...design,pager:'x'}).pager,dSan({...design,pager:'side'}).pager,document.querySelectorAll('#dPager button').length]");
+    ok('Seitenwahl: Platzierung unten / in der Vorschau / aus (dann nur die Anzeige), bei geschlossener Vorschau schwebend, ungültiger Wert wird bereinigt',
+      pl.side[0] === 'thumbs' && pl.side[1] !== 'none' && pl.side[2] === 'none' && pl.side[3] && pl.off[1] === 'none' && pl.off[2] !== 'none' && pl.float[0] === 'wrap' && pl.float[1] !== 'none' && pl.float[2] === 'none'
+      && sc2[0] === 'MAIN' && sc2[1] !== 'none' && san[0] === 'float' && san[1] === 'side' && san[2] === 3, { pl, sc2, san });
+    // big document: thumbnails are drawn lazily
+    const big = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();for(let i=0;i<220;i++)d.addPage([595,842]);const b=await d.save();const t0=performance.now();await openPdf(b,'big.pdf');await new Promise(r=>setTimeout(r,1500));const n=document.querySelectorAll('#thumbs .th').length,done=S.pages.filter(P=>P.thumbBase).length;return JSON.stringify({n,done,ms:Math.round(performance.now()-t0),val:document.getElementById('pgTot').textContent})})()", 90000).then(JSON.parse);
+    ok('Seitenvorschau: 220 Seiten, Vorschaubilder werden nur für den sichtbaren Bereich gezeichnet', big.n === 220 && big.done > 0 && big.done < 120 && /220/.test(big.val), big);
+    const en = await J("(()=>{setLang('en');const r=[tr('Seitenwahl'),tr('Seite hinzufügen'),tr('Leere A4-Seite'),tr('Seite nach oben verschieben'),document.querySelector('#thAdd')&&document.querySelector('#thAdd').title];setLang('de');return r})()");
+    ok('Seitenwahl und Seitenvorschau: englische Texte', en[0] === 'Page selector' && en[1] === 'Add page' && en[2] === 'Blank A4 page' && en[3] === 'Move page up' && en[4] === 'Add page at the end', en);
+    await ev("design.motion='on';applyDesign(true);S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
+  // Review fix 1: undo/redo inside the open text editor also restores sty/spans; Ctrl+B in the editor is undoable
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'sty3.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});const o={type:'text',x:72,y:200,text:'Hello bold world',fs:16,color:'#1b1f24',orient:'h',lw:0,sty:[{a:6,b:10,bold:true}]};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.u1=o;window.u1K=(k,m={})=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...m}));return 1})()");
+    await sleep(300);
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    await ev("ED.eng.select(2,2);u1K('x');ED.eng.select(4,12);u1K('Delete')");
+    const mid = await J("[u1.text,u1.sty]");
+    await ev("for(let i=0;i<2;i++)u1K('z',{ctrlKey:true})");
+    const back = await J("[u1.text,u1.sty]");
+    await ev("for(let i=0;i<2;i++)u1K('y',{ctrlKey:true})");
+    const fwd = await J("[u1.text,u1.sty]");
+    ok('Review 1: Strg+Z/Strg+Y im Editor stellen Text und Teilformat (sty) zusammen wieder her', back[0] === 'Hello bold world' && JSON.stringify(back[1]) === '[{"a":6,"b":10,"bold":true}]' && fwd[0] === mid[0] && JSON.stringify(fwd[1]) === JSON.stringify(mid[1]), { mid, back, fwd });
+    await ev("for(let i=0;i<2;i++)u1K('z',{ctrlKey:true});ED.eng.select(0,5);u1K('b',{ctrlKey:true})");
+    const f1 = await J("u1.sty"); await ev("u1K('z',{ctrlKey:true})"); const f2 = await J("u1.sty"); await ev("u1K('y',{ctrlKey:true})"); const f3 = await J("u1.sty");
+    ok('Review 1: Strg+B im Editor ist mit Strg+Z rücknehmbar (und Strg+Y)', JSON.stringify(f1) === '[{"a":0,"b":5,"bold":true},{"a":6,"b":10,"bold":true}]' && JSON.stringify(f2) === '[{"a":6,"b":10,"bold":true}]' && JSON.stringify(f3) === JSON.stringify(f1), { f1, f2, f3 });
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
+  // Review fix 2 and 7: only weight/slant changes re-wrap; underline/background keep the plain wrapping; speed at 20k characters
+  {
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    const w2 = await J("(()=>{const T=Array.from({length:70},(_,i)=>'wort'+i).join(' '),o={type:'text',x:0,y:0,text:T,fs:16,color:'#000000',orient:'h',lw:0,wrapW:300};const plain=textBox(o).lines,ul=textBox({...o,sty:[{a:40,b:90,underline:true,hbg:'#ffd60a'}]}).lines,bo=textBox({...o,sty:[{a:300,b:340,bold:true}]}).lines;"
+      + "let same=0;while(same<plain.length&&same<bo.length&&plain[same]===bo[same])same++;const first=plain.join('|').indexOf(T.slice(300,310));return [JSON.stringify(plain)===JSON.stringify(ul),plain.length,bo.length,same,plain.slice(0,same).join(' ').length>=200,bo.join(' ')===T.replace(/\\s+/g,' ')]})()");
+    ok('Review 2: Unterstreichen/Hintergrund lassen den Umbruch unverändert, ein fetter Bereich ändert nur die Zeilen ab dort', w2[0] === true && w2[3] >= 5 && w2[4] === true && w2[5] === true, w2);
+    const sp = await ev("(()=>{const T=Array.from({length:3300},(_,i)=>'wor'+(i%10)).join(' ').slice(0,20000),sty=[];for(let k=0;k<200;k++)sty.push({a:k*90+5,b:k*90+30,bold:k%2===0,underline:true});const o={type:'text',x:0,y:0,text:T,fs:14,color:'#000000',orient:'h',lw:0,wrapW:500,sty};const cv=document.createElement('canvas');cv.width=600;cv.height=200;const c=cv.getContext('2d');const t0=performance.now();for(let i=0;i<20;i++){o.text=T+'x'.repeat(i);textBox(o);drawText(c,o)}return JSON.stringify([Math.round((performance.now()-t0)/20),T.length])})()", 60000).then(JSON.parse);
+    ok('Review 7: 16000 Zeichen mit 200 Bereichen: Messen und Zeichnen je Tastendruck unter 100 ms', sp[0] < 100 && sp[1] > 15000, sp);
+  }
+  // Review fix 3: after Backspace undoes an autocorrect in the notes field the caret is collapsed (next character does not overwrite)
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("S.autoChar=true;S.autoCap=false;notesOpen(true);const t=document.getElementById('ntText');t.value='';t.scrollIntoView();t.focus()"); await sleep(400);
+    for (const ch of 'a ->') await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, text: ch, unmodifiedText: ch });
+    await key('Backspace', 'Backspace', 8);
+    await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'X', text: 'X', unmodifiedText: 'X' });
+    const nv = await ev("document.getElementById('ntText').value");
+    ok("Review 3: Notizen: 'a ->', Rückschritt, 'X' ergibt 'a ->X'", nv === 'a ->X', nv);
+    await ev("document.getElementById('ntText').value='';notesOpen(false);S.autoCap=true");
+  }
+  // Review fix 4: conservative autocorrect: IT text, options, URLs and enumerations stay as typed; real dash/arrow/symbol uses still convert
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ac2.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;S.autoCap=false;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});const o={type:'text',x:72,y:200,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.a4K=k=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));window.a4=s=>{const st=ED.eng.st;st.v='';st.c=st.a=0;for(const ch of s)a4K(ch);return ED.eng.st.v};return 1})()");
+    await sleep(300);
+    const same = ['git push --force', 'x<-1', 'f(c)', '(a) (b) (c)', '<=>', '+---+', 'i++--', 'http://a.b/c--d', 'user@mail--x', '1--2', 'a<->b', '"zitat" und \'x\'', 'a-b', 'wait.. ok', 'x --y', '1+-'];
+    const conv = [['a -- b', 'a – b'], ['-- x', '– x'], ['a <- b', 'a ← b'], ['x <-> y', 'x ↔ y'], ['+-5', '±5'], ['Copyright (c) 2026', 'Copyright © 2026'], ['a->b', 'a→b'], ['wait...', 'wait…'], ['a != b', 'a ≠ b'], ['a => b', 'a ⇒ b'], ['x (tm)', 'x ™'], ['(R) y', '® y']];
+    const bad = [], badc = [];
+    for (const i of same) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== i) bad.push([i, r]); }
+    for (const [i, e] of conv) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== e) badc.push([i, r, e]); }
+    ok('Review 4: Autokorrektur lässt IT-Text, Optionen, URLs, Aufzählungen und Operatoren unverändert', bad.length === 0, bad);
+    ok('Review 4: Autokorrektur wandelt echte Gedankenstriche, Pfeile und Zeichen weiterhin um', badc.length === 0, badc);
+    await ev("closeEditor();S.autoCap=true;S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
+  // Review fix 9: the special character shortcut is part of the shortcut table (listed, remappable)
+  {
+    const k9 = await ev("JSON.stringify((()=>{const a=KB_DEF.find(x=>x.id==='chars');return [!!a,a&&a.def,a&&a.text===true,kbGet(a)]})())").then(JSON.parse);
+    ok('Review 9: Sonderzeichen-Kürzel steht in der Tastenkürzel-Tabelle (Ctrl+Shift+K, auch beim Schreiben)', k9[0] && k9[1] === 'Ctrl+Shift+K' && k9[2] && k9[3] === 'Ctrl+Shift+K', k9);
+  }
+  // Review fix 5/12: the floating page selector does not block drawing: faded and click-through with any tool but select (and while a template is armed); Ctrl+Alt+G makes it live; not in presentation mode
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{design.pager='float';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'pgf.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);S.pages[0].el.scrollIntoView({block:'start'});await new Promise(r=>setTimeout(r,300));return 1})()");
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    const hit = "(()=>{const r=document.getElementById('pager').getBoundingClientRect(),e=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!e&&!!e.closest('#pager')})()";
+    const sOn = await ev(hit);
+    await ev("setTool('pen')"); await sleep(200);
+    const pen = await J("[" + hit + ",getComputedStyle(document.getElementById('pager')).opacity]");
+    await ev("setTool('select')"); await sleep(200);
+    const back = await ev(hit);
+    await ev("document.dispatchEvent(new KeyboardEvent('keydown',{key:'g',code:'KeyG',ctrlKey:true,altKey:true,bubbles:true,cancelable:true}))"); await sleep(150);
+    await ev("setTool('pen')"); await sleep(100);
+    const live = await J("[document.getElementById('pager').classList.contains('pg-live'),document.activeElement===document.getElementById('pgNum'),getComputedStyle(document.getElementById('pager')).opacity]");
+    await ev("setTool('select');document.getElementById('pgNum').blur()");
+    const pad = await ev("parseFloat(getComputedStyle(document.getElementById('viewer')).paddingBottom)");
+    ok('Review 5: Seitenwahl-Pille ist bei Stift/Formen/Text/armierter Vorlage blass und lässt Klicks durch, mit Auswahlwerkzeug normal; Seite scrollt über sie', sOn === true && pen[0] === false && +pen[1] < 0.5 && back === true && pad >= 52 && live[0] && live[1] && +live[2] === 1, { sOn, pen, back, pad, live });
+    // Ctrl+Alt+G in presentation mode does not focus the hidden field
+    await ev("(()=>{let pv=document.getElementById('prsView');if(!pv){pv=document.createElement('div');pv.id='prsView';document.body.appendChild(pv)}pv.hidden=false;document.getElementById('pgNum').blur()})()");
+    await ev("document.dispatchEvent(new KeyboardEvent('keydown',{key:'g',code:'KeyG',ctrlKey:true,altKey:true,bubbles:true,cancelable:true}))"); await sleep(150);
+    const prs = await ev("document.activeElement!==document.getElementById('pgNum')");
+    await ev("document.getElementById('prsView').hidden=true");
+    ok('Review 12: Strg+Alt+G fokussiert das Seitenfeld nicht im Präsentationsmodus', prs === true, prs);
+  }
+  // Review fix 11: dragging pages in a document with bookmarks warns that bookmarks are lost; thumbnail observer is replaced on rebuild
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();for(let i=0;i<4;i++)d.addPage([595,842]);await openPdf(await d.save(),'ol.pdf');await new Promise(r=>setTimeout(r,600));if(!thumbsOn)toggleThumbs(true);await new Promise(r=>setTimeout(r,900));window.olMsgs=[];const t0=toast;window.__toast0=t0;toast=m=>{olMsgs.push(String(m));return t0(m)};S.doc.getOutline=async()=>[{title:'Kapitel'}];return 1})()", 60000);
+    const t = await ev("(()=>{const e=document.querySelectorAll('#thumbs .th')[0];e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+    const g = await ev("(()=>{const t=document.querySelectorAll('#thumbs .th'),a=t[2].getBoundingClientRect(),b=t[3].getBoundingClientRect();return (a.bottom+b.top)/2})()");
+    await mv(t[0], t[1]); await pressAt(t[0], t[1]); for (let s = 1; s <= 8; s++) await dragTo(t[0], t[1] + (g - t[1]) * s / 8); await releaseAt(t[0], g);
+    let w = false; for (let i = 0; i < 60 && !w; i++) { await sleep(250); w = await ev("olMsgs.some(m=>/Lesezeichen/.test(m))"); }
+    const same = await ev("olMsgs.filter(m=>/Lesezeichen/.test(m)).length");
+    ok('Review 11: Ziehen von Seiten warnt, wenn das Dokument Lesezeichen hat', w === true && same === 1, same);
+    await ev("toast=window.__toast0;S.pages.forEach(P=>P.objs=[])");
+  }
+  // Merge A+B: semantic clashes between the select tool strand (mini bar, Tab, groups, Ctrl+G) and the page/char/symbol strand
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    const mkDoc = n => ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();for(let i=0;i<${n};i++)d.addPage([595,842]);await openPdf(await d.save(),'mg.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    const R2 = "{type:'rect',x:100,y:100,w:60,h:40,color:'#000000',lw:1,fill:'white',oid:'mA'},{type:'rect',x:300,y:100,w:60,h:40,color:'#000000',lw:1,fill:'white',oid:'mB'}";
+    await mkDoc(3);
+    // 1. default key map: no duplicate ids, no duplicate default combos
+    const km = await ev("(()=>{const ids=KB_DEF.map(x=>x.id),defs=KB_DEF.filter(x=>x.def).map(x=>x.def.toLowerCase()),dup=a=>a.filter((v,i)=>a.indexOf(v)!==i);return JSON.stringify([dup(ids),dup(defs),KB_DEF.filter(x=>['group','gotoPage','chars','ungroup'].includes(x.id)).map(x=>x.id+'='+x.def)])})()").then(JSON.parse);
+    ok('Merge A+B: Kürzel-Tabelle ohne doppelte IDs oder doppelte Standardtasten', km[0].length === 0 && km[1].length === 0 && km[2].length === 4, km);
+    // 2. object mini bar never covers the page pager
+    await ev(`S.pages[0].objs.push({type:'rect',x:200,y:700,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'mN'});redrawAll();(()=>{const v=document.getElementById('viewer'),o=S.pages[0].objs[0];const sr=S.pages[0].el.getBoundingClientRect(),vr=v.getBoundingClientRect();v.scrollTop+=sr.top+(o.y+o.h)*S.zoom-(vr.bottom-12);setSel({p:0,o});})()`);
+    await sleep(500);
+    const mb = await ev("(()=>{const b=document.getElementById('obBar'),p=document.querySelector('.pager'),a=b.getBoundingClientRect(),c=p.getBoundingClientRect();return JSON.stringify([b.hidden,a.bottom,c.top,a.right<=c.left||a.left>=c.right,c.height>0])})()").then(JSON.parse);
+    ok('Merge A+B: Objektleiste am unteren Rand verdeckt die Seitenwahl nicht', mb[0] === true || mb[1] <= mb[2] + 0.5 || mb[3] === true, mb);
+    // 3. Tab in the pager field does not select objects
+    await ev(`S.pages[0].objs=[${R2}];setSel(null);redrawAll();window.scroll310&&0;pgFocus()`);
+    await sleep(150);
+    await cdp('Input.insertText', { text: '2' });
+    await key310('Tab', 'Tab', 9);
+    const tb = await ev("JSON.stringify([!S.sel,document.activeElement&&document.activeElement.id])").then(JSON.parse);
+    ok('Merge A+B: Tab im Seitenfeld wählt keine Objekte und tippt Ziffern', tb[0] === true && tb[1] !== 'viewer', tb);
+    // 4. Esc while dragging a thumbnail keeps the object selection
+    await ev("(async()=>{if(!thumbsOn)toggleThumbs(true);await new Promise(r=>setTimeout(r,900));S.pages[0].objs=[" + R2.replace(/"/g, '\\"') + "];redrawAll();setSel({p:0,o:S.pages[0].objs[0]});return 1})()");
+    const t = await ev("(()=>{const e=document.querySelectorAll('#thumbs .th')[0];e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+    const g = await ev("(()=>{const t=document.querySelectorAll('#thumbs .th'),a=t[1].getBoundingClientRect(),b=t[2].getBoundingClientRect();return (a.bottom+b.top)/2})()");
+    await mv(t[0], t[1]); await pressAt(t[0], t[1]); for (let s = 1; s <= 8; s++) await dragTo(t[0], t[1] + (g - t[1]) * s / 8);
+    const dragOn = await ev("!!(THD&&THD.on)");
+    await key310('Escape', 'Escape', 27);
+    const esc = await ev("JSON.stringify([!!S.sel,!THD||!THD.on])").then(JSON.parse);
+    await releaseAt(t[0], g); await sleep(300);
+    ok('Merge A+B: Esc beim Ziehen einer Seitenvorschau bricht nur das Ziehen ab, Objektauswahl bleibt', dragOn === true && esc[0] === true && esc[1] === true, { dragOn, esc });
+    // 5. Ctrl+G does not group while typing in the text editor or the notes field
+    await ev(`S.pages[0].objs=[${R2}];redrawAll()`);
+    await click310([130, 120]); await click310([330, 120], 8);
+    await ev("(()=>{const o={type:'text',x:72,y:300,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);return 1})()");
+    await sleep(300);
+    await key310('g', 'KeyG', 71, 2);
+    const gt = await ev("S.pages[0].objs.filter(o=>o.gg).length");
+    await ev("ED.esc()");
+    await ev(`S.pages[0].objs=[${R2}];redrawAll();setSel(null);notesOpen(true)`);
+    await sleep(300);
+    await click310([130, 120]); await click310([330, 120], 8);
+    await ev("document.getElementById('ntText').focus()");
+    await key310('g', 'KeyG', 71, 2);
+    const gn = await ev("S.pages[0].objs.filter(o=>o.gg).length");
+    ok('Merge A+B: Strg+G gruppiert nicht beim Tippen im Texteditor und in den Notizen', gt === 0 && gn === 0, { gt, gn });
+    // 6. the characters picker opens with an object selected (text editor open on it)
+    await ev("document.getElementById('ntText').blur();notesOpen(false)");
+    await ev(`S.pages[0].objs=[];setSel(null);(()=>{const o={type:'text',x:72,y:300,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);setSel({p:0,o});openTextEditor(0,o,false);return 1})()`);
+    await sleep(300);
+    await key310('K', 'KeyK', 75, 10);
+    await sleep(300);
+    const cp = await ev("JSON.stringify([!!(charPop&&!charPop.hidden),!!editorEl])").then(JSON.parse);
+    await ev("closeCharPop();ED&&ED.esc()");
+    ok('Merge A+B: Sonderzeichen-Auswahl öffnet sich bei gewähltem Objekt im Editor', cp[0] === true && cp[1] === true, cp);
+    // 7. new RAID symbols: click-to-place, then align and distribute
+    await mkDoc(1);
+    const tile = id => ev(`(()=>{S.cat='Speicher & Backup';buildCats();const b=document.querySelector('#symgrid .sym[data-s="${id}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    const pgp = (u, v) => ev(`(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+${u}*S.zoom,r.top+${v}*S.zoom]})()`);
+    const places = [['st_raid5', 100, 120], ['st_nas', 250, 260], ['st_cloud', 450, 190]];
+    for (const [id, u, v] of places) { const q = await tile(id); await mv(q[0], q[1]); await pressAt(q[0], q[1]); await releaseAt(q[0], q[1]); await sleep(150); const p = await pgp(u, v); await mv(p[0], p[1]); await pressAt(p[0], p[1]); await releaseAt(p[0], p[1]); await sleep(200); }
+    const pl = await ev("JSON.stringify(S.pages[0].objs.filter(o=>/^st_/.test(o.sym||'')).map(o=>o.sym))").then(JSON.parse);
+    ok('Merge A+B: neue RAID-Symbole lassen sich per Klick setzen', pl.join() === 'st_raid5,st_nas,st_cloud', pl);
+    await ev("setTool('select');setSel(null)");
+    const a1 = await ev("(()=>{const O=S.pages[0].objs;selectItems(0,O.slice());alignSel('t');return JSON.stringify(O.map(o=>Math.round(o.y*10)/10))})()").then(JSON.parse);
+    await ev("(()=>{const O=S.pages[0].objs;O[0].x=100;O[1].x=200;O[2].x=500;selectItems(0,O.slice());alignSel('dh');const b=O.map(o=>[o.x,o.x+o.w]).sort((a,b)=>a[0]-b[0]);window.__gaps=[b[1][0]-b[0][1],b[2][0]-b[1][1]]})()");
+    const gp = await ev("window.__gaps");
+    ok('Merge A+B: Ausrichten und Verteilen funktionieren mit den neuen Symbolen', a1.every(y => Math.abs(y - a1[0]) < 0.6) && Math.abs(gp[0] - gp[1]) < 0.6, { a1, gp });
+    // 8. Ctrl+Alt+G focuses the pager field, Ctrl+G still groups
+    await ev("S.pages[0].objs=[" + R2.replace(/"/g, '\\"') + "];redrawAll();setSel(null);document.activeElement&&document.activeElement.blur&&document.activeElement.blur()");
+    await click310([130, 120]); await click310([330, 120], 8);
+    await key310('g', 'KeyG', 71, 2);
+    const gr = await ev("S.pages[0].objs.filter(o=>o.gg).length");
+    await key310('g', 'KeyG', 71, 3);
+    const pf = await ev("document.activeElement&&document.activeElement.id");
+    ok('Merge A+B: Strg+G gruppiert, Strg+Alt+G fokussiert das Seitenfeld', gr === 2 && pf === 'pgNum', { gr, pf });
+    await ev("document.activeElement&&document.activeElement.blur&&document.activeElement.blur();S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
