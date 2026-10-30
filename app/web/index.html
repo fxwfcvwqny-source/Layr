@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-of6BhJ+VFFQNUvscaicPIO9KmqCm9GdQCjYPem+7Kn4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-7Wjd2yEiAY+Qo6MplTVJ8TgCUhmifjHrhgzCPECIUhc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3460,7 +3460,9 @@ var DBLH=null,txtDefer=0,txtPend=null;
 // typing during the deferred text box: open it now and put the character in (otherwise it would trigger a shortcut)
 addEventListener('keydown',e=>{if(!txtDefer)return;clearTimeout(txtDefer);txtDefer=0;const p=txtPend;if(!p||S.tool!=='text'||editorEl)return;
   newText(p.i,p.x,p.y);if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&ED&&ED.eng){e.preventDefault();e.stopImmediatePropagation();ED.eng.put(e.key)}},true);
-addEventListener('pointerdown',e=>{if(e.button!==0||!viewer.contains(e.target))return;const t=performance.now();if(!DBLH||t-DBLH.t>500||Math.hypot(e.clientX-DBLH.x,e.clientY-DBLH.y)>6)DBLH={n:H.n,arm:!!ARM,tool:S.tool,c:0,x:e.clientX,y:e.clientY};DBLH.c++;DBLH.t=t},true);
+addEventListener('pointerdown',e=>{if(e.button!==0||!viewer.contains(e.target))return;const t=performance.now();if(!DBLH||t-DBLH.t>500||Math.hypot(e.clientX-DBLH.x,e.clientY-DBLH.y)>6)DBLH={n:H.n,arm:!!ARM,tool:S.tool,c:0,x:e.clientX,y:e.clientY};DBLH.c++;DBLH.t=t;DBLH.dx=e.clientX;DBLH.dy=e.clientY},true);
+// a click that moved (a stroke, a drag) is not half of a double-click
+addEventListener('pointerup',e=>{if(DBLH&&Math.hypot(e.clientX-DBLH.dx,e.clientY-DBLH.dy)>6)DBLH=null},true);
 /* Old single topology symbols -> editable template (setting topoEditOn; documents with the old symbols stay as they are) */
 var topoEditOn=true;try{topoEditOn=localStorage.getItem('pdfwerkbank:topoEdit')!=='0'}catch(e){}
 const TOPO_MAP={t_star:'topo_star',t_ring:'topo_ring',t_bus:'topo_bus',t_line:'topo_line',t_mesh:'topo_mesh',t_partmesh:'topo_partmesh',t_tree:'topo_tree',t_xstar:'topo_xstar'};

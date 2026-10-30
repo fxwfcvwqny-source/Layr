@@ -965,6 +965,12 @@ else {
     await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;for(let q=0;q<160;q++)pushHist();setTool('pen')");
     await dbl4(); const cap4 = await state4(); await ev("closeEditor();setTool('select');setSel(null);S.pages[0].objs.length=1;H.u=[];H.r=[];updUndo()");
     ok('Doppelklick im Stiftwerkzeug bei vollem Verlauf (150): keine Punkte, Editor offen', cap4.n === 1 && cap4.edit, cap4);
+    // a pen stroke that starts on the symbol and is followed by a quick click: the stroke stays (no dblclick undo)
+    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;setTool('pen');H.u=[];H.r=[];updUndo()");
+    { await sleep(700); const p = await ev("tpScr(tpPt(S.pages[0].objs[0]))"); await mv(p[0], p[1]); await pressAt(p[0], p[1]); for (let i = 1; i <= 5; i++) await dragTo(p[0] + 12 * i, p[1] + 3 * i); await releaseAt(p[0] + 60, p[1] + 15);
+      await mv(p[0], p[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: 2 }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: 2 }); await sleep(250); }
+    const strk = await ev("({pens:S.pages[0].objs.filter(o=>o.type==='pen'&&o.pts.length>2).length,edit:!!editorEl&&editingObj!=null})"); await ev("closeEditor();setTool('select');S.pages[0].objs.length=1;setSel(null);H.u=[];H.r=[];updUndo()");
+    ok('Stift: ein gezogener Strich bleibt, wenn direkt danach geklickt wird', strk.pens === 1 && !strk.edit, strk);
     // setting OFF: pen tool keeps the old behaviour (draws dots, no editor), proves the check is sensitive
     await ev("dblAllOn=false;closeEditor();setSel(null);setTool('pen');H.u=[];H.r=[];updUndo();S.pages[0].objs.length=1");
     await dbl4(); const off4 = await state4(); await ev("dblAllOn=true;closeEditor();setTool('select');S.pages[0].objs.length=1;setSel(null);H.u=[];H.r=[];updUndo()");
