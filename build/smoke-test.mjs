@@ -1345,7 +1345,8 @@ else {
     ok('Objektleiste: erscheint über dem gewählten Objekt, role=toolbar mit Beschriftung, im Fenster', !b.hidden && b.b <= sb.t && b.l >= b.vl && b.r <= b.vr && b.t >= b.vt && b.role === 'toolbar' && b.lab === 'Objektleiste', { b, sb });
     const names = await ev("JSON.stringify([...document.querySelectorAll('#obBar button')].filter(x=>x.offsetParent).map(x=>x.getAttribute('aria-label')))").then(JSON.parse);
     ok('Objektleiste: Duplizieren, Löschen, Sperren, Farbe, Nach vorne/hinten mit aria-label, kein Ausrichten bei einem Objekt', ['Duplizieren', 'Löschen', 'Sperren', 'Farbe', 'Nach vorne', 'Nach hinten'].every(n => names.includes(n)) && !names.includes('Links ausrichten'), names);
-    ok('Objektleiste: überdeckt nicht die Textauswahl-Leiste (#tsBar versteckt)', await ev("document.getElementById('tsBar').hidden") === true);
+    const tsv = await ev("(()=>{tsBar.hidden=false;obUpdate();const r=obBar.hidden;tsBar.hidden=true;obUpdate();return JSON.stringify([r,obBar.hidden])})()").then(JSON.parse);
+    ok('Objektleiste: überdeckt nicht die Textauswahl-Leiste (bei sichtbarer #tsBar ist die Objektleiste weg, danach wieder da)', tsv[0] === true && tsv[1] === false, tsv);
     // hidden while dragging, back afterwards at the new place
     { const c = await pt310([250, 330]); await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 6; i++) await dragTo(c[0] + 10 * i, c[1] + 6 * i); await sleep(100); var during = await bar(); await releaseAt(c[0] + 60, c[1] + 36); await sleep(250); }
     b = await bar(); sb = await selBox();
