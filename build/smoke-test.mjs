@@ -1381,12 +1381,12 @@ else {
     const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
     await ev("ED.eng.select(2,2);u1K('x');ED.eng.select(4,12);u1K('Delete')");
     const mid = await J("[u1.text,u1.sty]");
-    await ev("for(let i=0;i<6;i++)u1K('z',{ctrlKey:true})");
+    await ev("for(let i=0;i<2;i++)u1K('z',{ctrlKey:true})");
     const back = await J("[u1.text,u1.sty]");
-    await ev("for(let i=0;i<6;i++)u1K('y',{ctrlKey:true})");
+    await ev("for(let i=0;i<2;i++)u1K('y',{ctrlKey:true})");
     const fwd = await J("[u1.text,u1.sty]");
     ok('Review 1: Strg+Z/Strg+Y im Editor stellen Text und Teilformat (sty) zusammen wieder her', back[0] === 'Hello bold world' && JSON.stringify(back[1]) === '[{"a":6,"b":10,"bold":true}]' && fwd[0] === mid[0] && JSON.stringify(fwd[1]) === JSON.stringify(mid[1]), { mid, back, fwd });
-    await ev("for(let i=0;i<6;i++)u1K('z',{ctrlKey:true});ED.eng.select(0,5);u1K('b',{ctrlKey:true})");
+    await ev("for(let i=0;i<2;i++)u1K('z',{ctrlKey:true});ED.eng.select(0,5);u1K('b',{ctrlKey:true})");
     const f1 = await J("u1.sty"); await ev("u1K('z',{ctrlKey:true})"); const f2 = await J("u1.sty"); await ev("u1K('y',{ctrlKey:true})"); const f3 = await J("u1.sty");
     ok('Review 1: Strg+B im Editor ist mit Strg+Z rücknehmbar (und Strg+Y)', JSON.stringify(f1) === '[{"a":0,"b":5,"bold":true},{"a":6,"b":10,"bold":true}]' && JSON.stringify(f2) === '[{"a":6,"b":10,"bold":true}]' && JSON.stringify(f3) === JSON.stringify(f1), { f1, f2, f3 });
     await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");

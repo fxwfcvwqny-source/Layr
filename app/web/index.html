@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-EDdta8uaJOlwmQ6ylHwZwa/kDb+1xJDJ9Iw+H82pyj0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-wcdI0neb/7EM6kKfRyC5PhTuSdRDd+EEskjsdWXpn4A=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6383,13 +6383,14 @@ function styFont(o,i){const b=styVal(o,i,'bold'),it=styVal(o,i,'italic'),k=b+'|'
 const isRich=o=>!!(o.sty&&o.sty.length&&o.orient!=='stack');
 // only runs that change weight or slant need their own font; underline/background keep the plain measuring and wrapping
 const fontRich=o=>isRich(o)&&o.sty.some(s=>'bold' in s||'italic' in s);
-const STY_S=new Map();
-// font-uniform pieces [from,to,font] of o.text
-function fsegs(o){const n=String(o.text).length,base=tfont(o),fr=o.sty.filter(s=>'bold' in s||'italic' in s),key=base+'\u0001'+JSON.stringify(fr.map(s=>[s.a,s.b,s.bold,s.italic]))+'\u0001'+n;let r=STY_S.get(key);if(r)return r;
-  r=[];let p=0;for(const s of fr){const a=Math.max(p,s.a),b=Math.min(n,s.b);if(b<=a)continue;if(a>p)r.push([p,a,base]);r.push([a,b,tfont({...o,bold:'bold' in s?s.bold:!!o.bold,italic:'italic' in s?s.italic:!!o.italic})]);p=b}
-  if(p<n||!r.length)r.push([p,n,base]);if(STY_S.size>40)STY_S.clear();STY_S.set(key,r);return r}
+const STY_S=new WeakMap();
+// font-uniform pieces [from,to,font] of o.text (cached per o.sty array; every edit makes a new array)
+function fsegs(o){const n=String(o.text).length,base=tfont(o),c=STY_S.get(o.sty);if(c&&c.n===n&&c.base===base)return c.r;
+  const fr=o.sty.filter(s=>'bold' in s||'italic' in s),r=[];let p=0;for(const s of fr){const a=Math.max(p,s.a),b=Math.min(n,s.b);if(b<=a)continue;if(a>p)r.push([p,a,base]);r.push([a,b,tfont({...o,bold:'bold' in s?s.bold:!!o.bold,italic:'italic' in s?s.italic:!!o.italic})]);p=b}
+  if(p<n||!r.length)r.push([p,n,base]);STY_S.set(o.sty,{n,base,r});return r}
 // width of o.text.slice(a,b): each font piece is measured as one string (keeps kerning inside a piece)
-function wSty(o,a,b){const T=String(o.text);let w=0;for(const[s,e,f]of fsegs(o)){const x=Math.max(a,s),y=Math.min(b,e);if(y>x){mctx.font=f;w+=mctx.measureText(T.slice(x,y)).width}}return w}
+function wSty(o,a,b){const T=String(o.text),R=fsegs(o);let lo=0,hi=R.length;while(lo<hi){const m=(lo+hi)>>1;if(R[m][1]<=a)lo=m+1;else hi=m}
+  let w=0;for(let k=lo;k<R.length&&R[k][0]<b;k++){const x=Math.max(a,R[k][0]),y=Math.min(b,R[k][1]);if(y>x){mctx.font=R[k][2];w+=mctx.measureText(T.slice(x,y)).width}}return w}
 // width of str, which sits at index start of o.text
 function tw(o,str,start){if(isRich(o)&&start+str.length<=String(o.text).length)return wSty(o,start,start+str.length);mctx.font=tfont(o);return mctx.measureText(str).width}
 // same line breaking as wrapLines, but on text indexes with per-run widths
