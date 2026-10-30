@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-43wVj5ycbV6v9jIYShjMix/5vk8KZiZ12+QyxJaEOps=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FHrdy/effs9xdY9Tzw1Unn8VcaR+c/bCori4xClLf0I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -385,6 +385,11 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .sym span{font-size:10px;line-height:1.15;text-align:center;color:var(--ink);max-width:100%;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere;hyphens:auto}
 .sym:hover{border-color:var(--accent)}
 .sym[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.armghost{position:fixed;z-index:90;pointer-events:none;box-sizing:border-box;border:2px dashed var(--accent);border-radius:3px;background:color-mix(in srgb,var(--accent) 14%,transparent);box-shadow:0 0 0 1px rgba(255,255,255,.75)}
+.armghost span{position:absolute;left:-2px;top:-2px;transform:translateY(-100%);max-width:240px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:2px 8px;border-radius:6px 6px 6px 0;background:var(--accent);color:var(--on-accent);font:600 12px/1.4 var(--f-ui,inherit)}
+.armhint{position:fixed;z-index:91;left:50%;bottom:22px;transform:translateX(-50%);padding:7px 14px;border-radius:999px;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;pointer-events:none}
+.armhint:empty{display:none}
+#app.armed #viewer,#app.armed #viewer *{cursor:crosshair!important}
 .tgl{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none;white-space:nowrap;font-size:12.5px;color:var(--muted);flex:none;margin:0 4px}
 .tgl input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 .tgl .knob{position:relative;width:30px;height:18px;border-radius:99px;background:color-mix(in srgb,var(--ink) 22%,var(--panel));transition:background .15s;flex:none}
@@ -2537,7 +2542,7 @@ const I18N_EN={
 'Markierung auf Seite ':'Highlight on page ','Eigene Karte':'Own card','1 Karte':'1 card',' Karten':' cards','Fach':'Box','Karte löschen':'Delete card',
 'Noch keine Karten. Markiere wichtige Stellen mit dem Textmarker (Taste M) – jede Markierung wird zu einer Karte. Oder lege unten eigene Karten an.':'No cards yet. Highlight important passages with the highlighter (key M) – every highlight becomes a card. Or add your own cards below.',
 'Fertig!':'Done!',' gewusst, ':' known, ',' noch einmal üben.':' to practise again.','Bitte Frage und Antwort eingeben.':'Please enter a question and an answer.','-Lernkarten':'-flashcards',
-'Hilfslinien':'Guides','Beim Verschieben an Kanten einrasten':'Snap to edges while moving','Raster (5 mm)':'Grid (5 mm)','Punkte anzeigen und daran ausrichten':'Show dots and snap to them','Auswahl nach dem Setzen':'Keep selection after placing','Neue Objekte bleiben ausgewählt':'New objects stay selected','Gesperrte Objekte: Klicks gehen durch':'Locked objects: clicks pass through','Klicks auf gesperrte Objekte wirken auf das darunter':'Clicks on locked objects affect the object below','Position sperren':'Lock position','Gerade ausrichten':'Straighten','Entsperren':'Unlock','Das Objekt ist gesperrt.':'The object is locked.',
+'Hilfslinien':'Guides','Beim Verschieben an Kanten einrasten':'Snap to edges while moving','Raster (5 mm)':'Grid (5 mm)','Punkte anzeigen und daran ausrichten':'Show dots and snap to them','Auswahl nach dem Setzen':'Keep selection after placing','Neue Objekte bleiben ausgewählt':'New objects stay selected','Gesperrte Objekte: Klicks gehen durch':'Locked objects: clicks pass through','Klicks auf gesperrte Objekte wirken auf das darunter':'Clicks on locked objects affect the object below','Position sperren':'Lock position','Gerade ausrichten':'Straighten','Entsperren':'Unlock','Das Objekt ist gesperrt.':'The object is locked.','Vorlagen per Klick platzieren':'Place templates by clicking','Vorlage wählen, dann aufs Blatt klicken (aus: in die Mitte)':'Pick a template, then click the page (off: centre)','Klicken zum Platzieren, Esc bricht ab':'Click to place, Esc cancels',
 'Tablet-Modus':'Tablet mode','Nur der Stift zeichnet, Finger scrollen':'Only the pen draws, fingers scroll','Präsentation':'Presentation','Vorherige Seite':'Previous page','Nächste Seite':'Next page','Laserpointer':'Laser pointer','Beenden (Esc)':'End (Esc)',
 '← → blättern · L Laserpointer · C Laserfarbe · B schwarz · W weiß · Esc beenden':'← → turn pages · L laser pointer · C laser colour · B black · W white · Esc end',
 'Passwort eingeben':'Enter password','ist mit einem Passwort geschützt.':'is protected with a password.','Passwort anzeigen':'Show password','Das Passwort stimmt nicht.':'The password is wrong.',
@@ -2882,7 +2887,7 @@ function tbHdrItems(){const on=id=>tbIsHid(id),it=[];
 tbApply();
 try{gdApply()}catch(e){}
 function setTool(id){
-  if(id==='lasso')id='select';tsHide();if(id==='select'&&typeof tlDragEnd==='function')tlDragEnd(true);
+  if(id==='lasso')id='select';armOff();tsHide();if(id==='select'&&typeof tlDragEnd==='function')tlDragEnd(true);
   if(S.tool==='marker'&&id!=='marker'&&S.color===MARKER_DEF)setColor(S._prevColor||'#1b1f24',true);
   if(id==='marker'&&S.tool!=='marker'){S._prevColor=S.color;if(!['#ffd60a','#4ade80','#38bdf8','#f472b6'].includes(S.color))setColor(MARKER_DEF,true)}
   if(S.tool==='select'&&id!=='select'){if(inTL(getSelection().anchorNode))getSelection().removeAllRanges();S.pages.forEach(P=>{if(P.ink)P.ink.style.pointerEvents='';if(P.tl){P.tl.remove();P.tl=null}})}
@@ -3175,14 +3180,45 @@ const NET_TPL=[
 ];
 
 function orgBBox(objs){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of objs){if(o.type!=='sym')continue;a=Math.min(a,o.x);b=Math.min(b,o.y);c=Math.max(c,o.x+o.w);d=Math.max(d,o.y+o.h)}return{x:a,y:b,w:c-a,h:d-b}}
-function orgFit(objs,P,top,max){const bb=orgBBox(objs),sc=Math.min(max||1,(P.w-60)/bb.w,(P.h-80)/bb.h),ox=(P.w-bb.w*sc)/2-bb.x*sc,oy=top-bb.y*sc;
+function orgFit(objs,P,top,max,fix){const bb=orgBBox(objs),sc=fix||Math.min(max||1,(P.w-60)/bb.w,(P.h-80)/bb.h),ox=(P.w-bb.w*sc)/2-bb.x*sc,oy=top-bb.y*sc;
   for(const o of objs)if(o.type==='sym'){o.x=o.x*sc+ox;o.y=o.y*sc+oy;o.w*=sc;o.h*=sc;o.fs=Math.max(6,Math.round(o.fs*sc*2)/2);o.lw=Math.max(.6,o.lw*Math.max(.7,sc))}else o.lw=Math.max(.6,o.lw*Math.max(.7,sc));
   const PP={objs};orgRelink(PP);return objs}
-function insertOrgTemplate(k){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===k);if(!t||!S.pages.length)return;const i=curPage(),P=S.pages[i];
+/* at={i,x,y,sc,tl}: place on page i with its centre (tl: top-left) at x,y in page units, clamped to the page; without it: page centre of the visible area */
+function insertOrgTemplate(k,at){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===k);if(!t||!S.pages.length)return;const i=at?at.i:curPage(),P=S.pages[i];if(!P)return;
   const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();let top=Math.max(36,(vr.top-pr.top)/S.zoom+36);
-  const objs=orgFit(t.b(),P,0,t.max),bb=orgBBox(objs);top=Math.min(top,Math.max(36,P.h-bb.h-30));objs.forEach(o=>moveObj(o,0,top));orgRelink({objs});
-  pushHist();P.objs.push(...objs);setTool('select');selectItems(i,objs);redraw(i);markDirty();
+  const objs=orgFit(t.b(),P,0,t.max,at&&at.sc),bb=orgBBox(objs);
+  if(at){const x0=clamp(at.tl?at.x:at.x-bb.w/2,0,Math.max(0,P.w-bb.w)),y0=clamp(at.tl?at.y:at.y-bb.h/2,0,Math.max(0,P.h-bb.h));objs.forEach(o=>moveObj(o,x0-bb.x,y0-bb.y))}
+  else{top=Math.min(top,Math.max(36,P.h-bb.h-30));objs.forEach(o=>moveObj(o,0,top))}
+  orgRelink({objs});
+  pushHist();P.objs.push(...objs);if(!at)setTool('select');selectItems(i,objs);redraw(i);markDirty();
   toast(tr('Vorlage eingefügt. Nicht benötigte Kästen anklicken und mit Entf löschen, die Linien verschwinden mit.'))}
+/* Click-to-place (setting tplClickOn): a template tile arms the placement, a click on a page puts the template there (drag sizes it uniformly) */
+var tplClickOn=true;try{tplClickOn=localStorage.getItem('pdfwerkbank:tplClick')!=='0'}catch(e){}
+var ARM=null;
+function armMark(){document.querySelectorAll('.sym.tpl').forEach(b=>b.setAttribute('aria-pressed',!!ARM&&ARM.k===b.dataset.k))}
+function armHintEl(){let h=$('.armhint');if(!h){h=document.createElement('div');h.className='armhint';h.setAttribute('role','status');document.body.appendChild(h)}return h}
+function armOff(){if(!ARM)return;ARM=null;document.querySelectorAll('.armghost').forEach(g=>g.remove());armHintEl().textContent='';$('#app').classList.remove('armed');armMark()}
+function armOn(k){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===k);if(!t||!S.pages.length)return;setTool('select');
+  ARM={k,n:t.n,m:{}};$('#app').classList.add('armed');armHintEl().textContent=tr('Klicken zum Platzieren, Esc bricht ab');armMark()}
+function armMetrics(i){const P=S.pages[i],key=i+'|'+P.w+'x'+P.h;if(!ARM.m[key]){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===ARM.k),bb=orgBBox(t.b());ARM.m[key]={bb,sc:Math.min(t.max||1,(P.w-60)/bb.w,(P.h-80)/bb.h)}}return ARM.m[key]}
+// geometry of the placement for page i: pointer (cx,cy) in client px, optional drag start d; returns page units {x,y,sc,tl,w,h}
+function armGeom(i,cx,cy,d){const P=S.pages[i],pr=P.el.getBoundingClientRect(),M=armMetrics(i),px=(cx-pr.left)/S.zoom,py=(cy-pr.top)/S.zoom;
+  if(d&&Math.hypot(cx-d.x0,cy-d.y0)>5){const ax=(d.x0-pr.left)/S.zoom,ay=(d.y0-pr.top)/S.zoom,sc=clamp(Math.max(Math.abs(px-ax)/M.bb.w,Math.abs(py-ay)/M.bb.h),.1,Math.max(.1,Math.min(4,P.w/M.bb.w,P.h/M.bb.h))),w=M.bb.w*sc,h=M.bb.h*sc;
+    return{x:px>=ax?ax:ax-w,y:py>=ay?ay:ay-h,sc,tl:true,w,h}}
+  const w=M.bb.w*M.sc,h=M.bb.h*M.sc;return{x:clamp(px-w/2,0,Math.max(0,P.w-w)),y:clamp(py-h/2,0,Math.max(0,P.h-h)),sc:M.sc,tl:true,w,h}}
+function armGhost(i,g){let el=$('.armghost');if(!el){el=document.createElement('div');el.className='armghost';el.appendChild(document.createElement('span'));el.firstChild.textContent=ARM.n;document.body.appendChild(el)}
+  const pr=S.pages[i].el.getBoundingClientRect();el.hidden=false;el.style.left=pr.left+g.x*S.zoom+'px';el.style.top=pr.top+g.y*S.zoom+'px';el.style.width=g.w*S.zoom+'px';el.style.height=g.h*S.zoom+'px'}
+addEventListener('pointermove',e=>{if(!ARM)return;const g=$('.armghost');const pa=viewer.contains(e.target)&&pageAt(e.clientX,e.clientY);
+  if(ARM.drag){const D=ARM.drag;if(!S.pages[D.i]){armOff();return}armGhost(D.i,armGeom(D.i,e.clientX,e.clientY,D));return}
+  if(!pa){if(g)g.hidden=true;return}armGhost(pa.p,armGeom(pa.p,e.clientX,e.clientY))},true);
+addEventListener('pointerdown',e=>{if(!ARM||e.button!==0||!viewer.contains(e.target)||editorEl)return;const pa=pageAt(e.clientX,e.clientY);if(!pa)return;
+  e.preventDefault();e.stopPropagation();ARM.drag={i:pa.p,x0:e.clientX,y0:e.clientY}},true);
+addEventListener('pointerup',e=>{if(!ARM||!ARM.drag)return;const D=ARM.drag;ARM.drag=null;e.preventDefault();e.stopPropagation();if(!S.pages[D.i]){armOff();return}
+  const g=armGeom(D.i,e.clientX,e.clientY,D),k=ARM.k;if(!e.shiftKey)armOff();else document.querySelectorAll('.armghost').forEach(x=>x.hidden=true);
+  insertOrgTemplate(k,{i:D.i,x:g.x,y:g.y,sc:g.sc,tl:true})},true);
+addEventListener('pointercancel',()=>{if(ARM&&ARM.drag)ARM.drag=null},true);
+addEventListener('contextmenu',e=>{if(ARM){e.preventDefault();e.stopPropagation();armOff()}},true);
+addEventListener('keydown',e=>{if(ARM&&e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();armOff()}},true);
 /* ---------- Tabellen ---------- */
 const eqFr=n=>Array.from({length:n},()=>1/n);
 function tblCols(o){const X=[o.x];let a=o.x;for(const f of o.cw){a+=f*o.w;X.push(a)}X[X.length-1]=o.x+o.w;return X}
@@ -4799,7 +4835,10 @@ function fillSym(sel,grid,after){
   const TPLS=S.cat==='Organigramm'?ORG_TPL:S.cat==='Netzwerk'?NET_TPL.filter(t=>!t.topo):S.cat==='Topologien'?TOPO_TPL:null;
   if(TPLS){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
     for(const t of TPLS){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
-      b.onclick=()=>{insertOrgTemplate(t.k);after&&after()};grid.appendChild(b)}
+      b.dataset.k=t.k;b.setAttribute('aria-pressed',!!ARM&&ARM.k===t.k);
+      b.onclick=e=>{if(!tplClickOn){insertOrgTemplate(t.k);after&&after();return}
+        if(e.detail===0){if(ARM&&ARM.k===t.k){armOff();insertOrgTemplate(t.k);after&&after()}else armOn(t.k);return} // keyboard: Enter arms, Enter again places at the centre as before
+        armOn(t.k);after&&after()};grid.appendChild(b)}
     const h2=document.createElement('div');h2.className='tpl-h';h2.textContent=S.cat==='Netzwerk'?'Geräte':'Bausteine';grid.appendChild(h2)}
   for(const s of Object.values(SYM).filter(s=>s.cat===S.cat)){
     const b=document.createElement('button');b.type='button';b.className='sym';b.title=s.name;b.dataset.s=s.id;b.setAttribute('aria-pressed',s.id===S.sym&&S.tool==='symbol');
@@ -7170,6 +7209,7 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
   {ic:'writing',t:'Schreiben & Rechtschreibung',d:'Wörterbuch, Großschreibung, Diktieren',run:()=>wrOpen(true)},
   {ic:'keys',t:'Tastenkürzel',d:'Eigene Tasten festlegen',run:()=>kbOpen(true)},
   {ic:'tools',t:'Werkzeugleiste anpassen',d:'Festlegen, was oben steht',run:()=>tbOpen()},
+  {ic:'tools',t:'Vorlagen per Klick platzieren',d:'Vorlage wählen, dann aufs Blatt klicken (aus: in die Mitte)',get:()=>tplClickOn,run:()=>{tplClickOn=!tplClickOn;try{localStorage.setItem('pdfwerkbank:tplClick',tplClickOn?'1':'0')}catch(e){}if(!tplClickOn)armOff()}},
   {ic:'tools',t:'Auswahl nach dem Setzen',d:'Neue Objekte bleiben ausgewählt',get:()=>keepSelOn,run:()=>{keepSelOn=!keepSelOn;try{localStorage.setItem('pdfwerkbank:keepSel',keepSelOn?'1':'0')}catch(e){}}},
   {ic:'lock',t:'Gesperrte Objekte: Klicks gehen durch',d:'Klicks auf gesperrte Objekte wirken auf das darunter',get:()=>lockPassOn,run:()=>{lockPassOn=!lockPassOn;try{localStorage.setItem('pdfwerkbank:lockPass',lockPassOn?'1':'0')}catch(e){}redrawAll()}},
   {sep:1,hidden:$('#bInfo').hidden},

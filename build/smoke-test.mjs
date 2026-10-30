@@ -807,6 +807,85 @@ else {
   const spj = JSON.parse(spt || '{}');
   ok('Sidebar tips: shown on focus beside the panel without layout change, readable, Esc and the setting hide them, old hint paragraphs gone',
     spj.none && spj.show && spj.same && spj.beside && spj.size && spj.contrast && spj.esc && spj.noReshow && spj.again && spj.off && spj.san && spj.noOld, spj);
+  // Templates: click-to-place (B1). Real mouse; geometry relative to the page, not font-based.
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'tpl.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;setTool('select');setSel(null)})()");
+    const click = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(60); };
+    const pagePt = async (i, fy) => { await ev(`S.pages[${i}].el.scrollIntoView({block:'start'})`); await sleep(300); return ev(`(()=>{const P=S.pages[${i}],r=P.el.getBoundingClientRect();return {l:r.left,t:r.top,z:S.zoom,w:P.w,h:P.h,cx:r.left+P.w*S.zoom/2,cy:r.top+P.h*S.zoom*${fy}}})()`); };
+    const tileXY = cat => ev(`(()=>{S.cat=${JSON.stringify(cat)};buildCats();const b=document.querySelector('#symgrid .sym.tpl[data-k="'+window.__tk+'"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    const run = async (cat, k, pi, fy) => {
+      await ev(`window.__tk=${JSON.stringify(k)};S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()`);
+      const t = await tileXY(cat); await click(t[0], t[1]);
+      const r = { armed: await ev(`!!ARM&&ARM.k===${JSON.stringify(k)}&&document.querySelector('#symgrid .sym.tpl[data-k="${k}"]').getAttribute('aria-pressed')==='true'&&document.getElementById('app').classList.contains('armed')&&document.querySelector('.armhint').textContent.length>3`), noInsert: await ev("S.pages.every(P=>P.objs.length===0)") };
+      const g = await pagePt(pi, fy); await mv(g.cx - 40, g.cy); await mv(g.cx, g.cy); await sleep(60);
+      const gh = await ev("(()=>{const e=document.querySelector('.armghost');if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return {l:r.left,t:r.top,w:r.width,h:r.height}})()");
+      r.ghost = !!gh && Math.abs(gh.t + gh.h / 2 - g.cy) < 2 && gh.l >= g.l - 1 && gh.l + gh.w <= g.l + g.w * g.z + 1;
+      await pressAt(g.cx, g.cy); await releaseAt(g.cx, g.cy); await sleep(150);
+      const pl = await ev(`(()=>{const o=S.pages[${pi}].objs.filter(o=>o.type==='sym'),bb=orgBBox(o);return {n:S.pages[${pi}].objs.length,other:S.pages.filter((_,i)=>i!==${pi}).reduce((a,P)=>a+P.objs.length,0),arm:ARM,gh:!!document.querySelector('.armghost'),x:bb.x,y:bb.y,w:bb.w,h:bb.h,hu:H.u.length,sel:selItems().length}})()`);
+      r.placed = !!gh && pl.n > 2 && pl.other === 0 && Math.abs(g.l + pl.x * g.z - gh.l) < 2 && Math.abs(g.t + pl.y * g.z - gh.t) < 2 && Math.abs(pl.w * g.z - gh.w) < 2 && Math.abs(pl.h * g.z - gh.h) < 2;
+      r.once = pl.arm === null && !pl.gh && pl.hu === 1 && pl.sel === pl.n;
+      r.undo = await ev("(()=>{undo();return S.pages.every(P=>P.objs.length===0)})()");
+      return { r, pl, g };
+    };
+    for (const [cat, k, pi] of [['Organigramm', 'einlinie', 0], ['Netzwerk', 'net_home', 0], ['Topologien', 'topo_star', 1]]) {
+      const { r } = await run(cat, k, pi, 0.5);
+      ok(`Vorlage ${k}: armed (Kachel gedrückt, Hinweis), Vorschau folgt dem Zeiger, Klick platziert dort auf Seite ${pi + 1}, danach nicht mehr armed, Rückgängig = 1 Schritt`,
+        r.armed && r.noInsert && r.ghost && r.placed && r.once && r.undo, r);
+    }
+    // two pointer positions on the same page differ by exactly the pointer offset (not placed at the centre)
+    {
+      const a = await run('Netzwerk', 'net_home', 0, 0.35), b = await run('Netzwerk', 'net_home', 0, 0.6);
+      const dy = (b.pl.y - a.pl.y) * a.g.z, want = (b.g.cy - a.g.cy);
+      ok('Vorlage: Platz folgt dem Klickpunkt (Versatz = Zeigerversatz)', Math.abs(dy - want) < 3, { dy, want });
+    }
+    // Esc and right click cancel, nothing inserted
+    {
+      await ev("window.__tk='net_home';S.pages.forEach(P=>P.objs=[])");
+      let t = await tileXY('Netzwerk'); await click(t[0], t[1]);
+      const armed0 = await ev('!!ARM');
+      const g = await pagePt(0, 0.5); await mv(g.cx, g.cy);
+      await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+      const esc = armed0 && await ev("ARM===null&&!document.querySelector('.armghost')&&S.pages.every(P=>P.objs.length===0)");
+      t = await tileXY('Netzwerk'); await click(t[0], t[1]); const armed1 = await ev('!!ARM'); await mv(g.cx, g.cy);
+      await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: g.cx, y: g.cy, button: 'right', buttons: 2, clickCount: 1 }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: g.cx, y: g.cy, button: 'right', buttons: 0, clickCount: 1 });
+      const rc = armed1 && await ev("ARM===null&&S.pages.every(P=>P.objs.length===0)");
+      // Shift keeps it armed for another placement; click on the other tile re-arms
+      t = await tileXY('Netzwerk'); await click(t[0], t[1]); await mv(g.cx, g.cy);
+      await cdp('Input.dispatchKeyEvent', { type: 'rawKeyDown', key: 'Shift', code: 'ShiftLeft', windowsVirtualKeyCode: 16, modifiers: 8 });
+      await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: g.cx, y: g.cy, button: 'left', buttons: 1, clickCount: 1, modifiers: 8 }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: g.cx, y: g.cy, button: 'left', buttons: 0, clickCount: 1, modifiers: 8 });
+      await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Shift', code: 'ShiftLeft', windowsVirtualKeyCode: 16 }); await sleep(100);
+      const sh = await ev("!!ARM&&S.pages[0].objs.length>2");
+      await ev("armOff()");
+      ok('Vorlage: Esc und Rechtsklick brechen ab (nichts eingefügt), Umschalt hält die Platzierung aktiv', esc && rc && sh, { esc, rc, sh });
+    }
+    // drag sizes uniformly
+    {
+      await ev("window.__tk='net_home';S.pages.forEach(P=>P.objs=[]);setSel(null)");
+      const t = await tileXY('Netzwerk'); await click(t[0], t[1]);
+      const g = await pagePt(0, 0.3);
+      await mv(g.cx - 100, g.cy); await pressAt(g.cx - 100, g.cy); for (let i = 1; i <= 6; i++) await dragTo(g.cx - 100 + 25 * i, g.cy + 20 * i); await releaseAt(g.cx + 50, g.cy + 120); await sleep(150);
+      const d = await ev("(()=>{const o=S.pages[0].objs.filter(o=>o.type==='sym'),bb=orgBBox(o);return {w:bb.w,h:bb.h,x:bb.x,y:bb.y,z:S.zoom}})()");
+      const nat = await ev("(()=>{const bb=orgBBox(NET_TPL.find(t=>t.k==='net_home').b());return bb.w/bb.h})()");
+      ok('Vorlage: Ziehen bestimmt die Größe (Seitenverhältnis bleibt, Ecke am Startpunkt)', d.w > 0 && Math.abs(d.w / d.h - nat) < 0.02 && Math.abs(g.l + d.x * d.z - (g.cx - 100)) < 3 && Math.abs(g.t + d.y * d.z - g.cy) < 3 && d.w * d.z < 520, { d, nat });
+    }
+    // setting OFF: old behaviour, centre insertion without arming
+    {
+      await ev("window.__tk='net_home';S.pages.forEach(P=>P.objs=[]);setSel(null);tplClickOn=false");
+      const t = await tileXY('Netzwerk'); await click(t[0], t[1]);
+      const off = await ev("ARM===null&&S.pages[0].objs.length>2&&Math.abs((()=>{const bb=orgBBox(S.pages[0].objs.filter(o=>o.type==='sym'));return bb.x+bb.w/2-S.pages[0].w/2})())<2");
+      await ev("tplClickOn=true;S.pages.forEach(P=>P.objs=[]);setSel(null)");
+      ok('Vorlage: Einstellung aus platziert wie früher sofort in der Mitte', off === true, off);
+    }
+    // keyboard: first Enter arms, second Enter places at the viewer centre
+    {
+      await ev("window.__tk='net_home';S.pages.forEach(P=>P.objs=[])");
+      await tileXY('Netzwerk');
+      const kb = await ev("(()=>{const b=document.querySelector('#symgrid .sym.tpl[data-k=\"net_home\"]');b.click();const a=!!ARM&&S.pages[0].objs.length===0;b.click();return a&&ARM===null&&S.pages.reduce((n,P)=>n+P.objs.length,0)>2})()");
+      ok('Vorlage: Tastatur (Enter, Enter) platziert wie bisher in der Mitte', kb === true, kb);
+      await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+    }
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
