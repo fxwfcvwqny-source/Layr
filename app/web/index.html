@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/BUrediJG9sHvty+d7p0ikStTdmPB7xJpllLsPK6h/c=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-syLD36SaKBlm2qCU1fKd7/ZCfnYbOAqFxs2mxs8amiM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2941,7 +2941,7 @@ const HEADS=[['none','ohne'],['arrow','Pfeil offen'],['filled','Pfeil gefüllt']
 for(const id of ['startH','endH']){const s=$('#'+id);for(const [v,n] of HEADS){const o=document.createElement('option');o.value=v;o.textContent=n;s.appendChild(o)}s.value=S[id];s.onchange=()=>{S[id]=s.value;applySel({[id==='startH'?'start':'end']:s.value})}}
 var LNPRE=null; // one-shot preset for the next drawn arrow: dashed, open arrow head, label «include»/«extend»
 function lnPreOff(){if(!LNPRE)return;LNPRE=null;armHintEl().textContent=''}
-addEventListener('keydown',e=>{if(LNPRE&&e.key==='Escape'&&!editorEl){e.preventDefault();e.stopImmediatePropagation();lnPreOff()}},true);
+addEventListener('keydown',e=>{if(LNPRE&&e.key==='Escape'&&!editorEl&&!S.draft&&!document.querySelector('.modal:not([hidden])')){e.preventDefault();e.stopImmediatePropagation();lnPreOff()}},true);
 for(const[id,t]of[['lnInc','«include»'],['lnExt','«extend»']])$('#'+id).onclick=()=>{if(!S.sel||S.sel.o.type!=='line'){if(!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}setTool('arrow');LNPRE={label:t};armHintEl().textContent=tr('Pfeil aufziehen, Esc bricht ab');return}applySel({dash:true,start:'none',end:'arrow',label:t});syncControls(S.sel.o)};
 
 /* Eigenschaften auf die Auswahl anwenden */
@@ -3224,7 +3224,7 @@ addEventListener('pointerup',e=>{if(!ARM||!ARM.drag)return;const D=ARM.drag;ARM.
   insertOrgTemplate(k,{i:D.i,x:g.x,y:g.y,sc:g.sc,tl:true})},true);
 addEventListener('pointercancel',()=>{if(ARM&&ARM.drag)ARM.drag=null},true);
 addEventListener('contextmenu',e=>{if(ARM){e.preventDefault();e.stopPropagation();armOff()}},true);
-addEventListener('keydown',e=>{if(ARM&&e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();armOff()}},true);
+addEventListener('keydown',e=>{if(ARM&&e.key==='Escape'&&!S.draft&&!document.querySelector('.modal:not([hidden])')){e.preventDefault();e.stopImmediatePropagation();armOff()}},true);
 /* ---------- Tabellen ---------- */
 const eqFr=n=>Array.from({length:n},()=>1/n);
 function tblCols(o){const X=[o.x];let a=o.x;for(const f of o.cw){a+=f*o.w;X.push(a)}X[X.length-1]=o.x+o.w;return X}

@@ -1008,6 +1008,15 @@ else {
     ok('«include»/«extend»: Tooltip und aria-label vorhanden (de/en)', await ev("(()=>{const b=document.getElementById('lnInc');const d=b.title&&b.getAttribute('aria-label'),L0=LANG;LANG='en';const e=tr(b.title)!==b.title&&tr(b.getAttribute('aria-label'))!==b.getAttribute('aria-label');LANG='de';return !!d&&e})()") === true);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select')");
   }
+  // Esc with a modal dialog open belongs to the dialog: an armed template / «include» preset stays, without dialog it is cancelled
+  {
+    const esc = async () => { await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await sleep(80); };
+    await ev("armOn('net_home');LNPRE={label:'«include»'};document.getElementById('langDlg').hidden=false");
+    await esc(); const withDlg = await ev("!!ARM&&!!LNPRE");
+    await ev("document.getElementById('langDlg').hidden=true"); await esc(); await esc(); const without = await ev("ARM===null&&LNPRE===null");
+    ok('Esc bei offenem Dialog bricht Vorlage/«include» nicht ab, ohne Dialog schon', withDlg === true && without === true, { withDlg, without });
+    await ev("armOff();lnPreOff();setTool('select')");
+  }
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
