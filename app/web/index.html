@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-zM8CiHtZPz2ot0Ap61Hnt+/HGtYGDwKQECXSXdLcPUA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-o23PbSKomKckDnkF0vnmh5gzNqkrNwOaz+LzczCTpw4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2654,7 +2654,7 @@ const I18N_EN={
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 // 3.10 Auswahlwerkzeug
 ' Objekte gewählt':' objects selected',
-'Bilder frei strecken (Seitengriffe)':'Stretch images freely (side handles)','Die Griffe in der Mitte der Bildkanten ändern nur Breite oder Höhe (aus: nur Eckgriffe)':'The handles in the middle of an image edge change only width or height (off: corner handles only)','Objekte':'Objects','Gruppieren':'Group','Gruppierung aufheben':'Ungroup','Eine Ebene nach vorne':'Bring forward','Eine Ebene nach hinten':'Send backward','Ganz nach vorne':'Bring to front','Ganz nach hinten':'Send to back','Eine Ebene nach vorne (zweite Taste)':'Bring forward (second key)','Eine Ebene nach hinten (zweite Taste)':'Send backward (second key)','Ganz nach vorne (zweite Taste)':'Bring to front (second key)','Ganz nach hinten (zweite Taste)':'Send to back (second key)','Zuschneiden':'Crop','Zuschneiden blendet nur aus; das ganze Bild bleibt in der Datei. Zum Entfernen: Schwärzen.':'Cropping only hides the rest; the whole image stays in the file. To remove it: Redact.','Bild zuschneiden':'Crop image','Zuschneiden: Kanten ziehen, Eingabe übernimmt, Esc bricht ab.':'Crop: drag the edges, Enter applies, Esc cancels.',
+'Bilder frei strecken (Seitengriffe)':'Stretch images freely (side handles)','Die Griffe in der Mitte der Bildkanten ändern nur Breite oder Höhe (aus: nur Eckgriffe)':'The handles in the middle of an image edge change only width or height (off: corner handles only)','Objekte':'Objects','Gruppieren':'Group','Gruppierung aufheben':'Ungroup','Eine Ebene nach vorne':'Bring forward','Eine Ebene nach hinten':'Send backward','Ganz nach vorne':'Bring to front','Ganz nach hinten':'Send to back','Eine Ebene nach vorne (zweite Taste)':'Bring forward (second key)','Eine Ebene nach hinten (zweite Taste)':'Send backward (second key)','Ganz nach vorne (zweite Taste)':'Bring to front (second key)','Ganz nach hinten (zweite Taste)':'Send to back (second key)','Zuschneiden':'Crop','Linke Kante':'Left edge','Obere Kante':'Top edge','Rechte Kante':'Right edge','Untere Kante':'Bottom edge','abgeschnitten':'cropped','Zuschneiden blendet nur aus; das ganze Bild bleibt in der Datei. Zum Entfernen: Schwärzen.':'Cropping only hides the rest; the whole image stays in the file. To remove it: Redact.','Bild zuschneiden':'Crop image','Zuschneiden: Kanten ziehen oder Tab und Pfeiltasten (Umschalt: 10 pt), Eingabe übernimmt, Esc bricht ab.':'Crop: drag the edges or use Tab and arrow keys (Shift: 10 pt), Enter applies, Esc cancels.',
 'Tab wechselt zwischen Objekten':'Tab switches between objects','Tab und Umschalt+Tab wählen das nächste oder vorige Objekt der Seite (Esc: wieder durch die Oberfläche tabben)':'Tab and Shift+Tab select the next or previous object on the page (Esc: tab through the interface again)',
 'Eine Ebene nach vorne (Strg+])':'Bring forward (Ctrl+])','Eine Ebene nach hinten (Strg+[)':'Send backward (Ctrl+[)','Ganz nach vorne (Strg+Umschalt+])':'Bring to front (Ctrl+Shift+])','Ganz nach hinten (Strg+Umschalt+[)':'Send to back (Ctrl+Shift+[)',
 'Umschalt-Klick wählt mehrere Objekte, Strg+G gruppiert, Alt-Klick wählt ein Teil einer Gruppe, Tab springt zum nächsten Objekt. Beim Ziehen einer Ecke: Umschalt schaltet das Seitenverhältnis um (Bilder bleiben sonst proportional), Alt skaliert von der Mitte aus.':'Shift-click selects several objects, Ctrl+G groups, Alt-click selects one part of a group, Tab jumps to the next object. When dragging a corner: Shift toggles the aspect ratio (images stay proportional otherwise), Alt resizes from the centre.',
@@ -4249,7 +4249,7 @@ function tabStepObj(dir){const P=S.pages[S.sel?S.sel.p:obNav];if(!P)return false
   if(top<vr.top+40)viewer.scrollTop-=vr.top+40-top;else if(bot>vr.bottom-20)viewer.scrollTop+=bot-vr.bottom+20;
   const n=U.length,nm=objName(U[k]);$('#selLive').textContent=LANG==='en'?`Object ${k+1} of ${n}: ${nm}`:`Objekt ${k+1} von ${n}: ${nm}`;return true}
 document.addEventListener('focusin',e=>{if(!viewer.contains(e.target)&&!obBar.contains(e.target))obNav=-1});
-addEventListener('keydown',e=>{if(e.key!=='Tab'||e.ctrlKey||e.altKey||e.metaKey||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||document.querySelector('.modal:not([hidden])'))return;
+addEventListener('keydown',e=>{if(e.key!=='Tab'||e.ctrlKey||e.altKey||e.metaKey||editorEl||ED||CRP||(S.tool!=='select'&&S.tool!=='lasso')||document.querySelector('.modal:not([hidden])'))return;
   const a=document.activeElement;if(a&&a!==document.body&&a!==viewer)return; // focus is in other UI: Tab works as usual
   if(!tabObjOn){if(!e.shiftKey&&S.sel&&!obBar.hidden){e.preventDefault();$('#obDup').focus()}return}
   if(obNav<0||!S.pages[S.sel?S.sel.p:obNav])return;
@@ -5690,8 +5690,8 @@ function imgRatioReset(o){if(o.locked){toast(tr('Das Objekt ist gesperrt.'));ret
 const cropFrame=o=>{const q=o.crop||{l:0,t:0,r:0,b:0},w=o.w/(1-q.l-q.r),h=o.h/(1-q.t-q.b);return{x:o.x-q.l*w,y:o.y-q.t*h,w,h}}; // where the full source image sits on the page
 function cropStart(i,o){if(CRP)return;if(o.locked){toast(tr('Das Objekt ist gesperrt.'));return}const im=imgEl(o.img);if(!im||!im.naturalWidth)return;
   if(S.tool!=='select')setTool('select');if(!S.sel||S.sel.o!==o)setSel({p:i,o});
-  CRP={p:i,o,orig:JSON.parse(JSON.stringify(o)),hist:false};obHide();redraw(i);
-  const t=tr('Zuschneiden: Kanten ziehen, Eingabe übernimmt, Esc bricht ab.');toast(t);$('#selLive').textContent=t}
+  CRP={p:i,o,orig:JSON.parse(JSON.stringify(o)),hist:false,edge:'ml'};obHide();redraw(i);
+  const t=tr('Zuschneiden: Kanten ziehen oder Tab und Pfeiltasten (Umschalt: 10 pt), Eingabe übernimmt, Esc bricht ab.');toast(t);$('#selLive').textContent=t}
 function cropEnd(ok){const c=CRP;if(!c)return;CRP=null;
   if(!ok&&c.hist){Object.assign(c.o,{x:c.orig.x,y:c.orig.y,w:c.orig.w,h:c.orig.h});if(c.orig.crop)c.o.crop=c.orig.crop;else delete c.o.crop;if(H.u.length===c.hu&&S.pages[c.p]&&S.pages[c.p].objs.includes(c.o)){H.u.pop();H.n--;updUndo()}markDirty()} // pop our own history entry only if nothing else was pushed and the document is the same
   if(ok&&c.hist&&!cropNote){cropNote=true;toast(tr(CROP_NOTE))}
@@ -5705,13 +5705,24 @@ function cropDrag(o,st,x,y){const g=st.orig,F=cropFrame(g),k=st.mode,L=k==='tl'|
 function drawCropBack(c,o){const F=cropFrame(o),im=imgEl(o.img),z=S.zoom;if(!im||!im.naturalWidth)return;
   c.save();c.beginPath();c.rect(F.x,F.y,F.w,F.h);c.rect(o.x,o.y,o.w,o.h);c.clip('evenodd');c.globalAlpha=.4;c.drawImage(im,F.x,F.y,F.w,F.h);c.restore();
   c.save();c.strokeStyle=accentCol();c.lineWidth=1/z;c.setLineDash([3/z,3/z]);c.strokeRect(F.x,F.y,F.w,F.h);c.setLineDash([]);c.globalAlpha=.55;c.beginPath();
-  for(let k=1;k<3;k++){c.moveTo(o.x+o.w*k/3,o.y);c.lineTo(o.x+o.w*k/3,o.y+o.h);c.moveTo(o.x,o.y+o.h*k/3);c.lineTo(o.x+o.w,o.y+o.h*k/3)}c.stroke();c.restore()}
+  for(let k=1;k<3;k++){c.moveTo(o.x+o.w*k/3,o.y);c.lineTo(o.x+o.w*k/3,o.y+o.h);c.moveTo(o.x,o.y+o.h*k/3);c.lineTo(o.x+o.w,o.y+o.h*k/3)}c.stroke();c.restore();
+  if(CRP&&CRP.kb&&CRP.edge){const e=CRP.edge;c.save();c.strokeStyle=accentCol();c.lineWidth=3/z;c.beginPath();if(e==='ml'||e==='mr'){const x=e==='ml'?o.x:o.x+o.w;c.moveTo(x,o.y);c.lineTo(x,o.y+o.h)}else{const y=e==='mt'?o.y:o.y+o.h;c.moveTo(o.x,y);c.lineTo(o.x+o.w,y)}c.stroke();c.restore()}}
 function drawImgHint(c,o){const T=S.imgHint,z=S.zoom;c.save();c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(T.t).width,px=7/z,hh=22/z;let x=T.x+10/z,y=T.y-hh-8/z;if(y<0)y=T.y+12/z;
   c.fillStyle=accentCol();rr(c,x,y,tw+2*px,hh,6/z);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(T.t,x+px,y+hh/2);c.restore()}
 {const ds=drawSel;drawSel=function(c,o){if(CRP&&CRP.o===o)try{drawCropBack(c,o)}catch(e){}ds(c,o);if(o&&o.type==='image'&&S.imgHint&&S.imgHint.o===o)try{drawImgHint(c,o)}catch(e){}}}
 {const ss=setSel;setSel=function(sel){if(CRP&&(!sel||sel.o!==CRP.o))cropEnd(true);return ss.apply(this,arguments)}}
 {const st0=setTool;setTool=function(id){if(CRP&&id!=='select'&&id!=='lasso')cropEnd(true);return st0.apply(this,arguments)}}
-addEventListener('keydown',e=>{if(!CRP||e.ctrlKey||e.altKey||e.metaKey||e.isComposing||(e.key!=='Enter'&&e.key!=='Escape')||document.querySelector('.modal:not([hidden])'))return;
+// keyboard crop: Tab / Shift+Tab choose the edge, arrows move it (Shift = 10 pt), result announced via aria-live
+const CROP_EDGES=['ml','mt','mr','mb'],CROP_EDGE_N={ml:'Linke Kante',mt:'Obere Kante',mr:'Rechte Kante',mb:'Untere Kante'};
+function cropSay(){const o=CRP.o,q=o.crop||{l:0,t:0,r:0,b:0},k={ml:'l',mt:'t',mr:'r',mb:'b'}[CRP.edge];$('#selLive').textContent=tr(CROP_EDGE_N[CRP.edge])+': '+Math.round(q[k]*100)+' % '+tr('abgeschnitten')}
+function cropKey(e){if(e.key==='Tab'){CRP.edge=CROP_EDGES[(CROP_EDGES.indexOf(CRP.edge||'mb')+(e.shiftKey?3:1))%4];CRP.kb=true;redraw(CRP.p);cropSay();return true}
+  const dx=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0,dy=e.key==='ArrowDown'?1:e.key==='ArrowUp'?-1:0;if(!dx&&!dy)return false;
+  const ed=CRP.edge||'ml',horiz=ed==='ml'||ed==='mr';if(horiz?!dx:!dy)return true;
+  const o=CRP.o,d=(e.shiftKey?10:1),pos=ed==='ml'?o.x:ed==='mr'?o.x+o.w:ed==='mt'?o.y:o.y+o.h,v=pos+(horiz?dx:dy)*d;
+  if(!CRP.hist){pushHist();CRP.hist=true;CRP.hu=H.u.length}
+  cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:ed},horiz?v:0,horiz?0:v);CRP.kb=true;redraw(CRP.p);markDirty();cropSay();return true}
+addEventListener('keydown',e=>{if(CRP&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.isComposing&&!document.querySelector('.modal:not([hidden])')&&(!e.target||!/^(TEXTAREA|INPUT)$/.test(e.target.tagName)||e.target.type==='range')&&cropKey(e)){e.preventDefault();e.stopImmediatePropagation();return}
+  if(!CRP||e.ctrlKey||e.altKey||e.metaKey||e.isComposing||(e.key!=='Enter'&&e.key!=='Escape')||document.querySelector('.modal:not([hidden])'))return;
   const t=e.target;if(e.key==='Enter'&&t&&(t.tagName==='TEXTAREA'||(t.tagName==='INPUT'&&t.type!=='range')))return;e.preventDefault();e.stopImmediatePropagation();cropEnd(e.key==='Enter')},true);
 function updImgUI(){const sec=document.getElementById('imgSec');if(!sec)return;const o=imgTarget();sec.hidden=!o;if(!o)return;const v=Math.round((o.alpha||1)*100);$('#imgAlpha').value=v;$('#imgAlphaV').textContent=v+' %'}
 {const inp=$('#imgIn');

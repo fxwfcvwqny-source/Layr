@@ -1629,6 +1629,8 @@ else {
   }
   // 11 Crop mode and document switch / foreign history entries
   {
+    const O = () => ev("JSON.stringify((()=>{const o=S.pages[0].objs.find(o=>o.type==='image');return {x:o.x,y:o.y,w:o.w,h:o.h,crop:o.crop||null}})())").then(JSON.parse);
+    const nr = (a, b, t = 0.6) => Math.abs(a - b) < t;
     const IMG = "const cv=document.createElement('canvas');cv.width=200;cv.height=100;cv.getContext('2d').fillRect(0,0,200,100);const src=cv.toDataURL('image/png');const id=imgId(src);S.imgs[id]=src;const im=imgEl(id);await im.decode();S.pages[0].objs.push({type:'image',x:100,y:100,w:200,h:100,img:id,lw:0,color:'#000000'})";
     await open310(IMG);
     const r = await ev("(async()=>{const o=S.pages[0].objs[0];setSel({p:0,o});cropStart(0,o);cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;pushHist();CRP.hu=H.u.length;const had=!!CRP;const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'other.pdf');await new Promise(r=>setTimeout(r,400));const hu=H.u.length;S.pages[0].objs.push({type:'rect',x:1,y:1,w:5,h:5,color:'#000000',lw:1});pushHist();const h1=H.u.length;document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return JSON.stringify([had,!!CRP,h1,H.u.length])})()", 20000).then(JSON.parse);
@@ -1639,6 +1641,18 @@ else {
     await open310(IMG);
     const r3 = await ev("(()=>{cropNote=false;const o=S.pages[0].objs[0];setSel({p:0,o});const t=()=>document.querySelector('.toast,#toast')&&document.querySelector('.toast,#toast').textContent;cropStart(0,o);cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;cropEnd(true);return JSON.stringify([cropNote,/Schwärzen/.test(t()||''),document.getElementById('imgCrop').title.includes('Schwärzen')])})()").then(JSON.parse);
     ok('Zuschnitt: beim Übernehmen Hinweis, dass das ganze Bild in der Datei bleibt (einmal pro Sitzung), auch als Tooltip am Knopf', r3[0] === true && r3[1] === true && r3[2] === true, r3);
+    {
+      await open310(IMG); await click310([200, 150]);
+      const h0 = await ev('H.u.length');
+      await key310('C', 'KeyC', 67, 8);
+      await key310('ArrowRight', 'ArrowRight', 39, 8); await key310('ArrowRight', 'ArrowRight', 39);
+      await key310('Tab', 'Tab', 9); await key310('Tab', 'Tab', 9); await key310('Tab', 'Tab', 9);  // mt, mr, mb
+      await key310('ArrowUp', 'ArrowUp', 38, 8);
+      const live = await ev("document.getElementById('selLive').textContent");
+      await key310('Enter', 'Enter', 13);
+      const o = await O();
+      ok('Zuschnitt per Tastatur: Tab wählt die Kante, Pfeile (Umschalt = 10) verschieben sie, Ansage, Eingabe übernimmt, 1 Rückgängig-Stufe', nr(o.x, 111) && nr(o.w, 189) && nr(o.h, 90) && o.crop && nr(o.crop.l, 11 / 200, 0.002) && /Untere Kante: 10 % abgeschnitten/.test(live) && await ev('H.u.length') === h0 + 1, { o, live, h: [h0, await ev('H.u.length')] });
+    }
     {
       await open310("for(const[i,x]of[['y1',60],['y2',180],['y3',300]])S.pages[0].objs.push({type:'rect',x,y:200,w:90,h:60,color:'#000000',lw:1,fill:'white',oid:i})");
       const ord = () => ev("S.pages[0].objs.map(o=>o.oid).join()");
