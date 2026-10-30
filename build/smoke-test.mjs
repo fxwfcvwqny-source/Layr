@@ -599,6 +599,19 @@ else {
     const rpx = await sheetPx();
     ok('Sheet colour persists after reload', want.paper(rpx) && await ev("document.querySelector('#dSheet [aria-pressed=true]').dataset.v==='paper'") === true, rpx);
   }
+  // Text box typing must not move the sheet: with the page height just under the viewer height, the editor frame/toolbar overflow
+  // adds a horizontal bar, which then adds a vertical bar and shifted the centred sheet sideways (scrollbar-gutter:stable on #viewer)
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([420,500]);await openPdf(await d.save(),'wobble.pdf');await new Promise(r=>setTimeout(r,1200));setTool('text')})()");
+  const wobH = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),sh=async z=>{zoomTo(z);await w(250);return viewer.scrollHeight};await sh(.5);const ch=viewer.clientHeight,a=await sh(2),c=await sh(3);await sh(2+(ch-8-a)/(c-a));return viewer.scrollHeight<=ch})()");
+  const wp = await ev("(()=>{const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width-60,r.top+40]})()");
+  const wl = () => ev("(()=>({l:S.pages[0].el.getBoundingClientRect().left,sx:viewer.scrollLeft,sy:viewer.scrollTop}))()");
+  const wl0 = await wl();
+  await mv(wp[0], wp[1]); await pressAt(wp[0], wp[1]); await releaseAt(wp[0], wp[1]); await sleep(300);
+  let wmin = 1e9, wmax = -1e9, wsc = 0;
+  for (let k = 0; k < 200; k++) { await key(k % 20 === 19 ? 'Enter' : 'w', k % 20 === 19 ? 'Enter' : 'KeyW', k % 20 === 19 ? 13 : 87, k % 20 === 19 ? '\r' : 'w'); const q = await wl(); wmin = Math.min(wmin, q.l); wmax = Math.max(wmax, q.l); wsc = Math.max(wsc, Math.abs(q.sx - wl0.sx)); }
+  ok('Typing 200 characters in a text box does not move the sheet sideways', wobH === true && await ev('editingObj&&editingObj.text.length') > 150 && Math.min(wmin, wl0.l) > 0 && wmax - wmin <= .5 && Math.abs(wmin - wl0.l) <= .5 && wsc === 0, { wobH, before: wl0.l, wmin, wmax, wsc });
+  await ev('closeEditor()');
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
