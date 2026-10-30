@@ -933,6 +933,32 @@ else {
     ok('Alte Topologie-Symbole (Altdokument): Auswahl, Verschieben und Größe ziehen funktionieren', sel3 && Math.abs(mvd[0] - 260) < 1 && Math.abs(mvd[1] - 230) < 1 && Math.abs(rsz[0] - 168) < 1 && Math.abs(rsz[1] - 126) < 1, { sel3, mvd, rsz });
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
+  // B4a: double-click edits an existing object in every placement/shape tool without leaving an extra object (setting dblAllOn)
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev(TPJS);
+    await ev("dblAllOn=true;tplClickOn=true;S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
+    const dbl4 = async () => { await sleep(700); const p = await ev("tpScr(tpPt(S.pages[0].objs[0]))"); await mv(p[0], p[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); };
+    const state4 = () => ev("({n:S.pages[0].objs.length,hu:H.u.length,edit:!!editorEl&&editingObj===S.pages[0].objs[0],armed:!!ARM,txt:!!editorEl&&editingObj==null})");
+    const res4 = {};
+    for (const tool of ['symbol', 'rect', 'ellipse', 'line', 'arrow', 'pen', 'marker', 'text', 'armed']) {
+      await ev(`closeEditor();setSel(null);${tool === 'armed' ? "setTool('select');armOn('net_home')" : `S.sym='server';setTool('${tool}')`};H.u=[];H.r=[];updUndo();S.pages[0].objs.length=1`);
+      await dbl4(); const r = await state4(); await ev("closeEditor();armOff();setSel(null)");
+      res4[tool] = r;
+      ok(`Doppelklick im Werkzeug ${tool}: bearbeitet das Objekt, kein zusätzliches Objekt, kein Verlauf-Eintrag`, r.n === 1 && r.edit && r.hu === 0, r);
+    }
+    // setting OFF: pen tool keeps the old behaviour (draws dots, no editor), proves the check is sensitive
+    await ev("dblAllOn=false;closeEditor();setSel(null);setTool('pen');H.u=[];H.r=[];updUndo();S.pages[0].objs.length=1");
+    await dbl4(); const off4 = await state4(); await ev("dblAllOn=true;closeEditor();setTool('select');S.pages[0].objs.length=1;setSel(null);H.u=[];H.r=[];updUndo()");
+    ok('Doppelklick im Werkzeug: Einstellung aus verhält sich wie früher (Stift zeichnet, kein Editor)', off4.n > 1 && !off4.edit, off4);
+    // double-click on empty paper in the pen tool still draws (nothing taken back)
+    await ev("setTool('pen');H.u=[];H.r=[];updUndo();S.pages[0].objs.length=1");
+    { const g = await ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width*.8,r.top+r.height*.5]})()");
+      await mv(g[0], g[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: g[0], y: g[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: g[0], y: g[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); }
+    const emp = await state4(); await ev("setTool('select')");
+    ok('Doppelklick im Stiftwerkzeug auf leerem Papier: Striche bleiben', emp.n > 1 && !emp.edit, emp);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
+  }
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
