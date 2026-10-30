@@ -1524,6 +1524,92 @@ else {
     await sleep(500); await menu('Tab wechselt zwischen Objekten');
     ok('Tab: Einstellung wieder an', await ev("tabObjOn===true") === true);
   }
+  // 9 Images: side handles stretch one dimension, crop mode (non-destructive crop fractions), setting, sanitising, round trip
+  {
+    const IMG = "const cv=document.createElement('canvas');cv.width=200;cv.height=100;const cx=cv.getContext('2d');['#ff0000','#00ff00','#0000ff','#ffff00'].forEach((c,i)=>{cx.fillStyle=c;cx.fillRect(i*50,0,50,100)});const src=cv.toDataURL('image/png');const id=imgId(src);S.imgs[id]=src;const im=imgEl(id);await im.decode();S.pages[0].objs.push({type:'image',x:100,y:100,w:200,h:100,img:id,lw:0,color:'#000000'})";
+    const O = () => ev("JSON.stringify((()=>{const o=S.pages[0].objs.find(o=>o.type==='image');return {x:o.x,y:o.y,w:o.w,h:o.h,crop:o.crop||null}})())").then(JSON.parse);
+    const px = (x, y) => ev(`(()=>{const P=S.pages[0],k=P.ink.width/P.w,d=P.ictx.getImageData(Math.round(${x}*k),Math.round(${y}*k),1,1).data;return [d[0],d[1],d[2],d[3]]})()`);
+    const nr = (a, b, t = 0.6) => Math.abs(a - b) < t;
+    const clickEl = async (sel) => { const r = await ev(`(()=>{const b=document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(200); };
+    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
+    await open310(IMG);
+    await click310([200, 150]);
+    const hk = await ev("JSON.stringify(handles(S.sel.o).map(h=>h.k).sort())").then(JSON.parse);
+    ok('Bild: Seitengriffe vorhanden (Standard an), 4 Ecken + 4 Seiten', hk.join() === 'bl,br,mb,ml,mr,mt,tl,tr', hk);
+    // stretch: width only; Shift on a side handle is ignored
+    await drag310([300, 150], [360, 150]);
+    let o = await O();
+    ok('Bild strecken: rechter Seitengriff ändert nur die Breite (Höhe, Position gleich)', nr(o.w, 260) && nr(o.h, 100) && nr(o.x, 100) && nr(o.y, 100) && !o.crop, o);
+    await drag310([360, 150], [400, 150], 8);
+    o = await O();
+    ok('Bild strecken: Umschalt am Seitengriff wird ignoriert (weiter nur Breite)', nr(o.w, 300) && nr(o.h, 100), o);
+    await drag310([250, 100], [250, 70], 0);
+    o = await O();
+    ok('Bild strecken: oberer Seitengriff ändert nur die Höhe, untere Kante bleibt', nr(o.h, 130) && nr(o.y + o.h, 200) && nr(o.w, 300), o);
+    // size hint in mm while dragging, gone afterwards
+    {
+      const c = await pt310([400, 135]), d = await pt310([420, 135]);
+      await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 6; i++) await dragTo(c[0] + (d[0] - c[0]) * i / 6, c[1]);
+      const h1 = await ev("S.imgHint?S.imgHint.t:null"); await releaseAt(d[0], d[1]); await sleep(150);
+      const h2 = await ev("S.imgHint||null");
+      ok('Bild strecken: Maße in mm beim Ziehen, danach weg', /^\d+[.,]\d × \d+[.,]\d mm$/.test(h1) && h2 === null, { h1, h2 });
+    }
+    // reset aspect: button and double-click on a handle
+    const brt = await ev("JSON.stringify([document.getElementById('imgSec').hidden,document.getElementById('imgRatio').getBoundingClientRect().toJSON(),innerHeight,!!S.sel])"); await ev("document.getElementById('imgRatio').scrollIntoView({block:'center'})"); await sleep(150); await clickEl('#imgRatio'); o = await O();
+    ok('Bild: "Seitenverhältnis zurücksetzen" stellt das Bildverhältnis 2:1 wieder her', nr(o.h / o.w, 0.5, 0.002), { o, brt });
+    await drag310([o.x + o.w, o.y + o.h / 2], [o.x + o.w + 80, o.y + o.h / 2]);
+    o = await O(); const r0 = o.h / o.w;
+    await click310([o.x + o.w, o.y + o.h / 2], 0, 1); await click310([o.x + o.w, o.y + o.h / 2], 0, 2); o = await O();
+    ok('Bild: Doppelklick auf einen Griff stellt das Seitenverhältnis wieder her', r0 < 0.45 && nr(o.h / o.w, 0.5, 0.002), { r0, now: o.h / o.w });
+    // corner stays proportional, Shift frees it
+    await open310(IMG); await click310([200, 150]);
+    await drag310([300, 200], [400, 230]); o = await O();
+    ok('Bild: Eckgriff bleibt proportional (unverändertes Verhalten)', nr(o.h / o.w, 0.5, 0.002) && o.w > 250, o);
+    await open310(IMG); await click310([200, 150]);
+    await drag310([300, 200], [400, 230], 8); o = await O();
+    ok('Bild: Umschalt am Eckgriff verzerrt weiterhin frei', nr(o.w, 300) && nr(o.h, 130), o);
+    // setting off hides the side handles
+    await open310(IMG); await click310([200, 150]);
+    const was = await menu('Bilder frei strecken');
+    const off = await ev("JSON.stringify([imgSideOn,handles(S.sel.o).length,localStorage.getItem('pdfwerkbank:imgSide')])").then(JSON.parse);
+    await sleep(300); const m2 = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith('Bilder frei strecken'));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()"); if (m2) { await mv(m2[0], m2[1]); await pressAt(m2[0], m2[1]); await releaseAt(m2[0], m2[1]); await sleep(300); } const on = await ev("JSON.stringify([imgSideOn,handles(S.sel.o).length])").then(JSON.parse);
+    ok('Bild: Einstellung "Bilder frei strecken" (Standard an) aus: nur 4 Eckgriffe; wieder an: 8', was === 'true' && off.join() === 'false,4,0' && on.join() === 'true,8', { was, off, on, m2 });
+    // crop: Shift+C, drag the left edge in; box and crop change together, visible pixels keep their scale
+    await open310(IMG); await click310([200, 150]);
+    const h0 = await ev('H.u.length');
+    await key310('C', 'KeyC', 67, 8);
+    ok('Zuschneiden: Umschalt+C startet den Zuschnitt (C bleibt der IT-Rechner)', await ev('!!CRP') === true && await ev("!document.getElementById('calcDlg')||document.getElementById('calcDlg').hidden") === true);
+    await drag310([100, 150], [150, 150]); o = await O();
+    ok('Zuschnitt: linke Kante nach innen ändert Kasten und crop gemeinsam, Höhe gleich', nr(o.x, 150) && nr(o.w, 150) && nr(o.h, 100) && o.crop && nr(o.crop.l, 0.25, 0.002) && !o.crop.r, o);
+    await drag310([300, 150], [250, 150]); o = await O();
+    ok('Zuschnitt: rechte Kante nach innen', nr(o.w, 100) && o.crop && nr(o.crop.r, 0.25, 0.002), o);
+    await key310('Enter', 'Enter', 13);
+    const pa = await px(155, 150), pb = await px(125, 150), pc = await px(240, 150);
+    ok('Zuschnitt: weggeschnittener Bereich wird nicht gezeichnet, sichtbare Pixel behalten ihren Maßstab', pb[3] === 0 && pa[1] > 200 && pa[0] < 50 && pc[2] > 200 && pc[0] < 50 && await px(275, 150).then(q => q[3] === 0), { pa, pb, pc });
+    ok('Zuschnitt: Eingabe übernimmt; eine Rückgängig-Stufe für die ganze Sitzung', await ev('!CRP') === true && await ev('H.u.length') === h0 + 1, { cr: await ev('!!CRP'), h: [h0, await ev('H.u.length')] });
+    // outside the box: dragging edge outward again re-extends (non-destructive), up to the full image
+    await click310([200, 150], 0, 1); await click310([200, 150], 0, 2); await sleep(150);
+    ok('Zuschnitt: Doppelklick auf das Bild öffnet den Zuschnitt erneut', await ev('!!CRP') === true);
+    await drag310([150, 150], [20, 150]); o = await O();
+    ok('Zuschnitt wieder erweitern: bis zum vollen Bild (links), nicht darüber hinaus', nr(o.x, 100) && !o.crop.l && o.crop.r > 0.2, o);
+    await key310('Escape', 'Escape', 27);
+    o = await O();
+    ok('Zuschnitt: Esc bricht ab (Zustand vor der Sitzung, keine neue Rückgängig-Stufe)', await ev('!CRP') === true && nr(o.x, 150) && nr(o.w, 100) && nr(o.crop.l, 0.25, 0.002) && await ev('H.u.length') === h0 + 1, o);
+    await ev('undo()'); await sleep(200); o = await O();
+    ok('Zuschnitt: Rückgängig nimmt den ganzen Zuschnitt in einem Schritt zurück', nr(o.x, 100) && nr(o.w, 200) && o.crop === null, o);
+    await ev('redo()'); await sleep(200);
+    // copy / duplicate / opacity / save and reopen keep the crop; export shows it
+    const cp = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.type==='image');setSel({p:0,o});dupSel();const n=S.pages[0].objs.filter(o=>o.type==='image');o.alpha=.5;return JSON.stringify([n.length,n[1].crop,!!o.crop])})()").then(JSON.parse);
+    ok('Zuschnitt bleibt bei Duplizieren und Deckkraft', cp[0] === 2 && cp[1] && nr(cp[1].l, 0.25, 0.002) && cp[2] === true, cp);
+    const rt = await ev("(async()=>{const b=await buildOutput();await openPdf(b,'crop.pdf');await new Promise(r=>setTimeout(r,900));const m=S.pages[0].objs.filter(o=>o.type==='image');return JSON.stringify(m.map(o=>({crop:o.crop||null,x:o.x,w:o.w})))})()", 25000).then(JSON.parse);
+    ok('Zuschnitt: bleibt nach Speichern und Wiederöffnen erhalten (erneut erweiterbar)', rt.length === 2 && rt.every(m => m.crop && nr(m.crop.l, 0.25, 0.002)), rt);
+    await ev("(async()=>{scroll310();redrawAll();await new Promise(r=>setTimeout(r,400))})()");
+    const pe = await ev("(async()=>{const P=S.pages[0];const cv=document.createElement('canvas');cv.width=P.w;cv.height=P.h;const c=cv.getContext('2d');for(const o of P.objs)drawObj(c,o);const o=P.objs.find(o=>o.type==='image'),f=(x,y)=>[...c.getImageData(Math.round(x),Math.round(y),1,1).data];return JSON.stringify([f(o.x+4,o.y+o.h/2),f(o.x-20,o.y+o.h/2)])})()").then(JSON.parse);
+    ok('Zuschnitt: Export-Zeichnung (drawObj) zeigt nur den sichtbaren Teil (erste sichtbare Spalte grün, links davon leer)', pe[0][1] > 120 && pe[0][0] < 130 && pe[1][3] === 0, pe);
+    // sanitising
+    const sn = await ev("JSON.stringify((()=>{const b=c=>{const r=sanObj({type:'image',x:0,y:0,w:10,h:10,img:'imabc',crop:c});return r?r.crop||null:'REJ'};return [b({l:.1,t:0,r:.2,b:.3}),b({l:.6,t:0,r:.6,b:0}),b({l:-.1,t:0,r:0,b:0}),b({l:.99,t:0,r:0,b:0}),b({l:'x',t:0,r:0,b:0}),b('x'),b([1,2]),b({l:0,t:0,r:0,b:0}),b(undefined)]})())").then(JSON.parse);
+    ok('sanObj: gültiger Zuschnitt bleibt, ungültiger (Summe > 0,95, negativ, > 0,95, kein Zahlenwert, Nullzuschnitt) wird entfernt, Objekt bleibt', JSON.stringify(sn) === JSON.stringify([{ l: .1, t: 0, r: .2, b: .3 }, null, null, null, null, null, null, null, null]), sn);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

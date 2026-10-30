@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/1yR9deylba6GrgSJ3lH1ebTPa3N2piyJDac2m6JOmU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4t0ic6jY5mUVDgXWTZLaCkpwNAh/nYonMuUoPXfBETg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1604,7 +1604,7 @@ header,.file{min-width:0}
     <div class="sec" id="imgSec" hidden>
       <h3>Bild</h3>
       <div class="row"><label for="imgAlpha">Deckkraft</label><input type="range" id="imgAlpha" min="10" max="100" step="5" value="100"><span class="val" id="imgAlphaV">100 %</span></div>
-      <div class="row img-btns"><button class="btn" id="imgRatio">Seitenverhältnis zurücksetzen</button><button class="btn" id="imgReplace">Ersetzen …</button></div>
+      <div class="row img-btns"><button class="btn" id="imgCrop">Zuschneiden</button><button class="btn" id="imgRatio">Seitenverhältnis zurücksetzen</button><button class="btn" id="imgReplace">Ersetzen …</button></div>
     </div>
     <div class="sec">
       <h3>Farbe</h3>
@@ -2654,6 +2654,7 @@ const I18N_EN={
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 // 3.10 Auswahlwerkzeug
 ' Objekte gewählt':' objects selected',
+'Bilder frei strecken (Seitengriffe)':'Stretch images freely (side handles)','Die Griffe in der Mitte der Bildkanten ändern nur Breite oder Höhe (aus: nur Eckgriffe)':'The handles in the middle of an image edge change only width or height (off: corner handles only)','Zuschneiden':'Crop','Bild zuschneiden':'Crop image','Zuschneiden: Kanten ziehen, Eingabe übernimmt, Esc bricht ab.':'Crop: drag the edges, Enter applies, Esc cancels.',
 'Tab wechselt zwischen Objekten':'Tab switches between objects','Tab und Umschalt+Tab wählen das nächste oder vorige Objekt der Seite (Esc: wieder durch die Oberfläche tabben)':'Tab and Shift+Tab select the next or previous object on the page (Esc: tab through the interface again)',
 'Eine Ebene nach vorne (Strg+])':'Bring forward (Ctrl+])','Eine Ebene nach hinten (Strg+[)':'Send backward (Ctrl+[)','Ganz nach vorne (Strg+Umschalt+])':'Bring to front (Ctrl+Shift+])','Ganz nach hinten (Strg+Umschalt+[)':'Send to back (Ctrl+Shift+[)',
 'Umschalt-Klick wählt mehrere Objekte, Strg+G gruppiert, Alt-Klick wählt ein Teil einer Gruppe, Tab springt zum nächsten Objekt. Beim Ziehen einer Ecke: Umschalt schaltet das Seitenverhältnis um (Bilder bleiben sonst proportional), Alt skaliert von der Mitte aus.':'Shift-click selects several objects, Ctrl+G groups, Alt-click selects one part of a group, Tab jumps to the next object. When dragging a corner: Shift toggles the aspect ratio (images stay proportional otherwise), Alt resizes from the centre.',
@@ -3926,6 +3927,7 @@ function handles(o){
   if(o.type==='pen'||o.type==='hl'||o.type==='deco')return[];
   const b=boxOf(o);
   const hs=[{k:'tl',x:b.x,y:b.y},{k:'tr',x:b.x+b.w,y:b.y},{k:'bl',x:b.x,y:b.y+b.h},{k:'br',x:b.x+b.w,y:b.y+b.h}];
+  if(o.type==='image'&&(imgSideOn||(CRP&&CRP.o===o)))hs.push({k:'ml',x:b.x,y:b.y+b.h/2},{k:'mr',x:b.x+b.w,y:b.y+b.h/2},{k:'mt',x:b.x+b.w/2,y:b.y},{k:'mb',x:b.x+b.w/2,y:b.y+b.h}); // side handles stretch one dimension (crop mode: crop edges)
   if((o.type==='text'&&o.orient==='h')||o.type==='table'){const near=(v,E)=>E.slice(1,-1).some(e=>Math.abs(e-v)<12/S.zoom);
     // table: a mid handle that would sit on an inner line moves to the middle of the longest free part of that edge
     const freeMid=E=>{let s=E[0],e=E[1];for(let i=1;i<E.length-1;i++)if(E[i+1]-E[i]>e-s){s=E[i];e=E[i+1]}return e-s<24/S.zoom?null:(s+e)/2};
@@ -3947,6 +3949,9 @@ function resizeTo(o,st,x,y,shift,alt){
   if(o.type==='table'&&k[0]==='m'){const R=k==='mt'||k==='mb',end=k==='mb'||k==='mr',L0=R?gb.h:gb.w,A=(R?g.rh:g.cw).map(f=>f*L0),j=end?A.length-1:0,p0=R?gb.y:gb.x,v=R?y:x;
     A[j]=Math.max(10,A[j]+(end?v-(p0+L0):p0-v));const L=A.reduce((s,q)=>s+q,0),F=A.map(q=>q/L);
     if(R){o.rh=F;o.h=L;if(!end)o.y=gb.y+gb.h-L}else{o.cw=F;o.w=L;if(!end)o.x=gb.x+gb.w-L}return}
+  if(o.type==='image'&&k[0]==='m'){ // side handle: stretch one dimension only (Shift/Alt ignored)
+    if(k==='mr')o.w=Math.max(4,x-gb.x);else if(k==='ml'){const nx=Math.min(x,gb.x+gb.w-4);o.w=gb.x+gb.w-nx;o.x=nx}
+    else if(k==='mb')o.h=Math.max(4,y-gb.y);else{const ny=Math.min(y,gb.y+gb.h-4);o.h=gb.y+gb.h-ny;o.y=ny}return}
   if(k==='mt'||k==='mb'){const nat=textBox({...o,minH:0}).h,bottom=gb.y+gb.h;
     if(k==='mb')o.minH=Math.max(nat,y-gb.y);else{const ny=Math.min(y,bottom-nat);o.minH=bottom-ny;o.y=ny}
     if(o.minH<=nat+.5)delete o.minH;return}
@@ -4201,7 +4206,7 @@ function obPalOpen(v){const pal=$('#obPal');pal.hidden=!v;$('#obCol').setAttribu
 function obHide(){if(!obBar.hidden){obBar.hidden=true;obPalOpen(false)}}
 function obSoon(){if(obRaf)return;obRaf=requestAnimationFrame(()=>{obRaf=0;try{obUpdate()}catch(e){}})}
 function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
-  if(!obBarOn||!P||!P.ink||obBusy||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||!tsBar.hidden||sel.o===editingObj){obHide();return}
+  if(!obBarOn||!P||!P.ink||obBusy||CRP||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||!tsBar.hidden||sel.o===editingObj){obHide();return}
   const T=selItems();if(!T.length){obHide();return}
   const lk=T.some(o=>!o.locked),L=$('#obLock'),lt=tr(lk?'Sperren':'Entsperren');L.title=lt;L.setAttribute('aria-label',lt);
   $('#obAl').hidden=alUnits(T.filter(o=>!alFixed(o))).length<2;
@@ -4471,6 +4476,7 @@ function attachInk(P,i){
     const snap=['pen','marker','line','arrow'].includes(S.tool)?rulerSnapStart(e.clientX,e.clientY):null;
     const sp=snap?snapPt(snap,e.clientX,e.clientY):[e.clientX,e.clientY];
     const [x,y]=toPt(...sp);const tol=6/S.zoom;st={x,y,snap,moved:false};
+    if(CRP&&!(CRP.p===i&&(handleAt(CRP.o,x,y,tol)||hit(CRP.o,x,y,tol))))cropEnd(true); // a click elsewhere confirms the crop
     if(S.sel&&S.sel.p===i&&(['symbol','rect','ellipse'].includes(S.tool)||(S.tool==='field'&&S.sel.o.type==='field'))){
       const k=handleAt(S.sel.o,x,y,tol);
       if(k){st.selDrag=1;st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);return}
@@ -4532,7 +4538,7 @@ function attachInk(P,i){
     const d=S.draft&&S.draft.o;
     switch(st.selDrag?'select':S.tool){
       case'select':case'text':{
-        if(!st.mode||!st.moved||(st.o&&st.o.locked)||(st.o&&st.o.type==='group'&&st.o.items.every(t=>t.locked)))return;if(!st.hist){pushHist();st.hist=true;dragBegin(i,st.o);obBusy=true;obHide()}const o=st.o;
+        if(!st.mode||!st.moved||(st.o&&st.o.locked)||(st.o&&st.o.type==='group'&&st.o.items.every(t=>t.locked)))return;if(!st.hist){const cr=CRP&&CRP.o===st.o&&st.mode!=='move';if(!(cr&&CRP.hist))pushHist();if(cr)CRP.hist=true;st.hist=true;dragBegin(i,st.o);obBusy=true;obHide()}const o=st.o;
         if(st.mode==='move'){const g=guideSnap(i,o,x,y,st,e);moveObj(o,g[0]-st.lx,g[1]-st.ly);st.lx=g[0];st.ly=g[1]}
         else if(st.mode==='p1'||st.mode==='p2'){const one=st.mode==='p1';if(o.type==='line')tmpProp(o,'__drag',one?'a':'b');
           const oid2=o.link?(one?o.link.b:o.link.a):null,other=oid2?P.objs.find(q=>q.oid===oid2):null;
@@ -4543,8 +4549,9 @@ function attachInk(P,i){
         else if(st.mode==='tcol'||st.mode==='trow'){const X=st.mode==='tcol',k=st.idx,fr=X?o.cw:o.rh,len=X?o.w:o.h,pos=(X?x-o.x:y-o.y)/len;
           let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;tblHintSet(o,st.mode,k,x,y)}
         else if(st.mode==='rot'){const r=rotFromPointer(st.orig,x,y,e.shiftKey,e.altKey);S.rotHint={o,deg:r};if(r)o.rot=r;else delete o.rot}
+        else if(CRP&&CRP.o===o){cropDrag(o,st,x,y);imgHintSet(o,x,y)}
         else if(rotOf(st.orig)){resizeRotated(o,st,x,y,e.shiftKey);textClamp(o,P,false)}
-        else{if(o.type==='text'){x=clamp(x,0,P.w);y=clamp(y,0,P.h)}[x,y]=guideResizePre(i,o,st,x,y,e);resizeTo(o,st,x,y,e.shiftKey,e.altKey);guideResizePost(i,o,st)}
+        else{if(o.type==='text'){x=clamp(x,0,P.w);y=clamp(y,0,P.h)}[x,y]=guideResizePre(i,o,st,x,y,e);resizeTo(o,st,x,y,e.shiftKey,e.altKey);guideResizePost(i,o,st);if(o.type==='image')imgHintSet(o,x,y)}
         if(o.type==='text'&&st.orig&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
         if(o.type==='text'&&st.mode==='move')textClamp(o,P,false);
         redraw(i);break}
@@ -4563,6 +4570,7 @@ function attachInk(P,i){
   const end=e=>{
     if(obBusy){obBusy=false;obSoon()}
     if(S.tblHint){S.tblHint=null;redraw(i)}
+    if(S.imgHint){S.imgHint=null;redraw(i)}
     if(S.rotHint){S.rotHint=null;redraw(i)}
     if(!st)return;clearTimeout(st.qsT);if(st.qs)qsTagHide();
     if(st.marq){const L=S.lasso,add=st.add;S.lasso=null;st=null;if(L)lassoFinish(i,L,add);return}
@@ -4611,13 +4619,15 @@ function attachInk(P,i){
     // take back what the first click of the double-click placed (a dot, a template, an empty text box); nothing under the pointer: put it back
     let undone=0;if(any){if(editorEl){const hb=H.n;closeEditor();DBLH.n+=H.n-hb}const k=Math.min(5,H.n-DBLH.n);while(undone<k&&H.u.length){undo();undone++}H.n-=undone}
     const redoAll=()=>{const u=undone;while(undone-->0)redo();H.n+=u};
+    if(CRP){cropEnd(true);return}
+    if(!any&&S.sel&&S.sel.p===i&&S.sel.o.type==='image'&&handleAt(S.sel.o,x,y,6/S.zoom)){imgRatioReset(S.sel.o);return}
     if(S.sel&&S.sel.p===i&&rotOf(S.sel.o)&&handleAt(S.sel.o,x,y,6/S.zoom)==='rot'){pushHist();delete S.sel.o.rot;textClamp(S.sel.o,P,false);redraw(i);markDirty();return}
     let o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o||(any&&S.tool==='text'&&o.type==='text')){redoAll();return}
     // a device's own box or caption wins over a docked line crossing it (not over the line's own label, a free line, or label-less symbols)
     if(o.type==='line'&&o.link&&!(l=>l&&x>=l.x&&x<=l.x+l.w&&y>=l.y&&y<=l.y+l.h)(lineLblBox(o))){const sy=[...P.objs].reverse().find(q=>q.type==='sym'&&q.label&&!NOLBL.includes(q.sym)&&SYM[q.sym]&&!SYM[q.sym].frame&&!q.locked&&x>=q.x-4&&x<=q.x+q.w+4&&y>=q.y&&y<=q.y+q.h+(SYM[q.sym].below&&q.label?(q.fs||11)*1.3*String(q.label).split('\n').length+3:0));if(sy)o=sy}
     if(any&&!(S.sel&&S.sel.o===o))setSel({p:i,o});
     if((o.gid||o.gg)&&!(S.sel&&S.sel.o===o))setSel({p:i,o});
-    if(o.type==='table'){const rc=tblCell(o,x,y);if(rc)editCell(i,o,rc[0],rc[1])}else if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&!NOLBL.includes(o.sym))editLabel(i,o);else if(o.type==='line')editLineLabel(i,o);
+    if(o.type==='table'){const rc=tblCell(o,x,y);if(rc)editCell(i,o,rc[0],rc[1])}else if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&!NOLBL.includes(o.sym))editLabel(i,o);else if(o.type==='line')editLineLabel(i,o);else if(o.type==='image')cropStart(i,o);
   });
 }
 const NOLBL=['start','end','flowend','fork','activation','timer','check','cross','star','exclam','question'];
@@ -5628,7 +5638,8 @@ function imgEl(id){if(!id)return null;if(IMGC[id])return IMGC[id];let src=S.imgs
   if(!IMG_OK.test(src))return null;const im=new Image();IMGC[id]=im;
   im.onload=()=>{S.pages.forEach((P,i)=>{if(P.objs.some(o=>o.type==='image'&&o.img===id))redraw(i)});refreshThumbs()};im.src=src;return im}
 function drawImg(c,o){const im=imgEl(o.img);
-  if(im&&im.complete&&im.naturalWidth){c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(im,o.x,o.y,o.w,o.h)}
+  if(im&&im.complete&&im.naturalWidth){c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';const q=o.crop,nw=im.naturalWidth,nh=im.naturalHeight;
+    if(q)c.drawImage(im,q.l*nw,q.t*nh,(1-q.l-q.r)*nw,(1-q.t-q.b)*nh,o.x,o.y,o.w,o.h);else c.drawImage(im,o.x,o.y,o.w,o.h)}
   else{c.save();c.globalAlpha*=.8;c.fillStyle='rgba(120,132,145,.14)';c.fillRect(o.x,o.y,o.w,o.h);c.strokeStyle='rgba(120,132,145,.7)';c.lineWidth=1;c.setLineDash([4,3]);c.strokeRect(o.x,o.y,o.w,o.h);
     const s=Math.min(o.w,o.h)*.28,cx=o.x+o.w/2,cy=o.y+o.h/2;c.setLineDash([]);c.beginPath();c.rect(cx-s,cy-s*.75,s*2,s*1.5);c.moveTo(cx-s,cy+s*.5);c.lineTo(cx-s*.2,cy-s*.1);c.lineTo(cx+s*.3,cy+s*.3);c.lineTo(cx+s,cy-s*.2);c.stroke();c.restore()}}
 function imgsUsed(){const u={};for(const P of S.pages)for(const o of P.objs)if(o.type==='image'&&S.imgs[o.img])u[o.img]=S.imgs[o.img];return u}
@@ -5662,17 +5673,53 @@ async function insertImages(files,i,at){
   toast(made.length>1?tr(made.length+' Bilder eingefügt.'):tr('Bild eingefügt. Ecken ziehen ändert die Größe, Umschalt verzerrt frei.'));return made.length}
 function pickImage(){if(!S.pages.length)return;const inp=$('#imgIn');inp.dataset.mode='new';inp.click()}
 function imgTarget(){const o=S.sel&&S.sel.o;return o&&o.type==='image'?o:null}
+/* ---------- 3.10: Bilder strecken (Seitengriffe) und zuschneiden ----------
+   Side handles stretch one dimension (setting imgSide). Crop mode (button, double-click, Shift+C) turns the handles into crop edges:
+   o.crop = {l,t,r,b} = hidden fractions of the source image; the box (o.x..o.h) is the visible part, so dragging an edge changes box and crop together
+   and the visible pixels keep their scale. The full image stays in S.imgs, so the crop can be extended again. One undo step per crop session. */
+var imgSideOn=true;try{imgSideOn=localStorage.getItem('pdfwerkbank:imgSide')!=='0'}catch(e){}
+var CRP=null; // crop mode: {p,o,orig,hist}
+const mmTxt=v=>{const s=(v*25.4/72).toFixed(1);return LANG==='en'?s:s.replace('.',',')};
+function imgHintSet(o,x,y){S.imgHint={o,x,y,t:mmTxt(o.w)+' × '+mmTxt(o.h)+' mm'}}
+function imgRatioReset(o){if(o.locked){toast(tr('Das Objekt ist gesperrt.'));return}const im=imgEl(o.img);if(!im||!im.naturalWidth||!S.sel)return;const q=o.crop||{l:0,t:0,r:0,b:0};
+  pushHist();const cy=o.y+o.h/2;o.h=o.w*im.naturalHeight*(1-q.t-q.b)/(im.naturalWidth*(1-q.l-q.r));o.y=cy-o.h/2;redraw(S.sel.p);markDirty()}
+const cropFrame=o=>{const q=o.crop||{l:0,t:0,r:0,b:0},w=o.w/(1-q.l-q.r),h=o.h/(1-q.t-q.b);return{x:o.x-q.l*w,y:o.y-q.t*h,w,h}}; // where the full source image sits on the page
+function cropStart(i,o){if(CRP)return;if(o.locked){toast(tr('Das Objekt ist gesperrt.'));return}const im=imgEl(o.img);if(!im||!im.naturalWidth)return;
+  if(S.tool!=='select')setTool('select');if(!S.sel||S.sel.o!==o)setSel({p:i,o});
+  CRP={p:i,o,orig:JSON.parse(JSON.stringify(o)),hist:false};obHide();redraw(i);
+  const t=tr('Zuschneiden: Kanten ziehen, Eingabe übernimmt, Esc bricht ab.');toast(t);$('#selLive').textContent=t}
+function cropEnd(ok){const c=CRP;if(!c)return;CRP=null;
+  if(!ok&&c.hist){Object.assign(c.o,{x:c.orig.x,y:c.orig.y,w:c.orig.w,h:c.orig.h});if(c.orig.crop)c.o.crop=c.orig.crop;else delete c.o.crop;H.u.pop();H.n--;updUndo();markDirty()}
+  S.imgHint=null;redraw(c.p);obSoon()}
+function cropDrag(o,st,x,y){const g=st.orig,F=cropFrame(g),k=st.mode,L=k==='tl'||k==='bl'||k==='ml',R=k==='tr'||k==='br'||k==='mr',T=k==='tl'||k==='tr'||k==='mt',B=k==='bl'||k==='br'||k==='mb';
+  let x0=g.x,x1=g.x+g.w,y0=g.y,y1=g.y+g.h;const mw=.05*F.w,mh=.05*F.h; // at least 5 % of the image stays visible
+  if(L)x0=clamp(x,F.x,x1-mw);if(R)x1=clamp(x,x0+mw,F.x+F.w);if(T)y0=clamp(y,F.y,y1-mh);if(B)y1=clamp(y,y0+mh,F.y+F.h);
+  o.x=x0;o.w=x1-x0;o.y=y0;o.h=y1-y0;
+  const q={l:(x0-F.x)/F.w,t:(y0-F.y)/F.h,r:(F.x+F.w-x1)/F.w,b:(F.y+F.h-y1)/F.h};for(const n in q)if(q[n]<.0005)q[n]=0;
+  if(q.l||q.t||q.r||q.b)o.crop=q;else delete o.crop}
+function drawCropBack(c,o){const F=cropFrame(o),im=imgEl(o.img),z=S.zoom;if(!im||!im.naturalWidth)return;
+  c.save();c.beginPath();c.rect(F.x,F.y,F.w,F.h);c.rect(o.x,o.y,o.w,o.h);c.clip('evenodd');c.globalAlpha=.4;c.drawImage(im,F.x,F.y,F.w,F.h);c.restore();
+  c.save();c.strokeStyle=accentCol();c.lineWidth=1/z;c.setLineDash([3/z,3/z]);c.strokeRect(F.x,F.y,F.w,F.h);c.setLineDash([]);c.globalAlpha=.55;c.beginPath();
+  for(let k=1;k<3;k++){c.moveTo(o.x+o.w*k/3,o.y);c.lineTo(o.x+o.w*k/3,o.y+o.h);c.moveTo(o.x,o.y+o.h*k/3);c.lineTo(o.x+o.w,o.y+o.h*k/3)}c.stroke();c.restore()}
+function drawImgHint(c,o){const T=S.imgHint,z=S.zoom;c.save();c.font=`600 ${11/z}px ${FONT}`;const tw=c.measureText(T.t).width,px=7/z,hh=22/z;let x=T.x+10/z,y=T.y-hh-8/z;if(y<0)y=T.y+12/z;
+  c.fillStyle=accentCol();rr(c,x,y,tw+2*px,hh,6/z);c.fill();c.fillStyle='#fff';c.textBaseline='middle';c.textAlign='left';c.fillText(T.t,x+px,y+hh/2);c.restore()}
+{const ds=drawSel;drawSel=function(c,o){if(CRP&&CRP.o===o)try{drawCropBack(c,o)}catch(e){}ds(c,o);if(o&&o.type==='image'&&S.imgHint&&S.imgHint.o===o)try{drawImgHint(c,o)}catch(e){}}}
+{const ss=setSel;setSel=function(sel){if(CRP&&(!sel||sel.o!==CRP.o))cropEnd(true);return ss.apply(this,arguments)}}
+{const st0=setTool;setTool=function(id){if(CRP&&id!=='select'&&id!=='lasso')cropEnd(true);return st0.apply(this,arguments)}}
+addEventListener('keydown',e=>{if(!CRP||e.ctrlKey||e.altKey||e.metaKey||e.isComposing||(e.key!=='Enter'&&e.key!=='Escape')||document.querySelector('.modal:not([hidden])'))return;
+  const t=e.target;if(e.key==='Enter'&&t&&(t.tagName==='TEXTAREA'||(t.tagName==='INPUT'&&t.type!=='range')))return;e.preventDefault();e.stopImmediatePropagation();cropEnd(e.key==='Enter')},true);
 function updImgUI(){const sec=document.getElementById('imgSec');if(!sec)return;const o=imgTarget();sec.hidden=!o;if(!o)return;const v=Math.round((o.alpha||1)*100);$('#imgAlpha').value=v;$('#imgAlphaV').textContent=v+' %'}
 {const inp=$('#imgIn');
   inp.onchange=async()=>{const fs=[...inp.files];inp.value='';if(!fs.length)return;
     if(inp.dataset.mode==='replace'){const o=imgTarget();if(!o)return;let r;try{r=await prepImage(fs[0])}catch(e){toast(tr('Dieses Bild lässt sich nicht lesen.'));return}
       const id=imgId(r.src);S.imgs[id]=r.src;imgLsPut(id,r.src);const im=imgEl(id);try{await im.decode()}catch(e){}
-      pushHist();const cy=o.y+o.h/2;o.img=id;o.h=o.w*r.h/r.w;o.y=cy-o.h/2;redraw(S.sel.p);markDirty();toast(tr('Bild ersetzt.'));return}
+      pushHist();const cy=o.y+o.h/2;o.img=id;delete o.crop;o.h=o.w*r.h/r.w;o.y=cy-o.h/2;redraw(S.sel.p);markDirty();toast(tr('Bild ersetzt.'));return}
     insertImages(fs,null,null)};
   const a=$('#imgAlpha');let hist=false;
   a.addEventListener('input',()=>{const o=imgTarget();if(!o)return;if(!hist){pushHist();hist=true}const v=+a.value;o.alpha=v>=100?undefined:v/100;if(o.alpha===undefined)delete o.alpha;$('#imgAlphaV').textContent=v+' %';redraw(S.sel.p)});
   a.addEventListener('change',()=>{if(hist)markDirty();hist=false});
-  $('#imgRatio').onclick=()=>{const o=imgTarget();if(!o)return;if(o.locked){toast(tr('Das Objekt ist gesperrt.'));return}const im=imgEl(o.img);if(!im||!im.naturalWidth)return;pushHist();const cy=o.y+o.h/2;o.h=o.w*im.naturalHeight/im.naturalWidth;o.y=cy-o.h/2;redraw(S.sel.p);markDirty()};
+  $('#imgRatio').onclick=()=>{const o=imgTarget();if(o)imgRatioReset(o)};
+  $('#imgCrop').onclick=()=>{const o=imgTarget();if(o)cropStart(S.sel.p,o)};
   $('#imgReplace').onclick=()=>{const o=imgTarget();if(!o)return;if(o.locked){toast(tr('Das Objekt ist gesperrt.'));return}inp.dataset.mode='replace';inp.click()};
   addEventListener('copy',e=>{const t=e.target;if(editorEl||(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.isContentEditable)))return;
     const s=getSelection();if(s&&!s.isCollapsed&&String(s).trim())return;if(!e.clipboardData||!copySel())return;e.preventDefault();
@@ -6319,7 +6366,9 @@ function sanObj(o){
       r.dev=Array.isArray(r.dev)?r.dev.slice(0,60).filter(d=>d&&isNum(d.u)&&isNum(d.h)&&typeof d.kind==='string'&&own(RK_KIND,d.kind)).map(d=>({u:Math.round(d.u),h:Math.max(1,Math.min(10,Math.round(d.h))),kind:d.kind,name:typeof d.name==='string'?d.name.slice(0,40):'',...(typeof d.id==='string'?{id:d.id.slice(0,12)}:{}),...(isNum(d.p)&&d.p>=1&&d.p<=96?{p:Math.round(d.p)}:{})})):[];r.links=Array.isArray(r.links)?r.links.slice(0,500).filter(l=>l&&typeof l.a==='string'&&typeof l.b==='string'&&isNum(l.ap)&&isNum(l.bp)).map(l=>({a:l.a.slice(0,12),ap:Math.max(1,Math.min(96,Math.round(l.ap))),b:l.b.slice(0,12),bp:Math.max(1,Math.min(96,Math.round(l.bp))),t:typeof l.t==='string'?l.t.slice(0,80):'',c:typeof l.c==='string'&&RK_CABLE[l.c]?l.c:'blue'})):[];return r}
     case'code':{if(!box()||typeof r.text!=='string')return null;r.text=r.text.slice(0,20000);if(!own(CODE_LANG,r.lang))r.lang='plain';if(r.theme!=='dark')r.theme='light';r.num=r.num!==false;if(!(isNum(r.fs)&&r.fs>=5&&r.fs<=24))r.fs=10;return r}
     case'sym':return box()&&typeof r.sym==='string'&&own(SYM,r.sym)?r:null;
-    case'image':return box()&&typeof r.img==='string'&&/^im[a-z0-9]{2,24}$/.test(r.img)?r:null;
+    case'image':{if(!(box()&&typeof r.img==='string'&&/^im[a-z0-9]{2,24}$/.test(r.img)))return null;
+      const q=r.crop,v=q&&typeof q==='object'?['l','t','r','b'].map(k=>q[k]):null; // crop = hidden fractions of the source image; invalid -> show the full image
+      if(v&&v.every(n=>isNum(n)&&n>=0&&n<=.95)&&v[0]+v[2]<=.951&&v[1]+v[3]<=.951&&v.some(n=>n>0))r.crop={l:v[0],t:v[1],r:v[2],b:v[3]};else delete r.crop;return r}
     case'table':{if(!box())return null;const R=r.rows|0,C=r.cols|0;if(R<1||R>200||C<1||C>60)return null;r.rows=R;r.cols=C;
       const fr=(a,n)=>Array.isArray(a)&&a.length===n&&a.every(v=>isNum(v)&&v>0)?a:Array.from({length:n},()=>1/n);r.cw=fr(r.cw,C);r.rh=fr(r.rh,R);
       const cells=Array.isArray(r.cells)?r.cells:[];r.cells=Array.from({length:R},(_,i)=>Array.from({length:C},(_,k)=>{const v=cells[i]&&cells[i][k];return typeof v==='string'?v.slice(0,20000):''}));return r}
@@ -7209,6 +7258,7 @@ const KB_DEF=[
   {id:'tabNext',g:'Ansicht',n:'Nächster Tab',def:'Ctrl+Tab',run:()=>tabStep(1),native:true},
   {id:'tabPrev',g:'Ansicht',n:'Vorheriger Tab',def:'Ctrl+Shift+Tab',run:()=>tabStep(-1),native:true},
   {id:'tabClose',g:'Ansicht',n:'Tab schließen',def:'Ctrl+W',run:()=>{if(TABS.length>1)tabClose(TAB)},native:true},
+  {id:'imgCrop',g:'Allgemein',n:'Bild zuschneiden',def:'Shift+C',run:()=>{const o=imgTarget();if(o)cropStart(S.sel.p,o)},when:()=>!!imgTarget()&&(S.tool==='select'||S.tool==='lasso')},
   {id:'bars',g:'Ansicht',n:'Leisten ein/aus',def:'Ctrl+.',run:()=>{const hide=!(bars.tools||bars.side)?false:true;setBars(!hide,!hide)}},
   ...TOOLS.filter(t=>t&&t!=='-'&&t.k).map(t=>({id:'tool:'+t.id,g:'Werkzeuge',n:t.n,def:t.k,run:()=>kbRunTool(t.id),native:t.bar!==false}))];
 let KB_USER={};try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:keys')||'{}');for(const[a,c]of Object.entries(j))if(KB_DEF.some(x=>x.id===a)&&typeof c==='string'&&c.length<40)KB_USER[a]=c}catch(e){}
@@ -7392,6 +7442,7 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
   {ic:'guides',t:'Hilfslinien beim Verschieben',d:'Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)',get:()=>GD.on,run:()=>{GD.on=!GD.on;gdSave()}},
   {ic:'tools',t:'Objektleiste am gewählten Objekt',d:'Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten',get:()=>obBarOn,run:()=>{obBarOn=!obBarOn;try{localStorage.setItem('pdfwerkbank:objBar',obBarOn?'1':'0')}catch(e){}obSoon()}},
   {ic:'tools',t:'Tab wechselt zwischen Objekten',d:'Tab und Umschalt+Tab wählen das nächste oder vorige Objekt der Seite (Esc: wieder durch die Oberfläche tabben)',get:()=>tabObjOn,run:()=>{tabObjOn=!tabObjOn;try{localStorage.setItem('pdfwerkbank:tabObj',tabObjOn?'1':'0')}catch(e){}}},
+  {ic:'tools',t:'Bilder frei strecken (Seitengriffe)',d:'Die Griffe in der Mitte der Bildkanten ändern nur Breite oder Höhe (aus: nur Eckgriffe)',get:()=>imgSideOn,run:()=>{imgSideOn=!imgSideOn;try{localStorage.setItem('pdfwerkbank:imgSide',imgSideOn?'1':'0')}catch(e){}if(S.sel)redraw(S.sel.p)}},
   {ic:'tools',t:'Auswahl nach dem Setzen',d:'Neue Objekte bleiben ausgewählt',get:()=>keepSelOn,run:()=>{keepSelOn=!keepSelOn;try{localStorage.setItem('pdfwerkbank:keepSel',keepSelOn?'1':'0')}catch(e){}}},
   {ic:'lock',t:'Gesperrte Objekte: Klicks gehen durch',d:'Klicks auf gesperrte Objekte wirken auf das darunter',get:()=>lockPassOn,run:()=>{lockPassOn=!lockPassOn;try{localStorage.setItem('pdfwerkbank:lockPass',lockPassOn?'1':'0')}catch(e){}redrawAll()}},
   {sep:1,hidden:$('#bInfo').hidden},
