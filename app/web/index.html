@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Ww7wa1zmGusBwKmQFyyhhj7SHRocAh361CNpinWRFd0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FW9IBxpXRj+Bcoiw/mVROgc5r7A1vtciRrsWhgXil8k=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1604,7 +1604,7 @@ header,.file{min-width:0}
     <div class="sec" id="imgSec" hidden>
       <h3>Bild</h3>
       <div class="row"><label for="imgAlpha">Deckkraft</label><input type="range" id="imgAlpha" min="10" max="100" step="5" value="100"><span class="val" id="imgAlphaV">100 %</span></div>
-      <div class="row img-btns"><button class="btn" id="imgCrop">Zuschneiden</button><button class="btn" id="imgRatio">Seitenverhältnis zurücksetzen</button><button class="btn" id="imgReplace">Ersetzen …</button></div>
+      <div class="row img-btns"><button class="btn" id="imgCrop" title="Zuschneiden blendet nur aus; das ganze Bild bleibt in der Datei. Zum Entfernen: Schwärzen.">Zuschneiden</button><button class="btn" id="imgRatio">Seitenverhältnis zurücksetzen</button><button class="btn" id="imgReplace">Ersetzen …</button></div>
     </div>
     <div class="sec">
       <h3>Farbe</h3>
@@ -2654,7 +2654,7 @@ const I18N_EN={
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 // 3.10 Auswahlwerkzeug
 ' Objekte gewählt':' objects selected',
-'Bilder frei strecken (Seitengriffe)':'Stretch images freely (side handles)','Die Griffe in der Mitte der Bildkanten ändern nur Breite oder Höhe (aus: nur Eckgriffe)':'The handles in the middle of an image edge change only width or height (off: corner handles only)','Zuschneiden':'Crop','Bild zuschneiden':'Crop image','Zuschneiden: Kanten ziehen, Eingabe übernimmt, Esc bricht ab.':'Crop: drag the edges, Enter applies, Esc cancels.',
+'Bilder frei strecken (Seitengriffe)':'Stretch images freely (side handles)','Die Griffe in der Mitte der Bildkanten ändern nur Breite oder Höhe (aus: nur Eckgriffe)':'The handles in the middle of an image edge change only width or height (off: corner handles only)','Zuschneiden':'Crop','Zuschneiden blendet nur aus; das ganze Bild bleibt in der Datei. Zum Entfernen: Schwärzen.':'Cropping only hides the rest; the whole image stays in the file. To remove it: Redact.','Bild zuschneiden':'Crop image','Zuschneiden: Kanten ziehen, Eingabe übernimmt, Esc bricht ab.':'Crop: drag the edges, Enter applies, Esc cancels.',
 'Tab wechselt zwischen Objekten':'Tab switches between objects','Tab und Umschalt+Tab wählen das nächste oder vorige Objekt der Seite (Esc: wieder durch die Oberfläche tabben)':'Tab and Shift+Tab select the next or previous object on the page (Esc: tab through the interface again)',
 'Eine Ebene nach vorne (Strg+])':'Bring forward (Ctrl+])','Eine Ebene nach hinten (Strg+[)':'Send backward (Ctrl+[)','Ganz nach vorne (Strg+Umschalt+])':'Bring to front (Ctrl+Shift+])','Ganz nach hinten (Strg+Umschalt+[)':'Send to back (Ctrl+Shift+[)',
 'Umschalt-Klick wählt mehrere Objekte, Strg+G gruppiert, Alt-Klick wählt ein Teil einer Gruppe, Tab springt zum nächsten Objekt. Beim Ziehen einer Ecke: Umschalt schaltet das Seitenverhältnis um (Bilder bleiben sonst proportional), Alt skaliert von der Mitte aus.':'Shift-click selects several objects, Ctrl+G groups, Alt-click selects one part of a group, Tab jumps to the next object. When dragging a corner: Shift toggles the aspect ratio (images stay proportional otherwise), Alt resizes from the centre.',
@@ -5680,6 +5680,7 @@ function imgTarget(){const o=S.sel&&S.sel.o;return o&&o.type==='image'?o:null}
    o.crop = {l,t,r,b} = hidden fractions of the source image; the box (o.x..o.h) is the visible part, so dragging an edge changes box and crop together
    and the visible pixels keep their scale. The full image stays in S.imgs, so the crop can be extended again. One undo step per crop session. */
 var imgSideOn=true;try{imgSideOn=localStorage.getItem('pdfwerkbank:imgSide')!=='0'}catch(e){}
+var cropNote=false;const CROP_NOTE='Zuschneiden blendet nur aus; das ganze Bild bleibt in der Datei. Zum Entfernen: Schwärzen.';
 var CRP=null; // crop mode: {p,o,orig,hist}
 const mmTxt=v=>{const s=(v*25.4/72).toFixed(1);return LANG==='en'?s:s.replace('.',',')};
 function imgHintSet(o,x,y){S.imgHint={o,x,y,t:mmTxt(o.w)+' × '+mmTxt(o.h)+' mm'}}
@@ -5692,6 +5693,7 @@ function cropStart(i,o){if(CRP)return;if(o.locked){toast(tr('Das Objekt ist gesp
   const t=tr('Zuschneiden: Kanten ziehen, Eingabe übernimmt, Esc bricht ab.');toast(t);$('#selLive').textContent=t}
 function cropEnd(ok){const c=CRP;if(!c)return;CRP=null;
   if(!ok&&c.hist){Object.assign(c.o,{x:c.orig.x,y:c.orig.y,w:c.orig.w,h:c.orig.h});if(c.orig.crop)c.o.crop=c.orig.crop;else delete c.o.crop;if(H.u.length===c.hu&&S.pages[c.p]&&S.pages[c.p].objs.includes(c.o)){H.u.pop();H.n--;updUndo()}markDirty()} // pop our own history entry only if nothing else was pushed and the document is the same
+  if(ok&&c.hist&&!cropNote){cropNote=true;toast(tr(CROP_NOTE))}
   S.imgHint=null;redraw(c.p);obSoon()}
 function cropDrag(o,st,x,y){const g=st.orig,F=cropFrame(g),k=st.mode,L=k==='tl'||k==='bl'||k==='ml',R=k==='tr'||k==='br'||k==='mr',T=k==='tl'||k==='tr'||k==='mt',B=k==='bl'||k==='br'||k==='mb';
   let x0=g.x,x1=g.x+g.w,y0=g.y,y1=g.y+g.h;const mw=.05*F.w,mh=.05*F.h; // at least 5 % of the image stays visible

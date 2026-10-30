@@ -1635,6 +1635,9 @@ else {
     await open310(IMG);
     const r2 = await ev("(()=>{const o=S.pages[0].objs[0];setSel({p:0,o});cropStart(0,o);pushHist();cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;CRP.hu=H.u.length;pushHist();const h=H.u.length;cropEnd(false);return JSON.stringify([h,H.u.length,o.x])})()").then(JSON.parse);
     ok('Zuschnitt: Abbrechen entfernt keinen fremden Verlaufseintrag (zwischendurch gesetzt), stellt aber den Kasten wieder her', r2[0] === r2[1] && r2[2] === 100, r2);
+    await open310(IMG);
+    const r3 = await ev("(()=>{cropNote=false;const o=S.pages[0].objs[0];setSel({p:0,o});const t=()=>document.querySelector('.toast,#toast')&&document.querySelector('.toast,#toast').textContent;cropStart(0,o);cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;cropEnd(true);return JSON.stringify([cropNote,/Schwärzen/.test(t()||''),document.getElementById('imgCrop').title.includes('Schwärzen')])})()").then(JSON.parse);
+    ok('Zuschnitt: beim Übernehmen Hinweis, dass das ganze Bild in der Datei bleibt (einmal pro Sitzung), auch als Tooltip am Knopf', r3[0] === true && r3[1] === true && r3[2] === true, r3);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

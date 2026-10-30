@@ -31,7 +31,8 @@ Release notes for version 3.9.0.
 - Rotated text gets axis-aligned highlight boxes.
 - Text background is not drawn for stacked text.
 - Old single topology symbols are not editable inside their nodes.
-- Cropped images (`crop`): older Layr versions ignore the crop and show the full image; a cropped image shows the visible part stretched to the old box.
+- Cropped images (`crop`): older Layr versions ignore the crop and squeeze the full image into the cropped box (distorted).
+- Cropping only hides the rest of an image; the whole image stays in the saved file (use Redact to remove content for good).
 - In Layr versions before 3.10, a duplicated part of a template keeps its group id, so in 3.10 original and copy form one group; use Alt+Click to select a single part.
 - Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).
 - The text layer is not available in split view and presentation mode.
