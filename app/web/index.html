@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-zDZVjAOpOpr8NNdMRxz6ancyrCCiJqmHGbJ21kd7swI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Ju0cpCDoCIHDVCHyXT7QzoiP0/X/H+woO8oGBnJnhVE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -65,7 +65,7 @@ button{cursor:pointer}
 @media (forced-colors:active){#tsBar .tsw,#tsBar input[type=color]{forced-color-adjust:none;border-color:ButtonText}}
 #tsBar .ib{width:30px;height:30px}#tsBar .ib svg{width:18px;height:18px}
 /* object bar (3.10): small floating toolbar above the selected object */
-#obBar{position:fixed;z-index:93;display:flex;align-items:center;flex-wrap:wrap;gap:2px;max-width:calc(100vw - 16px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:3px}
+#obBar{position:fixed;z-index:87;display:flex;align-items:center;flex-wrap:wrap;gap:2px;max-width:calc(100vw - 16px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:3px}
 #obBar .ib{width:30px;height:30px}#obBar .ib svg{width:18px;height:18px}
 #obBar .ob-sep{width:1px;align-self:stretch;background:var(--line);margin:3px 2px}
 #obBar .ob-al{display:contents}#obBar .ob-al[hidden]{display:none}
@@ -423,7 +423,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .sym[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
 .armghost{position:fixed;z-index:90;pointer-events:none;box-sizing:border-box;border:2px dashed var(--accent);border-radius:3px;background:color-mix(in srgb,var(--accent) 14%,transparent);box-shadow:0 0 0 1px rgba(255,255,255,.75)}
 .armghost span{position:absolute;left:-2px;top:-2px;transform:translateY(-100%);max-width:240px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:2px 8px;border-radius:6px 6px 6px 0;background:var(--accent);color:var(--on-accent);font:600 12px/1.4 var(--f-ui,inherit)}
-.armhint{position:fixed;z-index:91;left:50%;bottom:22px;transform:translateX(-50%);padding:7px 14px;border-radius:999px;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;pointer-events:none}
+.armhint{position:fixed;z-index:87;left:50%;bottom:22px;transform:translateX(-50%);padding:7px 14px;border-radius:999px;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;pointer-events:none}
 .armhint:empty{display:none}
 #app.armed #viewer,#app.armed #viewer *{cursor:crosshair!important}
 .tgl{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none;white-space:nowrap;font-size:12.5px;color:var(--muted);flex:none;margin:0 4px}
@@ -4322,7 +4322,7 @@ function obPalOpen(v){const pal=$('#obPal');pal.hidden=!v;$('#obCol').setAttribu
 function obHide(){if(!obBar.hidden){obBar.hidden=true;obPalOpen(false)}}
 function obSoon(){if(obRaf)return;obRaf=requestAnimationFrame(()=>{obRaf=0;try{obUpdate()}catch(e){}})}
 function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
-  if(!obBarOn||!P||!P.ink||obBusy||CRP||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||!tsBar.hidden||sel.o===editingObj){obHide();return}
+  if(!obBarOn||!P||!P.ink||obBusy||CRP||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||!tsBar.hidden||sel.o===editingObj||document.querySelector('.modal:not([hidden])')){obHide();return}
   const T=selItems();if(!T.length){obHide();return}
   const lk=T.some(o=>!o.locked),L=$('#obLock'),lt=tr(lk?'Sperren':'Entsperren');L.title=lt;L.setAttribute('aria-label',lt);
   $('#obAl').hidden=alUnits(T.filter(o=>!alFixed(o))).length<2;

@@ -2081,6 +2081,21 @@ else {
     ok('Merge A+B: Strg+G gruppiert, Strg+Alt+G fokussiert das Seitenfeld', gr === 2 && pf === 'pgNum', { gr, pf });
     await ev("document.activeElement&&document.activeElement.blur&&document.activeElement.blur();S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Review fix 1
+  {
+    await open310("S.pages[0].objs.push({type:'rect',x:100,y:100,w:120,h:80,color:'#000000',lw:1,fill:'white'})");
+    await click310([160, 140]);
+    const obShown = await ev("!document.getElementById('obBar').hidden");
+    await ev("prOpen()"); await sleep(400);
+    const dp = await ev("(()=>{const r=document.getElementById('obDel').getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,e=document.elementFromPoint(x,y);return JSON.stringify([x,y,!!e&&!!e.closest('#obBar'),S.pages[0].objs.length])})()").then(JSON.parse);
+    await mv(dp[0], dp[1]); await pressAt(dp[0], dp[1]); await releaseAt(dp[0], dp[1]); await sleep(200);
+    const afterN = await ev("S.pages[0].objs.length");
+    await ev("prOpen();obUpdate()");
+    const hid = await ev("document.getElementById('obBar').hidden");
+    await ev("document.getElementById('prNo').click()"); await sleep(400);
+    ok('Review: Objektleiste liegt unter einem offenen Dialog und löscht dahinter nichts', obShown === true && dp[2] === false && afterN === dp[3] && hid === true, { obShown, dp, afterN, hid });
+    await ev("setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
