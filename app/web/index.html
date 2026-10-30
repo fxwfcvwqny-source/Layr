@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6GNmmkfXAzkcJODW8gPI9gF7zrmvu9O+cVkr2QI8s3s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KWpKDRHb4v3n4GQ0n/jD2JCpKPI1L8HzSlq74b0odIk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5488,6 +5488,8 @@ function tasksProg(){const T=S.tasks||[],d=T.filter(t=>t.d).length,sec=document.
 const fitTa=ta=>{ta.style.height='24px';ta.style.height=Math.max(24,ta.scrollHeight)+'px'};
 function renderTasks(newIdx){const ul=document.getElementById('ntTaskList');if(!ul)return;ul.innerHTML='';S.tasks=S.tasks||[];
   S.tasks.forEach((t,k)=>ul.appendChild(taskEl(t,k===newIdx)));requestAnimationFrame(()=>ul.querySelectorAll('.nt-tt').forEach(fitTa));tasksProg()}
+/* Refit task rows whenever the list width changes: rows rendered while the panel is closed measured width 0 and stayed one line high (clipped) */
+{const ul=document.getElementById('ntTaskList');let w0=-1;if(ul)try{new ResizeObserver(()=>{const w=ul.clientWidth;if(!w)w0=-1;else if(w!==w0){w0=w;ul.querySelectorAll('.nt-tt').forEach(fitTa)}}).observe(ul)}catch(e){}}
 function taskEl(t,isNew){const li=document.createElement('li');li.className='nt-task'+(t.d?' done':'')+(isNew&&!motionOff()?' enter':'');
   li.innerHTML='<button type="button" class="nt-chk" role="checkbox"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><textarea class="nt-tt" rows="1" spellcheck="true"></textarea><button type="button" class="nt-del" title="Aufgabe löschen"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button>';
   const chk=li.firstChild,ta=li.children[1],del=li.lastChild;ta.value=t.t;chk.setAttribute('aria-checked',t.d);chk.title=t.d?'Wieder offen':'Erledigt';
