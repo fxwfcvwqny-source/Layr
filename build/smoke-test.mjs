@@ -2096,6 +2096,11 @@ else {
     ok('Review: Objektleiste liegt unter einem offenen Dialog und löscht dahinter nichts', obShown === true && dp[2] === false && afterN === dp[3] && hid === true, { obShown, dp, afterN, hid });
     await ev("setSel(null)");
   }
+  // Review fix 2
+  {
+    const kb = await ev("(()=>{S.sel=null;kbOpen(true);const q=id=>!!document.querySelector('#kbList .kb-k[data-id='+id+']');const r=[q('chars'),q('group'),q('ordFwd'),q('imgCrop')];kbOpen(false);setLang('en');const en=[tr('Sonderzeichen-Auswahl'),tr('Markieren (zuletzt gewählte Farbe)'),tr('Code hier einfügen oder tippen'),document.getElementById('tsHl').title];$('#cdText').placeholder=tr('Code hier einfügen oder tippen');en.push(document.getElementById('cdText').placeholder);setLang('de');return JSON.stringify([r,en])})()").then(JSON.parse);
+    ok('Review: Tastenkürzel-Liste zeigt auch Einträge ohne Auswahl, englische Texte vollständig', kb[0].every(Boolean) && kb[1][0] === 'Special character picker' && kb[1][1] === 'Highlight (last used colour)' && kb[1][2] === 'Paste or type code here' && kb[1][3] === 'Highlight (last used colour)' && kb[1][4] === 'Paste or type code here', kb);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

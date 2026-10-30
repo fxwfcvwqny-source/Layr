@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Ju0cpCDoCIHDVCHyXT7QzoiP0/X/H+woO8oGBnJnhVE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-asrszDd0nkMMRtgpmJdRyjJw/PKKkpzouYcoY/10Km0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2259,7 +2259,7 @@ const I18N_EN={
 'Neues Dokument':'New document','Eine eigene, neue PDF-Datei':'A separate, new PDF file','Leere Seiten einfügen':'Insert blank pages','Leere Seiten hinzufügen':'Add blank pages','Zur aktuellen PDF':'To the current PDF','Erst eine PDF öffnen':'Open a PDF first',
 'Name':'Name','Format':'Format','Seiten':'Pages','Papierfarbe':'Paper colour','Hintergrund':'Background','Position':'Position','Am Anfang':'At the beginning','Am Ende':'At the end',
 'A4 hoch':'A4 portrait','A4 quer':'A4 landscape','A3 quer':'A3 landscape','Leer':'Blank','Liniert':'Lined','Kariert':'Squared','Punkte':'Dotted','Creme':'Cream','Rosé':'Rosé','Papier':'Paper',
-'Textauswahl':'Text selection','Markieren':'Highlight','Kopiert.':'Copied.','Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
+'Textauswahl':'Text selection','Markieren':'Highlight','Markieren (zuletzt gewählte Farbe)':'Highlight (last used colour)','Sonderzeichen-Auswahl':'Special character picker','Kopiert.':'Copied.','Leere Seite':'Blank page','Leere Seite eingefügt.':'Blank page inserted.','Leere Seite davor einfügen':'Insert blank page before','Leere Seite danach einfügen':'Insert blank page after',
 // Seitenmenü
 'Seite duplizieren':'Duplicate page','Nach oben':'Move up','Nach unten':'Move down','Seite löschen':'Delete page','Nach oben verschieben':'Move up','Nach unten verschieben':'Move down','Seite nach oben':'Move page up','Seite nach unten':'Move page down','Beschriftungen dieser Seite entfernen':'Remove annotations on this page',
 // Zusammenführen
@@ -7526,23 +7526,23 @@ const KB_DEF=[
   {id:'zoomOut',g:'Ansicht',n:'Verkleinern',def:'Ctrl+-',run:()=>zoomTo(S.zoom/1.2),native:true},
   {id:'fit',g:'Ansicht',n:'An Breite anpassen',def:'',run:()=>fitZoom()},
   {id:'thumbs',g:'Ansicht',n:'Seitenvorschau ein/aus',def:'',run:()=>$('#bThumbs').click()},
-  {id:'chars',g:'Allgemein',n:'Sonderzeichen-Auswahl',def:'Ctrl+Shift+K',run:()=>{const nt=document.getElementById('ntText');if(document.activeElement===nt)openCharPop(nt,ch=>document.execCommand('insertText',false,ch),()=>nt.focus(),true);else if(ED&&ED.eng&&ED.eng.chars)ED.eng.chars()},when:()=>!!document.activeElement&&(document.activeElement===document.getElementById('ntText')||!!(ED&&ED.eng)),text:true},
+  {id:'chars',list:true,g:'Allgemein',n:'Sonderzeichen-Auswahl',def:'Ctrl+Shift+K',run:()=>{const nt=document.getElementById('ntText');if(document.activeElement===nt)openCharPop(nt,ch=>document.execCommand('insertText',false,ch),()=>nt.focus(),true);else if(ED&&ED.eng&&ED.eng.chars)ED.eng.chars()},when:()=>!!document.activeElement&&(document.activeElement===document.getElementById('ntText')||!!(ED&&ED.eng)),text:true},
   {id:'gotoPage',g:'Ansicht',n:'Zu Seite springen (Seitenwahl)',def:'Ctrl+Alt+G',run:()=>pgFocus()},
   {id:'tabNext',g:'Ansicht',n:'Nächster Tab',def:'Ctrl+Tab',run:()=>tabStep(1),native:true},
   {id:'tabPrev',g:'Ansicht',n:'Vorheriger Tab',def:'Ctrl+Shift+Tab',run:()=>tabStep(-1),native:true},
   {id:'tabClose',g:'Ansicht',n:'Tab schließen',def:'Ctrl+W',run:()=>{if(TABS.length>1)tabClose(TAB)},native:true},
-  {id:'imgCrop',g:'Allgemein',n:'Bild zuschneiden',def:'Shift+C',run:()=>{const o=imgTarget();if(o)cropStart(S.sel.p,o)},when:()=>!!imgTarget()&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'imgCrop',list:true,g:'Allgemein',n:'Bild zuschneiden',def:'Shift+C',run:()=>{const o=imgTarget();if(o)cropStart(S.sel.p,o)},when:()=>!!imgTarget()&&(S.tool==='select'||S.tool==='lasso')},
   // object shortcuts (legacy handler does the defaults; the second entry of each pair works on every keyboard layout, e.g. German ] / [ need AltGr+9 / AltGr+8)
-  {id:'group',g:'Objekte',n:'Gruppieren',def:'Ctrl+G',run:()=>groupSel(),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ungroup',g:'Objekte',n:'Gruppierung aufheben',def:'Ctrl+Shift+G',run:()=>ungroupSel(),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ordFwd',g:'Objekte',n:'Eine Ebene nach vorne',def:'Ctrl+]',run:()=>orderStep(1),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ordBack',g:'Objekte',n:'Eine Ebene nach hinten',def:'Ctrl+[',run:()=>orderStep(-1),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ordFront',g:'Objekte',n:'Ganz nach vorne',def:'Ctrl+Shift+]',run:()=>orderSel(true),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ordEnd',g:'Objekte',n:'Ganz nach hinten',def:'Ctrl+Shift+[',run:()=>orderSel(false),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ordFwd2',g:'Objekte',n:'Eine Ebene nach vorne (zweite Taste)',def:'Ctrl+Shift+ArrowUp',run:()=>orderStep(1),when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ordBack2',g:'Objekte',n:'Eine Ebene nach hinten (zweite Taste)',def:'Ctrl+Shift+ArrowDown',run:()=>orderStep(-1),when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ordFront2',g:'Objekte',n:'Ganz nach vorne (zweite Taste)',def:'Ctrl+Alt+Shift+ArrowUp',run:()=>orderSel(true),when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
-  {id:'ordEnd2',g:'Objekte',n:'Ganz nach hinten (zweite Taste)',def:'Ctrl+Alt+Shift+ArrowDown',run:()=>orderSel(false),when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'group',list:true,g:'Objekte',n:'Gruppieren',def:'Ctrl+G',run:()=>groupSel(),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ungroup',list:true,g:'Objekte',n:'Gruppierung aufheben',def:'Ctrl+Shift+G',run:()=>ungroupSel(),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ordFwd',list:true,g:'Objekte',n:'Eine Ebene nach vorne',def:'Ctrl+]',run:()=>orderStep(1),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ordBack',list:true,g:'Objekte',n:'Eine Ebene nach hinten',def:'Ctrl+[',run:()=>orderStep(-1),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ordFront',list:true,g:'Objekte',n:'Ganz nach vorne',def:'Ctrl+Shift+]',run:()=>orderSel(true),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ordEnd',list:true,g:'Objekte',n:'Ganz nach hinten',def:'Ctrl+Shift+[',run:()=>orderSel(false),native:true,when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ordFwd2',list:true,g:'Objekte',n:'Eine Ebene nach vorne (zweite Taste)',def:'Ctrl+Shift+ArrowUp',run:()=>orderStep(1),when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ordBack2',list:true,g:'Objekte',n:'Eine Ebene nach hinten (zweite Taste)',def:'Ctrl+Shift+ArrowDown',run:()=>orderStep(-1),when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ordFront2',list:true,g:'Objekte',n:'Ganz nach vorne (zweite Taste)',def:'Ctrl+Alt+Shift+ArrowUp',run:()=>orderSel(true),when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
+  {id:'ordEnd2',list:true,g:'Objekte',n:'Ganz nach hinten (zweite Taste)',def:'Ctrl+Alt+Shift+ArrowDown',run:()=>orderSel(false),when:()=>!!S.sel&&(S.tool==='select'||S.tool==='lasso')},
   {id:'bars',g:'Ansicht',n:'Leisten ein/aus',def:'Ctrl+.',run:()=>{const hide=!(bars.tools||bars.side)?false:true;setBars(!hide,!hide)}},
   ...TOOLS.filter(t=>t&&t!=='-'&&t.k).map(t=>({id:'tool:'+t.id,g:'Werkzeuge',n:t.n,def:t.k,run:()=>kbRunTool(t.id),native:t.bar!==false}))];
 let KB_USER={};try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:keys')||'{}');for(const[a,c]of Object.entries(j))if(KB_DEF.some(x=>x.id===a)&&typeof c==='string'&&c.length<40)KB_USER[a]=c}catch(e){}
@@ -7582,7 +7582,7 @@ function kbRecKey(e){const R=kbRec;const k=e.key;
   KB_USER[R.id]=c;kbRec=null;kbSave();kbRender();kbFocus(R.id)}
 function kbFocus(id){const b=document.querySelector(`#kbList .kb-k[data-id="${CSS.escape(id)}"]`);if(b)b.focus()}
 function kbRender(){const L=document.getElementById('kbList');if(!L)return;const q=($('#kbQ').value||'').trim().toLowerCase();L.textContent='';let grp='';
-  for(const a of KB_DEF){if(a.when&&!a.when())continue;const name=tr(a.n);if(q&&!name.toLowerCase().includes(q)&&!kbShow(kbGet(a)).toLowerCase().includes(q))continue;
+  for(const a of KB_DEF){if(a.when&&!a.list&&!a.when())continue;const name=tr(a.n);if(q&&!name.toLowerCase().includes(q)&&!kbShow(kbGet(a)).toLowerCase().includes(q))continue;
     if(a.g!==grp){grp=a.g;const h=document.createElement('h3');h.textContent=tr(grp);L.appendChild(h)}
     const row=document.createElement('div');row.className='kb-r';const n=document.createElement('span');n.className='kb-n';n.textContent=name;row.appendChild(n);
     const b=document.createElement('button');b.type='button';b.className='kb-k'+(kbRec&&kbRec.id===a.id?' rec':'');b.dataset.id=a.id;
