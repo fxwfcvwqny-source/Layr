@@ -59,7 +59,7 @@
           ]
         }
       ],
-      "icon": "build/icon.ico",
+      "icon": "build/icon-transparent.ico",
       "executableName": "Layr",
       "artifactName": "Layr-Setup-${version}.${ext}"
     },

@@ -173,7 +173,7 @@ else {
     win = new BrowserWindow({
       width: 1400, height: 900, minWidth: 420, minHeight: 400,
       title: 'Layr', backgroundColor: '#e6eaee',
-      icon: path.join(__dirname, 'icon.png'),
+      icon: path.join(__dirname, 'icon-transparent.png'),
       webPreferences: { preload: path.join(__dirname, 'preload.js'), spellcheck: false, contextIsolation: true, nodeIntegration: false, sandbox: true,
         webSecurity: true, navigateOnDragDrop: false, safeDialogs: true, devTools: process.env.LAYR_DEBUG === '1' },
     });

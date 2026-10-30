@@ -4,6 +4,7 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
+import zlib from 'node:zlib';
 
 const exe = process.argv[2];
 if (!exe || !fs.existsSync(exe)) { console.error('Programmdatei fehlt: ' + exe); process.exit(2); }
@@ -669,6 +670,14 @@ else {
     + "undo();await w(100);const back=Math.abs(o.h-h0)<1e-6||(P.objs[0]&&Math.abs(P.objs[0].h-h0)<1e-6);return JSON.stringify({shortSame,grown,back,h0,h1:o.h})})()");
   const tgj = JSON.parse(tg || '{}');
   ok('Table rows grow with long cell text, short text keeps the height, Undo restores', tgj.shortSame === true && tgj.grown === true && tgj.back === true, tgj);
+  // Window/taskbar icon: transparent variant exists (png corners alpha 0, ico has 16..256), wired in main.js and package.json; installer and Store keep the black icon
+  const icoOk = (() => { try { const b = fs.readFileSync('build/icon-transparent.ico'), n = b.readUInt16LE(4), s = []; for (let i = 0; i < n; i++) s.push(b[6 + 16 * i] || 256); return [16, 24, 32, 48, 64, 128, 256].every(x => s.includes(x)); } catch (e) { return false; } })();
+  const pngCorners = f => { try { const b = fs.readFileSync(f); let o = 8, w = 0, d = []; while (o < b.length) { const n = b.readUInt32BE(o), t = b.toString('latin1', o + 4, o + 8); if (t === 'IHDR') { w = b.readUInt32BE(o + 8); if (b[o + 17] !== 6) return null; } if (t === 'IDAT') d.push(b.subarray(o + 8, o + 8 + n)); o += 12 + n; } const r = zlib.inflateSync(Buffer.concat(d)), row = Buffer.alloc(w * 4); for (let i = 0; i < w * 4; i++) { const a = i >= 4 ? row[i - 4] : 0, f = r[0]; row[i] = (r[1 + i] + (f === 1 || f === 4 ? a : f === 3 ? a >> 1 : 0)) & 255; } return [row[3], row[w * 4 - 1]]; } catch (e) { return null; } };
+  const pj = JSON.parse(fs.readFileSync('package.json', 'utf8')).build, mainJs = fs.readFileSync('app/main.js', 'utf8');
+  const winIcon = /new BrowserWindow\(\{[^]*?icon:\s*path\.join\(__dirname,\s*'icon-transparent\.png'\)/.test(mainJs);
+  ok('Transparent window icon: files exist, png corners alpha 0, ico 16..256, BrowserWindow + win.icon wired, installer/Store/linux package icons untouched',
+    icoOk && fs.existsSync('app/icon-transparent.png') && JSON.stringify(pngCorners('build/icon-transparent.png')) === '[0,0]' && JSON.stringify(pngCorners('app/icon-transparent.png')) === '[0,0]' && winIcon
+    && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico' && [pj.win.icon, pj.nsis.installerIcon, pj.nsis.uninstallerIcon, pj.linux.icon].every(f => fs.existsSync(f)) && fs.existsSync('build/appx/Square44x44Logo.png'));
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
