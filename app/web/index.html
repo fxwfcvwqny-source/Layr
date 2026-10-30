@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-iWIBptQdKYDe5/SCZnO/p5XmWrSG7enUxkqVb2ZZ6us=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-oB7uYAzICB1/NLlA7Wh3R6OHyijevBZkllIB79JTJWY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4341,7 +4341,8 @@ function attachInk(P,i){
     if(e.pointerType==='pen'&&(e.buttons&32)&&S.tool!=='eraser'&&penErase===null){penErase=S.tool;S.tool='eraser'}
     if(e.button!==0&&e.button!==5&&e.pointerType==='mouse')return;
     clearTimeout(txtDefer);txtDefer=0;
-    if(editorEl){closeEditor();if(S.tool==='text'){e.preventDefault();const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tl));if(o&&!nearBorder(o,x,y,tl))editText(i,o,[e.clientX,e.clientY]);return}}
+    if(editorEl){const hb=H.n;closeEditor();if(DBLH)DBLH.n+=H.n-hb; // an edit saved by closing is not an artefact of this click
+      if(S.tool==='text'){e.preventDefault();const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,o=[...P.objs].reverse().find(o=>o.type==='text'&&hit(o,x,y,tl));if(o&&!nearBorder(o,x,y,tl))editText(i,o,[e.clientX,e.clientY]);return}}
     try{ink.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault();getSelection().removeAllRanges();
     const snap=['pen','marker','line','arrow'].includes(S.tool)?rulerSnapStart(e.clientX,e.clientY):null;
     const sp=snap?snapPt(snap,e.clientX,e.clientY):[e.clientX,e.clientY];
@@ -4483,7 +4484,7 @@ function attachInk(P,i){
     const any=dblAllOn&&DBLH&&DBLH.c===2&&(DBLH.arm||['line','arrow','pen','marker','text'].includes(DBLH.tool));
     if(!any&&!['select','rect','ellipse','table','symbol'].includes(S.tool))return;const[x,y]=toPt(e.clientX,e.clientY);
     // take back what the first click of the double-click placed (a dot, a template, an empty text box); nothing under the pointer: put it back
-    let undone=0;if(any){if(editorEl)closeEditor();const k=Math.min(5,H.n-DBLH.n);while(undone<k&&H.u.length){undo();undone++}H.n-=undone}
+    let undone=0;if(any){if(editorEl){const hb=H.n;closeEditor();DBLH.n+=H.n-hb}const k=Math.min(5,H.n-DBLH.n);while(undone<k&&H.u.length){undo();undone++}H.n-=undone}
     const redoAll=()=>{const u=undone;while(undone-->0)redo();H.n+=u};
     if(S.sel&&S.sel.p===i&&rotOf(S.sel.o)&&handleAt(S.sel.o,x,y,6/S.zoom)==='rot'){pushHist();delete S.sel.o.rot;textClamp(S.sel.o,P,false);redraw(i);markDirty();return}
     let o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o||(any&&S.tool==='text'&&o.type==='text')){redoAll();return}

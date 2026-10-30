@@ -938,7 +938,7 @@ else {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     await ev(TPJS);
     await ev("dblAllOn=true;tplClickOn=true;S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
-    const dbl4 = async () => { await sleep(700); const p = await ev("tpScr(tpPt(S.pages[0].objs[0]))"); await mv(p[0], p[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); };
+    const dbl4 = async (ix = 0) => { await sleep(700); const p = await ev(`tpScr(tpPt(S.pages[0].objs[${ix}]))`); await mv(p[0], p[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); };
     const state4 = () => ev("({n:S.pages[0].objs.length,hu:H.u.length,edit:!!editorEl&&editingObj===S.pages[0].objs[0],armed:!!ARM,txt:!!editorEl&&editingObj==null})");
     const res4 = {};
     for (const tool of ['symbol', 'rect', 'ellipse', 'line', 'arrow', 'pen', 'marker', 'text', 'armed']) {
@@ -947,6 +947,14 @@ else {
       res4[tool] = r;
       ok(`Doppelklick im Werkzeug ${tool}: bearbeitet das Objekt, kein zusätzliches Objekt, kein Verlauf-Eintrag`, r.n === 1 && r.edit && r.hu === 0, r);
     }
+    // an open edit that gets saved by the first click must not be undone by the dblclick (data loss, cases A text tool, B pen tool)
+    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;setTool('text');newText(0,420,520);ED.eng.put('Hallo Welt');H.u=[];H.r=[];updUndo()");
+    await dbl4(); const lossA = await ev("({n:S.pages[0].objs.length,txt:S.pages[0].objs.some(o=>o.type==='text'&&o.text==='Hallo Welt'),edit:!!editorEl&&editingObj===S.pages[0].objs[0]})"); await ev("closeEditor();setSel(null)");
+    ok('Doppelklick im Textwerkzeug: ein offener Text bleibt erhalten (kein Datenverlust)', lossA.txt && lossA.edit && lossA.n === 2, lossA);
+    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:420,y:300,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Zwei'}));redraw(0);setTool('pen');H.u=[];H.r=[];updUndo()");
+    await dbl4(0); await ev("ED.eng.put('NEU')"); await dbl4(1);
+    const lossB = await ev("({l0:S.pages[0].objs[0].label,n:S.pages[0].objs.length,edit:!!editorEl&&editingObj===S.pages[0].objs[1]})"); await ev("closeEditor();setSel(null);setTool('select');S.pages[0].objs.length=1;S.pages[0].objs[0].label='Eins';H.u=[];H.r=[];updUndo()");
+    ok('Doppelklick im Stiftwerkzeug: die Änderung am ersten Symbol bleibt, zweites Symbol wird bearbeitet', /NEU/.test(lossB.l0) && lossB.n === 2 && lossB.edit, lossB);
     // full (capped) history: the dblclick still takes back the dots and opens the editor
     await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;for(let q=0;q<160;q++)pushHist();setTool('pen')");
     await dbl4(); const cap4 = await state4(); await ev("closeEditor();setTool('select');setSel(null);S.pages[0].objs.length=1;H.u=[];H.r=[];updUndo()");
