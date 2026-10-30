@@ -1296,6 +1296,43 @@ else {
       ok('Kontextmenü: Ausrichten-Einträge bei mehreren Objekten, "Rechts ausrichten" wirkt', mi.some(m => m[0] === 'Links ausrichten' && !m[1]) && mi.some(m => m[0] === 'Senkrecht verteilen' && !m[1]) && r.every(q => near(q[0] + q[2], 300)), { mi: mi.length, r });
     }
   }
+  // 4 Smart guides: appear and snap while moving and resizing, Alt and the setting switch them off, candidates computed once per drag
+  {
+    await open310("S.pages[0].objs.push({type:'rect',x:300,y:200,w:100,h:60,color:'#000000',lw:1,fill:'white',oid:'sRef'},{type:'rect',x:100,y:400,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'sM'},{type:'rect',x:100,y:520,w:80,h:50,color:'#000000',lw:1,fill:'white',oid:'sZ'})");
+    const get = (id) => ev(`(()=>{const o=S.pages[0].objs.find(q=>q.oid===${JSON.stringify(id)});return [o.x,o.y,o.w,o.h]})()`);
+    const dragMid = async (a, b, mod = 0) => { const c = await pt310(a), d = await pt310(b); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod }); for (let i = 1; i <= 8; i++) await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: c[0] + (d[0] - c[0]) * i / 8, y: c[1] + (d[1] - c[1]) * i / 8, button: 'left', buttons: 1, modifiers: mod }); await sleep(80); const g = await ev("JSON.stringify(S.guides||null)").then(JSON.parse); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: d[0], y: d[1], button: 'left', buttons: 0, clickCount: 1, modifiers: mod }); await sleep(150); return g; };
+    const reset = async () => ev("(()=>{const P=S.pages[0],set=(i,x,y,w,h)=>{const o=P.objs.find(q=>q.oid===i);o.x=x;o.y=y;o.w=w;o.h=h};set('sM',100,400,80,50);set('sZ',100,520,80,50);setSel(null);GD.on=true;redraw(0)})()");
+    // move: left edge 3 px off the reference edge -> snaps exactly, guide visible while dragging, gone afterwards
+    let g = await dragMid([140, 425], [343, 425]);
+    let m = await get('sM');
+    ok('Hilfslinien: beim Verschieben rastet die Kante exakt ein, Linie sichtbar, danach weg', m[0] === 300 && !!g && g.xs.includes(300) && await ev("S.guides===null"), { m, g });
+    await reset(); g = await dragMid([140, 425], [343, 425], 1);
+    m = await get('sM');
+    ok('Hilfslinien: mit gedrückter Alt-Taste rastet nichts ein, keine Linie', Math.abs(m[0] - 303) < 1.5 && m[0] !== 300 && !g, { m, g });
+    await reset(); await ev("GD.on=false"); g = await dragMid([140, 425], [343, 425]);
+    m = await get('sM');
+    ok('Hilfslinien: mit ausgeschalteter Einstellung rastet nichts ein, keine Linie', Math.abs(m[0] - 303) < 1.5 && m[0] !== 300 && !g, { m, g });
+    await reset(); g = await dragMid([140, 425], [76, 425]);   // left edge 36 + 0 -> margin; moved by -64 => x = 36
+    m = await get('sM');
+    ok('Hilfslinien: Seitenrand (36 pt) rastet ein', Math.abs(m[0] - 36) < 0.01 && !!g && g.xs.includes(36), { m, g });
+    await reset(); g = await dragMid([140, 425], [294, 425]);   // centre 297.5 - 3.5
+    m = await get('sM');
+    ok('Hilfslinien: Seitenmitte rastet ein', Math.abs(m[0] + m[2] / 2 - 297.5) < 0.01 && !!g && g.xs.some(v => Math.abs(v - 297.5) < 0.01), { m, g });
+    // resize: bottom-right corner of sZ (180,570) dragged to x=303 -> right edge snaps to the reference left edge 300
+    await reset(); await click310([140, 545]);
+    g = await dragMid([180, 570], [303, 580]);
+    m = await get('sZ');
+    ok('Hilfslinien: beim Größe ändern rastet die gezogene Kante exakt ein, Linie sichtbar', Math.abs(m[0] + m[2] - 300) < 0.01 && !!g && g.xs.includes(300), { m, g });
+    await reset(); await ev("GD.on=false"); await click310([140, 545]);
+    g = await dragMid([180, 570], [303, 580]);
+    m = await get('sZ');
+    ok('Hilfslinien: beim Größe ändern mit ausgeschalteter Einstellung kein Einrasten', Math.abs(m[0] + m[2] - 303) < 1.5 && m[0] + m[2] !== 300 && !g, { m, g });
+    await ev("GD.on=true");
+    // performance: 500 objects, candidate list computed once per drag
+    await ev("(()=>{const P=S.pages[0];for(let i=0;i<500;i++)P.objs.push({type:'rect',x:(i%25)*22+10,y:600+Math.floor(i/25)*5,w:18,h:4,color:'#000000',lw:1,fill:'white'});redraw(0)})()");
+    const pf = await ev("(()=>{const P=S.pages[0],o=P.objs.find(q=>q.oid==='sM'),st={x:140,y:425,lx:140,ly:425},b0=GD.built||0;const t0=performance.now();for(let k=0;k<300;k++)guideSnap(0,o,140+k*0.5,425,st,{});const dt=(performance.now()-t0)/300;return JSON.stringify({built:(GD.built||0)-b0,avg:dt,n:P.objs.length})})()").then(JSON.parse);
+    ok('Hilfslinien: Kandidatenliste wird pro Ziehen einmal berechnet, 500 Objekte bleiben flüssig (< 2 ms je Bewegung)', pf.built === 1 && pf.avg < 2 && pf.n > 500, pf);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

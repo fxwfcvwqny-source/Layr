@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-624Ll/ZnAdRHuJhLxNdl/Fi62K/2/VkqybNIPFRF/KQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-x/uCJJ50jcc3ObdBEUk1Epev26hiRnkpCrWnxV3rZV4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2645,6 +2645,7 @@ const I18N_EN={
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 // 3.10 Auswahlwerkzeug
 ' Objekte gewählt':' objects selected',
+'Hilfslinien beim Verschieben':'Guides while moving','Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)':'Guide lines and snapping to edges, centres and margins, also while resizing (Alt: off briefly)',
 'Zum Gruppieren mindestens zwei Objekte auswählen.':'Select at least two objects to group them.','Gruppiert. Aufheben mit Strg+Umschalt+G.':'Grouped. Ungroup with Ctrl+Shift+G.','Die Auswahl enthält keine Gruppe.':'The selection contains no group.','Gruppe aufgehoben.':'Group removed.','Gruppieren (Strg+G)':'Group (Ctrl+G)','Gruppierung aufheben (Strg+Umschalt+G)':'Ungroup (Ctrl+Shift+G)',
 };
 /* Zusammengesetzte Meldungen: Muster → Übersetzung */
@@ -3750,19 +3751,29 @@ function gdSave(){try{localStorage.setItem('pdfwerkbank:guides',JSON.stringify(G
 const GRID=5*72/25.4;
 function gdApply(){document.getElementById('app').classList.toggle('pen-only',GD.pen);try{redrawAll()}catch(e){}}
 function gdBox(L){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of L){let q;try{q=o.type==='text'?bbox(o):boxOf(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
+// Candidate lines (page edges, 36 pt margins, page centre, other objects' edges and centres), computed ONCE per drag and kept in st.gc
+function gdCands(P,moving){const X=[[0,'p'],[36,'p'],[P.w/2,'c'],[P.w-36,'p'],[P.w,'p']],Y=[[0,'p'],[36,'p'],[P.h/2,'c'],[P.h-36,'p'],[P.h,'p']];GD.built=(GD.built||0)+1;
+  for(const q of P.objs){if(moving.includes(q)||q.type==='deco'||q.type==='redact')continue;let r;try{r=q.type==='text'?bbox(q):boxOf(q)}catch(e2){continue}if(!isNum(r.x)||!isNum(r.w))continue;
+    X.push([r.x,'o'],[r.x+r.w/2,'o'],[r.x+r.w,'o']);Y.push([r.y,'o'],[r.y+r.h/2,'o'],[r.y+r.h,'o'])}
+  return{X,Y}}
+const gdBest=(cands,vals,tol)=>{let m=null;for(const[v,kind]of vals)for(const a of cands){const d=v-a;if(Math.abs(d)<=tol&&(!m||Math.abs(d)<Math.abs(m.d)))m={d,v,kind}}return m};
 // liefert den (eingerasteten) Zeigerpunkt; st.gb0 = Rahmen beim Start des Ziehens
 function guideSnap(i,o,x,y,st,e){const P=S.pages[i];if(!P){S.guides=null;return[x,y]}
   const moving=o.type==='group'?o.items:[o];if(!st.gb0){const b=gdBox(moving);st.gb0={x:b.x-(st.lx-st.x),y:b.y-(st.ly-st.y),w:b.w,h:b.h}}
   if(e&&e.altKey||!GD.on&&!GD.grid){S.guides=null;return[x,y]}
   const tol=6/S.zoom,tx=x-st.x,ty=y-st.y,b={x:st.gb0.x+tx,y:st.gb0.y+ty,w:st.gb0.w,h:st.gb0.h};
-  const X=[],Y=[];if(GD.on){X.push([0,'p'],[P.w/2,'c'],[P.w,'p']);Y.push([0,'p'],[P.h/2,'c'],[P.h,'p']);
-    for(const q of P.objs){if(moving.includes(q)||q.type==='deco'||q.type==='redact')continue;let r;try{r=q.type==='text'?bbox(q):boxOf(q)}catch(e2){continue}if(!isNum(r.x)||!isNum(r.w))continue;
-      X.push([r.x,'o'],[r.x+r.w/2,'o'],[r.x+r.w,'o']);Y.push([r.y,'o'],[r.y+r.h/2,'o'],[r.y+r.h,'o'])}}
-  const best=(cands,vals)=>{let m=null;for(const[v,kind]of vals)for(const a of cands){const d=v-a;if(Math.abs(d)<=tol&&(!m||Math.abs(d)<Math.abs(m.d)))m={d,v,kind}}return m};
-  let sx=GD.on?best([b.x,b.x+b.w/2,b.x+b.w],X):null,sy=GD.on?best([b.y,b.y+b.h/2,b.y+b.h],Y):null;
+  if(GD.on&&!st.gc)st.gc=gdCands(P,moving);
+  const X=GD.on?st.gc.X:[],Y=GD.on?st.gc.Y:[];
+  let sx=GD.on?gdBest([b.x,b.x+b.w/2,b.x+b.w],X,tol):null,sy=GD.on?gdBest([b.y,b.y+b.h/2,b.y+b.h],Y,tol):null;
   let dx=sx?sx.d:0,dy=sy?sy.d:0;
   if(GD.grid){if(!sx)dx=Math.round(b.x/GRID)*GRID-b.x;if(!sy)dy=Math.round(b.y/GRID)*GRID-b.y}
   S.guides={p:i,xs:sx?[sx.v]:[],ys:sy?[sy.v]:[]};return[x+dx,y+dy]}
+// Resizing a corner handle: snap the pointer to the same candidates; a guide stays only if the edge really ended on it (proportional resize may undo one axis)
+function guideResizePre(i,o,st,x,y,e){const P=S.pages[i];S.guides=null;st.gs=null;
+  if(!P||!GD.on||e.altKey||o.type==='text'||o.type==='table'||o.type==='group'||st.mode.length!==2||!'tb'.includes(st.mode[0])||!'lr'.includes(st.mode[1]))return[x,y];
+  if(!st.gc)st.gc=gdCands(P,[o]);const tol=6/S.zoom,sx=gdBest([x],st.gc.X,tol),sy=gdBest([y],st.gc.Y,tol);st.gs={x:sx?sx.v:null,y:sy?sy.v:null};return[sx?sx.v:x,sy?sy.v:y]}
+function guideResizePost(i,o,st){if(!st.gs)return;const b=boxOf(o),ex=st.mode[1]==='l'?b.x:b.x+b.w,ey=st.mode[0]==='t'?b.y:b.y+b.h,xs=[],ys=[];
+  if(st.gs.x!=null&&Math.abs(ex-st.gs.x)<.01)xs.push(st.gs.x);if(st.gs.y!=null&&Math.abs(ey-st.gs.y)<.01)ys.push(st.gs.y);S.guides=xs.length||ys.length?{p:i,xs,ys}:null}
 function drawGuides(c,i){const P=S.pages[i];if(!P)return;const z=S.zoom;
   if(GD.grid){c.save();c.fillStyle='rgba(30,120,140,.28)';const r=Math.max(.35,.7/z);for(let gx=GRID;gx<P.w;gx+=GRID)for(let gy=GRID;gy<P.h;gy+=GRID){c.fillRect(gx-r,gy-r,2*r,2*r)}c.restore()}
   const G=S.guides;if(!G||G.p!==i)return;c.save();c.strokeStyle='#e5484d';c.lineWidth=1/z;c.setLineDash([4/z,3/z]);
@@ -4456,7 +4467,7 @@ function attachInk(P,i){
           let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;tblHintSet(o,st.mode,k,x,y)}
         else if(st.mode==='rot'){const r=rotFromPointer(st.orig,x,y,e.shiftKey,e.altKey);S.rotHint={o,deg:r};if(r)o.rot=r;else delete o.rot}
         else if(rotOf(st.orig)){resizeRotated(o,st,x,y,e.shiftKey);textClamp(o,P,false)}
-        else{if(o.type==='text'){x=clamp(x,0,P.w);y=clamp(y,0,P.h)}resizeTo(o,st,x,y,e.shiftKey)}
+        else{if(o.type==='text'){x=clamp(x,0,P.w);y=clamp(y,0,P.h)}[x,y]=guideResizePre(i,o,st,x,y,e);resizeTo(o,st,x,y,e.shiftKey);guideResizePost(i,o,st)}
         if(o.type==='text'&&st.orig&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
         if(o.type==='text'&&st.mode==='move')textClamp(o,P,false);
         redraw(i);break}
@@ -7297,6 +7308,7 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
   {ic:'tools',t:'Vorlagen als Gruppe auswählen',d:'Klick auf ein Teil wählt die ganze Vorlage (Alt: nur das Teil)',get:()=>tplGroupOn,run:()=>{tplGroupOn=!tplGroupOn;try{localStorage.setItem('pdfwerkbank:tplGroup',tplGroupOn?'1':'0')}catch(e){}}},
   {ic:'tools',t:'Topologie-Bausteine als bearbeitbare Knoten',d:'Stern, Ring, Bus usw. werden als einzelne Geräte mit Linien platziert (aus: ein Symbol)',get:()=>topoEditOn,run:()=>{topoEditOn=!topoEditOn;try{localStorage.setItem('pdfwerkbank:topoEdit',topoEditOn?'1':'0')}catch(e){}}},
   {ic:'tools',t:'Doppelklick bearbeitet in allen Werkzeugen',d:'Auch mit Symbol-, Form-, Linien- oder Textwerkzeug: Doppelklick auf ein Objekt bearbeitet es (aus: nur mit Auswahl)',get:()=>dblAllOn,run:()=>{dblAllOn=!dblAllOn;try{localStorage.setItem('pdfwerkbank:dblAll',dblAllOn?'1':'0')}catch(e){}}},
+  {ic:'guides',t:'Hilfslinien beim Verschieben',d:'Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)',get:()=>GD.on,run:()=>{GD.on=!GD.on;gdSave()}},
   {ic:'tools',t:'Auswahl nach dem Setzen',d:'Neue Objekte bleiben ausgewählt',get:()=>keepSelOn,run:()=>{keepSelOn=!keepSelOn;try{localStorage.setItem('pdfwerkbank:keepSel',keepSelOn?'1':'0')}catch(e){}}},
   {ic:'lock',t:'Gesperrte Objekte: Klicks gehen durch',d:'Klicks auf gesperrte Objekte wirken auf das darunter',get:()=>lockPassOn,run:()=>{lockPassOn=!lockPassOn;try{localStorage.setItem('pdfwerkbank:lockPass',lockPassOn?'1':'0')}catch(e){}redrawAll()}},
   {sep:1,hidden:$('#bInfo').hidden},
