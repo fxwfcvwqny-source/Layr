@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-x/uCJJ50jcc3ObdBEUk1Epev26hiRnkpCrWnxV3rZV4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-SK/f6p49mr6nfvmVrjel4CjoGkmvlLhldjfGpnoj2k8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -64,6 +64,14 @@ button{cursor:pointer}
 #tsBar .tsSw{display:flex;align-items:center;gap:4px;padding:0 4px;border-left:1px solid var(--line);margin-left:2px}#tsBar .tsw{width:20px;height:20px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line);padding:0}#tsBar .tsw[aria-pressed=true]{box-shadow:0 0 0 2px var(--ink)}#tsBar input[type=color]{width:24px;height:24px;padding:0;border:1px solid var(--line);border-radius:50%;background:none;overflow:hidden}#tsBar input[type=color]::-webkit-color-swatch-wrapper{padding:0}#tsBar input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
 @media (forced-colors:active){#tsBar .tsw,#tsBar input[type=color]{forced-color-adjust:none;border-color:ButtonText}}
 #tsBar .ib{width:30px;height:30px}#tsBar .ib svg{width:18px;height:18px}
+/* object bar (3.10): small floating toolbar above the selected object */
+#obBar{position:fixed;z-index:93;display:flex;align-items:center;flex-wrap:wrap;gap:2px;max-width:calc(100vw - 16px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:3px}
+#obBar .ib{width:30px;height:30px}#obBar .ib svg{width:18px;height:18px}
+#obBar .ob-sep{width:1px;align-self:stretch;background:var(--line);margin:3px 2px}
+#obBar .ob-al{display:contents}#obBar .ob-al[hidden]{display:none}
+#obBar .ob-pal{flex-basis:100%;display:flex;gap:6px;padding:4px 6px;border-top:1px solid var(--line);margin-top:2px}
+#obBar .tsw{width:20px;height:20px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line);padding:0}#obBar .tsw[aria-pressed=true]{box-shadow:0 0 0 2px var(--ink)}
+@media (forced-colors:active){#obBar .tsw{forced-color-adjust:none;border-color:ButtonText}}
 .ctx{position:fixed;z-index:95;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:4px;min-width:220px;display:flex;flex-direction:column;max-height:calc(100vh - 16px);overflow-y:auto}
 .ctx>*{flex-shrink:0}
 .ctx button{border:0;background:transparent;text-align:left;padding:7px 10px;border-radius:6px;font-size:13px}
@@ -2097,6 +2105,7 @@ header,.file{min-width:0}
 </aside>
 <div class="ctx" id="ctx" role="menu" hidden></div>
 <div id="selLive" class="sr-live" role="status" aria-live="polite"></div>
+<div id="obBar" role="toolbar" aria-label="Objektleiste" hidden><button class="ib" id="obDup" type="button" title="Duplizieren (Strg+D)" aria-label="Duplizieren"><svg class="ph" aria-hidden="true"><use href="#ph-copy"/></svg></button><button class="ib" id="obDel" type="button" title="Löschen (Entf)" aria-label="Löschen"><svg class="ph" aria-hidden="true"><use href="#ph-trash"/></svg></button><button class="ib" id="obLock" type="button" title="Sperren" aria-label="Sperren"><svg class="ph" aria-hidden="true"><use href="#ph-lock"/></svg></button><button class="ib" id="obCol" type="button" title="Farbe" aria-label="Farbe" aria-haspopup="true" aria-expanded="false"><svg class="ph" aria-hidden="true"><use href="#ph-palette"/></svg></button><span class="ob-sep" role="separator"></span><button class="ib" id="obFront" type="button" title="Nach vorne" aria-label="Nach vorne"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-up"/></svg></button><button class="ib" id="obBack" type="button" title="Nach hinten" aria-label="Nach hinten"><svg class="ph" aria-hidden="true"><use href="#ph-arrow-down"/></svg></button><span class="ob-al" id="obAl" hidden><span class="ob-sep" role="separator"></span><button class="ib" type="button" data-a="l" title="Links ausrichten" aria-label="Links ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-left"/></svg></button><button class="ib" type="button" data-a="ch" title="Waagerecht zentrieren" aria-label="Waagerecht zentrieren"><svg class="ph" aria-hidden="true"><use href="#ph-align-center-horizontal"/></svg></button><button class="ib" type="button" data-a="r" title="Rechts ausrichten" aria-label="Rechts ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-right"/></svg></button><button class="ib" type="button" data-a="t" title="Oben ausrichten" aria-label="Oben ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-top"/></svg></button><button class="ib" type="button" data-a="cv" title="Senkrecht zentrieren" aria-label="Senkrecht zentrieren"><svg class="ph" aria-hidden="true"><use href="#ph-align-center-vertical"/></svg></button><button class="ib" type="button" data-a="b" title="Unten ausrichten" aria-label="Unten ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-bottom"/></svg></button><button class="ib" type="button" data-a="dh" title="Waagerecht verteilen" aria-label="Waagerecht verteilen"><svg class="ph" aria-hidden="true"><use href="#ph-columns"/></svg></button><button class="ib" type="button" data-a="dv" title="Senkrecht verteilen" aria-label="Senkrecht verteilen"><svg class="ph" aria-hidden="true"><use href="#ph-rows"/></svg></button></span><div class="ob-pal" id="obPal" role="group" aria-label="Farbe" hidden></div></div>
 <div id="tsBar" role="toolbar" aria-label="Textauswahl" hidden><button class="ib" id="tsHl" type="button" title="Markieren (zuletzt gewählte Farbe)" aria-label="Markieren"><svg class="ph" aria-hidden="true"><use href="#ph-highlighter"/></svg></button><button class="ib" id="tsCopy" type="button" title="Kopieren" aria-label="Kopieren"><svg class="ph" aria-hidden="true"><use href="#ph-copy"/></svg></button><span class="tsSw" role="group" aria-label="Farbe"></span><input type="color" id="tsColor" title="Eigene Farbe" aria-label="Eigene Farbe" value="#ffd60a"></div>
 <div class="modal" id="newDlg" data-mode="doc" hidden>
   <div class="card wide" role="dialog" aria-modal="true" aria-labelledby="newT">
@@ -2645,6 +2654,7 @@ const I18N_EN={
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 // 3.10 Auswahlwerkzeug
 ' Objekte gewählt':' objects selected',
+'Objektleiste':'Object bar','Duplizieren':'Duplicate','Duplizieren (Strg+D)':'Duplicate (Ctrl+D)','Löschen (Entf)':'Delete (Del)','Sperren':'Lock','Nach vorne':'Bring to front','Nach hinten':'Send to back','Objektleiste am gewählten Objekt':'Object bar at the selected object','Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten':'Small bar above the object: duplicate, delete, lock, colour, order, align',
 'Hilfslinien beim Verschieben':'Guides while moving','Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)':'Guide lines and snapping to edges, centres and margins, also while resizing (Alt: off briefly)',
 'Zum Gruppieren mindestens zwei Objekte auswählen.':'Select at least two objects to group them.','Gruppiert. Aufheben mit Strg+Umschalt+G.':'Grouped. Ungroup with Ctrl+Shift+G.','Die Auswahl enthält keine Gruppe.':'The selection contains no group.','Gruppe aufgehoben.':'Group removed.','Gruppieren (Strg+G)':'Group (Ctrl+G)','Gruppierung aufheben (Strg+Umschalt+G)':'Ungroup (Ctrl+Shift+G)',
 };
@@ -4012,6 +4022,7 @@ function redraw(i){
   if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawObj(c,ED.o);
   try{drawGuides(c,i)}catch(e){}
   if(S.sel&&S.sel.p===i&&S.sel.o!==editingObj)drawSel(c,S.sel.o);
+  if(S.sel||!obBar.hidden)obSoon();
 }
 const redrawAll=()=>S.pages.forEach((_,i)=>redraw(i));
 let renderGen=0;
@@ -4127,7 +4138,7 @@ let selAnim=null;
 function setSel(sel){const prev=S.sel;S.sel=sel;if(sel&&inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(prev)redraw(prev.p);
   if(sel&&(!prev||prev.o!==sel.o)&&!motionOff()){const a={o:sel.o,p:sel.p,t0:performance.now()};selAnim=a;
     const step=()=>{if(selAnim!==a)return;redraw(a.p);if(performance.now()-a.t0<300)requestAnimationFrame(step);else{selAnim=null;redraw(a.p)}};requestAnimationFrame(step)}
-  if(sel){redraw(sel.p);syncControls(sel.o)}try{updTblUI()}catch(e){}try{ffBar()}catch(e){}try{alUI()}catch(e){}try{selSay(sel)}catch(e){}}
+  if(sel){redraw(sel.p);syncControls(sel.o)}try{updTblUI()}catch(e){}try{ffBar()}catch(e){}try{alUI()}catch(e){}try{selSay(sel)}catch(e){}obSoon()}
 // announce a multi-selection (status text, also on the canvas label)
 function selSay(sel){const n=sel&&sel.o.type==='group'?sel.o.items.length:0;if(n>1)$('#selLive').textContent=n+tr(' Objekte gewählt')}
 function delSel(){if(!S.sel)return;const P=S.pages[S.sel.p],T=selItems().filter(o=>!o.locked);if(!T.length){toast(tr('Das Objekt ist gesperrt.'));return}pushHist();P.objs=P.objs.filter(o=>!T.includes(o));const p=S.sel.p;S.sel=null;redraw(p);markDirty()}
@@ -4171,6 +4182,39 @@ function alUI(){const n=S.sel?alUnits(selItems().filter(o=>!alFixed(o))).length:
   const h=$('#alHint');if(h)h.textContent=!n?tr('Objekte auswählen (Umschalt-Klick oder Rahmen ziehen).'):n===1?tr('Ein Objekt: wird auf der Seite ausgerichtet.'):n+tr(' Objekte: an der Auswahl ausrichten.')}
 $('#alRow').addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(b)alignSel(b.dataset.a)});
 setTimeout(()=>{try{alUI()}catch(e){}},0);
+
+/* ---------- 3.10: Objektleiste (obBar): kleine Leiste über dem gewählten Objekt ----------
+   Hidden while dragging/resizing, typing, with another tool, or when the setting is off. F6 moves focus into it, Esc back to the page. */
+var obBarOn=true;try{obBarOn=localStorage.getItem('pdfwerkbank:objBar')!=='0'}catch(e){}
+var obBusy=false,obRaf=0;const obBar=$('#obBar');
+function obPalOpen(v){const pal=$('#obPal');pal.hidden=!v;$('#obCol').setAttribute('aria-expanded',v)}
+function obHide(){if(!obBar.hidden){obBar.hidden=true;obPalOpen(false)}}
+function obSoon(){if(obRaf)return;obRaf=requestAnimationFrame(()=>{obRaf=0;try{obUpdate()}catch(e){}})}
+function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
+  if(!obBarOn||!P||!P.ink||obBusy||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||!tsBar.hidden||sel.o===editingObj){obHide();return}
+  const T=selItems();if(!T.length){obHide();return}
+  const lk=T.some(o=>!o.locked),L=$('#obLock'),lt=tr(lk?'Sperren':'Entsperren');L.title=lt;L.setAttribute('aria-label',lt);
+  $('#obAl').hidden=alUnits(T.filter(o=>!alFixed(o))).length<2;
+  const was=obBar.hidden;obBar.hidden=false;
+  const z=S.zoom,r=P.ink.getBoundingClientRect(),b=bbox(sel.o),vr=viewer.getBoundingClientRect(),w=obBar.offsetWidth,h=obBar.offsetHeight;
+  const top=r.top+b.y*z,bot=top+b.h*z,left=r.left+b.x*z,wid=b.w*z;
+  if(bot<vr.top||top>vr.bottom){obHide();return}
+  const gap=sel.o.type==='group'||(sel.o.type==='text'&&sel.o.orient==='h')?40:16; // clear of the group label / rotation handle
+  let y=top-h-gap;if(y<vr.top+4)y=bot+14;
+  obBar.style.left=Math.round(Math.max(vr.left+4,Math.min(vr.right-w-4,left+wid/2-w/2)))+'px';
+  obBar.style.top=Math.round(Math.max(vr.top+4,Math.min(vr.bottom-h-4,y)))+'px'}
+viewer.addEventListener('scroll',obSoon);addEventListener('resize',obSoon);
+for(const[c,n]of COLORS){const b=document.createElement('button');b.type='button';b.className='tsw';b.style.background=c;b.title=n;b.setAttribute('aria-label',tr(n));b.dataset.c=c;b.onclick=()=>{setColor(c);obPalOpen(false);$('#obCol').focus()};$('#obPal').appendChild(b)}
+$('#obCol').onclick=()=>{const v=$('#obPal').hidden;obPalOpen(v);if(v){const c=S.sel&&selItems()[0]&&selItems()[0].color;$('#obPal').querySelectorAll('.tsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c))}};
+$('#obDup').onclick=dupSel;$('#obDel').onclick=delSel;$('#obFront').onclick=()=>orderSel(true);$('#obBack').onclick=()=>orderSel(false);
+$('#obLock').onclick=()=>{if(!S.sel)return;const T=selItems(),lk=T.some(o=>!o.locked);pushHist();T.forEach(o=>{if(lk)o.locked=true;else delete o.locked});redraw(S.sel.p);markDirty();obSoon()};
+$('#obAl').addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(b)alignSel(b.dataset.a)});
+obBar.addEventListener('mousedown',e=>e.preventDefault());obBar.addEventListener('pointerdown',e=>e.preventDefault());
+const obFocusPage=()=>{viewer.tabIndex=-1;viewer.focus({preventScroll:true})};
+obBar.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();if(!$('#obPal').hidden)obPalOpen(false);obFocusPage()}
+  else if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&!e.ctrlKey&&!e.altKey&&!e.metaKey){const b=[...obBar.querySelectorAll('button')].filter(x=>x.offsetParent),k=b.indexOf(e.target);if(k<0)return;e.preventDefault();b[(k+(e.key==='ArrowRight'?1:-1)+b.length)%b.length].focus()}});
+// F6 moves focus into the bar (Tab is used for stepping through objects)
+addEventListener('keydown',e=>{if(e.key!=='F6'||obBar.hidden)return;e.preventDefault();$('#obDup').focus()},true);
 
 /* ---------- Lineal ---------- */
 const ruler=$('#ruler'),rcv=$('#rulerCv'),wrap=$('#wrap');
@@ -4455,7 +4499,7 @@ function attachInk(P,i){
     const d=S.draft&&S.draft.o;
     switch(st.selDrag?'select':S.tool){
       case'select':case'text':{
-        if(!st.mode||!st.moved||(st.o&&st.o.locked)||(st.o&&st.o.type==='group'&&st.o.items.every(t=>t.locked)))return;if(!st.hist){pushHist();st.hist=true;dragBegin(i,st.o)}const o=st.o;
+        if(!st.mode||!st.moved||(st.o&&st.o.locked)||(st.o&&st.o.type==='group'&&st.o.items.every(t=>t.locked)))return;if(!st.hist){pushHist();st.hist=true;dragBegin(i,st.o);obBusy=true;obHide()}const o=st.o;
         if(st.mode==='move'){const g=guideSnap(i,o,x,y,st,e);moveObj(o,g[0]-st.lx,g[1]-st.ly);st.lx=g[0];st.ly=g[1]}
         else if(st.mode==='p1'||st.mode==='p2'){const one=st.mode==='p1';if(o.type==='line')tmpProp(o,'__drag',one?'a':'b');
           const oid2=o.link?(one?o.link.b:o.link.a):null,other=oid2?P.objs.find(q=>q.oid===oid2):null;
@@ -4484,6 +4528,7 @@ function attachInk(P,i){
     }
   });
   const end=e=>{
+    if(obBusy){obBusy=false;obSoon()}
     if(S.tblHint){S.tblHint=null;redraw(i)}
     if(S.rotHint){S.rotHint=null;redraw(i)}
     if(!st)return;clearTimeout(st.qsT);if(st.qs)qsTagHide();
@@ -6295,7 +6340,7 @@ function dragBegin(i,o){const P=S.pages[i];DRAG=null;if(!P||!P.ink||!o||P.objs.l
   const k=P.ink.width/(P.w*S.zoom)*S.zoom,mk=list=>{const cv=document.createElement('canvas');cv.width=P.ink.width;cv.height=P.ink.height;const c=cv.getContext('2d');c.setTransform(k,0,0,k,0,0);for(const q of list)drawObj(c,q);return cv};
   const below=[],above=[];P.objs.forEach((q,j)=>{if(dyn.has(q))return;(j<first?below:above).push(q)});
   DRAG={p:i,dyn,below:mk(below),above:mk(above),w:P.ink.width,h:P.ink.height,zoom:S.zoom}}
-function dragEnd(){if(!DRAG)return;const p=DRAG.p;DRAG=null;cancelAnimationFrame(dragRaf);dragRaf=requestAnimationFrame(()=>redraw(p))}
+function dragEnd(){if(obBusy){obBusy=false;obSoon()}if(!DRAG)return;const p=DRAG.p;DRAG=null;cancelAnimationFrame(dragRaf);dragRaf=requestAnimationFrame(()=>redraw(p))}
 function redrawDrag(i){const P=S.pages[i],D=DRAG;if(!D||D.p!==i||D.w!==P.ink.width||D.h!==P.ink.height||D.zoom!==S.zoom)return false;
   const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);c.drawImage(D.below,0,0);
   const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)if(D.dyn.has(o))drawObj(c,o);
@@ -7309,6 +7354,7 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
   {ic:'tools',t:'Topologie-Bausteine als bearbeitbare Knoten',d:'Stern, Ring, Bus usw. werden als einzelne Geräte mit Linien platziert (aus: ein Symbol)',get:()=>topoEditOn,run:()=>{topoEditOn=!topoEditOn;try{localStorage.setItem('pdfwerkbank:topoEdit',topoEditOn?'1':'0')}catch(e){}}},
   {ic:'tools',t:'Doppelklick bearbeitet in allen Werkzeugen',d:'Auch mit Symbol-, Form-, Linien- oder Textwerkzeug: Doppelklick auf ein Objekt bearbeitet es (aus: nur mit Auswahl)',get:()=>dblAllOn,run:()=>{dblAllOn=!dblAllOn;try{localStorage.setItem('pdfwerkbank:dblAll',dblAllOn?'1':'0')}catch(e){}}},
   {ic:'guides',t:'Hilfslinien beim Verschieben',d:'Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)',get:()=>GD.on,run:()=>{GD.on=!GD.on;gdSave()}},
+  {ic:'tools',t:'Objektleiste am gewählten Objekt',d:'Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten',get:()=>obBarOn,run:()=>{obBarOn=!obBarOn;try{localStorage.setItem('pdfwerkbank:objBar',obBarOn?'1':'0')}catch(e){}obSoon()}},
   {ic:'tools',t:'Auswahl nach dem Setzen',d:'Neue Objekte bleiben ausgewählt',get:()=>keepSelOn,run:()=>{keepSelOn=!keepSelOn;try{localStorage.setItem('pdfwerkbank:keepSel',keepSelOn?'1':'0')}catch(e){}}},
   {ic:'lock',t:'Gesperrte Objekte: Klicks gehen durch',d:'Klicks auf gesperrte Objekte wirken auf das darunter',get:()=>lockPassOn,run:()=>{lockPassOn=!lockPassOn;try{localStorage.setItem('pdfwerkbank:lockPass',lockPassOn?'1':'0')}catch(e){}redrawAll()}},
   {sep:1,hidden:$('#bInfo').hidden},
