@@ -886,6 +886,78 @@ else {
       await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
     }
   }
+  // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'grp.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;tplGroupOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});S.pages[0].objs.push({type:'rect',x:20,y:700,w:80,h:50,color:'#000000',lw:1,fill:'none'});insertOrgTemplate('net_home',{i:0,x:300,y:200,tl:false});insertOrgTemplate('net_office',{i:0,x:300,y:560,sc:.5,tl:false});setSel(null);redraw(0)})()", 20000);
+    await sleep(500);
+    const scr = () => ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left,r.top,S.zoom]})()");
+    let sc = await scr();
+    const geo = () => ev("JSON.stringify(S.pages[0].objs.filter(o=>o.gid).map(o=>o.type==='sym'?[o.gid,o.x,o.y,o.w,o.h,o.fs]:[o.gid,o.x1,o.y1,o.x2,o.y2]))").then(JSON.parse);
+    const first = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid);return {gid:o.gid,c:[o.x+o.w/2,o.y+o.h/2],n:S.pages[0].objs.filter(q=>q.gid===o.gid).length}})()");
+    const cloud = () => ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid==="+JSON.stringify(first.gid)+");return [o.x+o.w/2,o.y+o.h/2]})()");
+    const cl = (pt) => [sc[0] + pt[0] * sc[2], sc[1] + pt[1] * sc[2]];
+    const gids = await ev("JSON.stringify([...new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid))])").then(JSON.parse);
+    const san = await ev("JSON.stringify([sanObj({type:'rect',x:0,y:0,w:5,h:5,color:'#000',gid:'a b!c_-9'}).gid,sanObj({type:'rect',x:0,y:0,w:5,h:5,color:'#000',gid:'x'.repeat(80)}).gid.length,'gid' in sanObj({type:'rect',x:0,y:0,w:5,h:5,color:'#000',gid:7}),'gid' in sanObj({type:'rect',x:0,y:0,w:5,h:5,color:'#000'})])").then(JSON.parse);
+    ok('Gruppen: jede Vorlage hat eine eigene gid auf allen Teilen, sanObj bereinigt gid (Zeichen, Länge 40, Typ)', gids.length === 2 && first.n > 6 && san[0] === 'abc_-9' && san[1] === 40 && san[2] === false && san[3] === false, { gids, n: first.n, san });
+    const clickAt = async (pt, mod = 0, cc = 1) => { const c = cl(pt); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: cc, modifiers: mod }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: c[0], y: c[1], button: 'left', buttons: 0, clickCount: cc, modifiers: mod }); await sleep(120); };
+    await clickAt(first.c);
+    const s1 = await ev("JSON.stringify([selItems().length,S.sel&&S.sel.o.type,new Set(selItems().map(o=>o.gid)).size])").then(JSON.parse);
+    ok('Gruppen: Klick auf ein Teil wählt alle Teile der Vorlage (Gruppenrahmen), nicht die zweite Vorlage', s1[0] === first.n && s1[1] === 'group' && s1[2] === 1, s1);
+    // drag moves all members by the same amount
+    const g0 = (await geo()).filter(a => a[0] === first.gid), other0 = (await geo()).filter(a => a[0] !== first.gid), HU = await ev('H.u.length');
+    { const c = cl(first.c); await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 8; i++) await dragTo(c[0] - 6 * i, c[1] + 4 * i); await releaseAt(c[0] - 48, c[1] + 32); await sleep(150); }
+    const g1 = (await geo()).filter(a => a[0] === first.gid), other1 = (await geo()).filter(a => a[0] !== first.gid);
+    const dd = g1.map((a, k) => [a[1] - g0[k][1], a[2] - g0[k][2]]);
+    ok('Gruppen: Ziehen verschiebt alle Teile gleich (Abstände bleiben), die andere Vorlage bleibt', dd.every(d => Math.abs(d[0] + 48 / sc[2]) < 1 && Math.abs(d[1] - 32 / sc[2]) < 1) && JSON.stringify(other0) === JSON.stringify(other1) && await ev('H.u.length') === HU + 1, { d0: dd[0], n: dd.length });
+    // scale with the corner handle keeps proportions
+    const gs0 = (await geo()).filter(a => a[0] === first.gid);
+    const br = await ev("(()=>{const h=handles(S.sel.o).find(h=>h.k==='br');return [h.x,h.y]})()");
+    { const c = cl(br); await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 8; i++) await dragTo(c[0] - 6 * i, c[1] - 3 * i); await releaseAt(c[0] - 48, c[1] - 24); await sleep(150); }
+    
+    const gs1 = (await geo()).filter(a => a[0] === first.gid);
+    const syms = gs0.map((a, k) => [a, gs1[k]]).filter(([a]) => a.length === 6);
+    const fx = syms.map(([a, b]) => b[3] / a[3]), fy = syms.map(([a, b]) => b[4] / a[4]);
+    const xs = syms.map(([a, b]) => [(b[1] - syms[0][1][1]) / (a[1] - syms[0][0][1] || 1), 0]);
+    ok('Gruppen: Eckgriff skaliert alle Teile gleichmäßig (Breite, Höhe, Abstände, Schrift)', fx.every(f => Math.abs(f - fx[0]) < 0.01) && fy.every(f => Math.abs(f - fx[0]) < 0.01) && fx[0] < 0.97 && syms.every(([a, b]) => Math.abs(b[5] / a[5] - fx[0]) < 0.1) && syms.slice(1).every(([a, b]) => Math.abs((b[1] - syms[0][1][1]) - fx[0] * (a[1] - syms[0][0][1])) < 0.6), { f: fx[0], fy: fy[0] });
+    // Alt+click selects one part
+    const second = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='router'&&o.gid);return [o.x+o.w/2,o.y+o.h/2]})()");
+    await clickAt(second, 1);
+    const alt = await ev("JSON.stringify([selItems().length,S.sel.o.sym])").then(JSON.parse);
+    ok('Gruppen: Alt+Klick wählt nur das Teil', alt[0] === 1 && alt[1] === 'router', alt);
+    // double click on a member edits just that member (label editor), selection single
+    await clickAt(await cloud()); // group again
+    const c0 = cl(await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='router'&&o.gid);return [o.x+o.w/2,o.y+o.h/2]})()"));
+    await mv(c0[0], c0[1]); for (const cc of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c0[0], y: c0[1], button: 'left', buttons: 1, clickCount: cc }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: c0[0], y: c0[1], button: 'left', buttons: 0, clickCount: cc }); }
+    await sleep(250);
+    const dbl = await ev("JSON.stringify([selItems().length,!!editorEl||!!editingObj])").then(JSON.parse);
+    await ev("closeEditor()");
+    ok('Gruppen: Doppelklick auf ein Teil bearbeitet nur dieses Teil', dbl[0] === 1 && dbl[1] === true, dbl);
+    // copy/paste keeps the group with a new gid; Delete removes the group in one undo step
+    await clickAt(await cloud());
+    const cp = await ev("(()=>{const n0=S.pages[0].objs.length;copySel();pasteClip();const added=S.pages[0].objs.slice(n0),ids=new Set(added.map(o=>o.gid));return JSON.stringify([added.length,ids.size,ids.has(undefined),[...ids][0]!==undefined&&!S.pages[0].objs.slice(0,n0).some(o=>o.gid===[...ids][0]),selItems().length===added.length])})()").then(JSON.parse);
+    ok('Gruppen: Kopieren und Einfügen behält die Gruppe mit neuer gid', cp[0] > 6 && cp[1] === 1 && !cp[2] && cp[3] && cp[4], cp);
+    const del = await ev("(()=>{const n=S.pages[0].objs.length,h=H.u.length,k=selItems().length;delSel();const a=S.pages[0].objs.length;undo();return JSON.stringify([n-a===k,H.u.length===h,S.pages[0].objs.length===n])})()").then(JSON.parse);
+    ok('Gruppen: Entf löscht die ganze Gruppe, Rückgängig = 1 Schritt', del.every(Boolean), del);
+    // save and reopen keeps the groups
+    const rt = await ev("(async()=>{const before=JSON.stringify(S.pages[0].objs.map(o=>o.gid||null));const b=await buildOutput();await openPdf(b,'grp2.pdf');await new Promise(r=>setTimeout(r,800));return JSON.stringify([before===JSON.stringify(S.pages[0].objs.map(o=>o.gid||null)),new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid)).size])})()", 30000).then(JSON.parse);
+    ok('Gruppen: Speichern und Wiederöffnen behält die gid-Gruppen', rt[0] === true && rt[1] === 3, rt);
+    // old behaviour: objects without gid select alone; setting off selects single members
+    await ev('zoomTo(1)'); await sleep(500); sc = await scr();
+    await clickAt([20, 725]);
+    const old1 = await ev("JSON.stringify([selItems().length,S.sel&&S.sel.o.type])").then(JSON.parse);
+    await ev("tplGroupOn=false;setSel(null)");
+    const f2 = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid);return [o.x+o.w/2,o.y+o.h/2]})()");
+    await clickAt(f2);
+    const off = await ev("selItems().length");
+    await ev("tplGroupOn=true;setSel(null)");
+    ok('Gruppen: Objekte ohne gid und Einstellung aus wählen wie früher einzeln', old1[0] === 1 && old1[1] === 'rect' && off === 1, { old1, off });
+    // click on empty page clears the group selection
+    await clickAt(f2);
+    await clickAt([560, 100]);
+    ok('Gruppen: Klick auf leere Fläche hebt die Auswahl auf', await ev("!S.sel") === true);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
