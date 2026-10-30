@@ -1610,6 +1610,22 @@ else {
     const sn = await ev("JSON.stringify((()=>{const b=c=>{const r=sanObj({type:'image',x:0,y:0,w:10,h:10,img:'imabc',crop:c});return r?r.crop||null:'REJ'};return [b({l:.1,t:0,r:.2,b:.3}),b({l:.6,t:0,r:.6,b:0}),b({l:-.1,t:0,r:0,b:0}),b({l:.99,t:0,r:0,b:0}),b({l:'x',t:0,r:0,b:0}),b('x'),b([1,2]),b({l:0,t:0,r:0,b:0}),b(undefined)]})())").then(JSON.parse);
     ok('sanObj: gültiger Zuschnitt bleibt, ungültiger (Summe > 0,95, negativ, > 0,95, kein Zahlenwert, Nullzuschnitt) wird entfernt, Objekt bleibt', JSON.stringify(sn) === JSON.stringify([{ l: .1, t: 0, r: .2, b: .3 }, null, null, null, null, null, null, null, null]), sn);
   }
+  // 10 Review fixes: groups count as one unit only when fully selected
+  {
+    const nr = (a, b, t = 0.6) => Math.abs(a - b) < t;
+    for (const tplOn of [true, false]) {
+      await open310("insertOrgTemplate('net_home',{i:0,x:200,y:150,sc:.4,tl:false});tplGroupOn=" + tplOn);
+      const pts = await ev("JSON.stringify((()=>{const m=S.pages[0].objs.filter(o=>o.gid&&o.type==='sym');const a=m[0],b=m.find(o=>Math.abs(o.x-a.x)>5);return [a,b].map(o=>[o.x+o.w/2,o.y+o.h/2])})())").then(JSON.parse);
+      await ev("(()=>{const m=S.pages[0].objs.filter(o=>o.gid&&o.type==='sym');const a=m[0],b=m.find(o=>Math.abs(o.x-a.x)>5);selectItems(0,[a,b])})()");
+      const n = await ev("selItems().length");
+      await ev("alignSel('l')");
+      const xs = await ev("JSON.stringify(selItems().map(o=>o.x))").then(JSON.parse);
+      ok('Ausrichten: zwei Teile einer Vorlage (Alt+Umschalt-Auswahl, Vorlagengruppe ' + (tplOn ? 'an' : 'aus') + ') richten sich untereinander aus, nicht an den Seitenrand', n === 2 && nr(xs[0], xs[1], 0.01) && xs[0] > 20, { n, xs });
+      await ev("groupSel()");
+      ok('Gruppieren: zwei Teile einer Vorlage lassen sich mit Strg+G gruppieren (Vorlagengruppe ' + (tplOn ? 'an' : 'aus') + ')', await ev("selItems().filter(o=>o.gg).length") === 2);
+    }
+    await ev("tplGroupOn=true");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4t0ic6jY5mUVDgXWTZLaCkpwNAh/nYonMuUoPXfBETg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-MjuOczo0NJrpmVT+jv0xFPGdvYOgIO0BIhCf2Qu3udI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4165,14 +4165,15 @@ function pasteClip(){if(!CLIP||!S.pages.length)return;const p=curPage();pushHist
 function orderSel(front){if(!S.sel)return;pushHist();const P=S.pages[S.sel.p],T=P.objs.filter(o=>selItems().includes(o));P.objs=P.objs.filter(o=>!T.includes(o));if(front)P.objs.push(...T);else P.objs.unshift(...T);redraw(S.sel.p);markDirty()}
 
 // One step forward (dir 1) or backward (dir -1): the selection jumps over the next object, or over a whole other group; array order = z-order, relative order inside the selection stays
-function orderStep(dir){if(!S.sel)return;const P=S.pages[S.sel.p],A=P.objs,sel=new Set(selItems()),key=o=>o.gg||o.gid||null;
+function orderStep(dir){if(!S.sel)return;const P=S.pages[S.sel.p],A=P.objs,sel=new Set(selItems()),key=o=>o.gg||(tplGroupOn&&o.gid)||null;
   let u=-1;if(dir>0){for(let k=A.length-1;k>=0&&u<0;k--)if(sel.has(A[k])){for(let j=k+1;j<A.length;j++)if(!sel.has(A[j])){u=j;break}break}}
   else{for(let k=0;k<A.length&&u<0;k++)if(sel.has(A[k])){for(let j=k-1;j>=0;j--)if(!sel.has(A[j])){u=j;break}break}}
-  if(u<0)return;const kk=key(A[u]);let tgt=u;if(kk)A.forEach((o,k)=>{if(!sel.has(o)&&key(o)===kk)tgt=dir>0?Math.max(tgt,k):Math.min(tgt,k)});
+  if(u<0)return;const kk=key(A[u]);let tgt=u;if(kk&&!A.some(o=>sel.has(o)&&key(o)===kk))A.forEach((o,k)=>{if(!sel.has(o)&&key(o)===kk)tgt=dir>0?Math.max(tgt,k):Math.min(tgt,k)});
   pushHist();const T=A.filter(o=>sel.has(o)),Rest=A.filter(o=>!sel.has(o)),pos=Rest.indexOf(A[tgt]);Rest.splice(dir>0?pos+1:pos,0,...T);P.objs=Rest;redraw(S.sel.p);markDirty()}
 /* ---------- 3.10: Gruppieren (Strg+G) ----------
    gg = outer user group, gid = inner template group: at most two levels. Grouping sets one new gg on the selection; ungrouping removes gg only. */
-function alUnits(items){const m=new Map(),U=[];for(const o of items){const k=o.gg||o.gid;if(!k){U.push([o]);continue}let u=m.get(k);if(!u){u=[];m.set(k,u);U.push(u)}u.push(o)}return U}
+// a group counts as one unit only if it is fully selected (single parts picked with Alt stay single)
+function alUnits(items){const P=S.sel&&S.pages[S.sel.p],has=new Set(items),key=o=>o.gg||(tplGroupOn&&o.gid)||null,m=new Map(),U=[];for(const o of items){const k=key(o);if(!k||!P||P.objs.some(q=>key(q)===k&&!has.has(q)&&!alFixed(q))){U.push([o]);continue}let u=m.get(k);if(!u){u=[];m.set(k,u);U.push(u)}u.push(o)}return U}
 function groupSel(){if(!S.sel)return;const T=selItems();if(alUnits(T).length<2){toast(tr('Zum Gruppieren mindestens zwei Objekte auswählen.'));return}
   pushHist();const g=newGid();T.forEach(o=>o.gg=g);selectItems(S.sel.p,T);markDirty();toast(tr('Gruppiert. Aufheben mit Strg+Umschalt+G.'))}
 function ungroupSel(){if(!S.sel)return;const T=selItems();if(!T.some(o=>o.gg)){toast(tr('Die Auswahl enthält keine Gruppe.'));return}
