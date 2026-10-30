@@ -750,6 +750,18 @@ else {
   const rkj = JSON.parse(rk || '{}');
   ok('Recovery store: same name and size but different content do not share annotations; old-key data is adopted and the old key removed; no errors',
     rkj.sameSize && rkj.differ && rkj.nA === 1 && rkj.nB === 0 && rkj.old && rkj.old.n === 1 && rkj.old.moved && rkj.old.note && rkj.old.noteMoved && rkj.old.key && rkj.errs.length === 0, rkj);
+  // Sidebar text format toggles (A8)
+  const tf = await ev("(()=>{const q=k=>document.querySelector('#tfmt [data-k='+k+']'),pr=k=>q(k).getAttribute('aria-pressed'),r={};setSel(null);S.bold=S.italic=S.underline=false;S.hbg='';S.orient='h';syncFmt();"
+    + "q('bold').click();r.on=S.bold===true&&pr('bold')==='true';q('bold').click();r.off=S.bold===false&&pr('bold')==='false';"
+    + "q('italic').click();document.querySelector('#tfbg [data-a=bg]').click();document.querySelector('#tfpw .edsw[data-c=\"#ffd60a\"]').click();"
+    + "newText(0,120,200);ED.eng.put('Neu');const o=ED.o;r.inh=o.italic===true&&o.hbg==='#ffd60a'&&!o.bold;closeEditor();"
+    + "const t={type:'text',x:100,y:300,text:'Sel',fs:14,color:'#000000',lw:0,orient:'h'};S.pages[0].objs.push(t);setSel({p:0,o:t});q('bold').click();r.selB=t.bold===true&&pr('bold')==='true';"
+    + "document.querySelector('#tfpw .edsw-none').click();r.selBg=!('hbg' in t);q('italic').click();r.selIt=t.italic===true&&pr('italic')==='true';q('italic').click();r.selIt=r.selIt&&!('italic' in t)&&pr('italic')==='false';"
+    + "setSel(null);S.hbg='#ffd60a';S.orient='stack';syncFmt();r.stack=document.querySelector('#tfbg [data-a=bg]').disabled;newText(0,120,200);ED.eng.put('St');r.noBg=!('hbg' in ED.o);closeEditor();"
+    + "S.orient='h';S.bold=S.italic=S.underline=false;S.hbg='';setSel(null);syncFmt();S.pages[0].objs=S.pages[0].objs.filter(x=>x!==t&&x.text!=='Neu'&&x.text!=='St');return JSON.stringify(r)})()");
+  const tfj = JSON.parse(tf || '{}');
+  ok('Sidebar format toggles: bold switches on and off, new text inherits italic/background, selected text follows, no background for stacked text',
+    tfj.on && tfj.off && tfj.inh && tfj.selB && tfj.selBg && tfj.selIt && tfj.stack && tfj.noBg, tfj);
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

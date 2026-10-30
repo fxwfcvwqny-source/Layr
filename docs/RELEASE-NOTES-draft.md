@@ -31,7 +31,6 @@ Release notes for version 3.9.0.
 - Rotated text gets axis-aligned highlight boxes.
 - Text background is not drawn for stacked text.
 - Old single topology symbols are not editable inside their nodes.
-- New text boxes do not inherit italic or background from the sidebar.
 - Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).
 - The text layer is not available in split view and presentation mode.
 - With the "Night mode for pages" switch on, the sheet option "White" is shown dark (the switch inverts all pages). A clearer behaviour is planned.
