@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-AjsDL+O1kVAXHxNMiHsXSb0M8eEjVqX8d0FHVbkitBg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-d2wKR1WvtJvyRVAF98Un24ByBmkbeSZWJHA4eALOrF0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3066,6 +3066,7 @@ def('org_team','Organigramm','Bereich / Team',240,150,'Team',(c,o,x,y,w,h)=>{c.s
 /* ---------- Organigramm-Vorlagen: einzelne Kästen + mitwandernde Verbindungen ---------- */
 const newOid=()=>'o'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
 /* gid: objects sharing one gid form a group (template insertion); click selects all members unless tplGroupOn is off */
+/* Group model (decided for batch 4): gid stays the innermost (template) group; a new optional field gg (outer user group, sanitised like gid) is added for Ctrl+G; at most two levels. */
 const newGid=()=>'g'+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
 var tplGroupOn=true;try{tplGroupOn=localStorage.getItem('pdfwerkbank:tplGroup')!=='0'}catch(e){}
 const DOCKABLE=['sym','rect','ellipse','text','table','image'];
