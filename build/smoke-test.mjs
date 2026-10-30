@@ -1247,6 +1247,55 @@ else {
     const n1 = await ev("selItems().length");
     ok('Gruppe aus zwei Vorlagen: Strg+G gruppiert beide, Aufheben stellt zwei Vorlagen-Gruppen wieder her', both === t.n1 + t.n2 && tg[0] === 1 && tg[1] === 2 && n12 === t.n1 + t.n2 && left[0] === 0 && left[1] === 2 && n1 === t.n1, { both, tg, n12, left, n1, t });
   }
+  // 3 Align and distribute: exact results, units (templates), docked lines follow, one undo step, context menu
+  {
+    await open310("S.pages[0].objs.push({type:'rect',x:40,y:100,w:60,h:30,color:'#000000',lw:1,fill:'white',oid:'aR1'},{type:'rect',x:200,y:150,w:100,h:80,color:'#000000',lw:1,fill:'white',oid:'aR2'},{type:'rect',x:120,y:300,w:40,h:50,color:'#000000',lw:1,fill:'white',oid:'aR3'},{type:'line',x1:100,y1:115,x2:200,y2:190,color:'#000000',lw:1,dash:false,elbow:false,start:'none',end:'none',link:{a:'aR1',ta:'auto',b:'aR2',tb:'auto'}})");
+    const clickEl = async (sel) => { const r = await ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});e.scrollIntoView({block:'center'});const b=e.getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(150); };
+    const rects = () => ev("JSON.stringify(['aR1','aR2','aR3'].map(i=>{const o=S.pages[0].objs.find(q=>q.oid===i);return [o.x,o.y,o.w,o.h]}))").then(JSON.parse);
+    const reset = async () => { await ev("(()=>{const P=S.pages[0];const set=(i,x,y)=>{const o=P.objs.find(q=>q.oid===i);o.x=x;o.y=y};set('aR1',40,100);set('aR2',200,150);set('aR3',120,300);setSel(null);redraw(0)})()"); };
+    const selAll = async () => { await click310([500, 780]); await key310('a', 'KeyA', 65, 2); };
+    const near = (a, b) => Math.abs(a - b) < 1e-6;
+    const cases = [
+      ['l', r => r.every(q => near(q[0], 40))], ['r', r => r.every(q => near(q[0] + q[2], 300))], ['ch', r => r.every(q => near(q[0] + q[2] / 2, 170))],
+      ['t', r => r.every(q => near(q[1], 100))], ['b', r => r.every(q => near(q[1] + q[3], 350))], ['cv', r => r.every(q => near(q[1] + q[3] / 2, 225))],
+      ['dh', r => { const s = [...r].sort((a, b) => a[0] - b[0]); return near(s[0][0], 40) && near(s[2][0] + s[2][2], 300) && near(s[1][0] - (s[0][0] + s[0][2]), s[2][0] - (s[1][0] + s[1][2])); }],
+      ['dv', r => { const s = [...r].sort((a, b) => a[1] - b[1]); return near(s[0][1], 100) && near(s[2][1] + s[2][3], 350) && near(s[1][1] - (s[0][1] + s[0][3]), s[2][1] - (s[1][1] + s[1][3])); }],
+    ];
+    const res = {};
+    for (const [a, chk] of cases) {
+      await reset(); await selAll();
+      const h0 = await ev('H.u.length');
+      await clickEl(`#alRow button[data-a="${a}"]`);
+      const r = await rects(), h1 = await ev('H.u.length');
+      await ev('undo()');
+      const back = await rects();
+      res[a] = chk(r) && h1 === h0 + 1 && near(back[0][0], 40) && near(back[1][0], 200) && near(back[2][1], 300);
+    }
+    ok('Ausrichten/Verteilen: links, rechts, Mitte, oben, unten, Mitte senkrecht, verteilen waagerecht/senkrecht sind exakt, je 1 Rückgängig-Schritt', Object.values(res).every(Boolean), res);
+    // docked line follows
+    await reset(); await selAll(); await clickEl('#alRow button[data-a="b"]');
+    const ln = await ev("(()=>{const l=S.pages[0].objs.find(o=>o.type==='line'),a=S.pages[0].objs.find(o=>o.oid==='aR1'),b=S.pages[0].objs.find(o=>o.oid==='aR2');const on=(o,x,y)=>x>=o.x-1&&x<=o.x+o.w+1&&y>=o.y-1&&y<=o.y+o.h+1&&(Math.abs(x-o.x)<1||Math.abs(x-o.x-o.w)<1||Math.abs(y-o.y)<1||Math.abs(y-o.y-o.h)<1);return JSON.stringify([on(a,l.x1,l.y1),on(b,l.x2,l.y2),a.y+a.h===350])})()").then(JSON.parse);
+    ok('Ausrichten: angedockte Linie folgt den ausgerichteten Objekten', ln.every(Boolean), ln);
+    // templates are units: members keep their relative geometry, the two templates get aligned
+    await open310("insertOrgTemplate('net_home',{i:0,x:200,y:150,sc:.4,tl:false});insertOrgTemplate('net_office',{i:0,x:400,y:420,sc:.4,tl:false})");
+    const rel = () => ev("JSON.stringify((()=>{const g=[...new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid))];return g.map(id=>{const m=S.pages[0].objs.filter(o=>o.gid===id&&o.type==='sym');const b=Math.min(...S.pages[0].objs.filter(o=>o.gid===id).map(o=>alBox(o).x));return {l:b,rel:m.map(o=>[o.x-m[0].x,o.y-m[0].y])}})})())").then(JSON.parse);
+    const r0 = await rel(); await selAll(); await clickEl('#alRow button[data-a="l"]'); const r1 = await rel();
+    ok('Ausrichten: Vorlagen bleiben als Einheit beisammen (innere Abstände gleich), linke Kanten fluchten', JSON.stringify(r0.map(g => g.rel)) === JSON.stringify(r1.map(g => g.rel)) && Math.abs(r1[0].l - r1[1].l) < 0.01, { r0: r0.map(g => g.l), r1: r1.map(g => g.l) });
+    // context menu entries do the same
+    await open310("S.pages[0].objs.push({type:'rect',x:40,y:100,w:60,h:30,color:'#000000',lw:1,fill:'white',oid:'aR1'},{type:'rect',x:200,y:150,w:100,h:80,color:'#000000',lw:1,fill:'white',oid:'aR2'},{type:'rect',x:120,y:300,w:40,h:50,color:'#000000',lw:1,fill:'white',oid:'aR3'})");
+    await selAll();
+    {
+      const c = await pt310([70, 115]);
+      await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'right', buttons: 2, clickCount: 1 });
+      await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: c[0], y: c[1], button: 'right', buttons: 0, clickCount: 1 });
+      await sleep(500);
+      const mi = await ev("JSON.stringify([...document.querySelectorAll('#ctx button')].map(b=>[b.textContent,b.disabled]))").then(JSON.parse);
+      const br = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(b=>b.textContent==='Rechts ausrichten');const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+      await mv(br[0], br[1]); await pressAt(br[0], br[1]); await releaseAt(br[0], br[1]); await sleep(200);
+      const r = await rects();
+      ok('Kontextmenü: Ausrichten-Einträge bei mehreren Objekten, "Rechts ausrichten" wirkt', mi.some(m => m[0] === 'Links ausrichten' && !m[1]) && mi.some(m => m[0] === 'Senkrecht verteilen' && !m[1]) && r.every(q => near(q[0] + q[2], 300)), { mi: mi.length, r });
+    }
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

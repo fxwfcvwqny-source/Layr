@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ezVqcUnpbKmMIuudkTdpRlS+/2SqqQLO+bQLvB8zJyk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-624Ll/ZnAdRHuJhLxNdl/Fi62K/2/VkqybNIPFRF/KQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4146,16 +4146,17 @@ function ungroupSel(){if(!S.sel)return;const T=selItems();if(!T.some(o=>o.gg)){t
 function alBox(o){if(o.type==='sym'||o.type==='rect'||o.type==='ellipse'||o.type==='table'||o.type==='rack'||o.type==='code'||o.type==='field'||o.type==='img')return{x:Math.min(o.x,o.x+o.w),y:Math.min(o.y,o.y+o.h),w:Math.abs(o.w),h:Math.abs(o.h)};return bbox(o)}
 const alFixed=o=>o.locked||o.type==='line'&&o.link&&o.link.a&&o.link.b;
 function alignSel(mode){if(!S.sel)return;const P=S.pages[S.sel.p],items=selItems().filter(o=>!alFixed(o));if(!items.length)return;
-  const B=items.map(o=>({o,b:alBox(o)}));let R;
-  if(items.length===1)R={x:0,y:0,w:P.w,h:P.h};else{const x0=Math.min(...B.map(q=>q.b.x)),y0=Math.min(...B.map(q=>q.b.y)),x1=Math.max(...B.map(q=>q.b.x+q.b.w)),y1=Math.max(...B.map(q=>q.b.y+q.b.h));R={x:x0,y:y0,w:x1-x0,h:y1-y0}}
+  // a template or user group counts as one unit and moves as a whole
+  const B=alUnits(items).map(u=>{const q=u.map(alBox),x0=Math.min(...q.map(r=>r.x)),y0=Math.min(...q.map(r=>r.y));return{o:u,b:{x:x0,y:y0,w:Math.max(...q.map(r=>r.x+r.w))-x0,h:Math.max(...q.map(r=>r.y+r.h))-y0}}});let R;
+  if(B.length===1)R={x:0,y:0,w:P.w,h:P.h};else{const x0=Math.min(...B.map(q=>q.b.x)),y0=Math.min(...B.map(q=>q.b.y)),x1=Math.max(...B.map(q=>q.b.x+q.b.w)),y1=Math.max(...B.map(q=>q.b.y+q.b.h));R={x:x0,y:y0,w:x1-x0,h:y1-y0}}
   const mv=[];
   if(mode==='dh'||mode==='dv'){if(B.length<3)return;const h=mode==='dh',k=h?'x':'y',s=h?'w':'h';B.sort((a,b)=>a.b[k]-b.b[k]);
     const tot=B.reduce((t,q)=>t+q.b[s],0),gap=(R[s]-tot)/(B.length-1);let pos=R[k];for(const q of B){mv.push([q.o,h?pos-q.b.x:0,h?0:pos-q.b.y]);pos+=q.b[s]+gap}}
   else for(const q of B){const b=q.b;let dx=0,dy=0;
     if(mode==='l')dx=R.x-b.x;else if(mode==='ch')dx=R.x+R.w/2-(b.x+b.w/2);else if(mode==='r')dx=R.x+R.w-(b.x+b.w);
     else if(mode==='t')dy=R.y-b.y;else if(mode==='cv')dy=R.y+R.h/2-(b.y+b.h/2);else if(mode==='b')dy=R.y+R.h-(b.y+b.h);mv.push([q.o,dx,dy])}
-  if(!mv.some(m=>Math.abs(m[1])>.01||Math.abs(m[2])>.01))return;pushHist();for(const[o,dx,dy]of mv)moveObj(o,dx,dy);redraw(S.sel.p);markDirty()}
-function alUI(){const n=S.sel?selItems().filter(o=>!alFixed(o)).length:0;document.querySelectorAll('#alRow button').forEach(b=>{b.disabled=!n||((b.dataset.a==='dh'||b.dataset.a==='dv')&&n<3)});
+  if(!mv.some(m=>Math.abs(m[1])>.01||Math.abs(m[2])>.01))return;pushHist();for(const[u,dx,dy]of mv)for(const o of u)moveObj(o,dx,dy);redraw(S.sel.p);markDirty()}
+function alUI(){const n=S.sel?alUnits(selItems().filter(o=>!alFixed(o))).length:0;document.querySelectorAll('#alRow button').forEach(b=>{b.disabled=!n||((b.dataset.a==='dh'||b.dataset.a==='dv')&&n<3)});
   const h=$('#alHint');if(h)h.textContent=!n?tr('Objekte auswählen (Umschalt-Klick oder Rahmen ziehen).'):n===1?tr('Ein Objekt: wird auf der Seite ausgerichtet.'):n+tr(' Objekte: an der Auswahl ausrichten.')}
 $('#alRow').addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(b)alignSel(b.dataset.a)});
 setTimeout(()=>{try{alUI()}catch(e){}},0);
@@ -6481,6 +6482,9 @@ function objMenu(i,o,x,y){const P=S.pages[i];
   const add=(t,f,dis)=>{const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr(t);b.disabled=!!dis;b.onclick=()=>{closeMenu();f()};ctx.appendChild(b)};
   const sep=()=>ctx.appendChild(document.createElement('hr'));
   add('Gruppieren (Strg+G)',groupSel,alUnits(T).length<2);add('Gruppierung aufheben (Strg+Umschalt+G)',ungroupSel,!T.some(q=>q.gg));sep();
+  const nu=alUnits(T.filter(q=>!alFixed(q))).length;
+  if(nu>=2){for(const[a,t]of[['l','Links ausrichten'],['ch','Waagerecht zentrieren'],['r','Rechts ausrichten'],['t','Oben ausrichten'],['cv','Senkrecht zentrieren'],['b','Unten ausrichten']])add(t,()=>alignSel(a));
+    add('Waagerecht verteilen',()=>alignSel('dh'),nu<3);add('Senkrecht verteilen',()=>alignSel('dv'),nu<3);sep()}
   add(o.locked?'Entsperren':'Position sperren',()=>{pushHist();const lk=!o.locked;T.forEach(q=>{if(lk)q.locked=true;else delete q.locked});redraw(i);markDirty()});
   if(rotOf(o))add('Gerade ausrichten',()=>{pushHist();delete o.rot;textClamp(o,S.pages[i],false);redraw(i);markDirty()});
   showEl(ctx);ctx.style.left=Math.min(x,innerWidth-ctx.offsetWidth-8)+'px';ctx.style.top=Math.min(y,innerHeight-ctx.offsetHeight-8)+'px'}
