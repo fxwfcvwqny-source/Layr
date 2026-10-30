@@ -1642,6 +1642,19 @@ else {
     const r3 = await ev("(()=>{cropNote=false;const o=S.pages[0].objs[0];setSel({p:0,o});const t=()=>document.querySelector('.toast,#toast')&&document.querySelector('.toast,#toast').textContent;cropStart(0,o);cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;cropEnd(true);return JSON.stringify([cropNote,/Schwärzen/.test(t()||''),document.getElementById('imgCrop').title.includes('Schwärzen')])})()").then(JSON.parse);
     ok('Zuschnitt: beim Übernehmen Hinweis, dass das ganze Bild in der Datei bleibt (einmal pro Sitzung), auch als Tooltip am Knopf', r3[0] === true && r3[1] === true && r3[2] === true, r3);
     {
+      await open310("S.pages[0].objs.push({type:'rect',x:100,y:0,w:300,h:2000,color:'#000000',lw:1,oid:'tall'})");
+      await ev("(()=>{const d=document.createElement('div');d.className='pager';d.id='fakePager';d.style.cssText='position:fixed;left:40%;bottom:10px;width:120px;height:50px;background:#888;z-index:5';document.body.appendChild(d)})()");
+      await click310([200, 400]); await sleep(300);
+      const pb = await ev("JSON.stringify([obBar.hidden,obBar.getBoundingClientRect().bottom,document.getElementById('fakePager').getBoundingClientRect().top])").then(JSON.parse);
+      await ev("document.getElementById('fakePager').remove();obUpdate()");
+      ok('Objektleiste: bleibt oberhalb der Seiten-Pille (.pager), wenn diese sichtbar ist', pb[0] === false && pb[1] <= pb[2], pb);
+    }
+    {
+      await open310("S.pages[0].objs.push({type:'rect',x:300,y:103,w:60,h:40,color:'#000000',lw:1,oid:'rA'},{type:'rect',x:100,y:100,w:60,h:40,color:'#000000',lw:1,oid:'rB'})");
+      const ord = await ev("JSON.stringify(tabUnits(S.pages[0]).map(u=>u[0].oid))").then(JSON.parse);
+      ok('Tab-Reihenfolge: Objekte in fast gleicher Höhe (3 pt Versatz) zählen als eine Zeile, links vor rechts', ord.join() === 'rB,rA', ord);
+    }
+    {
       await open310(IMG); await click310([200, 150]);
       const h0 = await ev('H.u.length');
       await key310('C', 'KeyC', 67, 8);

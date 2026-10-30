@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-o23PbSKomKckDnkF0vnmh5gzNqkrNwOaz+LzczCTpw4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pS4jjvqIBcujaf/aV6EhwtX+daKnomWvKFxSEH6OONY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4213,13 +4213,13 @@ function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
   const lk=T.some(o=>!o.locked),L=$('#obLock'),lt=tr(lk?'Sperren':'Entsperren');L.title=lt;L.setAttribute('aria-label',lt);
   $('#obAl').hidden=alUnits(T.filter(o=>!alFixed(o))).length<2;
   const was=obBar.hidden;obBar.hidden=false;
-  const z=S.zoom,r=P.ink.getBoundingClientRect(),b=bbox(sel.o),vr=viewer.getBoundingClientRect(),w=obBar.offsetWidth,h=obBar.offsetHeight;
+  const z=S.zoom,r=P.ink.getBoundingClientRect(),b=bbox(sel.o),vr=viewer.getBoundingClientRect(),w=obBar.offsetWidth,h=obBar.offsetHeight,pg=document.querySelector('.pager'),vb=vr.bottom-(pg&&pg.getClientRects().length?pg.offsetHeight+8:0); // keep clear of the page pager pill when present
   const top=r.top+b.y*z,bot=top+b.h*z,left=r.left+b.x*z,wid=b.w*z;
   if(bot<vr.top||top>vr.bottom){obHide();return}
   const gap=sel.o.type==='group'||(sel.o.type==='text'&&sel.o.orient==='h')?40:16; // clear of the group label / rotation handle
   let y=top-h-gap;if(y<vr.top+4)y=bot+14;
   obBar.style.left=Math.round(Math.max(vr.left+4,Math.min(vr.right-w-4,left+wid/2-w/2)))+'px';
-  obBar.style.top=Math.round(Math.max(vr.top+4,Math.min(vr.bottom-h-4,y)))+'px'}
+  obBar.style.top=Math.round(Math.max(vr.top+4,Math.min(vb-h-4,y)))+'px'}
 viewer.addEventListener('scroll',obSoon);addEventListener('resize',obSoon);
 for(const[c,n]of COLORS){const b=document.createElement('button');b.type='button';b.className='tsw';b.style.background=c;b.title=n;b.setAttribute('aria-label',tr(n));b.dataset.c=c;b.onclick=()=>{setColor(c);obPalOpen(false);$('#obCol').focus()};$('#obPal').appendChild(b)}
 $('#obCol').onclick=()=>{const v=$('#obPal').hidden;obPalOpen(v);if(v){const c=S.sel&&selItems()[0]&&selItems()[0].color;$('#obPal').querySelectorAll('.tsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c))}};
@@ -4239,7 +4239,7 @@ addEventListener('keydown',e=>{if(e.key!=='F6'||obBar.hidden)return;e.preventDef
 var tabObjOn=true;try{tabObjOn=localStorage.getItem('pdfwerkbank:tabObj')!=='0'}catch(e){}
 var obNav=-1;
 function tabUnits(P){const m=new Map(),U=[];for(const o of P.objs){if(o.type==='deco'||(o.locked&&lockPassOn))continue;const k=o.gg||(tplGroupOn&&o.gid)||null;if(!k){U.push([o]);continue}let u=m.get(k);if(!u){u=[];m.set(k,u);U.push(u)}u.push(o)}
-  const K=U.map(u=>{const b=bbox({type:'group',items:u});return{u,x:b.x,y:b.y}});K.sort((a,b)=>a.y-b.y||a.x-b.x);return K.map(q=>q.u)}
+  const K=U.map(u=>{const b=bbox({type:'group',items:u});return{u,x:b.x,y:b.y}});K.sort((a,b)=>Math.round(a.y/8)-Math.round(b.y/8)||a.x-b.x);return K.map(q=>q.u)}
 const OBJ_NAMES={rect:['Rechteck','Rectangle'],ellipse:['Ellipse','Ellipse'],line:['Linie','Line'],pen:['Zeichnung','Drawing'],text:['Textfeld','Text box'],image:['Bild','Image'],table:['Tabelle','Table'],sym:['Symbol','Symbol'],field:['Formularfeld','Form field'],measure:['Messlinie','Measurement'],hl:['Markierung','Highlight'],redact:['Schwärzung','Redaction']};
 function objName(u){if(u.length>1)return LANG==='en'?`Group of ${u.length} objects`:`Gruppe aus ${u.length} Objekten`;const o=u[0],n=OBJ_NAMES[o.type]||['Objekt','Object'];let t=LANG==='en'?n[1]:n[0];if(o.type==='sym'&&o.label)t+=' '+String(o.label).split('\n')[0].slice(0,40);return t}
 function tabStepObj(dir){const P=S.pages[S.sel?S.sel.p:obNav];if(!P)return false;const U=tabUnits(P);if(!U.length)return false;
