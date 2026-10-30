@@ -1403,6 +1403,39 @@ else {
     const onState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
     ok('Objektleiste: Einstellung "Objektleiste am gewählten Objekt" (Standard an) schaltet die Leiste aus und wieder ein', was === 'true' && offState[0] === false && offState[1] === '0' && offState[2] === true && onState[0] === true && onState[2] === false, { was, offState, onState });
   }
+  // 6 Resize modifiers: old defaults unchanged (boxes free, Shift proportional, images proportional, Shift free); Alt = from the centre
+  {
+    await open310("S.pages[0].objs.push({type:'rect',x:100,y:300,w:100,h:60,color:'#000000',lw:1,fill:'white',oid:'zA'},{type:'rect',x:300,y:300,w:80,h:40,color:'#000000',lw:1,fill:'white',oid:'zB'},{type:'text',x:100,y:100,text:'Hallo Welt',fs:20,color:'#000000',orient:'h',lw:0,oid:'zT'})");
+    const get = (id) => ev(`(()=>{const o=S.pages[0].objs.find(q=>q.oid===${JSON.stringify(id)});return [o.x,o.y,o.w,o.h,o.fs]})()`);
+    const reset = async () => ev("(()=>{const P=S.pages[0],set=(i,x,y,w,h)=>{const o=P.objs.find(q=>q.oid===i);o.x=x;o.y=y;o.w=w;o.h=h};set('zA',100,300,100,60);set('zB',300,300,80,40);const t=P.objs.find(q=>q.oid==='zT');t.x=100;t.y=100;t.fs=20;setSel(null);GD.on=false;redraw(0)})()");
+    const dragH = async (a, b, mod = 0) => { const c = await pt310(a), d = await pt310(b); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod }); for (let i = 1; i <= 8; i++) await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: c[0] + (d[0] - c[0]) * i / 8, y: c[1] + (d[1] - c[1]) * i / 8, button: 'left', buttons: 1, modifiers: mod }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: d[0], y: d[1], button: 'left', buttons: 0, clickCount: 1, modifiers: mod }); await sleep(150); };
+    const near = (a, b, t = 0.6) => Math.abs(a - b) < t;
+    await reset(); await click310([150, 330]); await dragH([200, 360], [260, 400]);
+    let m = await get('zA');
+    ok('Größe: Eckgriff ohne Taste = frei, gegenüberliegende Ecke bleibt (altes Verhalten)', near(m[0], 100) && near(m[1], 300) && near(m[2], 160) && near(m[3], 100), m);
+    await reset(); await click310([150, 330]); await dragH([200, 360], [260, 400], 8);
+    m = await get('zA');
+    ok('Größe: Umschalt am Eckgriff hält das Seitenverhältnis (altes Verhalten)', near(m[0], 100) && near(m[1], 300) && near(m[2] / m[3], 100 / 60, 0.01) && m[2] > 100, m);
+    await reset(); await click310([150, 330]); await dragH([200, 360], [260, 400], 1);
+    m = await get('zA');
+    ok('Größe: Alt am Eckgriff skaliert von der Mitte aus (Mitte fest, Maße doppelt so weit gezogen)', near(m[0] + m[2] / 2, 150) && near(m[1] + m[3] / 2, 330) && near(m[2], 100 + 2 * 60) && near(m[3], 60 + 2 * 40), m);
+    await reset(); await click310([150, 330]); await dragH([200, 360], [260, 400], 9);
+    m = await get('zA');
+    ok('Größe: Alt+Umschalt = von der Mitte aus und proportional', near(m[0] + m[2] / 2, 150) && near(m[1] + m[3] / 2, 330) && near(m[2] / m[3], 100 / 60, 0.01) && m[2] > 100, m);
+    // text corner scale around the centre
+    await reset(); await click310([130, 112]); const tb = await ev("(()=>{const o=S.pages[0].objs.find(q=>q.oid==='zT'),b=textBox(o);return [o.x,o.y,b.w,b.h]})()");
+    await dragH([tb[0] + tb[2], tb[1] + tb[3]], [tb[0] + tb[2] + 40, tb[1] + tb[3] + 16], 1);
+    const ta = await ev("(()=>{const o=S.pages[0].objs.find(q=>q.oid==='zT'),b=textBox(o);return [o.x,o.y,b.w,b.h,o.fs]})()");
+    ok('Größe: Alt am Textfeld skaliert von der Mitte aus', ta[4] > 20 && near(ta[0] + ta[2] / 2, tb[0] + tb[2] / 2, 1.5) && near(ta[1] + ta[3] / 2, tb[1] + tb[3] / 2, 1.5), { tb, ta });
+    // group: Alt keeps the centre; image rule and non-Alt group unchanged (unit level)
+    await reset(); await click310([450, 700]); await drag310([60, 280], [420, 380]); // rubber band over zA and zB
+    const g0 = await ev("JSON.stringify(bbox(S.sel.o))").then(JSON.parse);
+    await dragH([g0.x + g0.w, g0.y + g0.h], [g0.x + g0.w + 40, g0.y + g0.h + 30], 1);
+    const g1 = await ev("JSON.stringify(bbox(S.sel.o))").then(JSON.parse);
+    ok('Größe: Alt an der Gruppen-Ecke skaliert die Auswahl von der Mitte aus', g1.w > g0.w + 1 && near(g1.x + g1.w / 2, g0.x + g0.w / 2, 1) && near(g1.y + g1.h / 2, g0.y + g0.h / 2, 1), { g0, g1 });
+    const img = await ev("(()=>{const mk=()=>({type:'image',x:100,y:100,w:100,h:50,img:'x',color:'#000000',lw:0});const run=(shift,alt)=>{const o=mk(),st={orig:JSON.parse(JSON.stringify(o)),mode:'br'};st.ob=boxOf(st.orig);resizeTo(o,st,260,200,shift,alt);return [o.x,o.y,o.w,o.h]};return JSON.stringify({plain:run(false,false),shift:run(true,false),alt:run(false,true)})})()").then(JSON.parse);
+    ok('Größe: Bild bleibt ohne Taste proportional, Umschalt gibt frei, Alt = von der Mitte', near(img.plain[2] / img.plain[3], 2, 0.01) && !near(img.shift[2] / img.shift[3], 2, 0.05) && near(img.alt[0] + img.alt[2] / 2, 150) && near(img.alt[2] / img.alt[3], 2, 0.01), img);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

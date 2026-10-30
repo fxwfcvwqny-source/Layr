@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-SK/f6p49mr6nfvmVrjel4CjoGkmvlLhldjfGpnoj2k8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-wMcF03oZshFP2a2oNssc/S1Q4KfoA1piLcXw8TUm9F8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2654,6 +2654,7 @@ const I18N_EN={
 'Willkommen bei Layr':'Welcome to Layr','Wähle deine Sprache. Du kannst sie jederzeit unter Personalisieren ändern.':'Choose your language. You can change it any time under Personalize.',
 // 3.10 Auswahlwerkzeug
 ' Objekte gewählt':' objects selected',
+'Umschalt-Klick wählt mehrere Objekte, Strg+G gruppiert, Alt-Klick wählt ein Teil einer Gruppe, Tab springt zum nächsten Objekt. Beim Ziehen einer Ecke: Umschalt schaltet das Seitenverhältnis um (Bilder bleiben sonst proportional), Alt skaliert von der Mitte aus.':'Shift-click selects several objects, Ctrl+G groups, Alt-click selects one part of a group, Tab jumps to the next object. When dragging a corner: Shift toggles the aspect ratio (images stay proportional otherwise), Alt resizes from the centre.',
 'Objektleiste':'Object bar','Duplizieren':'Duplicate','Duplizieren (Strg+D)':'Duplicate (Ctrl+D)','Löschen (Entf)':'Delete (Del)','Sperren':'Lock','Nach vorne':'Bring to front','Nach hinten':'Send to back','Objektleiste am gewählten Objekt':'Object bar at the selected object','Kleine Leiste über dem Objekt: Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten':'Small bar above the object: duplicate, delete, lock, colour, order, align',
 'Hilfslinien beim Verschieben':'Guides while moving','Linien und Einrasten an Kanten, Mitten und Rändern, auch beim Größe ändern (Alt: kurz aus)':'Guide lines and snapping to edges, centres and margins, also while resizing (Alt: off briefly)',
 'Zum Gruppieren mindestens zwei Objekte auswählen.':'Select at least two objects to group them.','Gruppiert. Aufheben mit Strg+Umschalt+G.':'Grouped. Ungroup with Ctrl+Shift+G.','Die Auswahl enthält keine Gruppe.':'The selection contains no group.','Gruppe aufgehoben.':'Group removed.','Gruppieren (Strg+G)':'Group (Ctrl+G)','Gruppierung aufheben (Strg+Umschalt+G)':'Ungroup (Ctrl+Shift+G)',
@@ -3937,8 +3938,9 @@ const boxOf=o=>{if(o.type==='group')return bbox(o);const t=o.type==='text'?textB
 function handleAt(o,x,y,tol){const h=handles(o).find(h=>Math.abs(h.x-x)<tol*1.4&&Math.abs(h.y-y)<tol*1.4);return h?h.k:null}
 function nearBorder(o,x,y,tol){if(rotOf(o)){const[lx,ly]=rotP(x,y,...tCtr(o),-o.rot),t=textBox(o);return!(lx>o.x+tol&&lx<o.x+t.w-tol&&ly>o.y+tol&&ly<o.y+t.h-tol)}const b=bbox(o);return!(x>b.x+tol&&x<b.x+b.w-tol&&y>b.y+tol&&y<b.y+b.h-tol)}
 const CURS={tl:'nwse-resize',br:'nwse-resize',tr:'nesw-resize',bl:'nesw-resize',ml:'ew-resize',mr:'ew-resize',mt:'ns-resize',mb:'ns-resize',p1:'move',p2:'move',rot:'grab'};
-function resizeTo(o,st,x,y,shift){
-  if(o.type==='group'){groupResize(o,st,x,y,shift);return}
+// alt = resize from the centre (corner handles of boxes, text and groups); shift: boxes proportional, images free (images are proportional by default)
+function resizeTo(o,st,x,y,shift,alt){
+  if(o.type==='group'){groupResize(o,st,x,y,shift,alt);return}
   const g=st.orig,gb=st.ob,k=st.mode;
   if(o.type==='table'&&k[0]==='m'){const R=k==='mt'||k==='mb',end=k==='mb'||k==='mr',L0=R?gb.h:gb.w,A=(R?g.rh:g.cw).map(f=>f*L0),j=end?A.length-1:0,p0=R?gb.y:gb.x,v=R?y:x;
     A[j]=Math.max(10,A[j]+(end?v-(p0+L0):p0-v));const L=A.reduce((s,q)=>s+q,0),F=A.map(q=>q/L);
@@ -3948,14 +3950,14 @@ function resizeTo(o,st,x,y,shift){
     if(o.minH<=nat+.5)delete o.minH;return}
   if(k==='mr'||k==='ml'){const right=gb.x+gb.w,minW=o.fs*1.5;
     if(k==='mr')o.wrapW=Math.max(minW,x-gb.x);else{const nx=Math.min(x,right-minW);o.wrapW=right-nx;o.x=nx}return}
-  const left=k[1]==='l',top=k[0]==='t',ax=left?gb.x+gb.w:gb.x,ay=top?gb.y+gb.h:gb.y;
+  const left=k[1]==='l',top=k[0]==='t',m=alt?2:1,ax=alt?gb.x+gb.w/2:left?gb.x+gb.w:gb.x,ay=alt?gb.y+gb.h/2:top?gb.y+gb.h:gb.y;
   if(o.type==='text'){
-    const dx=(x-ax)*(left?-1:1),dy=(y-ay)*(top?-1:1),s=Math.max(.05,(dx*gb.w+dy*gb.h)/(gb.w*gb.w+gb.h*gb.h));
+    const dx=(x-ax)*m*(left?-1:1),dy=(y-ay)*m*(top?-1:1),s=Math.max(.05,(dx*gb.w+dy*gb.h)/(gb.w*gb.w+gb.h*gb.h));
     o.fs=clamp(Math.round(g.fs*s*2)/2,4,200);if(g.wrapW)o.wrapW=g.wrapW*o.fs/g.fs;if(g.minH)o.minH=g.minH*o.fs/g.fs;
-    const nb=textBox(o);o.x=left?ax-nb.w:ax;o.y=top?ay-nb.h:ay;return}
-  let w=Math.max(4,Math.abs(x-ax)),h=Math.max(4,Math.abs(y-ay));
+    const nb=textBox(o);o.x=alt?ax-nb.w/2:left?ax-nb.w:ax;o.y=alt?ay-nb.h/2:top?ay-nb.h:ay;return}
+  let w=Math.max(4,Math.abs(x-ax)*m),h=Math.max(4,Math.abs(y-ay)*m);
   if((o.type==='image'?!shift:shift)||(o.type==='sym'&&SYM[o.sym].fixed))h=w*g.h/g.w;
-  o.w=w;o.h=h;o.x=left?ax-w:ax;o.y=top?ay-h:ay;
+  o.w=w;o.h=h;o.x=alt?ax-w/2:left?ax-w:ax;o.y=alt?ay-h/2:top?ay-h:ay;
 }
 function drawSel(c,o){
   let k=1;if(selAnim&&selAnim.o===o){const t=Math.min(1,(performance.now()-selAnim.t0)/300);k=t}
@@ -4398,9 +4400,9 @@ function lassoFinish(i,L,add){const P=S.pages[i];if(!P)return;const poly=L.pts;
   let found;if(L.rect){const xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);found=P.objs.filter(o=>{const b=bbox(o);return b.x<=x1&&b.x+b.w>=x0&&b.y<=y1&&b.y+b.h>=y0})}else found=P.objs.filter(o=>lassoHit(o,poly));
   if(add&&S.sel&&S.sel.p===i)found=[...new Set([...selItems(),...found])];
   selectItems(i,found);redraw(i)}
-function groupResize(o,st,x,y,shift){const gb=st.ob,k=st.mode;if(!k||k.length!==2)return;const left=k[1]==='l',top=k[0]==='t',ax=left?gb.x+gb.w:gb.x,ay=top?gb.y+gb.h:gb.y;
-  let w=Math.max(4,Math.abs(x-ax)),h=Math.max(4,Math.abs(y-ay));if(!shift){const s=Math.max(w/Math.max(gb.w,.01),h/Math.max(gb.h,.01));w=gb.w*s;h=gb.h*s}
-  const sx=gb.w>.5?w/gb.w:1,sy=gb.h>.5?h/gb.h:1,nx=left?ax-w:ax,ny=top?ay-h:ay,f=(px,py)=>[nx+(px-gb.x)*sx,ny+(py-gb.y)*sy];
+function groupResize(o,st,x,y,shift,alt){const gb=st.ob,k=st.mode;if(!k||k.length!==2)return;const left=k[1]==='l',top=k[0]==='t',m=alt?2:1,ax=alt?gb.x+gb.w/2:left?gb.x+gb.w:gb.x,ay=alt?gb.y+gb.h/2:top?gb.y+gb.h:gb.y;
+  let w=Math.max(4,Math.abs(x-ax)*m),h=Math.max(4,Math.abs(y-ay)*m);if(!shift){const s=Math.max(w/Math.max(gb.w,.01),h/Math.max(gb.h,.01));w=gb.w*s;h=gb.h*s}
+  const sx=gb.w>.5?w/gb.w:1,sy=gb.h>.5?h/gb.h:1,nx=alt?ax-w/2:left?ax-w:ax,ny=alt?ay-h/2:top?ay-h:ay,f=(px,py)=>[nx+(px-gb.x)*sx,ny+(py-gb.y)*sy];
   o.items.forEach((t,j)=>{if(!t.locked)scaleItem(t,st.orig.items[j],f,sx,sy)})}
 function scaleItem(t,g,f,sx,sy){if(!g)return;switch(g.type){
   case'pen':t.pts=g.pts.map(p=>f(p[0],p[1]));break;
@@ -4511,7 +4513,7 @@ function attachInk(P,i){
           let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;tblHintSet(o,st.mode,k,x,y)}
         else if(st.mode==='rot'){const r=rotFromPointer(st.orig,x,y,e.shiftKey,e.altKey);S.rotHint={o,deg:r};if(r)o.rot=r;else delete o.rot}
         else if(rotOf(st.orig)){resizeRotated(o,st,x,y,e.shiftKey);textClamp(o,P,false)}
-        else{if(o.type==='text'){x=clamp(x,0,P.w);y=clamp(y,0,P.h)}[x,y]=guideResizePre(i,o,st,x,y,e);resizeTo(o,st,x,y,e.shiftKey);guideResizePost(i,o,st)}
+        else{if(o.type==='text'){x=clamp(x,0,P.w);y=clamp(y,0,P.h)}[x,y]=guideResizePre(i,o,st,x,y,e);resizeTo(o,st,x,y,e.shiftKey,e.altKey);guideResizePost(i,o,st)}
         if(o.type==='text'&&st.orig&&o.fs!==st.orig.fs)setRange('fs',o.fs,v=>v+' pt');
         if(o.type==='text'&&st.mode==='move')textClamp(o,P,false);
         redraw(i);break}
@@ -5264,6 +5266,7 @@ const SP_TIPS=[
   ["#imgAlpha","Ecken ziehen ändert die Größe, das Seitenverhältnis bleibt. Mit Umschalt frei verzerren. Bilder gehen auch per Strg+V oder Hineinziehen."],
   ["#rulerAngIn","Das Lineal dreht sich um seine Mitte. Am runden Griff ziehen; mit Umschalt rastet es in 15°-Schritten ein."],
   ["#tRm,#tRp,#tCm,#tCp,#tHead,#tGrow","Tabelle anklicken, dann in eine Zelle klicken zum Schreiben; Tab springt zur nächsten. Rechtsklick auf eine Zelle: Zeilen und Spalten an dieser Stelle einfügen oder löschen. Trennlinien ziehen ändert Breite und Höhe."],
+  ["#alRow,#bFront,#bBack","Umschalt-Klick wählt mehrere Objekte, Strg+G gruppiert, Alt-Klick wählt ein Teil einer Gruppe, Tab springt zum nächsten Objekt. Beim Ziehen einer Ecke: Umschalt schaltet das Seitenverhältnis um (Bilder bleiben sonst proportional), Alt skaliert von der Mitte aus."],
   ["#catSel,#symgrid","Klicken setzt das Symbol, Ziehen bestimmt die Größe. Doppelklick auf ein Symbol ändert die Beschriftung. In Klassen trennt eine Zeile mit -- die Bereiche."]];
 const SP_FORM='input,select,button,textarea';
 let spTip=null,spShow=0,spHide=0,spCur=null,spOff=null;
