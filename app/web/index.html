@@ -69,7 +69,7 @@ button{cursor:pointer}
 #obBar .ib{width:30px;height:30px}#obBar .ib svg{width:18px;height:18px}
 #obBar .ob-sep{width:1px;align-self:stretch;background:var(--line);margin:3px 2px}
 #obBar .ob-al{display:contents}#obBar .ob-al[hidden]{display:none}
-#obBar .ob-pal{flex-basis:100%;display:flex;gap:6px;padding:4px 6px;border-top:1px solid var(--line);margin-top:2px}
+#obBar .ob-pal{position:absolute;left:0;top:100%;margin-top:4px;width:max-content;max-width:min(280px,calc(100vw - 16px));display:flex;flex-wrap:wrap;gap:6px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)} /* overlay: opening it must not change the size of the bar */
 #obBar .tsw{width:20px;height:20px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line);padding:0}#obBar .tsw[aria-pressed=true]{box-shadow:0 0 0 2px var(--ink)}
 @media (forced-colors:active){#obBar .tsw{forced-color-adjust:none;border-color:ButtonText}}
 .ctx{position:fixed;z-index:95;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:4px;min-width:220px;display:flex;flex-direction:column;max-height:calc(100vh - 16px);overflow-y:auto}

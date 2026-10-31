@@ -1347,10 +1347,15 @@ else {
     await clickEl('#obLock');
     const lk2 = await ev("S.pages[0].objs.find(o=>o.oid==='mB').locked===true"), lab2 = await ev("document.getElementById('obLock').getAttribute('aria-label')");
     ok('Objektleiste: Sperren/Entsperren schaltet um und beschriftet den Knopf neu', lk1 === true && lab1 === 'Entsperren' && lk2 === false && lab2 === 'Sperren', { lk1, lab1, lk2, lab2 });
+    const barSz = () => ev("(()=>{const r=document.getElementById('obBar').getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]})()");
+    const sz0 = await barSz();
     await clickEl('#obCol');
+    const sz1 = await barSz();
     const open1 = await ev("[document.getElementById('obPal').hidden,document.getElementById('obCol').getAttribute('aria-expanded')]");
     const hh = await ev('H.u.length');
     await clickEl('#obPal .tsw[data-c="#d62828"]');
+    const sz2 = await barSz();
+    ok('Objektleiste: Größe bleibt gleich, wenn die Farbpalette öffnet und eine Farbe gesetzt wird', sz0[0] === sz1[0] && sz0[1] === sz1[1] && sz0[0] === sz2[0] && sz0[1] === sz2[1], { sz0, sz1, sz2 });
     ok('Objektleiste: Farbe öffnet die Palette, Klick färbt die Auswahl (1 Schritt)', open1[0] === false && open1[1] === 'true' && await ev("S.pages[0].objs.find(o=>o.oid==='mB').color") === '#d62828' && await ev('H.u.length') === hh + 1, open1);
     await clickEl('#obFront');
     const topId = await ev("S.pages[0].objs[S.pages[0].objs.length-1].oid");
