@@ -1311,6 +1311,55 @@ else {
     const pf = await ev("(()=>{const P=S.pages[0],o=P.objs.find(q=>q.oid==='sM'),st={x:140,y:425,lx:140,ly:425},b0=GD.built||0;const t0=performance.now();for(let k=0;k<300;k++)guideSnap(0,o,140+k*0.5,425,st,{});const dt=(performance.now()-t0)/300;return JSON.stringify({built:(GD.built||0)-b0,avg:dt,n:P.objs.length})})()").then(JSON.parse);
     ok('Hilfslinien: Kandidatenliste wird pro Ziehen einmal berechnet, 500 Objekte bleiben flüssig (< 2 ms je Bewegung)', pf.built === 1 && pf.avg < 2 && pf.n > 500, pf);
   }
+  // 4b Equal spacing guides + distance labels (PowerPoint-style), exact gap field, distribute toast
+  {
+    const R = (id, x, y, w, h) => `{type:'rect',x:${x},y:${y},w:${w},h:${h},color:'#000000',lw:1,fill:'white',oid:'${id}'}`;
+    await open310(`S.pages[0].objs.push(${[R('eA', 100, 300, 60, 40), R('eB', 220, 300, 60, 40), R('eM', 400, 330, 60, 40), R('eA2', 100, 500, 60, 40), R('eC2', 400, 500, 60, 40), R('eM2', 480, 500, 60, 40), R('eZ', 100, 650, 40, 40), R('eO1', 250, 650, 60, 40), R('eO2', 370, 650, 60, 40)].join(',')})`);
+    const get = (id) => ev(`(()=>{const o=S.pages[0].objs.find(q=>q.oid===${JSON.stringify(id)});return [o.x,o.y,o.w,o.h]})()`);
+    const mmT = (pt) => (pt * 25.4 / 72).toFixed(1).replace('.', ',');
+    // drag with the button held; probe() runs while the guides are shown
+    const dragP = async (a, b, mod = 0, probe) => { const c = await pt310(a), d = await pt310(b); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod }); for (let i = 1; i <= 8; i++) await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: c[0] + (d[0] - c[0]) * i / 8, y: c[1] + (d[1] - c[1]) * i / 8, button: 'left', buttons: 1, modifiers: mod }); await sleep(120); const g = await ev("JSON.stringify(S.guides||null)").then(JSON.parse); const pr = probe ? await probe() : null; await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: d[0], y: d[1], button: 'left', buttons: 0, clickCount: 1, modifiers: mod }); await sleep(200); return { g, pr }; };
+    const reset = () => ev("(()=>{const P=S.pages[0],set=(i,x,y,w,h)=>{const o=P.objs.find(q=>q.oid===i);o.x=x;o.y=y;o.w=w;o.h=h};set('eM',400,330,60,40);set('eM2',480,500,60,40);set('eZ',100,650,40,40);setSel(null);GD.on=true;redraw(0)})()");
+    // label texts and overlay pixel while dragging; export bytes with and without the overlay
+    const probe = () => ev(`(async()=>{const T=[],f=CanvasRenderingContext2D.prototype.fillText;CanvasRenderingContext2D.prototype.fillText=function(t){T.push(t);return f.apply(this,arguments)};redraw(0);CanvasRenderingContext2D.prototype.fillText=f;
+      const P=S.pages[0],g=S.guides.gaps[0],k=P.ink.width/P.w,px=P.ictx.getImageData(Math.round((g.a+g.b)/2*k),Math.round((g.c-6.5)*k),1,1).data;
+      const h=async()=>{const b=new Uint8Array(await buildOutput());return b.length};
+      const e1=await h();const sg=S.guides;S.guides=null;const e0=await h();S.guides=sg;return JSON.stringify({T:T.filter(t=>/ mm$/.test(t)),px:[px[0],px[1],px[2]],same:e0===e1})})()`, 20000).then(JSON.parse);
+    // move: third box next to two boxes with a 60 pt gap -> snaps to the exact equal gap, markers + labels + overlay only
+    let r = await dragP([430, 350], [373, 350], 0, probe);
+    let A = await get('eA'), B = await get('eB'), M = await get('eM');
+    const lab = mmT(60) + ' mm';
+    ok('Gleiche Abstände: dritte Box rastet auf exakt gleichen Abstand ein (Abstand in pt gleich)', Math.abs((M[0] - (B[0] + B[2])) - (B[0] - (A[0] + A[2]))) < 0.01 && Math.abs(M[0] - 340) < 0.01, { A, B, M });
+    ok('Gleiche Abstände: Maßlinien in beiden Lücken, Beschriftung = Abstand in mm', r.g && r.g.gaps.length === 2 && r.g.gaps.every(q => q.h && Math.abs(q.b - q.a - 60) < 0.01) && r.pr.T.length === 2 && r.pr.T.every(t => t === lab), { g: r.g, T: r.pr && r.pr.T });
+    ok('Gleiche Abstände: Beschriftung wird in die Overlay-Zeichenfläche gemalt (Pixel), die Ausgabe-PDF hat mit und ohne Overlay dieselbe Größe', r.pr.px[0] > 150 && r.pr.px[1] < 90 && r.pr.same, r.pr);
+    ok('Gleiche Abstände: nach dem Loslassen keine Maßlinien mehr', await ev("S.guides===null"));
+    // between two boxes
+    await reset(); r = await dragP([510, 520], [281, 520]);
+    M = await get('eM2');
+    ok('Gleiche Abstände: zwischen zwei Boxen mittig (beide Lücken gleich)', Math.abs((M[0] - 160) - (400 - (M[0] + M[2]))) < 0.01 && Math.abs(M[0] - 250) < 0.01, { M });
+    // Alt and the switch disable it
+    await reset(); r = await dragP([430, 350], [373, 350], 1); M = await get('eM');
+    ok('Gleiche Abstände: mit Alt kein Einrasten, keine Maßlinien', Math.abs(M[0] - 343) < 1.5 && M[0] !== 340 && !r.g, { M, g: r.g });
+    await reset(); await ev("GD.on=false"); r = await dragP([430, 350], [373, 350]); M = await get('eM');
+    ok('Gleiche Abstände: bei ausgeschalteter Einstellung kein Einrasten, keine Maßlinien', Math.abs(M[0] - 343) < 1.5 && M[0] !== 340 && !r.g, { M, g: r.g });
+    await reset();
+    // resizing a corner of a simple object: right edge snaps so that both gaps are equal (Z.right = 190: gap 60 to eO1, like eO1 to eO2)
+    await click310([120, 670]); r = await dragP([140, 690], [193, 700]); const Zb = await get('eZ');
+    ok('Gleiche Abstände: beim Größe ändern (Ecke) rastet die Kante auf gleichen Abstand ein', Math.abs(Zb[0] + Zb[2] - 190) < 0.01 && !!r.g && r.g.gaps.length >= 2, { Zb, g: r.g });
+    // distribute shows the common gap, field sets an exact gap (first stays), one undo step
+    await open310(`S.pages[0].objs.push(${[R('dA', 40, 100, 60, 30), R('dB', 150, 100, 50, 30), R('dC', 320, 100, 70, 30)].join(',')})`);
+    const dx = () => ev("JSON.stringify(['dA','dB','dC'].map(i=>{const o=S.pages[0].objs.find(q=>q.oid===i);return [o.x,o.w]}))").then(JSON.parse);
+    const selAll = async () => { await key310('Escape', 'Escape', 27); await key310('a', 'KeyA', 65, 2); };
+    const clickEl = async (sel) => { const q = await ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});e.scrollIntoView({block:'nearest'});const b=e.getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(q[0], q[1]); await pressAt(q[0], q[1]); await releaseAt(q[0], q[1]); await sleep(200); };
+    await selAll(); await clickEl('#alRow button[data-a="dh"]');
+    let d = await dx(); const gp = d[1][0] - (d[0][0] + d[0][1]), gq = d[2][0] - (d[1][0] + d[1][1]);
+    const tt = await ev("document.querySelector('.toast').textContent");
+    ok('Verteilen: Hinweis nennt den gemeinsamen Abstand in mm', Math.abs(gp - gq) < 0.01 && tt.includes(mmT(gp) + ' mm') && tt.includes('Abstände gleich'), { gp, gq, tt });
+    await ev("document.getElementById('alGap').value='10'"); const h0 = await ev('H.u.length'); await clickEl('#alGapRow button[data-g="dh"]');
+    d = await dx(); const e1 = d[1][0] - (d[0][0] + d[0][1]), e2 = d[2][0] - (d[1][0] + d[1][1]);
+    const h1 = await ev('H.u.length'); await ev('undo()'); const back = await dx();
+    ok('Abstand (mm): setzt genau diesen Abstand, erstes Objekt bleibt, ein Rückgängig-Schritt', Math.abs(e1 - 10 * 72 / 25.4) < 0.01 && Math.abs(e2 - 10 * 72 / 25.4) < 0.01 && d[0][0] === 40 && h1 === h0 + 1 && Math.abs(back[2][0] - 320) < 0.01 && Math.abs(back[1][0] - (40 + 60 + gp)) < 0.01, { e1, e2, d, h0, h1, back });
+  }
   // 5 Object mini bar: above the selection, hidden while dragging / typing / with the setting off, buttons act, keyboard (F6, Esc)
   {
     await open310("S.pages[0].objs.push({type:'rect',x:200,y:300,w:100,h:60,color:'#000000',lw:1,fill:'white',oid:'mA'},{type:'rect',x:360,y:300,w:100,h:60,color:'#000000',lw:1,fill:'white',oid:'mB'},{type:'rect',x:200,y:3,w:100,h:30,color:'#000000',lw:1,fill:'white',oid:'mTop'},{type:'rect',x:470,y:450,w:120,h:40,color:'#000000',lw:1,fill:'white',oid:'mR'})");

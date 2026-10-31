@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3e4N4e3UjKDgAOFfJxPtbCbHeZD4QNrdCEUKC7E5bZQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-hcpDVIaMWNouM/2TCsSXRym5v+p3nphxfme+eR6FHTs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1706,6 +1706,7 @@ header,.file{min-width:0}
       <div class="row"><button class="btn" id="bDup">Duplizieren</button><button class="btn" id="bDel">Löschen</button></div>
       <div class="row"><button class="btn" id="bFront">Nach vorne</button><button class="btn" id="bBack">Nach hinten</button></div>
       <div class="al-row" id="alRow" role="group" aria-label="Ausrichten"><button type="button" class="ib al-b" data-a="l" title="Links ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-left"/></svg></button><button type="button" class="ib al-b" data-a="ch" title="Waagerecht zentrieren"><svg class="ph" aria-hidden="true"><use href="#ph-align-center-horizontal"/></svg></button><button type="button" class="ib al-b" data-a="r" title="Rechts ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-right"/></svg></button><button type="button" class="ib al-b" data-a="t" title="Oben ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-top"/></svg></button><button type="button" class="ib al-b" data-a="cv" title="Senkrecht zentrieren"><svg class="ph" aria-hidden="true"><use href="#ph-align-center-vertical"/></svg></button><button type="button" class="ib al-b" data-a="b" title="Unten ausrichten"><svg class="ph" aria-hidden="true"><use href="#ph-align-bottom"/></svg></button><span class="al-sep"></span><button type="button" class="ib al-b" data-a="dh" title="Waagerecht verteilen"><svg class="ph" aria-hidden="true"><use href="#ph-columns"/></svg></button><button type="button" class="ib al-b" data-a="dv" title="Senkrecht verteilen"><svg class="ph" aria-hidden="true"><use href="#ph-rows"/></svg></button></div>
+      <div class="row" id="alGapRow"><label for="alGap" style="width:96px">Abstand (mm)</label><input type="number" id="alGap" min="0" step="0.1" placeholder="12,5" aria-label="Genauer Abstand zwischen den gewählten Objekten in Millimetern" disabled style="width:60px"><button type="button" class="ib al-b" data-g="dh" title="Abstand waagerecht setzen" aria-label="Abstand waagerecht setzen" disabled><svg class="ph" aria-hidden="true"><use href="#ph-columns"/></svg></button><button type="button" class="ib al-b" data-g="dv" title="Abstand senkrecht setzen" aria-label="Abstand senkrecht setzen" disabled><svg class="ph" aria-hidden="true"><use href="#ph-rows"/></svg></button></div>
       <p class="hint" id="alHint"></p>
     </div>
     </div>
@@ -2648,7 +2649,7 @@ const I18N_EN={
 'Vergleicht':'Comparing','Liest Text':'Reading text','Keine der beiden PDFs enthält Text (gescannt?). Erst „Text erkennen“ nutzen.':'Neither PDF contains text (scanned?). Use “Recognize text” first.',
 '1 Änderung':'1 change',' Änderungen':' changes','Kein Unterschied im Text.':'No difference in the text.','Vergleichen hat nicht geklappt: ':'Comparing failed: ',
 'Ausrichten':'Align','Links ausrichten':'Align left','Waagerecht zentrieren':'Center horizontally','Rechts ausrichten':'Align right','Oben ausrichten':'Align top','Senkrecht zentrieren':'Center vertically',
-'Unten ausrichten':'Align bottom','Waagerecht verteilen':'Distribute horizontally','Senkrecht verteilen':'Distribute vertically','Objekte auswählen (Umschalt-Klick oder Rahmen ziehen).':'Select objects (Shift-click or drag a frame).',
+'Abstände gleich: ':'Equal gaps: ','Abstand (mm)':'Gap (mm)','Genauer Abstand zwischen den gewählten Objekten in Millimetern':'Exact gap between the selected objects in millimetres','Abstand waagerecht setzen':'Set horizontal gap','Abstand senkrecht setzen':'Set vertical gap','Unten ausrichten':'Align bottom','Waagerecht verteilen':'Distribute horizontally','Senkrecht verteilen':'Distribute vertically','Objekte auswählen (Umschalt-Klick oder Rahmen ziehen).':'Select objects (Shift-click or drag a frame).',
 'Ein Objekt: wird auf der Seite ausgerichtet.':'One object: aligned on the page.',' Objekte: an der Auswahl ausrichten.':' objects: aligned to the selection.',
 'Diagramm aus Text':'Diagram from text','Mindmap, Diagramm, Logik, Struktogramm':'Mind map, chart, logic, structogram',
 'Mindmap, Diagramm aus einer Tabelle, Logikschaltung mit Wahrheitstabelle oder Struktogramm – aus ein paar Zeilen Text. Doppelklick bearbeitet es.':'Mind map, chart from a table, logic circuit with truth table or structogram – from a few lines of text. Double-click to edit.',
@@ -3861,11 +3862,32 @@ const GRID=5*72/25.4;
 function gdApply(){document.getElementById('app').classList.toggle('pen-only',GD.pen);try{redrawAll()}catch(e){}}
 function gdBox(L){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of L){let q;try{q=o.type==='text'?bbox(o):boxOf(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
 // Candidate lines (page edges, 36 pt margins, page centre, other objects' edges and centres), computed ONCE per drag and kept in st.gc
-function gdCands(P,moving){const X=[[0,'p'],[36,'p'],[P.w/2,'c'],[P.w-36,'p'],[P.w,'p']],Y=[[0,'p'],[36,'p'],[P.h/2,'c'],[P.h-36,'p'],[P.h,'p']];GD.built=(GD.built||0)+1;
+function gdCands(P,moving){const B=[],X=[[0,'p'],[36,'p'],[P.w/2,'c'],[P.w-36,'p'],[P.w,'p']],Y=[[0,'p'],[36,'p'],[P.h/2,'c'],[P.h-36,'p'],[P.h,'p']];GD.built=(GD.built||0)+1;
   const mv=new Set(moving.flatMap(o=>o.type==='group'?o.items:[o]).map(o=>o.oid).filter(Boolean));
   for(const q of P.objs){if(moving.includes(q)||q.type==='deco'||q.type==='redact'||(q.link&&(mv.has(q.link.a)||mv.has(q.link.b))))continue;let r;try{r=q.type==='text'?bbox(q):boxOf(q)}catch(e2){continue}if(!isNum(r.x)||!isNum(r.w))continue;
-    X.push([r.x,'o'],[r.x+r.w/2,'o'],[r.x+r.w,'o']);Y.push([r.y,'o'],[r.y+r.h/2,'o'],[r.y+r.h,'o'])}
-  return{X,Y}}
+    X.push([r.x,'o'],[r.x+r.w/2,'o'],[r.x+r.w,'o']);Y.push([r.y,'o'],[r.y+r.h/2,'o'],[r.y+r.h,'o']);B.push([r.x,r.y,r.w,r.h])}
+  return{X,Y,B}}
+// 3.10 equal spacing + distance labels (PowerPoint-style): neighbour boxes are [x,y,w,h]; only the 12 nearest to the dragged box count
+function gdNear(B,b){if(B.length<=12)return B;const cx=b.x+b.w/2,cy=b.y+b.h/2;return B.map(q=>[(q[0]+q[2]/2-cx)**2+(q[1]+q[3]/2-cy)**2,q]).sort((p,q)=>p[0]-q[0]).slice(0,12).map(a=>a[1])}
+// neighbours whose cross-axis range overlaps the box m, as [lo,hi,crossLo,crossHi] sorted along the axis (hz: x axis)
+function gdRow(near,m,hz){const c0=hz?m.y:m.x,c1=c0+(hz?m.h:m.w),O=[];
+  for(const q of near){const l=hz?q[0]:q[1],a=hz?q[1]:q[0],b=a+(hz?q[3]:q[2]);if(Math.min(b,c1)-Math.max(a,c0)>0)O.push([l,l+(hz?q[2]:q[3]),a,b])}
+  return O.sort((p,q)=>p[0]-q[0])}
+// equal gap: best shift d (|d| <= tol) of the moving box (mode 'mv') or of its free edge ('r' = far edge, 'l' = near edge) that makes two gaps equal
+function gdEq(near,m,hz,mode,tol){const O=gdRow(near,m,hz),m0=hz?m.x:m.y,len=hz?m.w:m.h,m1=m0+len,c=m0+len/2,L=O.filter(q=>(q[0]+q[1])/2<c),R=O.filter(q=>(q[0]+q[1])/2>=c),
+    a=L[L.length-1],a2=L[L.length-2],b=R[0],b2=R[1],K=[];
+  const add=(g,t)=>{if(g>=.5)K.push(mode==='r'?t-m1:t-m0)};
+  if(a&&b){const g=mode==='mv'?(b[0]-a[1]-len)/2:mode==='r'?m0-a[1]:b[0]-m1;add(g,mode==='r'?b[0]-g:a[1]+g)}
+  if(a2&&mode!=='r'){const g=a[0]-a2[1];add(g,a[1]+g)}
+  if(b2&&mode!=='l'){const g=b2[0]-b[1];add(g,mode==='mv'?b[0]-g-len:b[0]-g)}
+  let best=null;for(const d of K)if(Math.abs(d)<=tol&&(best===null||Math.abs(d)<Math.abs(best)))best=d;return best}
+// dimension lines for the gaps next to the box m: the nearest neighbour on each side (if within ~120 screen px) and the gaps between the neighbours behind it
+function gdGaps(near,m,z){const out=[],thr=120/z;
+  for(const hz of[true,false]){const O=gdRow(near,m,hz),m0=hz?m.x:m.y,m1=m0+(hz?m.w:m.h),c=(m0+m1)/2,c0=hz?m.y:m.x,M=[m0,m1,c0,c0+(hz?m.h:m.w)],
+      L=O.filter(q=>(q[0]+q[1])/2<c).reverse(),R=O.filter(q=>(q[0]+q[1])/2>=c);
+    for(const side of[L,R]){let prev=M;const l=side===L;for(let j=0;j<side.length;j++){const q=side[j],lo=l?q[1]:prev[1],hi=l?prev[0]:q[0],g=hi-lo,ov0=Math.max(q[2],prev[2]),ov1=Math.min(q[3],prev[3]);
+      if(g<.5||ov1-ov0<=0||(j===0&&g>thr))break;out.push({h:hz,a:lo,b:hi,c:(ov0+ov1)/2});prev=q}}}
+  return out}
 const gdBest=(cands,vals,tol)=>{let m=null;for(const[v,kind]of vals)for(const a of cands){const d=v-a;if(Math.abs(d)<=tol&&(!m||Math.abs(d)<Math.abs(m.d)))m={d,v,kind}}return m};
 // liefert den (eingerasteten) Zeigerpunkt; st.gb0 = Rahmen beim Start des Ziehens
 function guideSnap(i,o,x,y,st,e){const P=S.pages[i];if(!P){S.guides=null;return[x,y]}
@@ -3875,19 +3897,38 @@ function guideSnap(i,o,x,y,st,e){const P=S.pages[i];if(!P){S.guides=null;return[
   if(GD.on&&!st.gc)st.gc=gdCands(P,moving);
   const X=GD.on?st.gc.X:[],Y=GD.on?st.gc.Y:[];
   let sx=GD.on?gdBest([b.x,b.x+b.w/2,b.x+b.w],X,tol):null,sy=GD.on?gdBest([b.y,b.y+b.h/2,b.y+b.h],Y,tol):null;
-  let dx=sx?sx.d:0,dy=sy?sy.d:0;
-  if(GD.grid){if(!sx)dx=Math.round(b.x/GRID)*GRID-b.x;if(!sy)dy=Math.round(b.y/GRID)*GRID-b.y}
-  S.guides={p:i,xs:sx?[sx.v]:[],ys:sy?[sy.v]:[]};return[x+dx,y+dy]}
+  let dx=sx?sx.d:0,dy=sy?sy.d:0,ex=false,ey=false,gaps=[];
+  if(GD.on){const near=gdNear(st.gc.B,b);let q=gdEq(near,{x:b.x,y:b.y+dy,w:b.w,h:b.h},true,'mv',tol);
+    if(q!==null&&(!sx||Math.abs(q)<Math.abs(sx.d))){dx=q;sx=null;ex=true}
+    q=gdEq(near,{x:b.x+dx,y:b.y,w:b.w,h:b.h},false,'mv',tol);if(q!==null&&(!sy||Math.abs(q)<Math.abs(sy.d))){dy=q;sy=null;ey=true}
+    gaps=gdGaps(near,{x:b.x+dx,y:b.y+dy,w:b.w,h:b.h},S.zoom)}
+  if(GD.grid){if(!sx&&!ex)dx=Math.round(b.x/GRID)*GRID-b.x;if(!sy&&!ey)dy=Math.round(b.y/GRID)*GRID-b.y}
+  S.guides={p:i,xs:sx?[sx.v]:[],ys:sy?[sy.v]:[],gaps};return[x+dx,y+dy]}
 // Resizing a corner handle: snap the pointer to the same candidates; a guide stays only if the edge really ended on it (proportional resize may undo one axis)
 function guideResizePre(i,o,st,x,y,e){const P=S.pages[i];S.guides=null;st.gs=null;
   if(!P||!GD.on||e.altKey||o.type==='text'||o.type==='table'||o.type==='group'||st.mode.length!==2||!'tb'.includes(st.mode[0])||!'lr'.includes(st.mode[1]))return[x,y];
-  if(!st.gc)st.gc=gdCands(P,[o]);const tol=6/S.zoom,sx=gdBest([x],st.gc.X,tol),sy=gdBest([y],st.gc.Y,tol);st.gs={x:sx?sx.v:null,y:sy?sy.v:null};return[sx?sx.v:x,sy?sy.v:y]}
+  if(!st.gc)st.gc=gdCands(P,[o]);const tol=6/S.zoom,sx=gdBest([x],st.gc.X,tol),sy=gdBest([y],st.gc.Y,tol);st.gs={x:sx?sx.v:null,y:sy?sy.v:null};let rx=sx?sx.v:x,ry=sy?sy.v:y;
+  // equal gaps for the dragged edge (the opposite edge stays; m = box with the edge at the pointer)
+  const b=boxOf(o),near=gdNear(st.gc.B,b),fx=st.mode[1]==='l'?'l':'r',fy=st.mode[0]==='t'?'l':'r',
+    m={x:fx==='l'?x:b.x,y:fy==='l'?y:b.y,w:fx==='l'?b.x+b.w-x:x-b.x,h:fy==='l'?b.y+b.h-y:y-b.y};
+  if(m.w>0&&m.h>0){if(!sx){const q=gdEq(near,m,true,fx,tol);if(q!==null)rx=x+q}
+    if(!sy){const q=gdEq(near,m,false,fy,tol);if(q!==null)ry=y+q}}
+  return[rx,ry]}
 function guideResizePost(i,o,st){if(!st.gs)return;const b=boxOf(o),ex=st.mode[1]==='l'?b.x:b.x+b.w,ey=st.mode[0]==='t'?b.y:b.y+b.h,xs=[],ys=[];
-  if(st.gs.x!=null&&Math.abs(ex-st.gs.x)<.01)xs.push(st.gs.x);if(st.gs.y!=null&&Math.abs(ey-st.gs.y)<.01)ys.push(st.gs.y);S.guides=xs.length||ys.length?{p:i,xs,ys}:null}
+  if(st.gs.x!=null&&Math.abs(ex-st.gs.x)<.01)xs.push(st.gs.x);if(st.gs.y!=null&&Math.abs(ey-st.gs.y)<.01)ys.push(st.gs.y);const gaps=gdGaps(gdNear(st.gc.B,b),b,S.zoom);S.guides=xs.length||ys.length||gaps.length?{p:i,xs,ys,gaps}:null}
 function drawGuides(c,i){const P=S.pages[i];if(!P)return;const z=S.zoom;
   if(GD.grid){c.save();c.fillStyle='rgba(30,120,140,.28)';const r=Math.max(.35,.7/z);for(let gx=GRID;gx<P.w;gx+=GRID)for(let gy=GRID;gy<P.h;gy+=GRID){c.fillRect(gx-r,gy-r,2*r,2*r)}c.restore()}
   const G=S.guides;if(!G||G.p!==i)return;c.save();c.strokeStyle='#e5484d';c.lineWidth=1/z;c.setLineDash([4/z,3/z]);
-  for(const x of G.xs){c.beginPath();c.moveTo(x,0);c.lineTo(x,P.h);c.stroke()}for(const y of G.ys){c.beginPath();c.moveTo(0,y);c.lineTo(P.w,y);c.stroke()}c.restore()}
+  for(const x of G.xs){c.beginPath();c.moveTo(x,0);c.lineTo(x,P.h);c.stroke()}for(const y of G.ys){c.beginPath();c.moveTo(0,y);c.lineTo(P.w,y);c.stroke()}c.restore();
+  if(G.gaps&&G.gaps.length)gdDrawGaps(c,G.gaps,z)}
+// Dimension lines with arrow ends and a distance label (mm) in each gap; overlay only, never part of the saved or exported page
+function gdDrawGaps(c,gaps,z){c.save();c.lineWidth=1/z;c.strokeStyle=c.fillStyle='#c62f36';const ar=3.5/z,fs=10.5/z;
+  c.font='600 '+fs+'px '+(getComputedStyle(document.documentElement).getPropertyValue('--f-ui')||'system-ui,sans-serif');c.textAlign='center';c.textBaseline='middle';
+  for(const g of gaps){const h=g.h,P=(u,v)=>h?[u,v]:[v,u],e0=P(g.a,g.c),e1=P(g.b,g.c),s=Math.min(ar,(g.b-g.a)/2);
+    c.beginPath();c.moveTo(e0[0],e0[1]);c.lineTo(e1[0],e1[1]);for(const u of[g.a,g.b]){const t0=P(u,g.c-ar),t1=P(u,g.c+ar);c.moveTo(t0[0],t0[1]);c.lineTo(t1[0],t1[1])}c.stroke();
+    for(const[u,d]of[[g.a,1],[g.b,-1]]){const q=P(u,g.c),r1=P(u+d*s,g.c-s*.7),r2=P(u+d*s,g.c+s*.7);c.beginPath();c.moveTo(q[0],q[1]);c.lineTo(r1[0],r1[1]);c.lineTo(r2[0],r2[1]);c.closePath();c.fill()}
+    const t=mmTxt(g.b-g.a)+' mm',w=c.measureText(t).width+8/z,hh=fs+5/z,q=P((g.a+g.b)/2,g.c);c.beginPath();c.roundRect(q[0]-w/2,q[1]-hh/2,w,hh,3/z);c.fill();c.fillStyle='#fff';c.fillText(t,q[0],q[1]+.5/z);c.fillStyle='#c62f36'}
+  c.restore()}
 addEventListener('pointerup',()=>{if(S.guides){const p=S.guides.p;S.guides=null;requestAnimationFrame(()=>redraw(p))}});
 // Radiertaste am Stift: solange sie gedrückt ist, radiert der Stift
 var penErase=null;
@@ -4285,20 +4326,26 @@ function ungroupSel(){if(!S.sel)return;const T=selItems();if(!T.some(o=>o.gg)){t
    Ein einzelnes Objekt: auf der Seite ausrichten (z. B. waagrecht zentrieren). */
 function alBox(o){if(o.type==='sym'||o.type==='rect'||o.type==='ellipse'||o.type==='table'||o.type==='rack'||o.type==='code'||o.type==='field'||o.type==='img')return{x:Math.min(o.x,o.x+o.w),y:Math.min(o.y,o.y+o.h),w:Math.abs(o.w),h:Math.abs(o.h)};return bbox(o)}
 const alFixed=o=>o.locked||o.type==='line'&&o.link&&o.link.a&&o.link.b;
-function alignSel(mode){if(!S.sel)return;const P=S.pages[S.sel.p],items=selItems().filter(o=>!alFixed(o));if(!items.length)return;
+function alignSel(mode,gapPt){if(!S.sel)return;const P=S.pages[S.sel.p],items=selItems().filter(o=>!alFixed(o));if(!items.length)return;
   // a template or user group counts as one unit and moves as a whole
   const B=alUnits(items).map(u=>{const q=u.map(alBox),x0=Math.min(...q.map(r=>r.x)),y0=Math.min(...q.map(r=>r.y));return{o:u,b:{x:x0,y:y0,w:Math.max(...q.map(r=>r.x+r.w))-x0,h:Math.max(...q.map(r=>r.y+r.h))-y0}}});let R;
   if(B.length===1)R={x:0,y:0,w:P.w,h:P.h};else{const x0=Math.min(...B.map(q=>q.b.x)),y0=Math.min(...B.map(q=>q.b.y)),x1=Math.max(...B.map(q=>q.b.x+q.b.w)),y1=Math.max(...B.map(q=>q.b.y+q.b.h));R={x:x0,y:y0,w:x1-x0,h:y1-y0}}
-  const mv=[];
-  if(mode==='dh'||mode==='dv'){if(B.length<3)return;const h=mode==='dh',k=h?'x':'y',s=h?'w':'h';B.sort((a,b)=>a.b[k]-b.b[k]);
-    const tot=B.reduce((t,q)=>t+q.b[s],0),gap=(R[s]-tot)/(B.length-1);let pos=R[k];for(const q of B){mv.push([q.o,h?pos-q.b.x:0,h?0:pos-q.b.y]);pos+=q.b[s]+gap}}
+  const mv=[];let shown=null;
+  if(mode==='dh'||mode==='dv'){if(B.length<(gapPt!=null?2:3))return;const h=mode==='dh',k=h?'x':'y',s=h?'w':'h';B.sort((a,b)=>a.b[k]-b.b[k]);
+    const tot=B.reduce((t,q)=>t+q.b[s],0),gap=gapPt!=null?gapPt:(R[s]-tot)/(B.length-1);shown=gap;let pos=R[k];for(const q of B){mv.push([q.o,h?pos-q.b.x:0,h?0:pos-q.b.y]);pos+=q.b[s]+gap}}
   else for(const q of B){const b=q.b;let dx=0,dy=0;
     if(mode==='l')dx=R.x-b.x;else if(mode==='ch')dx=R.x+R.w/2-(b.x+b.w/2);else if(mode==='r')dx=R.x+R.w-(b.x+b.w);
     else if(mode==='t')dy=R.y-b.y;else if(mode==='cv')dy=R.y+R.h/2-(b.y+b.h/2);else if(mode==='b')dy=R.y+R.h-(b.y+b.h);mv.push([q.o,dx,dy])}
-  if(!mv.some(m=>Math.abs(m[1])>.01||Math.abs(m[2])>.01))return;pushHist();for(const[u,dx,dy]of mv)for(const o of u)moveObj(o,dx,dy);redraw(S.sel.p);markDirty()}
-function alUI(){const n=S.sel?alUnits(selItems().filter(o=>!alFixed(o))).length:0;document.querySelectorAll('#alRow button').forEach(b=>{b.disabled=!n||((b.dataset.a==='dh'||b.dataset.a==='dv')&&n<3)});
+  const say=()=>{if(shown!==null)toast(tr('Abstände gleich: ')+mmTxt(shown)+' mm')};
+  if(!mv.some(m=>Math.abs(m[1])>.01||Math.abs(m[2])>.01)){say();return}pushHist();for(const[u,dx,dy]of mv)for(const o of u)moveObj(o,dx,dy);redraw(S.sel.p);markDirty();say()}
+function alUI(){const n=S.sel?alUnits(selItems().filter(o=>!alFixed(o))).length:0;document.querySelectorAll('#alRow button').forEach(b=>{b.disabled=!n||((b.dataset.a==='dh'||b.dataset.a==='dv')&&n<3)});document.querySelectorAll('#alGapRow button,#alGap').forEach(b=>{b.disabled=n<2});
   const h=$('#alHint');if(h)h.textContent=!n?tr('Objekte auswählen (Umschalt-Klick oder Rahmen ziehen).'):n===1?tr('Ein Objekt: wird auf der Seite ausgerichtet.'):n+tr(' Objekte: an der Auswahl ausrichten.')}
 $('#alRow').addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(b)alignSel(b.dataset.a)});
+// 3.10: set an exact gap (mm) between the selected objects, the first (leftmost/topmost) stays; Enter uses the longer extent as direction
+function alGapSet(dir){const v=parseFloat(String($('#alGap').value).replace(',','.'));if(!isFinite(v)||v<0||!S.sel)return;
+  if(!dir){const b=gdBox(selItems());dir=b.w>=b.h?'dh':'dv'}alignSel(dir,v*72/25.4)}
+$('#alGapRow').addEventListener('click',e=>{const b=e.target.closest('button[data-g]');if(b)alGapSet(b.dataset.g)});
+$('#alGap').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();alGapSet()}});
 setTimeout(()=>{try{alUI()}catch(e){}},0);
 
 /* ---------- 3.10: Objektleiste (obBar): kleine Leiste über dem gewählten Objekt ----------

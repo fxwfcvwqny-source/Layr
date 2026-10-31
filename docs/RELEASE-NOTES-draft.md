@@ -34,6 +34,7 @@ Release notes for version 3.10.0.
 - Ctrl+G groups the selection (`gg`), Ctrl+Shift+G ungroups; also in the context menu.
 - Align and distribute treat templates and user groups as one unit.
 - Smart guides while moving and while resizing corners, with snapping to the 36 pt page margins; Alt switches them off briefly.
+- Smart guides now also care about spacing (like PowerPoint): when a moved object would make two gaps in a row or column equal it snaps to the equal gap, and red dimension lines with the gap in mm show the distances to the neighbours and between the neighbours (same switch, Alt switches them off; only the 12 nearest objects count). Distribute shows the common gap ('Abstände gleich: 12,4 mm'); the sidebar Selection section has a new 'Abstand (mm)' field with horizontal/vertical buttons that sets an exact gap between the selected objects (first one stays, one undo step).
 - Object mini bar above the selection: duplicate, delete, lock, colour, order, align. F6 moves focus to it, Esc leaves.
 - Alt on a corner handle resizes from the centre.
 - Z-order: Ctrl+] / Ctrl+[ one step, Ctrl+Shift+] / Ctrl+Shift+[ to front/back; layout-independent alternatives Ctrl+Shift+Up/Down and Ctrl+Alt+Shift+Up/Down. Groups move as a block.

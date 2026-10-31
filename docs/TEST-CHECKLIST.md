@@ -36,6 +36,8 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Objekt verschieben → Hilfslinien an Kanten und Mitten, Einrasten an den Seitenrändern; Alt kurz → keine Hilfslinien.
 - [ ] Ecke skalieren → Hilfslinien auch hier.
 - [ ] Schalter "Hilfslinien (beim Verschieben und Größe ändern)" (Standard AN) AUS → keine Linien, kein Einrasten.
+- [ ] Drei Objekte nebeneinander (zwei mit Lücke), das dritte in ähnlichem Abstand heranziehen → rastet auf gleichen Abstand ein, rote Maßlinien mit "x,x mm" in beiden Lücken; auch senkrecht und beim Skalieren einer Ecke. Alt kurz bzw. Schalter AUS → kein Einrasten, keine Maßlinien. Im gespeicherten/gedruckten PDF sind keine Maßlinien.
+- [ ] Waagerecht/Senkrecht verteilen → Hinweis "Abstände gleich: x,x mm". Seitenleiste Auswahl → Feld "Abstand (mm)" (ab 2 Objekten): Wert eingeben, Knopf waagerecht/senkrecht (oder Enter) → genau dieser Abstand, erstes Objekt bleibt, Strg+Z in einem Schritt.
 - [ ] Objekt wählen → kleine Objektleiste darüber (Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten); jeder Knopf wirkt.
 - [ ] F6 → Fokus springt in die Objektleiste, Pfeile/Tab/Enter bedienen sie, Esc zurück.
 - [ ] Schalter "Objektleiste am gewählten Objekt" (Standard AN) AUS → keine Leiste.
