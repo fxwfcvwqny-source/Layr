@@ -18,9 +18,10 @@ Release notes for version 3.10.0.
 ### Templates and symbols
 - Click-to-place: choose a template, then click on the sheet (drag sizes it). A ghost preview follows the pointer; Esc or right-click cancels, Shift keeps it armed.
 - Templates are groups (`gid`): a click selects the whole template, move, scale and copy keep it together. Alt+click or double-click selects one part.
-- Topology blocks (star, ring, bus, tree, mesh) place real, editable devices with docked lines.
 - Include/extend buttons without a selected line arm the arrow tool with a dashed open-arrow preset and label.
 - Symbol group "Storage & backup": RAID 0/1/5/6/10, NAS, backup server, tape, cloud backup, snapshot, replication, external disk, SAN switch.
+- RAID symbols show the level as an editable label inside the symbol (double-click).
+- Symbol group "Math & logic": ≥ ≤ ≠ ≈ ± × ÷ → ⇒ ∞ √ ∑.
 
 ### Select tool
 - Shift+click adds a whole group to the selection; a label at the selection shows "N Objekte gewählt" (also announced to screen readers).
@@ -77,31 +78,28 @@ Release notes for version 3.10.0.
 
 | Setting (de) | Default | Where |
 |---|---|---|
-| Vorlagen per Klick platzieren | on | Settings menu |
-| Vorlagen als Gruppe auswählen | on | Settings menu |
-| Topologie-Bausteine als bearbeitbare Knoten | on | Settings menu |
 | Doppelklick bearbeitet in allen Werkzeugen | on | Settings menu |
 | Objektleiste am gewählten Objekt | on | Settings menu |
 | Tab wechselt zwischen Objekten | on | Settings menu |
-| Bilder frei strecken (Seitengriffe) | on | Settings menu |
-| Tabelle wächst mit dem Text | on | Table panel |
 | Autokorrektur für Zeichen (→, –, …) | on (Zeichen ersetzen) | Schreiben & Rechtschreibung |
-| Verschiebe-Pfeile an der Seitenvorschau | off | Schreiben & Rechtschreibung |
 | Speicheranzeige (Symbol / Text) | Symbol | Design |
 | Seitenwahl (Unten schwebend / In der Seitenvorschau / Aus) | Unten schwebend | Design |
 | Tipps in der Seitenleiste | on | Design |
 
 ## Changes of behaviour
 
-- Templates are placed by clicking on the sheet, not in the page centre (switch off to get the old behaviour).
+- Templates are placed by clicking on the sheet, not in the page centre; this is always on (no switch).
 - Double-click edits an object in every tool, not only in the select tool.
 - Tab cycles through the objects of the page; Esc returns to normal Tab navigation.
-- The page-move arrows at the thumbnails are hidden by default (drag, Alt+Up/Down or the context menu still work).
+- The page-move arrows at the thumbnails are gone (drag, Alt+Up/Down or the context menu still work).
 - Text-box background and italic are stored per run when set for selected words only.
 - Interface numbers use a new font (IBM Plex Sans, tabular figures).
 - The save status indicator looks different (icon by default, red when unsaved).
 - Autocorrect replaces typed character sequences; undo with Backspace or Ctrl+Z.
-- Clicking a template part selects the whole template (Alt+click: one part).
+- Clicking a template part selects the whole template (Alt+click: one part); always on.
+- Images always have side handles; tables always grow with their text.
+- Header menus File, View and Settings are grouped under section headings, capped in height (they scroll) and every entry has its own icon.
+- Removed from the drafts: the topology templates and the "editable topology nodes" setting (the topology tiles place the old single symbols again).
 - Guides (existing switch, default on) now also work while resizing corners and snap to the 36 pt margins; the switch is now also in the Settings menu.
 
 ## Known limits
@@ -109,7 +107,6 @@ Release notes for version 3.10.0.
 - Rotated text gets axis-aligned highlight boxes.
 - Text background is not drawn for stacked text; stacked text does not use the per-word runs.
 - Special characters such as arrows and maths symbols come from a fallback system font if the chosen font lacks them.
-- Old single topology symbols are not editable inside their nodes.
 - Cropping only hides the rest of an image; the whole image stays in the saved file (use Redact to remove content for good).
 - Bookmarks (outlines) are lost when pages are rebuilt or reordered (pdf-lib has no API for them); Layr warns once per move when the document has some.
 - The text layer is not available in split view and presentation mode.
@@ -151,7 +148,6 @@ Release notes for version 3.9.0.
 - Text selection bar: appears on selected PDF text with Copy and Highlight; one click on a colour swatch (or confirming a custom colour) highlights the selection at once in that colour, and the Highlight button reuses the last colour.
 - Text quick bar: italic (Ctrl+I) and text background colour.
 - Fixed toolbar is centred over the sheet from 1200 px window width; density Large applies from 1360 px (below that the old layout is kept).
-- Topology templates (star, ring, bus, tree, mesh) built from real devices with their own labels and docked lines; every device is editable. The bus template has a shared backbone.
 
 ### Design
 

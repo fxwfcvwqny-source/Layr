@@ -706,9 +706,9 @@ else {
     + "o=mk(10);const T=[],t0=window.toast;window.toast=m=>{T.push(m);t0(m)};cm(o,('Zeile\\n').repeat(120));window.toast=t0;out.tall=o.h>P.h&&o.y===0&&T.some(m=>/ragt/.test(m));"
     + "o=mk(100,11);o.cells[1][0]='Ein Text der in einer Zelle bei grosser Schrift umbrechen muss';setSel({p:0,o});const h0=o.h;applySel({fs:30},false);out.fsGrow=o.h>h0+10;"
     + "o=mk(100,11);o.cells[1][1]='Ein Text der nach dem Ziehen der Spaltentrennlinie umbrechen muss';out.dragSetup=[o.x,o.y,o.w,o.h];setSel({p:0,o});"
-    + "const q=$('#tGrow');q.checked=false;q.onchange();o=mk(100,11);cm(o,LONG);out.offSame=Math.abs(o.h-60)<1e-6;o.h=60;o.cells[1][0]='';applySel({fs:30},false);out.offFs=Math.abs(o.h-60)<1e-6;q.checked=true;q.onchange();out.persist=localStorage.getItem('pdfwerkbank:tblgrow')==='1';return JSON.stringify(out)})()", 60000);
+    + "return JSON.stringify(out)})()", 60000);
   const tbj = typeof tgb === 'string' ? JSON.parse(tgb) : { err: tgb };
-  ok('Table grow: shifts up at the page end, notice when taller than the page, font size refits, Settings switch off keeps the old height', tbj.shift === true && tbj.tall === true && tbj.fsGrow === true && tbj.offSame === true && tbj.offFs === true && tbj.persist === true, tbj);
+  ok('Table grow: shifts up at the page end, notice when taller than the page, font size refits', tbj.shift === true && tbj.tall === true && tbj.fsGrow === true, tbj);
   {
     const [tx, ty, tw, th] = tbj.dragSetup || [0, 0, 0, 0];
     await ev("(()=>{const P=S.pages[0];P.objs.length=0;const o={type:'table',x:60,y:100,w:240,h:60,rows:2,cols:2,cw:[.5,.5],rh:[.5,.5],cells:[['a','b'],['','Ein Text der nach dem Ziehen der Spaltentrennlinie umbrechen muss']],fs:11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.push(o);redraw(0);setTool('select');setSel({p:0,o})})()");
@@ -812,7 +812,7 @@ else {
   // Templates: click-to-place (B1). Real mouse; geometry relative to the page, not font-based.
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'tpl.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;setTool('select');setSel(null)})()");
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'tpl.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');setSel(null)})()");
     const click = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(60); };
     const pagePt = async (i, fy) => { await ev(`S.pages[${i}].el.scrollIntoView({block:'start'})`); await sleep(300); return ev(`(()=>{const P=S.pages[${i}],r=P.el.getBoundingClientRect();return {l:r.left,t:r.top,z:S.zoom,w:P.w,h:P.h,cx:r.left+P.w*S.zoom/2,cy:r.top+P.h*S.zoom*${fy}}})()`); };
     const tileXY = cat => ev(`(()=>{S.cat=${JSON.stringify(cat)};buildCats();const b=document.querySelector('#symgrid .sym.tpl[data-k="'+window.__tk+'"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
@@ -871,14 +871,6 @@ else {
       const nat = await ev("(()=>{const bb=orgBBox(NET_TPL.find(t=>t.k==='net_home').b());return bb.w/bb.h})()");
       ok('Vorlage: Ziehen bestimmt die Größe (Seitenverhältnis bleibt, Ecke am Startpunkt)', d.w > 0 && Math.abs(d.w / d.h - nat) < 0.02 && Math.abs(g.l + d.x * d.z - (g.cx - 100)) < 3 && Math.abs(g.t + d.y * d.z - g.cy) < 3 && d.w * d.z < 520, { d, nat });
     }
-    // setting OFF: old behaviour, centre insertion without arming
-    {
-      await ev("window.__tk='net_home';S.pages.forEach(P=>P.objs=[]);setSel(null);tplClickOn=false");
-      const t = await tileXY('Netzwerk'); await click(t[0], t[1]);
-      const off = await ev("ARM===null&&S.pages[0].objs.length>2&&Math.abs((()=>{const bb=orgBBox(S.pages[0].objs.filter(o=>o.type==='sym'));return bb.x+bb.w/2-S.pages[0].w/2})())<2");
-      await ev("tplClickOn=true;S.pages.forEach(P=>P.objs=[]);setSel(null)");
-      ok('Vorlage: Einstellung aus platziert wie früher sofort in der Mitte', off === true, off);
-    }
     // keyboard: first Enter arms, second Enter places at the viewer centre
     {
       await ev("window.__tk='net_home';S.pages.forEach(P=>P.objs=[])");
@@ -915,7 +907,7 @@ else {
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     await ev(TPJS);
-    await ev("dblAllOn=true;tplClickOn=true;S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
+    await ev("dblAllOn=true;S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
     const dbl4 = async (ix = 0) => { await sleep(700); const p = await ev(`tpScr(tpPt(S.pages[0].objs[${ix}]))`); await mv(p[0], p[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); };
     const state4 = () => ev("({n:S.pages[0].objs.length,hu:H.u.length,edit:!!editorEl&&editingObj===S.pages[0].objs[0],armed:!!ARM,txt:!!editorEl&&editingObj==null})");
     const res4 = {};
@@ -1046,7 +1038,7 @@ else {
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'grp.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;tplGroupOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});S.pages[0].objs.push({type:'rect',x:20,y:700,w:80,h:50,color:'#000000',lw:1,fill:'none'});insertOrgTemplate('net_home',{i:0,x:300,y:200,tl:false});insertOrgTemplate('net_office',{i:0,x:300,y:560,sc:.5,tl:false});setSel(null);redraw(0)})()", 20000);
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'grp.pdf');await new Promise(r=>setTimeout(r,500));tplGroupOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});S.pages[0].objs.push({type:'rect',x:20,y:700,w:80,h:50,color:'#000000',lw:1,fill:'none'});insertOrgTemplate('net_home',{i:0,x:300,y:200,tl:false});insertOrgTemplate('net_office',{i:0,x:300,y:560,sc:.5,tl:false});setSel(null);redraw(0)})()", 20000);
     await sleep(500);
     const scr = () => ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left,r.top,S.zoom]})()");
     let sc = await scr();
@@ -1099,17 +1091,13 @@ else {
     // save and reopen keeps the groups
     const rt = await ev("(async()=>{const before=JSON.stringify(S.pages[0].objs.map(o=>o.gid||null));const b=await buildOutput();await openPdf(b,'grp2.pdf');await new Promise(r=>setTimeout(r,800));return JSON.stringify([before===JSON.stringify(S.pages[0].objs.map(o=>o.gid||null)),new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid)).size])})()", 30000).then(JSON.parse);
     ok('Gruppen: Speichern und Wiederöffnen behält die gid-Gruppen', rt[0] === true && rt[1] === 3, rt);
-    // old behaviour: objects without gid select alone; setting off selects single members
+    // objects without gid select alone
     await ev('zoomTo(1)'); await sleep(500); sc = await scr();
     await clickAt([20, 725]);
     const old1 = await ev("JSON.stringify([selItems().length,S.sel&&S.sel.o.type])").then(JSON.parse);
-    await ev("tplGroupOn=false;setSel(null)");
-    const f2 = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid);return [o.x+o.w/2,o.y+o.h/2]})()");
-    await clickAt(f2);
-    const off = await ev("selItems().length");
-    await ev("tplGroupOn=true;setSel(null)");
-    ok('Gruppen: Objekte ohne gid und Einstellung aus wählen wie früher einzeln', old1[0] === 1 && old1[1] === 'rect' && off === 1, { old1, off });
+    ok('Gruppen: Objekte ohne gid wählen einzeln', old1[0] === 1 && old1[1] === 'rect', old1);
     // click on empty page clears the group selection
+    const f2 = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid);return [o.x+o.w/2,o.y+o.h/2]})()");
     await clickAt(f2);
     await clickAt([560, 100]);
     ok('Gruppen: Klick auf leere Fläche hebt die Auswahl auf', await ev("!S.sel") === true);
@@ -1118,7 +1106,7 @@ else {
   // 3.10 B5: select tool development (multi-select, groups, align, guides, mini bar, resize modifiers, z-order, Tab). Shared helpers.
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await ev("window.scroll310=()=>{const v=document.getElementById('viewer');document.scrollingElement.scrollTop=0;document.body.scrollTop=0;v.scrollTop+=S.pages[0].el.getBoundingClientRect().top-v.getBoundingClientRect().top-10}");
-  const open310 = async (objsJs) => { await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'b5.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;tplGroupOn=true;GD.on=true;GD.grid=false;obBarOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));scroll310();${objsJs};setSel(null);redraw(0)})()`, 20000); await sleep(400); };
+  const open310 = async (objsJs) => { await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'b5.pdf');await new Promise(r=>setTimeout(r,500));tplGroupOn=true;GD.on=true;GD.grid=false;obBarOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));scroll310();${objsJs};setSel(null);redraw(0)})()`, 20000); await sleep(400); };
   const pt310 = async (p) => { const sc = await ev("(()=>{scroll310();const r=S.pages[0].el.getBoundingClientRect();return [r.left,r.top,S.zoom]})()"); return [sc[0] + p[0] * sc[2], sc[1] + p[1] * sc[2]]; };
   const click310 = async (p, mod = 0, cc = 1) => { const c = await pt310(p); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: cc, modifiers: mod }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: c[0], y: c[1], button: 'left', buttons: 0, clickCount: cc, modifiers: mod }); await sleep(120); };
   const drag310 = async (a, b, mod = 0, steps = 8) => { const c = await pt310(a), d = await pt310(b); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod }); for (let i = 1; i <= steps; i++) await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: c[0] + (d[0] - c[0]) * i / steps, y: c[1] + (d[1] - c[1]) * i / steps, button: 'left', buttons: 1, modifiers: mod }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: d[0], y: d[1], button: 'left', buttons: 0, clickCount: 1, modifiers: mod }); await sleep(150); };
@@ -1367,7 +1355,7 @@ else {
     await ev("closeEditor();setSel(null)");
     // setting off (via the real Settings menu): bar absent; on again: present
     await click310([410, 330]); await sleep(150);
-    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
+    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
     const was = await menu('Objektleiste am gewählten Objekt');
     await ev("closeMenu()"); await sleep(450); await click310([410, 330]); await sleep(200); // wait for the menu fade-out, else the click lands on a menu row
     const offState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
@@ -1485,7 +1473,7 @@ else {
     ok('Tab: englische Ansage', /^Object \d of 3: /.test(le), le);
     // setting off (via the Settings menu): Tab does not change the selection
     const clickEl = async (sel) => { const r = await ev(`(()=>{const b=document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(200); };
-    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); await ev('closeMenu()'); return r[2]; };
+    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); await ev('closeMenu()'); return r[2]; };
     const was = await menu('Tab wechselt zwischen Objekten');
     await key310('Escape', 'Escape', 27); await click310([345, 125]);
     const before = await cur();
@@ -1503,7 +1491,7 @@ else {
     const px = (x, y) => ev(`(()=>{const P=S.pages[0],k=P.ink.width/P.w,d=P.ictx.getImageData(Math.round(${x}*k),Math.round(${y}*k),1,1).data;return [d[0],d[1],d[2],d[3]]})()`);
     const nr = (a, b, t = 0.6) => Math.abs(a - b) < t;
     const clickEl = async (sel) => { const r = await ev(`(()=>{const b=document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(200); };
-    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
+    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
     await open310(IMG);
     await click310([200, 150]);
     const hk = await ev("JSON.stringify(handles(S.sel.o).map(h=>h.k).sort())").then(JSON.parse);
@@ -1540,12 +1528,6 @@ else {
     await open310(IMG); await click310([200, 150]);
     await drag310([300, 200], [400, 230], 8); o = await O();
     ok('Bild: Umschalt am Eckgriff verzerrt weiterhin frei', nr(o.w, 300) && nr(o.h, 130), o);
-    // setting off hides the side handles
-    await open310(IMG); await click310([200, 150]);
-    const was = await menu('Bilder frei strecken');
-    const off = await ev("JSON.stringify([imgSideOn,handles(S.sel.o).length,localStorage.getItem('pdfwerkbank:imgSide')])").then(JSON.parse);
-    await sleep(300); const m2 = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith('Bilder frei strecken'));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()"); if (m2) { await mv(m2[0], m2[1]); await pressAt(m2[0], m2[1]); await releaseAt(m2[0], m2[1]); await sleep(300); } const on = await ev("JSON.stringify([imgSideOn,handles(S.sel.o).length])").then(JSON.parse);
-    ok('Bild: Einstellung "Bilder frei strecken" (Standard an) aus: nur 4 Eckgriffe; wieder an: 8', was === 'true' && off.join() === 'false,4,0' && on.join() === 'true,8', { was, off, on, m2 });
     // crop: Shift+C, drag the left edge in; box and crop change together, visible pixels keep their scale
     await open310(IMG); await click310([200, 150]);
     const h0 = await ev('H.u.length');
@@ -1585,7 +1567,7 @@ else {
   // 10 Review fixes: groups count as one unit only when fully selected
   {
     const nr = (a, b, t = 0.6) => Math.abs(a - b) < t;
-    for (const tplOn of [true, false]) {
+    for (const tplOn of [true]) {
       await open310("insertOrgTemplate('net_home',{i:0,x:200,y:150,sc:.4,tl:false});tplGroupOn=" + tplOn);
       const pts = await ev("JSON.stringify((()=>{const m=S.pages[0].objs.filter(o=>o.gid&&o.type==='sym');const a=m[0],b=m.find(o=>Math.abs(o.x-a.x)>5);return [a,b].map(o=>[o.x+o.w/2,o.y+o.h/2])})())").then(JSON.parse);
       await ev("(()=>{const m=S.pages[0].objs.filter(o=>o.gid&&o.type==='sym');const a=m[0],b=m.find(o=>Math.abs(o.x-a.x)>5);selectItems(0,[a,b])})()");
@@ -1741,6 +1723,34 @@ else {
     for (const k of ['bold', 'italic', 'underline']) await tog(k, 'Editor offen');
     await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redraw(0)");
   }
+  // M1: header menus are grouped (section headings), capped in size, scroll, distinct icons, keyboard and Esc focus return
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    const J = e => ev(e).then(JSON.parse);
+    const probe = async id => { await ev(`document.getElementById('${id}').click()`); await sleep(500); return J(`JSON.stringify((()=>{const c=document.getElementById('ctx'),r=c.getBoundingClientRect(),ic=[...c.querySelectorAll('.hm-ic use')].map(u=>u.getAttribute('href')),d=ic.filter((x,i)=>ic.indexOf(x)!==i);return{role:c.getAttribute('role'),h:r.height,w:r.width,heads:[...c.querySelectorAll('.hm-sh')].map(x=>x.textContent),labels:[...c.querySelectorAll('button .hm-l')].map(x=>x.textContent),roles:[...new Set([...c.querySelectorAll('button')].map(b=>b.getAttribute('role')))],dups:d,right:r.right<=innerWidth}})())`); };
+    const close = async () => { await key('Escape', 'Escape', 27); await sleep(450); };
+    const fm = await probe('bFileMenu'); await close();
+    const vm = await probe('bViewMenu'); await close();
+    const sm = await probe('bSetMenu');
+    ok('Menüs: Datei, Ansicht, Einstellungen sind in Abschnitte gegliedert, höchstens 560 px hoch und 400 px breit, passen in den Bildschirm', [fm, vm, sm].every(m => m.role === 'menu' && m.h <= 561 && m.w <= 401 && m.heads.length >= 3 && m.right), { fm: [fm.h, fm.w, fm.heads], vm: [vm.h, vm.w, vm.heads], sm: [sm.h, sm.w, sm.heads] });
+    ok('Menüs: kein Symbol wiederholt sich innerhalb eines Menüs; Zeilen sind menuitem oder menuitemcheckbox', [fm, vm, sm].every(m => m.dups.length === 0 && m.roles.every(r => r === 'menuitem' || r === 'menuitemcheckbox')), { f: fm.dups, v: vm.dups, s: sm.dups });
+    const need = { f: ['PDF öffnen', 'Neues Blatt', 'Bilder zu PDF', 'PDFs zusammenführen', 'Seiten ordnen', 'PDFs vergleichen', 'Seiten herauslösen', 'Speichern unter', 'Seitenzahlen & Kopfzeile', 'Scan verbessern', 'Als Bild speichern', 'Kleinere Kopie speichern', 'Passwortschutz', 'Drucken'], v: ['Seitenvorschau', 'Werkzeugleiste', 'Lineal', 'Geteilte Ansicht', 'Nachtmodus für Seiten', 'Präsentieren', 'Vergrößern', 'Verkleinern', 'An Breite anpassen', 'Hilfslinien', 'Raster (5 mm)', 'Tablet-Modus'], s: ['Design anpassen', 'Werkzeugleiste anpassen', 'Schreiben & Rechtschreibung', 'Tastenkürzel', 'Doppelklick bearbeitet', 'Hilfslinien', 'Objektleiste am gewählten Objekt', 'Tab wechselt zwischen Objekten', 'Auswahl nach dem Setzen', 'Gesperrte Objekte'] };
+    const has = (m, k) => need[k].filter(n => !m.labels.some(l => l.startsWith(n)));
+    ok('Menüs: alle bisherigen Einträge sind noch erreichbar', has(fm, 'f').length === 0 && has(vm, 'v').length === 0 && has(sm, 's').length === 0, { f: has(fm, 'f'), v: has(vm, 'v'), s: has(sm, 's') });
+    ok('Menüs: entfernte Schalter fehlen in den Einstellungen', !sm.labels.some(l => /Vorlagen per Klick|Vorlagen als Gruppe|Bilder frei strecken/.test(l)), sm.labels);
+    // keyboard: arrows move focus (and scroll the focused row into view), End reaches the last row, Esc closes and returns focus to the button
+    await key('ArrowDown', 'ArrowDown', 40);
+    const k1 = await ev("document.activeElement.closest('#ctx')&&[...document.querySelectorAll('#ctx button')].indexOf(document.activeElement)");
+    await key('End', 'End', 35);
+    const k2 = await J("JSON.stringify((()=>{const c=document.getElementById('ctx'),b=document.activeElement,r=b.getBoundingClientRect(),cr=c.getBoundingClientRect();return[b===[...c.querySelectorAll('button')].pop(),r.top>=cr.top-1&&r.bottom<=cr.bottom+1]})())");
+    await close();
+    const k3 = await ev("document.activeElement.id");
+    ok('Menüs: Pfeil runter, Ende (Zeile bleibt sichtbar), Esc schließt und gibt den Fokus an den Knopf zurück', k1 === 1 && k2[0] === true && k2[1] === true && k3 === 'bSetMenu', { k1, k2, k3 });
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 960, height: 540, deviceScaleFactor: 1, mobile: false }); await sleep(400);
+    const sm2 = await probe('bSetMenu'); await close();
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false }); await sleep(300);
+    ok('Menüs: bei 960x540 höchstens 80 % der Höhe, Rest scrollt', sm2.h <= 432.5, sm2.h);
+  }
   // B9: character autocorrect (rules, undo by Backspace/Ctrl+Z, switch, not in code blocks), special character picker, quick bar id, PDF text layer
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -1858,17 +1868,10 @@ else {
     await ev("(async()=>{design.motion='off';design.pager=DDEF.pager;applyDesign(true);const d=await PDFLib.PDFDocument.create();for(let i=0;i<5;i++)d.addPage([595,842]);await openPdf(await d.save(),'pg5.pdf');await new Promise(r=>setTimeout(r,600));S.pages.forEach((P,i)=>P.objs.push({type:'text',x:60,y:80,text:'P'+(i+1),fs:20,color:'#000000',orient:'h',lw:0}));setSel(null);redrawAll();zoomTo(.5);if(!thumbsOn)toggleThumbs(true);await new Promise(r=>setTimeout(r,900));return 1})()", 60000);
     const order = () => J("S.pages.map(P=>(P.objs.find(o=>o.type==='text')||{}).text||'-').join()");
     const wait = async (c, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await ev(c) === true) return true; await sleep(150); } return false; };
-    // arrows: off by default, on with the setting
-    const a0 = await ev("!document.querySelector('#thumbs .th-bar')&&thArrows===false");
-    await ev("document.querySelector('#dThArrows button[data-v=on]').click()"); await sleep(300);
-    const a1 = await J("[!!document.querySelector('#thumbs .th-bar'),document.querySelector('#thumbs .th-bar button').title,localStorage.getItem('pdfwerkbank:tharrows')]");
-    await ev("document.querySelector('#dThArrows button[data-v=off]').click()"); await sleep(300);
-    const a2 = await ev("!document.querySelector('#thumbs .th-bar')");
-    ok('Seitenvorschau: Verschiebe-Pfeile standardmäßig aus, mit Einstellung an (Tooltip „Seite nach oben verschieben“), wieder aus', a0 === true && a1[0] === true && /^Seite nach oben verschieben/.test(a1[1]) && a1[2] === '1' && a2 === true, { a0, a1, a2 });
     // add page with the + button at the end (menu)
     const ctr = sel => ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
     let p = await ctr('#thAdd'); await mv(p[0], p[1]); await pressAt(p[0], p[1]); await releaseAt(p[0], p[1]); await sleep(300);
-    const item = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(b=>/Größe der letzten/.test(b.textContent));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+    const item = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(b=>/Größe der letzten/.test(b.textContent));if(!b)return null;b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
     if (item) { await mv(item[0], item[1]); await pressAt(item[0], item[1]); await releaseAt(item[0], item[1]); }
     const added = await wait("S.pages.length===6&&!rbBusy");
     const o1 = await order();
