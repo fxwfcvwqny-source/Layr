@@ -1644,6 +1644,14 @@ else {
     const nr = (a, b, t = 0.6) => Math.abs(a - b) < t;
     const IMG = "const cv=document.createElement('canvas');cv.width=200;cv.height=100;cv.getContext('2d').fillRect(0,0,200,100);const src=cv.toDataURL('image/png');const id=imgId(src);S.imgs[id]=src;const im=imgEl(id);await im.decode();S.pages[0].objs.push({type:'image',x:100,y:100,w:200,h:100,img:id,lw:0,color:'#000000'})";
     await open310(IMG);
+    { // object bar: crop button for a selected image, same action as the sidebar button
+      await ev("(()=>{const o=S.pages[0].objs[0];setSel({p:0,o});obUpdate()})()"); await sleep(250);
+      const ob = await ev("(()=>{const b=document.getElementById('obCrop'),r=b.getBoundingClientRect();return {vis:!b.hidden&&r.width>0,label:b.getAttribute('aria-label'),use:b.querySelector('use').getAttribute('href'),sym:!!document.querySelector('symbol#ph-crop'),c:[r.left+r.width/2,r.top+r.height/2]}})()");
+      await mv(ob.c[0], ob.c[1]); await pressAt(ob.c[0], ob.c[1]); await releaseAt(ob.c[0], ob.c[1]); await sleep(250);
+      const inCrop = await ev('!!CRP'); await ev('cropEnd(false);setSel(null);obUpdate()'); await sleep(150);
+      const hidOther = await ev("(()=>{S.pages[0].objs.push({type:'rect',x:300,y:300,w:40,h:40,color:'#000000',lw:1,fill:'none'});setSel({p:0,o:S.pages[0].objs[1]});obUpdate();const h=document.getElementById('obCrop').hidden;S.pages[0].objs.pop();setSel(null);return h})()");
+      ok('Objektleiste: Zuschneiden-Knopf nur bei einem Bild, startet den Zuschnitt (Beschriftung Zuschneiden, Symbol ph-crop)', ob.vis && ob.label === 'Zuschneiden' && ob.use === '#ph-crop' && ob.sym && inCrop && hidOther === true, { ob, inCrop, hidOther });
+    }
     const r = await ev("(async()=>{const o=S.pages[0].objs[0];setSel({p:0,o});cropStart(0,o);cropDrag(o,{orig:JSON.parse(JSON.stringify(o)),mode:'ml'},150,150);CRP.hist=true;pushHist();CRP.hu=H.u.length;const had=!!CRP;const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'other.pdf');await new Promise(r=>setTimeout(r,400));const hu=H.u.length;S.pages[0].objs.push({type:'rect',x:1,y:1,w:5,h:5,color:'#000000',lw:1});pushHist();const h1=H.u.length;document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return JSON.stringify([had,!!CRP,h1,H.u.length])})()", 20000).then(JSON.parse);
     ok('Zuschnitt: Dokumentwechsel beendet den Zuschnitt, Esc nimmt keinen Verlaufseintrag des anderen Dokuments', r[0] === true && r[1] === false && r[3] === r[2], r);
     await open310(IMG);
