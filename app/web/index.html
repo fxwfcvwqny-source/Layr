@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8pdv/ORsEeLczrcZzIUZyBKr+IW/z+kaE45fr2AsJsc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ns1FcdeKGqER7MpmmVvwg0KNSnU8qsMC90c6Euf1pTY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2668,7 +2668,7 @@ const I18N_EN={
 'Erst Geräte mit Anschlüssen anlegen (Patchpanel, Switch, Router …).':'First add devices with ports (patch panel, switch, router …).','Ein Port ist mehrfach belegt (rot markiert).':'A port is used more than once (marked red).',
 ' Verbindung':' connection',' Verbindungen':' connections',' Verbindungen angelegt.':' connections created.','Keine freien Ports mehr.':'No free ports left.','Patchliste als Tabelle eingefügt.':'Patch list inserted as a table.',
 'Als Markdown speichern':'Save as Markdown','Exportiert am ':'Exported on ','Markierungen':'Highlights','Textfelder':'Text boxes','S. ':'p. ',
-'Noch keine Notizen, Aufgaben oder Markierungen.':'No notes, tasks or highlights yet.','Geteilte Ansicht':'Split view','Zweite Spalte: andere Stelle, Tab oder Datei':'Second column: another place, tab or file',
+'Buchstaben in den Zylindern, durch Komma getrennt (z. B. A,B,P)':'Letters inside the cylinders, comma separated (e.g. A,B,P)','Noch keine Notizen, Aufgaben oder Markierungen.':'No notes, tasks or highlights yet.','Geteilte Ansicht':'Split view','Zweite Spalte: andere Stelle, Tab oder Datei':'Second column: another place, tab or file',
 'Nachtmodus für Seiten':'Night mode for pages','Seiten dunkel anzeigen, gespeichert wird hell':'Show pages dark, saved files stay light','Inhalt der zweiten Spalte':'Content of the second column',
 'Mitscrollen':'Scroll along','Geteilte Ansicht schließen':'Close split view','Dieses Dokument':'This document','Andere Datei wählen':'Choose another file',
 'Karten aus deinen Textmarker-Markierungen und eigene Karten – mit Wiederholungsplan, Antwort eintippen und Export für Anki.':'Cards from your highlights and your own cards – with a review schedule, typed answers and export for Anki.',
@@ -3507,14 +3507,18 @@ def('star','Markierung','Stern',22,22,'',(c,o,x,y,w,h)=>{const p=[];for(let i=0;
 def('num','Markierung','Nummer (zählt hoch)',20,20,'1',(c,o,x,y,w,h)=>{c.beginPath();c.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,7);c.fill();c.save();c.fillStyle='#fff';c.font=`600 ${h*.6}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(o.label,x+w/2,y+h*.54);c.restore()});
 /* Speicher & Backup: RAID-Stufen, NAS, Backup, Band, Cloud, Snapshot, Replikation, USB-Platte, SAN-Switch. Bewusst nach dem letzten def() in Spalte 0
    (Texte-Fingerabdruck der Symbolbibliothek bleibt unveraendert); die Gruppe wird hinter 'Topologien' einsortiert. */
+var RAID_LTR,RAID_DEF={};
 ;(function(){
   const CAT='Speicher & Backup',nCats=CATS.length;
   const txt=(c,o,t,cx,cy,s)=>{c.save();c.setLineDash([]);c.fillStyle=o.color;c.font=`600 ${s}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(t,cx,cy);c.restore()};
   // RAID: one cylinder per drive with its content (A, B = data blocks, P/Q = parity); level is the label below
-  const raid=(id,name,lab,L,pairs)=>{
+  // o.ltr: optional comma separated letters that replace the defaults (empty entries keep the default)
+  const raidLtr=(o,L)=>{const u=typeof o.ltr==='string'?o.ltr.split(','):[];return L.map((t,i)=>(u[i]||'').trim()||t)};
+  RAID_LTR=(o)=>{const L=RAID_DEF[o.sym];return L?raidLtr(o,L):null};
+  const raid=(id,name,lab,L,pairs)=>{RAID_DEF[id]=L;
     def(id,CAT,name,L.length>3?72:58,66,lab,(c,o,x,y,w,h)=>{
       const n=L.length,sh=h*.22,top=pairs?(h-sh)*.3:0,gap=w*.04,cw=(w-gap*(n-1))/n,ch=h-sh-top,mid=i=>x+i*(cw+gap)+cw/2;
-      L.forEach((t,i)=>{const cx=x+i*(cw+gap);cyl(c,o,cx,y+top,cw,ch,.16);txt(c,o,t,cx+cw/2,y+top+ch*.64,h*.22)});
+      L.forEach((t,i)=>{const cx=x+i*(cw+gap);cyl(c,o,cx,y+top,cw,ch,.16);if(o._editing!=='ltr')txt(c,o,raidLtr(o,L)[i],cx+cw/2,y+top+ch*.64,h*.22)});
       if(pairs)thin(c,o,()=>{for(let i=0;i<n;i+=2){const a=mid(i),b=mid(i+1),yb=y+top,yy=y+top*.62;c.beginPath();c.moveTo(a,yb);c.lineTo(a,yy);c.lineTo(b,yy);c.lineTo(b,yb);c.stroke()}
         const p=(mid(0)+mid(1))/2,q=(mid(2)+mid(3))/2,ys=y+top*.62,yt=y+top*.1;c.beginPath();c.moveTo(p,ys);c.lineTo(p,yt);c.lineTo(q,yt);c.lineTo(q,ys);c.stroke()});
       label(c,o,x+w/2,y+h-sh/2,w)},{inb:1})};
@@ -4736,7 +4740,7 @@ function attachInk(P,i){
     // a device's own box or caption wins over a docked line crossing it (not over the line's own label, a free line, or label-less symbols)
     if(o.type==='line'&&o.link&&!(l=>l&&x>=l.x&&x<=l.x+l.w&&y>=l.y&&y<=l.y+l.h)(lineLblBox(o))){const sy=[...P.objs].reverse().find(q=>q.type==='sym'&&q.label&&!NOLBL.includes(q.sym)&&SYM[q.sym]&&!SYM[q.sym].frame&&!q.locked&&x>=q.x-4&&x<=q.x+q.w+4&&y>=q.y&&y<=q.y+q.h+(SYM[q.sym].below&&q.label?(q.fs||11)*1.3*String(q.label).split('\n').length+3:0));if(sy)o=sy}
     if((o.gid||o.gg)&&!(S.sel&&S.sel.o===o))setSel({p:i,o});
-    if(o.type==='table'){const rc=tblCell(o,x,y);if(rc)editCell(i,o,rc[0],rc[1])}else if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&!NOLBL.includes(o.sym))editLabel(i,o);else if(o.type==='line')editLineLabel(i,o);else if(o.type==='image')cropStart(i,o);
+    if(o.type==='table'){const rc=tblCell(o,x,y);if(rc)editCell(i,o,rc[0],rc[1])}else if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&RAID_DEF[o.sym]&&y<o.y+o.h*.78)editRaidLtr(i,o);else if(o.type==='sym'&&!NOLBL.includes(o.sym))editLabel(i,o);else if(o.type==='line')editLineLabel(i,o);else if(o.type==='image')cropStart(i,o);
   });
 }
 const NOLBL=['start','end','flowend','fork','activation','timer','check','cross','star','exclam','question',...MATH_SYMS.map(m=>m[0])];
@@ -5098,6 +5102,11 @@ function newText(i,x,y){
   const fs=S.fs;openTextEditor(i,{type:'text',x,y:y-fs*.625,text:'',fs,color:S.color,orient:S.orient,bold:S.bold,underline:!!S.underline,lw:0,...(S.italic?{italic:true}:{}),...(S.hbg&&S.orient!=='stack'?{hbg:S.hbg}:{}),...(S.font?{font:S.font}:{})},true);
 }
 function editText(i,o,at){S.sel=null;openTextEditor(i,o,false,at)}
+function editRaidLtr(i,o){const L=RAID_LTR(o);if(!L)return;
+  const sh=o.h*.22,top=o.sym==='st_raid10'?(o.h-sh)*.3:0,ef=o.h*.22,y=o.y+top+(o.h-sh-top)*.64-ef*.7;o._editing='ltr';redraw(i);
+  const box=makeEditor(i,o.x,y,ef,o.color,L.join(','),{center:1,bold:1,w:o.w});box.title=tr('Buchstaben in den Zylindern, durch Komma getrennt (z. B. A,B,P)');box.setAttribute('aria-label',box.title);
+  editorDone=v=>{v=v.replace(/\s+/g,' ').trim().slice(0,40);const d=RAID_DEF[o.sym].join(',')===v.split(',').map(t=>t.trim()).join(',')?'':v;if(d!==(o.ltr||'')){pushHist();if(d)o.ltr=d;else delete o.ltr;markDirty()}redraw(i)};
+}
 function editLabel(i,o){if(!SYM[o.sym])return;
   editingObj=o;redraw(i);const s=SYM[o.sym];const fs=o.fs||11;
   const y=s.below?o.y+o.h+2:s.inb?o.y+o.h-fs*1.55:o.y+Math.max(0,o.h/2-fs*.7);makeEditor(i,o.x,y,fs,o.color,o.label,{center:!['class','interface'].includes(o.sym),w:o.w});
@@ -6501,7 +6510,7 @@ function sanObj(o){
     case'rack':{if(!box())return null;r.u=Math.max(1,Math.min(60,Math.round(isNum(r.u)?r.u:24)));r.name=typeof r.name==='string'?r.name.slice(0,60):'';
       r.dev=Array.isArray(r.dev)?r.dev.slice(0,60).filter(d=>d&&isNum(d.u)&&isNum(d.h)&&typeof d.kind==='string'&&own(RK_KIND,d.kind)).map(d=>({u:Math.round(d.u),h:Math.max(1,Math.min(10,Math.round(d.h))),kind:d.kind,name:typeof d.name==='string'?d.name.slice(0,40):'',...(typeof d.id==='string'?{id:d.id.slice(0,12)}:{}),...(isNum(d.p)&&d.p>=1&&d.p<=96?{p:Math.round(d.p)}:{})})):[];r.links=Array.isArray(r.links)?r.links.slice(0,500).filter(l=>l&&typeof l.a==='string'&&typeof l.b==='string'&&isNum(l.ap)&&isNum(l.bp)).map(l=>({a:l.a.slice(0,12),ap:Math.max(1,Math.min(96,Math.round(l.ap))),b:l.b.slice(0,12),bp:Math.max(1,Math.min(96,Math.round(l.bp))),t:typeof l.t==='string'?l.t.slice(0,80):'',c:typeof l.c==='string'&&RK_CABLE[l.c]?l.c:'blue'})):[];return r}
     case'code':{if(!box()||typeof r.text!=='string')return null;r.text=r.text.slice(0,20000);if(!own(CODE_LANG,r.lang))r.lang='plain';if(r.theme!=='dark')r.theme='light';r.num=r.num!==false;if(!(isNum(r.fs)&&r.fs>=5&&r.fs<=24))r.fs=10;return r}
-    case'sym':return box()&&typeof r.sym==='string'&&own(SYM,r.sym)?r:null;
+    case'sym':if(typeof r.ltr==='string'){r.ltr=r.ltr.replace(/\s+/g,' ').slice(0,40);if(!r.ltr)delete r.ltr}else delete r.ltr;return box()&&typeof r.sym==='string'&&own(SYM,r.sym)?r:null;
     case'image':{if(!(box()&&typeof r.img==='string'&&/^im[a-z0-9]{2,24}$/.test(r.img)))return null;
       const q=r.crop,v=q&&typeof q==='object'?['l','t','r','b'].map(k=>q[k]):null; // crop = hidden fractions of the source image; invalid -> show the full image
       if(v&&v.every(n=>isNum(n)&&n>=0&&n<=.95)&&v[0]+v[2]<=.951&&v[1]+v[3]<=.951&&v.some(n=>n>0))r.crop={l:v[0],t:v[1],r:v[2],b:v[3]};else delete r.crop;return r}

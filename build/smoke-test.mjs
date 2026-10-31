@@ -1723,6 +1723,18 @@ else {
     ok('RAID: das Label wird im Symbol gezeichnet (unterer Streifen, nicht darunter)', rp[0] > rp[1] + 15, rp);
     const rr = await ev("(async()=>{const out=await buildOutput();S.pages[0].objs=[];await openPdf(out,'rm2.pdf');await new Promise(r=>setTimeout(r,500));const o=S.pages[0].objs.find(x=>x.sym==='st_raid5');return o&&o.label})()", 30000);
     ok('RAID: Text bleibt nach Speichern und Wiederöffnen erhalten', rr === 'RAID 5Z', rr);
+    // RAID letters inside the cylinders: double-click on the cylinders edits them (comma separated, o.ltr); defaults draw as before; persists; sanitised
+    await ev("setTool('select');setSel(null);redraw(0)");
+    const lpx = await ev("(()=>{const o=S.pages[0].objs.find(x=>x.sym==='st_raid5'),cv=document.createElement('canvas');cv.width=cv.height=400;const c=cv.getContext('2d'),draw=l=>{c.clearRect(0,0,400,400);c.fillStyle=c.strokeStyle='#000';const q=Object.assign({},o);if(l===null)delete q.ltr;else q.ltr=l;drawObj(c,q);return c.getImageData(o.x,o.y,o.w,o.h*.78).data.join()};const d=draw(null);return [draw('A,B,P')===d,draw('')===d,draw(',,')===d,draw('X,Y,Z')!==d,draw('A,B,P,Q,R')===d]})()");
+    ok('RAID: Zylinderbuchstaben ohne o.ltr (und mit Standard-Werten) werden unverändert gezeichnet, eigene Buchstaben ändern die Zeichnung', lpx.every(Boolean), lpx);
+    const lpt = await ev("(()=>{const o=S.pages[0].objs.find(x=>x.sym==='st_raid5');return [o.x+o.w/2,o.y+o.h*.35]})()");
+    await dblAt(lpt);
+    const led = await ev("JSON.stringify([!!editorEl,editingObj===null,ED&&ED.eng.value,S.pages[0].objs.find(x=>x.sym==='st_raid5')._editing])").then(JSON.parse);
+    await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await key('Escape', 'Escape', 27); await sleep(150);
+    const lv = await ev("(()=>{const o=S.pages[0].objs.find(x=>x.sym==='st_raid5');return JSON.stringify([o.ltr,o.label,'_editing' in o,!editorEl])})()").then(JSON.parse);
+    ok('RAID: Doppelklick auf die Zylinder öffnet den Buchstaben-Editor (Standard A,B,P), Esc übernimmt, das Label bleibt', led[0] && led[1] && led[2] === 'A,B,P' && led[3] === 'ltr' && lv[0] === 'A,B,PZ' && lv[1] === 'RAID 5Z' && !lv[2] && lv[3], { led, lv });
+    const lrr = await ev("(async()=>{const out=await buildOutput();S.pages[0].objs=[];await openPdf(out,'rm3.pdf');await new Promise(r=>setTimeout(r,500));const o=S.pages[0].objs.find(x=>x.sym==='st_raid5');const a=sanObj({type:'sym',sym:'st_raid5',x:1,y:1,w:58,h:66,color:'#000000',lw:1,ltr:'x'.repeat(60)}),b=sanObj({type:'sym',sym:'st_raid5',x:1,y:1,w:58,h:66,color:'#000000',lw:1,ltr:7}),c=sanObj({type:'sym',sym:'st_raid5',x:1,y:1,w:58,h:66,color:'#000000',lw:1});return JSON.stringify([o&&o.ltr,a.ltr.length,'ltr' in b,'ltr' in c])})()", 30000).then(JSON.parse);
+    ok('RAID: eigene Buchstaben bleiben nach Speichern und Wiederöffnen erhalten, sanObj kürzt auf 40 Zeichen und verwirft Nicht-Text', lrr[0] === 'A,B,PZ' && lrr[1] === 40 && lrr[2] === false && lrr[3] === false, lrr);
     await ev(TPJS);
     // math symbols
     const MA = await ev("JSON.stringify({cat:CATS.includes('Mathe & Logik'),ids:Object.values(SYM).filter(s=>s.cat==='Mathe & Logik').map(s=>s.id)})").then(JSON.parse);
@@ -2240,7 +2252,7 @@ else {
     const pl = await ev("JSON.stringify(S.pages[0].objs.map(o=>o.sym))").then(JSON.parse);
     await ev("setTool('select');setSel(null)");
     const al = await ev("(()=>{const O=S.pages[0].objs;selectItems(0,O.slice());alignSel('t');const t=O.map(o=>o.y);O[0].x=100;O[1].x=250;O[2].x=500;alignSel('dh');const b=O.map(o=>[o.x,o.x+o.w]).sort((a,b)=>a[0]-b[0]);return JSON.stringify([t,b[1][0]-b[0][1],b[2][0]-b[1][1]])})()").then(JSON.parse);
-    const rc = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='st_raid5');return [o.x+o.w/2,o.y+o.h/2]})()");
+    const rc = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='st_raid5');return [o.x+o.w/2,o.y+o.h-(o.fs||11)*.8]})()");
     await ev("setSel(null)"); await click310(rc, 0, 1); await click310(rc, 0, 2); await sleep(300);
     const ed = await ev("JSON.stringify([!!editorEl,editingObj&&editingObj.sym])").then(JSON.parse);
     await ev("ED&&ED.esc()");
