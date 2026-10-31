@@ -987,6 +987,23 @@ else {
       await setup([R('b1', 100, 300, 80, 50), R('b2', 100, 300, 80, 50)]); await clk([140, 325], 1); const c1 = await sel(); await clk([140, 325], 1); const c2 = await sel(); await clk([140, 325], 1); const c3 = await sel();
       ok('Alt-Klick wählt nacheinander die übereinanderliegenden Objekte', c1 === 'b2' && c2 === 'b1' && c3 === 'b2', { c1, c2, c3 });
     }
+    // selected line: numeric length (mm) and angle (degrees) move the end point, start stays, one undo step each; docked lines are disabled; the end handle still drags
+    {
+      await sleep(700); await ev(`closeEditor();setSel(null);zoomTo(1);S.pages[0].objs.length=0;S.pages[0].objs.push(sanObj({type:'line',oid:'lg',x1:100,y1:400,x2:300,y2:400,color:'#000000',lw:2,start:'none',end:'arrow'}));redraw(0);setTool('select');H.u=[];H.r=[];updUndo();S.pages[0].el.scrollIntoView({block:'start'});setSel({p:0,o:S.pages[0].objs[0]})`);
+      const f = () => ev("(()=>{const o=S.pages[0].objs[0];return {len:+document.getElementById('lnLen').value,ang:+document.getElementById('lnAng').value,dis:document.getElementById('lnLen').disabled,x1:o.x1,y1:o.y1,x2:Math.round(o.x2*10)/10,y2:Math.round(o.y2*10)/10,hu:H.u.length}})()");
+      const setF = (id, v) => ev(`(()=>{const e=document.getElementById('${id}');e.value='${v}';e.dispatchEvent(new Event('change',{bubbles:true}))})()`);
+      const f0 = await f(); await setF('lnLen', 50); const f1 = await f(); await setF('lnAng', 90); const f2 = await f();
+      await ev('undo()'); const f3 = await f(); await ev('undo()'); const f4 = await f();
+      ok('Linie: Länge (mm) und Winkel (°) setzen den Endpunkt, Start bleibt, je ein Verlaufsschritt, Undo stellt zurück',
+        !f0.dis && Math.abs(f0.len - 70.6) < .2 && f0.ang === 0 && Math.abs(f1.x2 - (100 + 50 * 72 / 25.4)) < .2 && f1.y2 === 400 && f1.x1 === 100 && f1.hu === 1 && Math.abs(f2.x2 - f1.x2 + (f1.x2 - 100)) < .2 && Math.abs(f2.y2 - (400 - 50 * 72 / 25.4)) < .2 && f2.hu === 2 && Math.abs(f3.x2 - f1.x2) < .2 && f3.y2 === 400 && f4.x2 === 300, { f0, f1, f2, f3, f4 });
+      // end handle drag still works and the fields follow
+      await ev("setSel({p:0,o:S.pages[0].objs[0]})"); const hp = await ev("(()=>{const o=S.pages[0].objs[0];return tpScr([o.x2,o.y2])})()");
+      await mv(hp[0], hp[1]); await sleep(40); await pressAt(hp[0], hp[1]); await sleep(60); for (let i = 1; i <= 8; i++) { await dragTo(hp[0] + 5 * i, hp[1] - 4 * i); await sleep(16); } await releaseAt(hp[0] + 40, hp[1] - 32); await sleep(200);
+      const f5 = await f(); ok('Linie: Endpunkt-Griff ziehen funktioniert weiter, Länge und Winkel im Panel folgen', f5.x2 > 330 && f5.y2 < 380 && f5.x1 === 100 && f5.ang > 5 && f5.len > 75, f5);
+      // docked line: fields disabled
+      await ev("S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',oid:'zs',x:320,y:380,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Z'}));S.pages[0].objs[0].link={a:null,b:'zs',ta:'auto',tb:'auto'};redraw(0);setSel(null);setSel({p:0,o:S.pages[0].objs[0]})"); const dk = await ev("[document.getElementById('lnLen').disabled,document.getElementById('lnAng').disabled,document.getElementById('lnGeoNote').hidden]");
+      ok('Linie: angedockte Linie sperrt Länge und Winkel mit Hinweis', dk[0] === true && dk[1] === true && dk[2] === false, dk);
+    }
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo();S.pages[0].el.scrollIntoView({block:'start'});zoomTo("+zoomB4+")");
   }
   // B4b: «include»/«extend» buttons arm the arrow tool with a preset; with a selected line they label it as before

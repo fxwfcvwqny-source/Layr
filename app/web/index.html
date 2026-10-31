@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-j+IJoHptp0RVf3osLGPVbW0Ayld3ghpl6gU9P5Pimts=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xnTfV1bzjm6Jaw1O7MEn6zaj9cDXSYYeLbMUBX4xre4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -442,7 +442,7 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .accs{display:flex;gap:8px;flex-wrap:wrap}
 .acc{width:30px;height:30px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line);padding:0;background:var(--c)}
 .acc[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
-.hint{font-size:12px;color:var(--muted);line-height:1.45;margin:0}
+.hint,.lnnote{font-size:12px;color:var(--muted);line-height:1.45;margin:0}
 #spTip{position:fixed;z-index:70;max-width:280px;box-sizing:border-box;padding:9px 12px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);font:400 13px/1.45 var(--f-ui);pointer-events:none;opacity:0;transition:opacity .12s}
 #spTip.on{opacity:1}
 :root[data-motion=off] #spTip{transition:none}
@@ -1663,6 +1663,9 @@ header,.file{min-width:0}
       <div class="row"><label for="startH" style="width:44px">Anfang</label><select id="startH"></select></div>
       <div class="row"><label for="endH" style="width:44px">Ende</label><select id="endH"></select></div>
       <div class="row"><label class="chk"><input type="checkbox" id="dash"> Gestrichelt</label><label class="chk"><input type="checkbox" id="elbow"> Gewinkelt</label></div>
+      <div class="row"><label for="lnLen" style="width:44px">Länge</label><input type="number" id="lnLen" min="0.5" step="0.1" aria-label="Länge der Linie in Millimetern" disabled style="width:72px"><span class="val">mm</span></div>
+      <div class="row"><label for="lnAng" style="width:44px">Winkel</label><input type="number" id="lnAng" step="1" aria-label="Winkel der Linie in Grad, 0 nach rechts, gegen den Uhrzeigersinn" title="0° zeigt nach rechts, gegen den Uhrzeigersinn" disabled style="width:72px"><span class="val">°</span></div>
+      <p class="lnnote" id="lnGeoNote" hidden>Angedockte Linie: Länge und Winkel ergeben sich aus den Symbolen.</p>
       <div class="row"><button class="btn" id="lnInc" title="Gewählte Linie beschriften, oder Pfeil mit «include» zeichnen" aria-label="include-Pfeil">«include»</button><button class="btn" id="lnExt" title="Gewählte Linie beschriften, oder Pfeil mit «extend» zeichnen" aria-label="extend-Pfeil">«extend»</button></div>
     </div>
     <div class="sec" id="rulerSec" hidden>
@@ -2230,7 +2233,7 @@ const I18N_EN={
 'Pfeil':'Arrow','Pfeil ziehen. Pfeilspitzen für UML (Vererbung, Komposition …) rechts wählen.':'Drag an arrow. Choose UML arrowheads (inheritance, composition …) on the right.',
 'Rechteck':'Rectangle','Rechteck ziehen. Umschalt für ein Quadrat.':'Drag a rectangle. Shift for a square.','Ellipse':'Ellipse','Ellipse ziehen. Umschalt für einen Kreis.':'Drag an ellipse. Shift for a circle.',
 'Symbol setzen':'Place symbol','Klick öffnet die Symbol-Auswahl. Symbol wählen, dann aufs Blatt klicken oder ziehen.':'Click to open the symbol picker. Choose a symbol, then click or drag on the sheet.',
-'Lineal ein/aus':'Ruler on/off','Lineal drehen':'Rotate ruler','Länge ändern':'Change length','Winkel (°)':'Angle (°)','Lineal-Winkel':'Ruler angle','Das Lineal dreht sich um seine Mitte. Am runden Griff ziehen; mit Umschalt rastet es in 15°-Schritten ein.':'The ruler rotates around its centre. Drag the round handle; hold Shift to snap to 15° steps.',
+'Lineal ein/aus':'Ruler on/off','Lineal drehen':'Rotate ruler','Länge ändern':'Change length','Winkel (°)':'Angle (°)','Länge':'Length','Winkel':'Angle','Länge der Linie in Millimetern':'Length of the line in millimetres','Winkel der Linie in Grad, 0 nach rechts, gegen den Uhrzeigersinn':'Angle of the line in degrees, 0 = right, counter-clockwise','0° zeigt nach rechts, gegen den Uhrzeigersinn':'0° points right, counter-clockwise','Angedockte Linie: Länge und Winkel ergeben sich aus den Symbolen.':'Docked line: length and angle follow the symbols.','Lineal-Winkel':'Ruler angle','Das Lineal dreht sich um seine Mitte. Am runden Griff ziehen; mit Umschalt rastet es in 15°-Schritten ein.':'The ruler rotates around its centre. Drag the round handle; hold Shift to snap to 15° steps.',
 'Lineal: am Körper verschieben, am runden Griff drehen, mit ↔ die Länge ändern. Stift oder Linie an der Kante wird gerade.':'Ruler: drag the body to move it, the round handle to rotate it, ↔ to change its length. Pen strokes and lines along the edge come out straight.',
 'Taste':'Key',
 // Seitenbereich
@@ -3007,6 +3010,18 @@ function lnPreOff(){if(!LNPRE)return;LNPRE=null;armHintEl().textContent=''}
 addEventListener('keydown',e=>{if(LNPRE&&e.key==='Escape'&&!editorEl&&!S.draft&&!document.querySelector('.modal:not([hidden])')){e.preventDefault();e.stopImmediatePropagation();lnPreOff()}},true);
 for(const[id,t]of[['lnInc','«include»'],['lnExt','«extend»']])$('#'+id).onclick=()=>{if(!S.sel||S.sel.o.type!=='line'){if(!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}setTool('arrow');LNPRE={label:t};armHintEl().textContent=tr('Pfeil aufziehen, Esc bricht ab');return}applySel({dash:true,start:'none',end:'arrow',label:t});syncControls(S.sel.o)};
 
+/* Length (mm) and angle (degrees, 0 = right, counter-clockwise) of the selected line: the end point moves, the start stays; docked lines follow their symbols */
+function lnOne(){const o=S.sel&&S.sel.o;return o&&o.type==='line'?o:null}
+function lnMm(o){return Math.hypot(o.x2-o.x1,o.y2-o.y1)*25.4/72}
+function lnDeg(o){return(Math.atan2(-(o.y2-o.y1),o.x2-o.x1)*180/Math.PI+360)%360}
+function lnSync(o){if(o===undefined)o=lnOne();const L=$('#lnLen'),A=$('#lnAng');if(!L||!A)return;const dk=!!(o&&o.link&&(o.link.a||o.link.b));
+  L.disabled=A.disabled=!o||dk||!!o.locked;$('#lnGeoNote').hidden=!dk;
+  if(!o){L.value=A.value='';return}L.value=lnMm(o).toFixed(1);A.value=String(Math.round(lnDeg(o)*10)/10)}
+function lnSet(len,ang){const o=lnOne();if(!o||o.locked||(o.link&&(o.link.a||o.link.b)))return;if(!(len>=.5)||!isFinite(ang)){lnSync(o);return}
+  pushHist();const r=len*72/25.4,a=ang*Math.PI/180;o.x2=o.x1+Math.cos(a)*r;o.y2=o.y1-Math.sin(a)*r;redraw(S.sel.p);markDirty();lnSync(o)}
+$('#lnLen').onchange=()=>{const o=lnOne();if(o)lnSet(+$('#lnLen').value,lnDeg(o))};
+$('#lnAng').onchange=()=>{const o=lnOne();if(o)lnSet(lnMm(o),+$('#lnAng').value)};
+
 /* Eigenschaften auf die Auswahl anwenden */
 function applySel(props,isRange){
   if(ED&&ED.set){ED.set(props);return}
@@ -3020,6 +3035,7 @@ function applySel(props,isRange){
   redraw(S.sel.p);markDirty();
 }
 function syncControls(o){
+  lnSync(o&&o.type==='line'?o:null);
   if(o&&o.type==='group'){setColor(o.items[0].color,true);syncFill();syncFmt();return}
   if(!o){syncFmt();return}if(o.type==='image'){syncFill();syncFmt();return}setColor(o.color,true);
   if(o.lw!=null&&o.type!=='text')setRange('lw',o.lw,x=>x+' pt');
@@ -4241,7 +4257,7 @@ const docSnap=()=>({doc:S.bytes,name:S.name,isNew:S.isNew,bg:S.bg,sample:S.sampl
 async function applyDocSnap(d){const cp=curPage();await openPdf(d.doc,d.name,{isNew:d.isNew,bg:d.bg,sample:d.sample,objs:JSON.parse(JSON.stringify(d.objs)),keepHist:true});updUndo();markDirty();scrollToPage(Math.min(cp,S.pages.length-1))}
 function undo(){closeEditor();if(!H.u.length)return;const e=H.u.pop();if(typeof e!=='string'){H.r.push(docSnap());applyDocSnap(e);return}H.r.push(snapshot());restoreSnap(e);updUndo()}
 function redo(){closeEditor();if(!H.r.length)return;const e=H.r.pop();if(typeof e!=='string'){H.u.push(docSnap());capDocHist();applyDocSnap(e);return}H.u.push(snapshot());restoreSnap(e);updUndo()}
-function updUndo(){$('#bUndo').disabled=!H.u.length;$('#bRedo').disabled=!H.r.length}
+function updUndo(){$('#bUndo').disabled=!H.u.length;$('#bRedo').disabled=!H.r.length;lnSync()}
 const storeKeyOld=()=>'pdfwerkbank:'+S.name+':'+(S.bytes?S.bytes.length:0);
 // Recovery key = name + length + content fingerprint (S.fp, computed once per opened document), so equal-named equal-sized files stay apart
 const storeKey=()=>storeKeyOld()+(S.fp?':'+S.fp:'');
@@ -4712,7 +4728,7 @@ function attachInk(P,i){
         pushHist();P.objs.push(d);if(S.sym==='num')S.num++;markDirty();if(keepSelOn)setSel({p:i,o:d});else if(S.sel)setSel(null);redraw(i);break}
       case'select':case'text':
         if(st.o&&st.o.type==='line'&&(st.mode==='p1'||st.mode==='p2')){const o=st.o,one=st.mode==='p1';delete o.__drag;
-          if(st.moved){const L=o.link||{a:null,b:null,ta:'auto',tb:'auto'},dk=st.dockT;if(one){L.a=dk?ensureOid(dk):null;L.ta=dk?st.dockPick:'auto'}else{L.b=dk?ensureOid(dk):null;L.tb=dk?st.dockPick:'auto'}if(L.a&&L.a===L.b)L[one?'a':'b']=null;if(L.a||L.b)o.link=L;else delete o.link}S.dock=null;redraw(i)}
+          if(st.moved){const L=o.link||{a:null,b:null,ta:'auto',tb:'auto'},dk=st.dockT;if(one){L.a=dk?ensureOid(dk):null;L.ta=dk?st.dockPick:'auto'}else{L.b=dk?ensureOid(dk):null;L.tb=dk?st.dockPick:'auto'}if(L.a&&L.a===L.b)L[one?'a':'b']=null;if(L.a||L.b)o.link=L;else delete o.link}S.dock=null;redraw(i);lnSync(o)}
         if(!st.hist&&!st.moved&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='table'){const o=st.o,rc=tblCell(o,st.x,st.y);st=null;if(rc)editCell(i,o,rc[0],rc[1]);return}
         if(st.hist&&st.o&&st.o.type==='table'&&st.mode!=='move'&&tblFit(st.o))redraw(i);
         if(st.hist)markDirty();else if(S.tool==='select'&&!st.selDrag&&st.wasSel&&st.mode==='move'&&st.o&&st.o.type==='text'&&!st.moved){const o=st.o;st=null;editText(i,o,[e.clientX,e.clientY]);return}break;
