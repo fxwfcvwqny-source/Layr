@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-rxlHAUItWRkfTWIaZYhgAxJMUjZi+JluVFwHi3I0Uuc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-kSMfc1pjkKvqKQQvLaTQariAaW05c7HRATpG97Qkie0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2446,7 +2446,7 @@ const I18N_EN={
 'Befehl kopieren':'Copy command','Terminal öffnen':'Open terminal','Befehl kopiert.':'Command copied.',
 'Im Terminal dein Passwort eingeben. Layr startet danach neu.':'Enter your password in the terminal. Layr restarts afterwards.',
 'Kein Terminal gefunden. Bitte den Befehl kopieren und im Terminal ausführen.':'No terminal found. Please copy the command and run it in a terminal.',
-'Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Über PDF-Text ziehen markiert ihn, Strg+C kopiert. Alt gedrückt: Lasso auch über Text. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, drag a rectangle to select everything it touches (like on the desktop). In the shape tools, a click on an annotation is enough to move it. Drag over PDF text to select it, Ctrl+C copies. Hold Alt: lasso over text too. Back here: Esc, V or right-click.',
+'Auswählen':'Select','Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Über PDF-Text ziehen markiert ihn, Strg+C kopiert. Umschalt- oder Strg-Klick (Mac: Cmd) fügt ein Objekt zur Auswahl hinzu oder nimmt es heraus, auch in anderen Werkzeugen. Alt-Klick wählt nacheinander die übereinanderliegenden Objekte. Alt gedrückt: Lasso auch über Text. Zurück hierher: Esc, V oder Rechtsklick.':'Click selects, drag moves, corners resize. On an empty spot, drag a rectangle to select everything it touches (like on the desktop). In the shape tools, a click on an annotation is enough to move it. Drag over PDF text to select it, Ctrl+C copies. Shift or Ctrl click (Mac: Cmd) adds an object to the selection or removes it, in other tools too. Alt click steps through overlapping objects. Hold Alt: lasso over text too. Back here: Esc, V or right-click.',
 'Auswählen mit Rechteck. Noch einmal klicken: umkreisen.':'Select with a rectangle. Click again: circle to select.','Auswählen durch Umkreisen. Noch einmal klicken: Rechteck.':'Select by circling. Click again: rectangle.',
 'Zelle bearbeiten':'Edit cell','Zeile darüber einfügen':'Insert row above','Zeile darunter einfügen':'Insert row below','Spalte links einfügen':'Insert column left','Spalte rechts einfügen':'Insert column right',
 'Zeile löschen':'Delete row','Spalte löschen':'Delete column','Zelleninhalt leeren':'Clear cell',
@@ -2797,7 +2797,7 @@ const S={tool:'select',color:'#1b1f24',lw:2,fs:14,orient:'h',bold:false,dash:fal
 /* ---------- Icons ---------- */
 const PH=n=>'<svg class="ph" aria-hidden="true"><use href="#'+(n.startsWith('ly-')?'':'ph-')+n+'"/></svg>';
 const TOOLS=[
-  {id:'select',k:'V',n:'Auswählen',i:PH('ly-cursor'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Über PDF-Text ziehen markiert ihn, Strg+C kopiert. Alt gedrückt: Lasso auch über Text. Zurück hierher: Esc, V oder Rechtsklick.'},
+  {id:'select',k:'V',n:'Auswählen',i:PH('ly-cursor'),h:'Klicken wählt aus, Ziehen verschiebt, Ecken ändern die Größe. Auf freier Fläche ein Rechteck aufziehen wählt alles aus, was es berührt (wie auf dem Desktop). In den Form-Werkzeugen genügt ein Klick auf eine Beschriftung, um sie zu verschieben. Über PDF-Text ziehen markiert ihn, Strg+C kopiert. Umschalt- oder Strg-Klick (Mac: Cmd) fügt ein Objekt zur Auswahl hinzu oder nimmt es heraus, auch in anderen Werkzeugen. Alt-Klick wählt nacheinander die übereinanderliegenden Objekte. Alt gedrückt: Lasso auch über Text. Zurück hierher: Esc, V oder Rechtsklick.'},
   '-',
   {id:'pen',k:'P',n:'Stift',i:PH('pencil-simple'),h:'Freihand zeichnen. Am Ende kurz halten: aus dem Strich wird eine gerade Linie, ein Kreis, Rechteck oder Dreieck. Weiterziehen ändert Richtung bzw. Größe.'},
   {id:'marker',k:'M',n:'Textmarker',i:PH('highlighter'),h:'Durchsichtig markieren. Am Ende kurz halten macht den Strich schnurgerade.'},
@@ -4020,6 +4020,12 @@ function hit(o,x,y,tol,strict){
   }
   return true;
 }
+// Objects under the pointer, best first: the topmost exact hit; a thin tolerance hit on top gives way to an exact hit of similar size below; when nothing is exact the smaller object wins
+function hitsAt(P,x,y,tol){const L=[];for(let k=P.objs.length-1;k>=0;k--)if(hit(P.objs[k],x,y,tol))L.push(P.objs[k]);if(L.length<2)return L;
+  const ar=o=>{const b=bbox(o);return Math.max(1,b.w*b.h)},ex=o=>hit(o,x,y,0);if(ex(L[0]))return L;
+  const e=L.filter(ex);if(!e.length)return L.map((o,k)=>[o,k]).sort((a,b)=>ar(a[0])-ar(b[0])||a[1]-b[1]).map(q=>q[0]);
+  const a0=ar(L[0]),pre=e.filter(o=>ar(o)<=a0*1.5);return[...pre,...L.filter(o=>!pre.includes(o))]}
+var ALTC=null; // last Alt click (page, point) for stepping through overlapping objects
 function moveObj(o,dx,dy,all){
   if(o.type==='group'){o.items.forEach(it=>{if(all||!it.locked)moveObj(it,dx,dy,all)});return}
   if(o.type==='pen')o.pts=o.pts.map(([x,y])=>[x+dx,y+dy]);
@@ -4571,6 +4577,8 @@ function attachInk(P,i){
     if(q.k==='line'){[x,y]=qsAng(o.x1,o.y1,x,y,e.shiftKey);o.x2=x;o.y2=y}
     else{const d0=Math.hypot(q.anchor[0]-q.c[0],q.anchor[1]-q.c[1]);if(d0>2/S.zoom)qsScaleInto(o,q.orig,clamp(Math.hypot(x-q.c[0],y-q.c[1])/d0,.08,20),q.c)}
     qsTag(e.clientX,e.clientY,qsLabel(q.k,o))};
+  // Shift/Ctrl/Cmd click: put an object (or its group) into the selection or take it out
+  const selToggle=(o,e)=>{const mem=grpOf(P,o,e.altKey);if(S.sel&&S.sel.p===i){const cur=selItems().slice();if(mem.every(m=>cur.includes(m)))mem.forEach(m=>cur.splice(cur.indexOf(m),1));else mem.forEach(m=>{if(!cur.includes(m))cur.push(m)});selectItems(i,cur)}else selectItems(i,mem)};
   ink.addEventListener('pointerdown',e=>{
     if(GD.pen&&e.pointerType==='touch')return;
     if(e.pointerType==='pen'&&(e.buttons&32)&&S.tool!=='eraser'&&penErase===null){penErase=S.tool;S.tool='eraser'}
@@ -4589,6 +4597,9 @@ function attachInk(P,i){
       if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,tol)){st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
       if(!e.altKey&&S.sel.o.type==='line'&&(S.tool==='line'||S.tool==='arrow')&&hit(S.sel.o,x,y,tol)&&!dockAt(P,x,y,10/S.zoom)){st.wasSel=true;st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
     }
+    const tg=e.shiftKey||e.ctrlKey||e.metaKey;
+    // Shift/Ctrl/Cmd click on an object toggles its selection in the drawing tools too (nothing is drawn)
+    if(tg&&!e.altKey&&['pen','marker','line','arrow','rect','ellipse','symbol','table'].includes(S.tool)){const o=hitsAt(P,x,y,tol)[0];if(o){selToggle(o,e);st=null;return}}
     // Form-Werkzeuge: Klick auf eine vorhandene Beschriftung wählt sie aus und verschiebt sie (Alt: trotzdem neu zeichnen)
     if(!e.altKey&&S.tool==='field'){const o=[...P.objs].reverse().find(o=>o.type==='field'&&hit(o,x,y,tol));
       if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
@@ -4601,12 +4612,14 @@ function attachInk(P,i){
       case'select':{
         if(S.sel&&S.sel.p===i){const k=handleAt(S.sel.o,x,y,tol);if(k){st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);return}}
         if(S.sel&&S.sel.p===i&&S.sel.o.type==='table'){const tb=tblBorderAt(S.sel.o,x,y,tol);if(tb&&!handleAt(S.sel.o,x,y,tol)){st.mode=tb[0]==='c'?'tcol':'trow';st.idx=tb[1];st.o=S.sel.o;st.selDrag=1;break}}
-        if(S.sel&&S.sel.p===i&&S.sel.o.type==='group'&&!e.shiftKey&&!(e.altKey&&P.objs.some(q=>(q.gid||q.gg)&&hit(q,x,y,tol)))&&hit(S.sel.o,x,y,tol)){st.wasSel=true;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;break}
-        const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
-        {const mem=o&&!e.altKey&&!(e.shiftKey&&S.sel&&S.sel.p===i)&&!(S.sel&&S.sel.o===o)?grpOf(P,o):null;if(mem&&mem.length>1){selectItems(i,mem);if(S.sel&&S.sel.o.type==='group'){st.wasSel=true;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;break}}}
-        if(o&&e.shiftKey&&S.sel&&S.sel.p===i){const cur=selItems().slice(),mem=grpOf(P,o,e.altKey);if(mem.every(m=>cur.includes(m)))mem.forEach(m=>cur.splice(cur.indexOf(m),1));else mem.forEach(m=>{if(!cur.includes(m))cur.push(m)});selectItems(i,cur);st=null;break}
+        if(S.sel&&S.sel.p===i&&S.sel.o.type==='group'&&!tg&&!(e.altKey&&P.objs.some(q=>(q.gid||q.gg)&&hit(q,x,y,tol)))&&hit(S.sel.o,x,y,tol)){st.wasSel=true;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;break}
+        const L=hitsAt(P,x,y,tol);let o=L[0];
+        if(e.altKey&&L.length>1){const cur=S.sel&&S.sel.p===i?S.sel.o:null,k=ALTC&&ALTC.p===i&&cur&&Math.hypot(x-ALTC.x,y-ALTC.y)<3/S.zoom?L.indexOf(cur):-1;if(k>=0)o=L[(k+1)%L.length]}
+        ALTC=e.altKey?{p:i,x,y}:null;
+        {const mem=o&&!e.altKey&&!(tg&&S.sel&&S.sel.p===i)&&!(S.sel&&S.sel.o===o)?grpOf(P,o):null;if(mem&&mem.length>1){selectItems(i,mem);if(S.sel&&S.sel.o.type==='group'){st.wasSel=true;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;break}}}
+        if(o&&tg&&S.sel&&S.sel.p===i){selToggle(o,e);st=null;break}
         if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.mode='move';st.o=o;st.lx=x;st.ly=y}
-        else{if(!e.shiftKey)setSel(null);st.marq=true;st.add=e.shiftKey;const rect=true;S.lasso={p:i,pts:[[x,y]],rect};
+        else{if(!tg)setSel(null);st.marq=true;st.add=tg;const rect=true;S.lasso={p:i,pts:[[x,y]],rect};
           if(!rect&&!motionOff()){const L=S.lasso,step=()=>{if(S.lasso!==L)return;redraw(i);requestAnimationFrame(step)};requestAnimationFrame(step)}}
         break}
       case'lasso':{

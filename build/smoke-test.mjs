@@ -947,6 +947,7 @@ else {
   // B4a: a quick second click never undoes anything: no history is taken back programmatically in any tool (owner test: templates vanished)
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    const zoomB4 = await ev('S.zoom');
     await ev(TPJS);
     await ev("tplClickOn=true;S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
     const dbl4 = async (ix = 0) => { await sleep(700); const p = await ev(`tpScr(tpPt(S.pages[0].objs[${ix}]))`); await mv(p[0], p[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); };
@@ -965,7 +966,28 @@ else {
       const ln = await ev("(()=>{const L=S.pages[0].objs;return {n:L.length,x1:L[0].x1,y1:L[0].y1,hu:H.u.length}})()");
       ok(`Werkzeug ${tool}: Ziehen auf einer vorhandenen Linie verschiebt sie (kein neues Objekt)`, ln.n === 1 && Math.abs(ln.x1 - 120 - 64 / (await ev('S.zoom'))) < 2 && ln.y1 > 420 && ln.hu === 1, ln);
     }
-    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo();S.pages[0].el.scrollIntoView({block:'start'})");
+    // multi-select: Shift/Ctrl click toggles in the select tool and in a drawing tool (nothing drawn); better picking of near objects; Alt cycles
+    {
+      const clk = async (pt, mod = 0) => { const p = await ev(`tpScr(${JSON.stringify(pt)})`); await mv(p[0], p[1]); await sleep(40); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod }); await sleep(50); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: 1, modifiers: mod }); await sleep(120); };
+      const sel = () => ev("selItems().map(o=>o.oid).join(',')");
+      const R = (oid, x, y, w, h) => `sanObj({type:'rect',oid:'${oid}',x:${x},y:${y},w:${w},h:${h},color:'#000000',lw:1,fill:'#cccccc'})`;
+      const setup = async (list) => { await sleep(700); await ev(`closeEditor();setSel(null);zoomTo(1);S.pages[0].objs.length=0;S.pages[0].objs.push(${list.join(',')});redraw(0);setTool('select');H.u=[];H.r=[];updUndo();S.pages[0].el.scrollIntoView({block:'start'})`); };
+      await setup([R('sa', 100, 300, 60, 40), R('sb', 300, 300, 60, 40)]);
+      await clk([130, 320]); await clk([330, 320], 8);
+      const s1 = await sel(); await clk([130, 320], 2); const s2 = await sel(); await clk([330, 320], 4); const s3 = await sel();
+      ok('Mehrfachauswahl: Umschalt-Klick fügt hinzu, Strg-Klick nimmt heraus, Cmd-Klick nimmt heraus', s1 === 'sa,sb' && s2 === 'sb' && s3 === '', { s1, s2, s3 });
+      for (const tool of ['pen', 'line', 'rect', 'symbol']) {
+        await setup([R('sa', 100, 300, 60, 40), R('sb', 300, 300, 60, 40)]); await ev(`S.sym='server';setTool('${tool}')`);
+        await clk([130, 320], 8); await clk([330, 320], 8); const st = await sel(); const n = await ev('S.pages[0].objs.length'); const hu = await ev('H.u.length');
+        ok(`Mehrfachauswahl: Umschalt-Klick im Werkzeug ${tool} wählt aus, zeichnet nichts`, st === 'sa,sb' && n === 2 && hu === 0, { st, n, hu });
+      }
+      // two symbols side by side (3 pt gap): a click inside the lower one, within tolerance of the upper one, picks the one it is in
+      await setup([R('lo', 100, 300, 40, 30), R('up', 143, 300, 40, 30)]); await clk([138, 315]);
+      const near = await sel(); ok('Treffer: Klick im unteren Objekt neben einem oberen wählt das getroffene (nicht das obere)', near === 'lo', { near });
+      await setup([R('b1', 100, 300, 80, 50), R('b2', 100, 300, 80, 50)]); await clk([140, 325], 1); const c1 = await sel(); await clk([140, 325], 1); const c2 = await sel(); await clk([140, 325], 1); const c3 = await sel();
+      ok('Alt-Klick wählt nacheinander die übereinanderliegenden Objekte', c1 === 'b2' && c2 === 'b1' && c3 === 'b2', { c1, c2, c3 });
+    }
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo();S.pages[0].el.scrollIntoView({block:'start'});zoomTo("+zoomB4+")");
   }
   // B4b: «include»/«extend» buttons arm the arrow tool with a preset; with a selected line they label it as before
   {
@@ -1387,7 +1409,7 @@ else {
     await click310([410, 330]); await sleep(150);
     const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
     const was = await menu('Objektleiste am gewählten Objekt');
-    await ev("closeMenu()"); await click310([410, 330]); await sleep(200);
+    await ev("closeMenu()"); await sleep(450); await click310([410, 330]); await sleep(200); // the closing menu must be gone, else the click lands on it
     const offState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
     await sleep(500); for (let t = 0; t < 3 && await ev('obBarOn') === false; t++) { await menu('Objektleiste am gewählten Objekt'); await ev("closeMenu()"); await sleep(400); } await key310('Escape', 'Escape', 27); await click310([410, 330]); await sleep(250);
     const onState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
