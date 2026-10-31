@@ -2237,6 +2237,61 @@ else {
     ok('Merge A+C: Mathe-Symbol und RAID-Symbol per Klick gesetzt, Ausrichten/Verteilen, Doppelklick bearbeitet das RAID-Etikett', pl.join() === 'mt_ge,st_raid5,mt_inf' && al[0].every(y => Math.abs(y - al[0][0]) < 0.6) && Math.abs(al[1] - al[2]) < 0.6 && ed[0] === true && ed[1] === 'st_raid5', { pl, al, ed });
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Review round 2: deferred Shift/Ctrl toggle in drawing tools, double-click target, hover cursor, cylinder drag
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    const mk2 = () => ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'r2.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message)));return 1})()`, 60000);
+    const PCs = "{type:'sym',sym:'pc',x:100,y:200,w:46,h:40,color:'#000000',lw:1,fill:'white',fs:11,label:'A',oid:'pA'},{type:'sym',sym:'server',x:300,y:200,w:32,h:46,color:'#000000',lw:1,fill:'white',fs:11,label:'B',oid:'sB'}";
+    await mk2();
+    await ev(`S.pages[0].objs.push(${PCs});redrawAll();setTool('line')`);
+    await drag310([123, 220], [316, 223], 8);
+    const l1 = await ev("JSON.stringify(S.pages[0].objs.filter(o=>o.type==='line').map(o=>o.link&&[o.link.a,o.link.b]))").then(JSON.parse);
+    ok('Review 2: Umschalt+Ziehen von PC A zu Server B im Linienwerkzeug zeichnet eine angedockte Linie', l1.length === 1 && l1[0] && l1[0][0] === 'pA' && l1[0][1] === 'sB', l1);
+    for (const tool of ['line', 'arrow', 'pen', 'marker', 'rect', 'ellipse', 'symbol', 'table', 'field', 'redact', 'text']) {
+      await ev(`S.pages[0].objs=[${PCs}];setSel(null);redrawAll();setTool('${tool}')`);
+      const n = await ev("S.pages[0].objs.length");
+      await click310([123, 220], 8);
+      const r = await ev("JSON.stringify([S.pages[0].objs.length,S.sel&&S.sel.o.oid,!!editorEl,!!S.draft])").then(JSON.parse);
+      await ev("ED&&ED.esc&&ED.esc()");
+      await click310([123, 220], 2);
+      const r2 = await ev("JSON.stringify([S.pages[0].objs.length,!S.sel])").then(JSON.parse);
+      ok(`Review 2: Umschalt-Klick und Strg-Klick ohne Ziehen im Werkzeug ${tool} schalten die Auswahl um, ohne etwas zu zeichnen`, r[0] === n && r[1] === 'pA' && r[2] === false && r[3] === false && r2[0] === n && r2[1] === true, { r, r2, n });
+    }
+    for (const tool of ['pen', 'marker']) {
+      await ev(`S.pages[0].objs=[${PCs}];setSel(null);redrawAll();setTool('${tool}')`);
+      await drag310([120, 215], [200, 300], 8);
+      const n = await ev("S.pages[0].objs.filter(o=>o.type==='pen').length");
+      ok(`Review 2: Umschalt+Ziehen im ${tool}-Werkzeug über einem Symbol zeichnet weiter`, n === 1, n);
+    }
+    // double-click edits the object a single click selects (two PCs 3 pt apart)
+    await mk2();
+    await ev("S.pages[0].objs.push({type:'sym',sym:'pc',x:100,y:200,w:46,h:40,color:'#000000',lw:1,fill:'white',fs:11,label:'lo',oid:'lo'},{type:'sym',sym:'pc',x:100,y:203,w:46,h:40,color:'#000000',lw:1,fill:'white',fs:11,label:'up',oid:'up'});redrawAll();setTool('select')");
+    await click310([120, 215]);
+    const sel1 = await ev("S.sel&&S.sel.o.oid");
+    await click310([120, 215], 0, 2); await sleep(300);
+    const ed1 = await ev("editingObj&&editingObj.oid");
+    await ev("ED&&ED.esc&&ED.esc()");
+    ok('Review 2: Doppelklick bearbeitet das Objekt, das der Einzelklick gewählt hat (sich überlappende Symbole)', !!sel1 && sel1 === ed1, { sel1, ed1 });
+    // hover cursor in the line tool
+    await ev("S.pages.forEach(P=>P.objs=[]);S.pages[0].objs.push({type:'line',x1:100,y1:400,x2:300,y2:400,color:'#000000',lw:2});redrawAll();setTool('line')");
+    const hp = await pt310([200, 400]); await mv(hp[0], hp[1]); await sleep(150);
+    const cu1 = await ev("S.pages[0].ink.style.cursor");
+    const hq = await pt310([200, 450]); await mv(hq[0], hq[1]); await sleep(150);
+    const cu2 = await ev("S.pages[0].ink.style.cursor");
+    await ev("setSel({p:0,o:S.pages[0].objs[0]})");
+    const he = await pt310([100, 400]); await mv(he[0], he[1]); await sleep(150);
+    const cu3 = await ev("S.pages[0].ink.style.cursor");
+    ok('Review 2: Linienwerkzeug zeigt über einer Linie und an ihren Endpunkten den Verschieben-Zeiger, daneben keinen', cu1 === 'move' && cu2 === '' && cu3 === 'move', { cu1, cu2, cu3 });
+    // cylinder symbols dragged left/up: no exception
+    await mk2();
+    for (const sym of ['st_raid5', 'router']) {
+      await ev(`S.sym='${sym}';setTool('symbol')`);
+      await drag310([300, 300], [200, 220], 0, 10);
+    }
+    const errs = await ev("JSON.stringify(window.__errs)").then(JSON.parse);
+    ok('Review 2: Ziehen von RAID- und Router-Symbol nach links oben wirft keine Ausnahme', errs.length === 0, errs);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

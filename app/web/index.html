@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Rq3KiOak2WyzAI6Y8LuVNkxEKI+7YaBu+EBuw5jsqeI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3e4N4e3UjKDgAOFfJxPtbCbHeZD4QNrdCEUKC7E5bZQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1653,7 +1653,7 @@ header,.file{min-width:0}
     <div class="sec">
       <h3>Farbe</h3>
       <div class="row" id="swatches"></div>
-      <div class="fillgrp"><label class="fl" id="fillL">Füllung</label><div class="seg" id="fill"><button data-v="none">Keine</button><button data-v="white">Weiß</button><button data-v="tint">Farbe</button></div></div>
+      <div class="fillgrp"><label class="fl" id="fillL">Füllung</label><div class="seg" id="fill" role="group" aria-labelledby="fillL"><button data-v="none">Keine</button><button data-v="white">Weiß</button><button data-v="tint">Farbe</button></div></div>
       <div class="row"><label for="lw">Stärke</label><input type="range" id="lw" min="0.5" max="16" step="0.5" value="2"><span class="val" id="lwV">2 pt</span></div>
       <label class="tgl qsrow" title="Stift und Textmarker: am Ende des Strichs kurz halten"><input type="checkbox" id="qShape" role="switch" aria-label="Formen erkennen (halten)" checked><span class="knob"></span><span class="tl">Formen erkennen (halten)</span></label>
       <label class="tgl qsrow" id="hlSnapRow" title="Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen"><input type="checkbox" id="qHlSnap" role="switch" aria-label="Textmarker an Text ausrichten" checked><span class="knob"></span><span class="tl">Textmarker an Text ausrichten</span></label>
@@ -3086,7 +3086,7 @@ function label(c,o,cx,cy,maxW,opt={}){
   lines.forEach((l,i)=>{const yy=y0+i*lh;c.fillText(l,cx,yy);if(opt.underline){const w=c.measureText(l).width;c.lineWidth=Math.max(.7,fs/14);const xs=opt.left?cx:cx-w/2;seg(c,xs,yy+fs*.55,xs+w,yy+fs*.55)}});
   c.restore()}
 const below=(c,o,x,y,w,h)=>label(c,o,x+w/2,y+h+(o.fs||11)*.35,Math.max(w*2.4,90),{top:true});
-function cyl(c,o,x,y,w,h,k){const ry=h*k;c.beginPath();c.ellipse(x+w/2,y+ry,w/2,ry,0,Math.PI,0);c.lineTo(x+w,y+h-ry);c.ellipse(x+w/2,y+h-ry,w/2,ry,0,0,Math.PI);c.closePath();fillStroke(c,o);c.beginPath();c.ellipse(x+w/2,y+ry,w/2,ry,0,0,Math.PI);c.stroke()}
+function cyl(c,o,x,y,w,h,k){const ry=Math.abs(h*k),rx=Math.abs(w/2);c.beginPath();c.ellipse(x+w/2,y+ry,rx,ry,0,Math.PI,0);c.lineTo(x+w,y+h-ry);c.ellipse(x+w/2,y+h-ry,rx,ry,0,0,Math.PI);c.closePath();fillStroke(c,o);c.beginPath();c.ellipse(x+w/2,y+ry,rx,ry,0,0,Math.PI);c.stroke()}
 function arrowHead(c,x1,y1,x2,y2,L){const a=Math.atan2(y2-y1,x2-x1);seg(c,x1,y1,x2,y2);c.beginPath();c.moveTo(x2-L*Math.cos(a-.5),y2-L*Math.sin(a-.5));c.lineTo(x2,y2);c.lineTo(x2-L*Math.cos(a+.5),y2-L*Math.sin(a+.5));c.stroke()}
 
 /* ---------- Symbolbibliothek ---------- */
@@ -4580,22 +4580,23 @@ function attachInk(P,i){
     const sp=snap?snapPt(snap,e.clientX,e.clientY):[e.clientX,e.clientY];
     const [x,y]=toPt(...sp);const tol=6/S.zoom;st={x,y,snap,moved:false};
     if(CRP&&!(CRP.p===i&&(handleAt(CRP.o,x,y,tol)||hit(CRP.o,x,y,tol))))cropEnd(true); // a click elsewhere confirms the crop
+    const tg=e.shiftKey||e.ctrlKey||e.metaKey;
     if(S.sel&&S.sel.p===i&&(['symbol','rect','ellipse'].includes(S.tool)||(S.tool==='field'&&S.sel.o.type==='field')||(['line','arrow'].includes(S.tool)&&S.sel.o.type==='line'))){
       const k=handleAt(S.sel.o,x,y,tol);
       if(k){st.selDrag=1;st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);return}
-      if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,tol)){st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
-      if(!e.altKey&&S.sel.o.type==='line'&&(S.tool==='line'||S.tool==='arrow')&&hit(S.sel.o,x,y,tol)&&!dockAt(P,x,y,10/S.zoom)){st.wasSel=true;st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
+      if(!tg&&S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,tol)){st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
+      if(!e.altKey&&!tg&&S.sel.o.type==='line'&&(S.tool==='line'||S.tool==='arrow')&&hit(S.sel.o,x,y,tol)&&!dockAt(P,x,y,10/S.zoom)){st.wasSel=true;st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
     }
-    const tg=e.shiftKey||e.ctrlKey||e.metaKey;
-    // Shift/Ctrl/Cmd click on an object toggles its selection in the drawing tools too (nothing is drawn)
-    if(tg&&!e.altKey&&['pen','marker','line','arrow','rect','ellipse','symbol','table'].includes(S.tool)){const o=hitsAt(P,x,y,tol)[0];if(o){selToggle(o,e);st=null;return}}
+    // Shift/Ctrl/Cmd click on an object toggles its selection in the drawing tools too; with a drag the tool draws normally (Shift = angle snap), so the toggle waits for pointerup
+    if(tg&&!e.altKey&&['pen','marker','line','arrow','rect','ellipse','symbol','table','field','redact'].includes(S.tool)){const o=hitsAt(P,x,y,tol)[0];if(o)st.tgl=o}
+    if(tg&&!e.altKey&&S.tool==='text'){const o=hitsAt(P,x,y,tol)[0];if(o){selToggle(o,e);st=null;return}}
     // Form-Werkzeuge: Klick auf eine vorhandene Beschriftung wählt sie aus und verschiebt sie (Alt: trotzdem neu zeichnen)
-    if(!e.altKey&&S.tool==='field'){const o=[...P.objs].reverse().find(o=>o.type==='field'&&hit(o,x,y,tol));
+    if(!e.altKey&&!st.tgl&&S.tool==='field'){const o=[...P.objs].reverse().find(o=>o.type==='field'&&hit(o,x,y,tol));
       if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
     // line/arrow tool: pressing on an existing line selects and moves it (Alt: draw anyway); a device under the pointer still starts a docked line
-    if(!e.altKey&&(S.tool==='line'||S.tool==='arrow')){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
+    if(!e.altKey&&!st.tgl&&(S.tool==='line'||S.tool==='arrow')){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
       if(o&&o.type==='line'&&!dockAt(P,x,y,10/S.zoom)){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
-    if(!e.altKey&&['rect','ellipse','table','symbol'].includes(S.tool)){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
+    if(!e.altKey&&!st.tgl&&['rect','ellipse','table','symbol'].includes(S.tool)){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
       if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
     switch(S.tool){
       case'select':{
@@ -4637,6 +4638,8 @@ function attachInk(P,i){
     if(st&&!e.buttons&&e.pointerType==='mouse'&&e.isPrimary){end(e);st=null;dragEnd();return}
     if(!st){
       let cur='';if(S.sel&&S.sel.p===i&&['symbol','rect','ellipse'].includes(S.tool)){const[x,y]=toPt(e.clientX,e.clientY),k=handleAt(S.sel.o,x,y,6/S.zoom);if(k)cur=CURS[k];else if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,6/S.zoom))cur='move'}
+      else if(S.tool==='line'||S.tool==='arrow'){const[x,y]=toPt(e.clientX,e.clientY),tl=6/S.zoom,sl=S.sel&&S.sel.p===i&&S.sel.o.type==='line'?S.sel.o:null,k=sl?handleAt(sl,x,y,tl):null;
+        if(k)cur=CURS[k];else if(!e.altKey){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tl));if(o&&o.type==='line'&&!dockAt(P,x,y,10/S.zoom))cur='move'}}
       else if(S.tool==='select'){cur=selCur(e.clientX,e.clientY)}
       else if(S.tool==='text'){const[x,y]=toPt(e.clientX,e.clientY),tol=6/S.zoom;
         const k=S.sel&&S.sel.p===i&&S.sel.o.type==='text'?handleAt(S.sel.o,x,y,tol):null;
@@ -4685,6 +4688,7 @@ function attachInk(P,i){
     if(S.rotHint){S.rotHint=null;redraw(i)}
     if(!st)return;clearTimeout(st.qsT);if(st.qs)qsTagHide();
     if(st.marq){const L=S.lasso,add=st.add;S.lasso=null;st=null;if(L)lassoFinish(i,L,add);return}
+    if(st.tgl&&!st.moved){const o=st.tgl;S.draft=null;S.dock=null;st=null;selToggle(o,e);redraw(i);return}
     const d=S.draft&&S.draft.o;
     switch(st.selDrag?'select':S.tool){
       case'pen':case'marker':case'line':case'arrow':case'rect':case'ellipse':case'redact':case'field':case'table':{
@@ -4728,7 +4732,7 @@ function attachInk(P,i){
     if(CRP){cropEnd(true);return}
     if(S.sel&&S.sel.p===i&&S.sel.o.type==='image'&&handleAt(S.sel.o,x,y,6/S.zoom)){imgRatioReset(S.sel.o);return}
     if(S.sel&&S.sel.p===i&&rotOf(S.sel.o)&&handleAt(S.sel.o,x,y,6/S.zoom)==='rot'){pushHist();delete S.sel.o.rot;textClamp(S.sel.o,P,false);redraw(i);markDirty();return}
-    let o=[...P.objs].reverse().find(o=>hit(o,x,y,6/S.zoom));if(!o)return;
+    let o=(S.sel&&S.sel.p===i&&S.sel.o.type!=='group'&&hit(S.sel.o,x,y,6/S.zoom))?S.sel.o:hitsAt(P,x,y,6/S.zoom)[0];if(!o)return;
     // a device's own box or caption wins over a docked line crossing it (not over the line's own label, a free line, or label-less symbols)
     if(o.type==='line'&&o.link&&!(l=>l&&x>=l.x&&x<=l.x+l.w&&y>=l.y&&y<=l.y+l.h)(lineLblBox(o))){const sy=[...P.objs].reverse().find(q=>q.type==='sym'&&q.label&&!NOLBL.includes(q.sym)&&SYM[q.sym]&&!SYM[q.sym].frame&&!q.locked&&x>=q.x-4&&x<=q.x+q.w+4&&y>=q.y&&y<=q.y+q.h+(SYM[q.sym].below&&q.label?(q.fs||11)*1.3*String(q.label).split('\n').length+3:0));if(sy)o=sy}
     if((o.gid||o.gg)&&!(S.sel&&S.sel.o===o))setSel({p:i,o});
@@ -5793,7 +5797,7 @@ async function insertImages(files,i,at){
 function pickImage(){if(!S.pages.length)return;const inp=$('#imgIn');inp.dataset.mode='new';inp.click()}
 function imgTarget(){const o=S.sel&&S.sel.o;return o&&o.type==='image'?o:null}
 /* ---------- 3.10: Bilder strecken (Seitengriffe) und zuschneiden ----------
-   Side handles stretch one dimension (setting imgSide). Crop mode (button, double-click, Shift+C) turns the handles into crop edges:
+   Side handles stretch one dimension. Crop mode (button, double-click, Shift+C) turns the handles into crop edges:
    o.crop = {l,t,r,b} = hidden fractions of the source image; the box (o.x..o.h) is the visible part, so dragging an edge changes box and crop together
    and the visible pixels keep their scale. The full image stays in S.imgs, so the crop can be extended again. One undo step per crop session. */
 var cropNote=false;const CROP_NOTE='Zuschneiden blendet nur aus; das ganze Bild bleibt in der Datei. Zum Entfernen: Schwärzen.';
