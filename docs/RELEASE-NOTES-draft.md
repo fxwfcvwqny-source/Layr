@@ -31,7 +31,6 @@ Release notes for version 3.10.0.
 - Alt on a corner handle resizes from the centre.
 - Z-order: Ctrl+] / Ctrl+[ one step, Ctrl+Shift+] / Ctrl+Shift+[ to front/back; layout-independent alternatives Ctrl+Shift+Up/Down and Ctrl+Alt+Shift+Up/Down. Groups move as a block.
 - Tab / Shift+Tab step through the objects of the page (reading order, groups as one stop, announced to screen readers); Esc leaves.
-- Double-click edits an object in every placement and shape tool.
 
 ### Text
 - Partial formatting: bold, italic, underline and highlight for the selected characters (`sty` runs), with a mixed state in the toggles; undo/redo restores it.
@@ -80,7 +79,6 @@ Release notes for version 3.10.0.
 | Vorlagen per Klick platzieren | on | Settings menu |
 | Vorlagen als Gruppe auswählen | on | Settings menu |
 | Topologie-Bausteine als bearbeitbare Knoten | on | Settings menu |
-| Doppelklick bearbeitet in allen Werkzeugen | on | Settings menu |
 | Objektleiste am gewählten Objekt | on | Settings menu |
 | Tab wechselt zwischen Objekten | on | Settings menu |
 | Bilder frei strecken (Seitengriffe) | on | Settings menu |
@@ -94,7 +92,6 @@ Release notes for version 3.10.0.
 ## Changes of behaviour
 
 - Templates are placed by clicking on the sheet, not in the page centre (switch off to get the old behaviour).
-- Double-click edits an object in every tool, not only in the select tool.
 - Tab cycles through the objects of the page; Esc returns to normal Tab navigation.
 - The page-move arrows at the thumbnails are hidden by default (drag, Alt+Up/Down or the context menu still work).
 - Text-box background and italic are stored per run when set for selected words only.

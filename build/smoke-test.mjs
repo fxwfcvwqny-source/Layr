@@ -944,55 +944,20 @@ else {
     ok('Alte Topologie-Symbole (Altdokument): Auswahl, Verschieben und Größe ziehen funktionieren', sel3 && Math.abs(mvd[0] - 260) < 1 && Math.abs(mvd[1] - 230) < 1 && Math.abs(rsz[0] - 168) < 1 && Math.abs(rsz[1] - 126) < 1, { sel3, mvd, rsz });
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
-  // B4a: double-click edits an existing object in every placement/shape tool without leaving an extra object (setting dblAllOn)
+  // B4a: a quick second click never undoes anything: no history is taken back programmatically in any tool (owner test: templates vanished)
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     await ev(TPJS);
-    await ev("dblAllOn=true;tplClickOn=true;S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
+    await ev("tplClickOn=true;S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
     const dbl4 = async (ix = 0) => { await sleep(700); const p = await ev(`tpScr(tpPt(S.pages[0].objs[${ix}]))`); await mv(p[0], p[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); };
-    const state4 = () => ev("({n:S.pages[0].objs.length,hu:H.u.length,edit:!!editorEl&&editingObj===S.pages[0].objs[0],armed:!!ARM,txt:!!editorEl&&editingObj==null})");
-    const res4 = {};
-    for (const tool of ['symbol', 'rect', 'ellipse', 'line', 'arrow', 'pen', 'marker', 'text', 'armed']) {
-      await ev(`closeEditor();setSel(null);${tool === 'armed' ? "setTool('select');armOn('net_home')" : `S.sym='server';setTool('${tool}')`};H.u=[];H.r=[];updUndo();S.pages[0].objs.length=1`);
-      await dbl4(); const r = await state4(); await ev("closeEditor();armOff();setSel(null)");
-      res4[tool] = r;
-      ok(`Doppelklick im Werkzeug ${tool}: bearbeitet das Objekt, kein zusätzliches Objekt, kein Verlauf-Eintrag`, r.n === 1 && r.edit && r.hu === 0, r);
+    const state4 = () => ev("({n:S.pages[0].objs.length,hu:H.u.length,hr:H.r.length,first:S.pages[0].objs[0]&&S.pages[0].objs[0].label})");
+    // template placed by click over an existing device, then a second click 150 ms later: the template must stay (was undone before)
+    for (const tool of ['armed', 'symbol', 'rect', 'ellipse', 'line', 'arrow', 'pen', 'marker', 'text']) {
+      await ev(`closeEditor();setSel(null);S.pages[0].objs.length=1;${tool === 'armed' ? "setTool('select');armOn('einlinie')" : `S.sym='server';setTool('${tool}')`};H.u=[];H.r=[];updUndo()`);
+      await dbl4(); const r = await state4(); await ev('closeEditor();armOff();setSel(null)');
+      ok(`Schneller zweiter Klick im Werkzeug ${tool}: nichts wird rückgängig gemacht (redo-Liste leer, Objekt bleibt)`, r.hr === 0 && r.n >= 1 && r.first === 'Eins' && (tool !== 'armed' || r.n > 1), r);
     }
-    // an open edit that gets saved by the first click must not be undone by the dblclick (data loss, cases A text tool, B pen tool)
-    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;setTool('text');newText(0,420,520);ED.eng.put('Hallo Welt');H.u=[];H.r=[];updUndo()");
-    await dbl4(); const lossA = await ev("({n:S.pages[0].objs.length,txt:S.pages[0].objs.some(o=>o.type==='text'&&o.text==='Hallo Welt'),edit:!!editorEl&&editingObj===S.pages[0].objs[0]})"); await ev("closeEditor();setSel(null)");
-    ok('Doppelklick im Textwerkzeug: ein offener Text bleibt erhalten (kein Datenverlust)', lossA.txt && lossA.edit && lossA.n === 2, lossA);
-    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:420,y:300,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Zwei'}));redraw(0);setTool('pen');H.u=[];H.r=[];updUndo()");
-    await dbl4(0); await ev("ED.eng.put('NEU')"); await dbl4(1);
-    const lossB = await ev("({l0:S.pages[0].objs[0].label,n:S.pages[0].objs.length,edit:!!editorEl&&editingObj===S.pages[0].objs[1]})"); await ev("closeEditor();setSel(null);setTool('select');S.pages[0].objs.length=1;S.pages[0].objs[0].label='Eins';H.u=[];H.r=[];updUndo()");
-    ok('Doppelklick im Stiftwerkzeug: die Änderung am ersten Symbol bleibt, zweites Symbol wird bearbeitet', /NEU/.test(lossB.l0) && lossB.n === 2 && lossB.edit, lossB);
-    // typing right after a click over an object in the text tool: the character lands in the new text box, no shortcut fires
-    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;setTool('text');H.u=[];H.r=[];updUndo()");
-    { await sleep(700); const p = await ev("tpScr(tpPt(S.pages[0].objs[0]))"); await mv(p[0], p[1]); await pressAt(p[0], p[1]); await releaseAt(p[0], p[1]); await sleep(60);
-      await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'm', code: 'KeyM', windowsVirtualKeyCode: 77, text: 'm' }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'm', code: 'KeyM', windowsVirtualKeyCode: 77 }); await sleep(100); }
-    const tk = await ev("({tool:S.tool,ed:!!editorEl&&ED&&ED.eng.value})"); await ev("closeEditor();setTool('select');setSel(null);S.pages[0].objs.length=1;H.u=[];H.r=[];updUndo()");
-    ok('Textwerkzeug über einem Objekt: sofortiges Tippen (m) landet im Textfeld, Werkzeug bleibt', tk.tool === 'text' && tk.ed === 'm', tk);
-    // full (capped) history: the dblclick still takes back the dots and opens the editor
-    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;for(let q=0;q<160;q++)pushHist();setTool('pen')");
-    await dbl4(); const cap4 = await state4(); await ev("closeEditor();setTool('select');setSel(null);S.pages[0].objs.length=1;H.u=[];H.r=[];updUndo()");
-    ok('Doppelklick im Stiftwerkzeug bei vollem Verlauf (150): keine Punkte, Editor offen', cap4.n === 1 && cap4.edit, cap4);
-    // a pen stroke that starts on the symbol and is followed by a quick click: the stroke stays (no dblclick undo)
-    await ev("closeEditor();setSel(null);S.pages[0].objs.length=1;setTool('pen');H.u=[];H.r=[];updUndo()");
-    { await sleep(700); const p = await ev("tpScr(tpPt(S.pages[0].objs[0]))"); await mv(p[0], p[1]); await pressAt(p[0], p[1]); for (let i = 1; i <= 5; i++) await dragTo(p[0] + 12 * i, p[1] + 3 * i); await releaseAt(p[0] + 60, p[1] + 15);
-      await mv(p[0], p[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: 2 }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: 2 }); await sleep(250); }
-    const strk = await ev("({pens:S.pages[0].objs.filter(o=>o.type==='pen'&&o.pts.length>2).length,edit:!!editorEl&&editingObj!=null})"); await ev("closeEditor();setTool('select');S.pages[0].objs.length=1;setSel(null);H.u=[];H.r=[];updUndo()");
-    ok('Stift: ein gezogener Strich bleibt, wenn direkt danach geklickt wird', strk.pens === 1 && !strk.edit, strk);
-    // setting OFF: pen tool keeps the old behaviour (draws dots, no editor), proves the check is sensitive
-    await ev("dblAllOn=false;closeEditor();setSel(null);setTool('pen');H.u=[];H.r=[];updUndo();S.pages[0].objs.length=1");
-    await dbl4(); const off4 = await state4(); await ev("dblAllOn=true;closeEditor();setTool('select');S.pages[0].objs.length=1;setSel(null);H.u=[];H.r=[];updUndo()");
-    ok('Doppelklick im Werkzeug: Einstellung aus verhält sich wie früher (Stift zeichnet, kein Editor)', off4.n > 1 && !off4.edit, off4);
-    // double-click on empty paper in the pen tool still draws (nothing taken back)
-    await ev("setTool('pen');H.u=[];H.r=[];updUndo();S.pages[0].objs.length=1");
-    { const g = await ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width*.8,r.top+r.height*.5]})()");
-      await mv(g[0], g[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: g[0], y: g[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: g[0], y: g[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); }
-    const emp = await state4(); await ev("setTool('select')");
-    ok('Doppelklick im Stiftwerkzeug auf leerem Papier: Striche bleiben', emp.n > 1 && !emp.edit, emp);
-    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo()");
   }
   // B4b: «include»/«extend» buttons arm the arrow tool with a preset; with a selected line they label it as before
   {

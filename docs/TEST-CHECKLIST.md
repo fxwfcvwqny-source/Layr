@@ -49,7 +49,6 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Esc nach Tab → normales Tab durch die Oberfläche wieder möglich.
 - [ ] Schalter "Tab wechselt zwischen Objekten" (Standard AN) AUS → Tab läuft nur durch die Oberfläche.
 - [ ] Doppelklick auf ein Objekt mit Symbol-, Form-, Linien- oder Textwerkzeug → Objekt wird bearbeitet, kein Kringel/Punkt bleibt zurück.
-- [ ] Schalter "Doppelklick bearbeitet in allen Werkzeugen" (Standard AN) AUS → nur noch mit Auswahlwerkzeug.
 - [ ] Doppelklick auf Gerät mit durchlaufender Linie → Gerät wird bearbeitet, nicht die Linie.
 - [ ] Stiftstrich zwei Mal schnell kurz hintereinander → beide Striche bleiben.
 
