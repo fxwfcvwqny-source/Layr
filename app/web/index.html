@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3e4N4e3UjKDgAOFfJxPtbCbHeZD4QNrdCEUKC7E5bZQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8pdv/ORsEeLczrcZzIUZyBKr+IW/z+kaE45fr2AsJsc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -794,8 +794,8 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .nt-tasks:not(.any) .nt-bar,.nt-tasks:not(.any) #ntProg{display:none}
 .nt-tasks.all .nt-bar i{animation:lyr-bar-glow .9s ease-out}
 @keyframes lyr-bar-glow{0%{filter:brightness(1)}40%{filter:brightness(1.5)}100%{filter:brightness(1)}}
-.nt-list{list-style:none;margin:0;padding:0;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:1px}
-.nt-task{display:flex;align-items:flex-start;gap:11px;padding:6px;border-radius:var(--r);transition:background .15s}
+.nt-list{list-style:none;margin:0;padding:0;overflow-x:hidden;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:1px}
+.nt-task{display:flex;align-items:flex-start;gap:11px;min-width:0;padding:6px;border-radius:var(--r);transition:background .15s}
 .nt-task:hover{background:var(--hover)}
 .nt-chk{flex:none;width:24px;height:24px;margin:0;padding:0;border-radius:8px;border:2px solid color-mix(in srgb,var(--ink) 30%,transparent);background:var(--panel);display:grid;place-items:center;cursor:pointer;position:relative;transition:background .2s,border-color .2s,transform .12s}
 .nt-chk:hover{border-color:var(--accent)}.nt-chk:active{transform:scale(.88)}
@@ -808,7 +808,7 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .nt-task.pop .nt-chk::after{animation:lyr-chk-ring .55s ease-out}
 @keyframes lyr-chk{0%{transform:scale(.78)}55%{transform:scale(1.14)}100%{transform:scale(1)}}
 @keyframes lyr-chk-ring{from{opacity:.55;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
-.nt-tt{flex:1;min-width:0;height:24px;border:0;outline:none;background:transparent;resize:none;overflow:hidden;font:15px/24px var(--f-ui);color:var(--ink);padding:0;margin:0;text-decoration:line-through;text-decoration-color:transparent;text-decoration-thickness:1.5px;transition:color .3s,text-decoration-color .3s}
+.nt-tt{flex:1;min-width:0;max-width:100%;min-height:24px;field-sizing:content;white-space:pre-wrap;overflow-wrap:anywhere;border:0;outline:none;background:transparent;resize:none;overflow:hidden;font:15px/24px var(--f-ui);color:var(--ink);padding:0;margin:0;text-decoration:line-through;text-decoration-color:transparent;text-decoration-thickness:1.5px;transition:color .3s,text-decoration-color .3s}
 .nt-task.done .nt-tt{color:var(--muted);text-decoration-color:color-mix(in srgb,var(--muted) 80%,transparent)}
 .nt-del{flex:none;width:24px;height:24px;border:0;border-radius:7px;background:transparent;color:var(--muted);display:grid;place-items:center;opacity:0;cursor:pointer;padding:0;transition:opacity .15s,background .15s,color .15s}
 .nt-del svg{width:14px;height:14px}
@@ -5478,18 +5478,16 @@ function tasksChanged(){notesUpd();const ns=document.getElementById('ntState');i
 function tasksProg(){const T=S.tasks||[],d=T.filter(t=>t.d).length,sec=document.getElementById('ntTasks');if(!sec)return;
   sec.classList.toggle('any',T.length>0);document.getElementById('ntProg').innerHTML=T.length?'<b>'+d+'</b> von '+T.length+' erledigt':'';
   document.getElementById('ntBar').style.width=T.length?(d/T.length*100)+'%':'0';notesUpd()}
-const fitTa=ta=>{ta.style.height='24px';ta.style.height=Math.max(24,ta.scrollHeight)+'px'};
 function renderTasks(newIdx){const ul=document.getElementById('ntTaskList');if(!ul)return;ul.innerHTML='';S.tasks=S.tasks||[];
-  S.tasks.forEach((t,k)=>ul.appendChild(taskEl(t,k===newIdx)));requestAnimationFrame(()=>ul.querySelectorAll('.nt-tt').forEach(fitTa));tasksProg()}
-/* Refit task rows whenever the list width changes: rows rendered while the panel is closed measured width 0 and stayed one line high (clipped) */
-{const ul=document.getElementById('ntTaskList');let w0=-1;if(ul)try{new ResizeObserver(()=>{const w=ul.clientWidth;if(!w)w0=-1;else if(w!==w0){w0=w;ul.querySelectorAll('.nt-tt').forEach(fitTa)}}).observe(ul)}catch(e){}}
+  S.tasks.forEach((t,k)=>ul.appendChild(taskEl(t,k===newIdx)));tasksProg()}
+/* Task rows size themselves (field-sizing:content): no JS height fit, so rows rendered while the panel was closed or before a font/zoom change cannot stay stale */
 function taskEl(t,isNew){const li=document.createElement('li');li.className='nt-task'+(t.d?' done':'')+(isNew&&!motionOff()?' enter':'');
   li.innerHTML='<button type="button" class="nt-chk" role="checkbox"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><textarea class="nt-tt" rows="1" spellcheck="true"></textarea><button type="button" class="nt-del" title="Aufgabe löschen"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button>';
   const chk=li.firstChild,ta=li.children[1],del=li.lastChild;ta.value=t.t;chk.setAttribute('aria-checked',t.d);chk.title=t.d?'Wieder offen':'Erledigt';
   chk.onclick=()=>{t.d=!t.d;li.classList.toggle('done',t.d);chk.setAttribute('aria-checked',t.d);chk.title=t.d?'Wieder offen':'Erledigt';
     if(t.d&&!motionOff()){li.classList.remove('pop');void li.offsetWidth;li.classList.add('pop');setTimeout(()=>li.classList.remove('pop'),600)}
     tasksProg();tasksChanged();const T=S.tasks,sec=$('#ntTasks');if(t.d&&T.length>1&&T.every(x=>x.d)){sec.classList.remove('all');void sec.offsetWidth;sec.classList.add('all');toast('Alle Aufgaben erledigt. Stark!')}};
-  ta.addEventListener('input',()=>{t.t=ta.value.replace(/\n/g,' ');fitTa(ta);tasksChanged()});
+  ta.addEventListener('input',()=>{t.t=ta.value.replace(/\n/g,' ');tasksChanged()});
   ta.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#ntNew').focus()}
     else if(e.key==='Backspace'&&ta.value===''){e.preventDefault();const k=S.tasks.indexOf(t);removeTask(t,li,k>0?k-1:-1)}});
   ta.addEventListener('blur',()=>{if(!ta.value.trim())removeTask(t,li,-2)});
