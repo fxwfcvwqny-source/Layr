@@ -23,6 +23,10 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Dunkles Design → dunkle Symbole bleiben sichtbar.
 - [ ] «include» / «extend» ohne gewählte Linie klicken → Pfeilwerkzeug mit gestricheltem offenem Pfeil und Beschriftung; Esc bricht ab.
 - [ ] «include» / «extend» mit gewählter Linie → Linie bekommt die Beschriftung.
+- [ ] Symbolgruppe "Mathe & Logik": 12 Symbole (≥ ≤ ≠ ≈ ± × ÷ → ⇒ ∞ √ ∑) per Klick setzen, Größe ziehen, Linien andocken.
+- [ ] RAID-Symbol setzen, Doppelklick → Stufe im Symbol bearbeiten; speichern, neu öffnen → Beschriftung bleibt.
+- [ ] Include/Extend-Knopf scharf geschaltet → deutlich gedrückt (Akzentfarbe); nach dem Pfeil oder Esc wieder normal.
+- [ ] Vorlage setzen, schnell kopieren/einfügen und verschieben → nichts verschwindet.
 
 ## 3. Auswahlwerkzeug
 - [ ] Umschalt+Klick auf mehrere Objekte, auch eine Vorlage → Gruppe zählt als ein Objekt; Statuszeile "N Objekte gewählt".
@@ -44,6 +48,13 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Esc nach Tab → normales Tab durch die Oberfläche wieder möglich.
 - [ ] Schalter "Tab wechselt zwischen Objekten" (Standard AN) AUS → Tab läuft nur durch die Oberfläche.
 - [ ] Doppelklick auf Gerät mit durchlaufender Linie → Gerät wird bearbeitet, nicht die Linie.
+- [ ] Umschalt-/Strg-Klick auf ein Objekt in jedem Werkzeug (auch Stift, Linie, Symbol, Text) → Auswahl wird umgeschaltet, nichts wird gezeichnet; Umschalt+Ziehen zeichnet normal (Winkel 15°).
+- [ ] Alt+Klick auf übereinanderliegende Objekte → wählt reihum das nächste.
+- [ ] Linien-/Pfeilwerkzeug: auf eine vorhandene Linie ziehen → Linie wird verschoben (Zeiger "verschieben"); Alt+Ziehen zeichnet eine neue.
+- [ ] Linie gewählt: Felder Länge (mm) und Winkel (0° = rechts, gegen den Uhrzeigersinn) ändern per Eingabe und Pfeiltasten, Rückgängig stellt zurück; bei angedockter Linie gesperrt.
+- [ ] Bild gewählt → Zuschneiden-Knopf in der Objektleiste startet den Zuschnitt; bei anderen Objekten fehlt er.
+- [ ] Farbe im Objekt-Menü setzen → die Objektleiste behält ihre Größe.
+- [ ] Rechte Seitenleiste: Textformat (Fett, Kursiv, Unterstrichen, Hintergrund) ganz oben, schaltet an und wieder aus, Zustand sichtbar; Füllung neben der Farbe; Farbeimer-Symbol beim Textfeld-Hintergrund.
 
 ## 4. Text
 - [ ] Wörter im Textfeld markieren, Fett/Kursiv/Unterstrichen/Hervorgehoben → nur die Wörter ändern sich; Mischzustand in den Knöpfen sichtbar.

@@ -24,7 +24,13 @@ Release notes for version 3.10.0.
 - Symbol group "Math & logic": ≥ ≤ ≠ ≈ ± × ÷ → ⇒ ∞ √ ∑.
 
 ### Select tool
-- Shift+click adds a whole group to the selection; a label at the selection shows "N Objekte gewählt" (also announced to screen readers).
+- Shift/Ctrl/Cmd+click toggles a selection, also in the drawing tools (no drawing happens on a click without movement); a whole group is added or removed together. A label at the selection shows "N Objekte gewählt" (also announced to screen readers).
+- Alt+click cycles through overlapping objects (select tool).
+- Line and arrow tools move existing lines (Alt draws a new one); include/extend buttons show a pressed state while armed.
+- Line length (mm) and angle fields (0° = right, counter-clockwise) in the panel; locked for docked lines.
+- Crop button in the object bar (single image).
+- Right sidebar: Textformat on top, fill next to the colour, paint-bucket icon for the text background.
+- Header menus (File, View, Settings) are restructured into sections.
 - Ctrl+G groups the selection (`gg`), Ctrl+Shift+G ungroups; also in the context menu.
 - Align and distribute treat templates and user groups as one unit.
 - Smart guides while moving and while resizing corners, with snapping to the 36 pt page margins; Alt switches them off briefly.
@@ -68,7 +74,6 @@ Release notes for version 3.10.0.
 - Merge: text boxes and other Layr objects stay editable; falls back to the saved pages when the embedded original cannot be loaded or has a different page count.
 - Tables grow with their content instead of clipping, and refit after font size and column changes.
 - Local recovery key includes a content fingerprint, so two different files with the same name and size cannot restore each other's annotations. Old data is adopted and the old key is removed.
-- Typing during the short wait of the text tool opens the box and keeps the character.
 - Armed template and include preset are cancelled on tab open/switch/close and ignore Esc while a dialog or draft is open.
 
 ## Settings added
