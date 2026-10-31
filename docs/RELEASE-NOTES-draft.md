@@ -20,7 +20,8 @@ Release notes for version 3.10.0.
 - Templates are groups (`gid`): a click selects the whole template, move, scale and copy keep it together. Alt+click or double-click selects one part.
 - Include/extend buttons without a selected line arm the arrow tool with a dashed open-arrow preset and label.
 - Symbol group "Storage & backup": RAID 0/1/5/6/10, NAS, backup server, tape, cloud backup, snapshot, replication, external disk, SAN switch.
-- RAID symbols show the level as an editable label inside the symbol (double-click).
+- RAID symbols show the level as an editable label inside the symbol (double-click); the inner letters of the cylinders are editable too (field `ltr`, older versions ignore it), the strip below still edits the label.
+- Notes: to-do rows wrap long text and grow with it (pure CSS, no scripted refit).
 - Symbol group "Math & logic": ≥ ≤ ≠ ≈ ± × ÷ → ⇒ ∞ √ ∑.
 
 ### Select tool

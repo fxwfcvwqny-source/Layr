@@ -25,6 +25,8 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] «include» / «extend» mit gewählter Linie → Linie bekommt die Beschriftung.
 - [ ] Symbolgruppe "Mathe & Logik": 12 Symbole (≥ ≤ ≠ ≈ ± × ÷ → ⇒ ∞ √ ∑) per Klick setzen, Größe ziehen, Linien andocken.
 - [ ] RAID-Symbol setzen, Doppelklick → Stufe im Symbol bearbeiten; speichern, neu öffnen → Beschriftung bleibt.
+- [ ] RAID-Zylinder: Doppelklick auf einen Zylinder → die Buchstaben darin bearbeiten; Doppelklick auf den Streifen → Beschriftung; speichern, neu öffnen → beides bleibt.
+- [ ] Notizen: langer Aufgabentext (auch ohne Leerzeichen) bricht um und die Zeile wächst mit; auch nach Öffnen des Panels und nach Zusammenführen.
 - [ ] Include/Extend-Knopf scharf geschaltet → deutlich gedrückt (Akzentfarbe); nach dem Pfeil oder Esc wieder normal.
 - [ ] Vorlage setzen, schnell kopieren/einfügen und verschieben → nichts verschwindet.
 
