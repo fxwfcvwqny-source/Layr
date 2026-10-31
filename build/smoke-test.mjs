@@ -1718,6 +1718,28 @@ else {
       ok(`Mathe & Logik: ${id} per Klick platziert`, pl === '[[36,36,""]]', pl);
       await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redraw(0)");
     }
+    // sidebar order: text format first, fill directly under the colour swatches, before the width
+    const ord = await ev("(()=>{const q=s=>document.querySelector(s),top=e=>e.getBoundingClientRect().top;const p=q('#pProps').querySelector('.sec:not([hidden])');return JSON.stringify({first:p.id,fmtFirst:!!q('#tfSec #tfmt')&&!!q('#tfSec #tfbg'),order:top(q('#tfmt'))<top(q('#swatches'))&&top(q('#swatches'))<top(q('#fill'))&&top(q('#fill'))<top(q('#lw')),fillInColour:q('#fill').closest('.sec')===q('#swatches').closest('.sec'),ovf:q('.panel').scrollWidth<=q('.panel').clientWidth})})()").then(JSON.parse);
+    ok('Seitenleiste: Textformat ganz oben, Füllung direkt unter den Farben, kein Überlauf', ord.first === 'tfSec' && ord.fmtFirst && ord.order && ord.fillInColour && ord.ovf, ord);
+    // text format toggles: the visual state always equals the real state (no stuck pressed look), without and with a selection
+    await ev("(()=>{const o={type:'text',x:72,y:100,text:'Toggle',fs:18,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);S.itog=o;return 1})()");
+    const tog = async (k, label) => {
+      const st = () => ev(`(()=>{const b=document.querySelector('#tfmt [data-k=${k}]');return {p:b.getAttribute('aria-pressed'),bg:getComputedStyle(b).backgroundColor,sh:getComputedStyle(b).boxShadow,real:!!(S.sel&&S.sel.o.type==='text'?S.sel.o[${JSON.stringify(k)}]:S[${JSON.stringify(k)}])}})()`);
+      const off0 = await st();
+      await ev(`document.querySelector('#tfmt [data-k=${k}]').click()`); await mv(5, 5); await sleep(350);
+      const on = await st();
+      await ev(`document.querySelector('#tfmt [data-k=${k}]').click()`); await mv(5, 5); await sleep(350);
+      const off1 = await st();
+      ok(`Textformat ${k} (${label}): an und aus ändern aria-pressed und Hintergrund, aus sieht wieder aus wie vorher`,
+        off0.p === 'false' && on.p === 'true' && on.real === true && on.bg !== off0.bg && on.sh !== off0.sh && off1.p === 'false' && off1.real === false && off1.bg === off0.bg && off1.sh === off0.sh, { off0, on, off1 });
+    };
+    await ev("setSel(null);setTool('text')");
+    for (const k of ['bold', 'italic', 'underline']) await tog(k, 'ohne Auswahl');
+    await ev("setTool('select');selectItems(0,[S.itog]);syncControls(S.itog)");
+    for (const k of ['bold', 'italic', 'underline']) await tog(k, 'Textobjekt gewählt');
+    await ev("setSel(null);setTool('select');openTextEditor(0,S.itog,false);syncControls(S.itog)"); await sleep(300);
+    for (const k of ['bold', 'italic', 'underline']) await tog(k, 'Editor offen');
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redraw(0)");
   }
   // B9: character autocorrect (rules, undo by Backspace/Ctrl+Z, switch, not in code blocks), special character picker, quick bar id, PDF text layer
   {
