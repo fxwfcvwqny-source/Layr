@@ -957,7 +957,15 @@ else {
       await dbl4(); const r = await state4(); await ev('closeEditor();armOff();setSel(null)');
       ok(`Schneller zweiter Klick im Werkzeug ${tool}: nichts wird rückgängig gemacht (redo-Liste leer, Objekt bleibt)`, r.hr === 0 && r.n >= 1 && r.first === 'Eins' && (tool !== 'armed' || r.n > 1), r);
     }
-    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo()");
+    // line/arrow tool: pressing on an existing line moves it instead of drawing a new one (realistic hold and speed)
+    for (const tool of ['line', 'arrow']) {
+      await ev(`closeEditor();setSel(null);S.pages[0].objs.length=0;S.pages[0].objs.push(sanObj({type:'line',x1:120,y1:420,x2:320,y2:420,color:'#000000',lw:2,start:'none',end:'none'}));redraw(0);setTool('${tool}');H.u=[];H.r=[];updUndo()`);
+      await sleep(700); const p = await ev("tpScr([220,420])"); await mv(p[0], p[1]); await sleep(40); await pressAt(p[0], p[1]); await sleep(60);
+      for (let i = 1; i <= 8; i++) { await dragTo(p[0] + 8 * i, p[1] + 5 * i); await sleep(16); } await releaseAt(p[0] + 64, p[1] + 40); await sleep(150);
+      const ln = await ev("(()=>{const L=S.pages[0].objs;return {n:L.length,x1:L[0].x1,y1:L[0].y1,hu:H.u.length}})()");
+      ok(`Werkzeug ${tool}: Ziehen auf einer vorhandenen Linie verschiebt sie (kein neues Objekt)`, ln.n === 1 && Math.abs(ln.x1 - 120 - 64 / (await ev('S.zoom'))) < 2 && ln.y1 > 420 && ln.hu === 1, ln);
+    }
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo();S.pages[0].el.scrollIntoView({block:'start'})");
   }
   // B4b: «include»/«extend» buttons arm the arrow tool with a preset; with a selected line they label it as before
   {

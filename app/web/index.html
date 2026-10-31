@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-OVZDJbpJUEZrOaZ/dX6I6/6DhmQaE7YgzEFZXvZVW+8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-rxlHAUItWRkfTWIaZYhgAxJMUjZi+JluVFwHi3I0Uuc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4583,14 +4583,18 @@ function attachInk(P,i){
     const sp=snap?snapPt(snap,e.clientX,e.clientY):[e.clientX,e.clientY];
     const [x,y]=toPt(...sp);const tol=6/S.zoom;st={x,y,snap,moved:false};
     if(CRP&&!(CRP.p===i&&(handleAt(CRP.o,x,y,tol)||hit(CRP.o,x,y,tol))))cropEnd(true); // a click elsewhere confirms the crop
-    if(S.sel&&S.sel.p===i&&(['symbol','rect','ellipse'].includes(S.tool)||(S.tool==='field'&&S.sel.o.type==='field'))){
+    if(S.sel&&S.sel.p===i&&(['symbol','rect','ellipse'].includes(S.tool)||(S.tool==='field'&&S.sel.o.type==='field')||(['line','arrow'].includes(S.tool)&&S.sel.o.type==='line'))){
       const k=handleAt(S.sel.o,x,y,tol);
       if(k){st.selDrag=1;st.mode=k;st.o=S.sel.o;st.orig=JSON.parse(JSON.stringify(S.sel.o));st.ob=boxOf(st.orig);return}
       if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,tol)){st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
+      if(!e.altKey&&S.sel.o.type==='line'&&(S.tool==='line'||S.tool==='arrow')&&hit(S.sel.o,x,y,tol)&&!dockAt(P,x,y,10/S.zoom)){st.wasSel=true;st.selDrag=1;st.mode='move';st.o=S.sel.o;st.lx=x;st.ly=y;return}
     }
     // Form-Werkzeuge: Klick auf eine vorhandene Beschriftung wählt sie aus und verschiebt sie (Alt: trotzdem neu zeichnen)
     if(!e.altKey&&S.tool==='field'){const o=[...P.objs].reverse().find(o=>o.type==='field'&&hit(o,x,y,tol));
       if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
+    // line/arrow tool: pressing on an existing line selects and moves it (Alt: draw anyway); a device under the pointer still starts a docked line
+    if(!e.altKey&&(S.tool==='line'||S.tool==='arrow')){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
+      if(o&&o.type==='line'&&!dockAt(P,x,y,10/S.zoom)){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
     if(!e.altKey&&['rect','ellipse','table','symbol'].includes(S.tool)){const o=[...P.objs].reverse().find(o=>hit(o,x,y,tol));
       if(o){st.wasSel=!!(S.sel&&S.sel.o===o);if(!st.wasSel)setSel({p:i,o});st.selDrag=1;st.mode='move';st.o=o;st.lx=x;st.ly=y;return}}
     switch(S.tool){
