@@ -2363,6 +2363,35 @@ else {
     ok('Review 2: Ziehen von RAID- und Router-Symbol nach links oben wirft keine Ausnahme', errs.length === 0, errs);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Review round 3: gap field input, RAID letters Enter, jitter tolerance, ltr sanitising
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'r3.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    const RR = "[100,200,300].map((x,k)=>({type:'rect',x,y:100,w:50,h:40,color:'#000000',lw:1,fill:'white',oid:'g'+k}))";
+    const gapTry = async txt => ev(`(()=>{S.pages[0].objs=${RR};redrawAll();selectItems(0,S.pages[0].objs.slice());const u=H.u.length,i=document.getElementById('alGap');i.value=${JSON.stringify(txt)};alGapSet('dh');const O=S.pages[0].objs;return JSON.stringify([+(O[1].x-O[0].x-O[0].w).toFixed(2),H.u.length-u,i.getAttribute('aria-invalid'),O[2].x])})()`).then(JSON.parse);
+    const g1 = await gapTry('12,5'), g2 = await gapTry('12.5'), g3 = await gapTry('100000');
+    const mm = 12.5 * 72 / 25.4;
+    ok('Review 3: Abstandsfeld nimmt 12,5 und 12.5 als 12,5 mm', Math.abs(g1[0] - mm) < 0.05 && Math.abs(g2[0] - mm) < 0.05 && g1[1] === 1 && !g1[2], { g1, g2 });
+    ok('Review 3: riesiger Abstand verschiebt nichts und erzeugt keinen Rückgängig-Schritt', g3[1] === 0 && g3[3] === 300, g3);
+    const bad = [];
+    for (const t of ['-3', '', 'abc', '1,2,3']) { const g = await gapTry(t); bad.push(g[2] === 'true' && g[1] === 0); }
+    ok('Review 3: negativer, leerer und fehlerhafter Abstand setzt aria-invalid und ändert nichts', bad.every(Boolean), bad);
+    // RAID letters: Enter confirms
+    await ev("S.pages[0].objs=[{type:'sym',sym:'st_raid5',x:200,y:300,w:80,h:60,color:'#000000',lw:1,fill:'white',fs:11,label:'RAID 5'}];redrawAll();editRaidLtr(0,S.pages[0].objs[0])");
+    await sleep(300);
+    const open1 = await ev("!!editorEl");
+    await key310('Enter', 'Enter', 13); await sleep(200);
+    const open2 = await ev("!!editorEl");
+    ok('Review 3: Enter im RAID-Buchstabenfeld bestätigt', open1 === true && open2 === false, { open1, open2 });
+    // pen Shift+click with jitter toggles and draws nothing
+    await ev("S.pages[0].objs=[{type:'rect',x:100,y:200,w:80,h:60,color:'#000000',lw:1,fill:'white',oid:'jr'}];setSel(null);redrawAll();setTool('pen')");
+    await drag310([120, 220], [123, 221], 8, 3);
+    const jt = await ev("JSON.stringify([S.pages[0].objs.length,S.sel&&S.sel.o.oid])").then(JSON.parse);
+    ok('Review 3: Umschalt-Klick im Stiftwerkzeug mit 3 px Wackeln wählt aus und zeichnet nichts', jt[0] === 1 && jt[1] === 'jr', jt);
+    const sl = await ev("sanObj({type:'sym',sym:'st_raid5',x:1,y:1,w:50,h:40,ltr:'  A,B  '}).ltr");
+    ok('Review 3: sanObj kürzt Leerzeichen am Rand der RAID-Buchstaben', sl === 'A,B', sl);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
