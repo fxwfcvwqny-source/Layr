@@ -40,6 +40,7 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Schalter "Hilfslinien (beim Verschieben und Größe ändern)" (Standard AN) AUS → keine Linien, kein Einrasten.
 - [ ] Drei Objekte nebeneinander (zwei mit Lücke), das dritte in ähnlichem Abstand heranziehen → rastet auf gleichen Abstand ein, rote Maßlinien mit "x,x mm" in beiden Lücken; auch senkrecht und beim Skalieren einer Ecke. Alt kurz bzw. Schalter AUS → kein Einrasten, keine Maßlinien. Im gespeicherten/gedruckten PDF sind keine Maßlinien.
 - [ ] Waagerecht/Senkrecht verteilen → Hinweis "Abstände gleich: x,x mm". Seitenleiste Auswahl → Feld "Abstand (mm)" (ab 2 Objekten): Wert eingeben, Knopf waagerecht/senkrecht (oder Enter) → genau dieser Abstand, erstes Objekt bleibt, Strg+Z in einem Schritt.
+- [ ] Feld "Abstand (mm)": "12,5" und "12.5" ergeben beide 12,5 mm (auch bei englischem System); sehr großer Wert → Hinweis "Passt nicht auf die Seite", nichts bewegt sich, kein Rückgängig-Schritt; negativ, leer oder Text → Feld rot markiert (aria-invalid) mit kurzem Hinweis.
 - [ ] Objekt wählen → kleine Objektleiste darüber (Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten); jeder Knopf wirkt.
 - [ ] F6 → Fokus springt in die Objektleiste, Pfeile/Tab/Enter bedienen sie, Esc zurück.
 - [ ] Schalter "Objektleiste am gewählten Objekt" (Standard AN) AUS → keine Leiste.

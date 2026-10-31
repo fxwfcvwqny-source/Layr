@@ -106,6 +106,8 @@ Release notes for version 3.10.0.
 
 ## Known limits
 
+- Equal-gap guides treat members of groups as single objects only when selected as groups; rotated objects use their unrotated box.
+- RAID symbols cannot be rotated, so the double-click zones (letters above, label strip below) do not account for rotation.
 - Rotated text gets axis-aligned highlight boxes.
 - Text background is not drawn for stacked text; stacked text does not use the per-word runs.
 - Special characters such as arrows and maths symbols come from a fallback system font if the chosen font lacks them.
