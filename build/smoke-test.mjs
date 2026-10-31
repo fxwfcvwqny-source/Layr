@@ -1016,6 +1016,8 @@ else {
     for (const [id, lab] of [['lnInc', '«include»'], ['lnExt', '«extend»']]) {
       await c4(id);
       const a0 = await ev("({tool:S.tool,pre:LNPRE&&LNPRE.label,n:S.pages[0].objs.length})");
+      const pr = () => ev("[document.getElementById('lnInc').getAttribute('aria-pressed'),document.getElementById('lnExt').getAttribute('aria-pressed')]");
+      const pr0 = await pr();
       const g = await ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width*.3,r.top+r.height*.3,S.zoom]})()");
       await mv(g[0], g[1]); await pressAt(g[0], g[1]); for (let i = 1; i <= 6; i++) await dragTo(g[0] + 20 * i, g[1] + 10 * i); await releaseAt(g[0] + 120, g[1] + 60); await sleep(120);
       const l = await ev("(()=>{const o=S.pages[0].objs;return {n:o.length,o:o[o.length-1],pre:LNPRE,hu:H.u.length}})()");
@@ -1025,9 +1027,13 @@ else {
       await mv(g[0], g[1] + 150); await pressAt(g[0], g[1] + 150); for (let i = 1; i <= 4; i++) await dragTo(g[0] + 20 * i, g[1] + 150); await releaseAt(g[0] + 80, g[1] + 150); await sleep(100);
       const p2 = await ev("(()=>{const o=S.pages[0].objs;return [o.length,o[o.length-1].label||null]})()");
       ok(`${lab}: Voreinstellung gilt nur für einen Pfeil`, p2[0] === 2 && p2[1] === null, p2);
+      const pr1 = await pr();
+      ok(`${lab}-Knopf: aria-pressed=true solange scharf, danach false`, pr0[id === 'lnInc' ? 0 : 1] === 'true' && pr0[id === 'lnInc' ? 1 : 0] === 'false' && pr1[0] === 'false' && pr1[1] === 'false', { pr0, pr1 });
       await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');H.u=[];H.r=[];updUndo()");
     }
-    await c4('lnExt'); await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+    await c4('lnExt'); const prArmed = await ev("document.getElementById('lnExt').getAttribute('aria-pressed')"); await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+    const prE = await ev("document.getElementById('lnExt').getAttribute('aria-pressed')");
+    ok('«extend»-Knopf: aria-pressed=true wenn scharf, nach Esc false', prArmed === 'true' && prE === 'false', { prArmed, prE });
     ok('«extend»-Voreinstellung: Esc bricht ab', await ev("LNPRE===null&&!document.querySelector('.armhint').textContent") === true);
     // selected line: old behaviour
     await ev("S.pages[0].objs.push({type:'line',x1:100,y1:100,x2:200,y2:100,color:'#000000',lw:1,dash:false,elbow:false,start:'none',end:'none'});setTool('select');setSel({p:0,o:S.pages[0].objs[0]});redraw(0)");

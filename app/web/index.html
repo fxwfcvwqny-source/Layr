@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xnTfV1bzjm6Jaw1O7MEn6zaj9cDXSYYeLbMUBX4xre4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-N8NbXYehWp/lUABRxW4X2UFNzL3YyaSCp0hJbMpfp5U=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -106,6 +106,8 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:var(--r);transition:background .12s,filter .12s;border:1px solid transparent;background:var(--fill);white-space:nowrap}
 .btn:hover{background:var(--fill-hover)}
 .btn svg{width:18px;height:18px}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600;box-shadow:none}
+@media (forced-colors:active){.btn[aria-pressed="true"]{forced-color-adjust:none;background:Highlight;color:HighlightText;border-color:Highlight}}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600;box-shadow:none}
 .btn.primary:hover{filter:none;background:color-mix(in srgb,var(--accent) 88%,#000)}
 .zoomv{font-family:var(--f-ui);font-size:12px;min-width:46px;text-align:center;font-variant-numeric:tabular-nums}
@@ -3006,9 +3008,10 @@ $('#elbow').onchange=e=>{S.elbow=e.target.checked;applySel({elbow:S.elbow})};
 const HEADS=[['none','ohne'],['arrow','Pfeil offen'],['filled','Pfeil gefüllt'],['triangle','Dreieck hohl (Vererbung)'],['diamond','Raute hohl (Aggregation)'],['diamondf','Raute gefüllt (Komposition)'],['dot','Punkt']];
 for(const id of ['startH','endH']){const s=$('#'+id);for(const [v,n] of HEADS){const o=document.createElement('option');o.value=v;o.textContent=n;s.appendChild(o)}s.value=S[id];s.onchange=()=>{S[id]=s.value;applySel({[id==='startH'?'start':'end']:s.value})}}
 var LNPRE=null; // one-shot preset for the next drawn arrow: dashed, open arrow head, label «include»/«extend»
-function lnPreOff(){if(!LNPRE)return;LNPRE=null;armHintEl().textContent=''}
+function lnPreMark(){for(const[id,t]of[['lnInc','«include»'],['lnExt','«extend»']])$('#'+id).setAttribute('aria-pressed',!!LNPRE&&LNPRE.label===t)} // armed button shows as pressed until the arrow is drawn or Esc
+function lnPreOff(){if(!LNPRE)return;LNPRE=null;armHintEl().textContent='';lnPreMark()}
 addEventListener('keydown',e=>{if(LNPRE&&e.key==='Escape'&&!editorEl&&!S.draft&&!document.querySelector('.modal:not([hidden])')){e.preventDefault();e.stopImmediatePropagation();lnPreOff()}},true);
-for(const[id,t]of[['lnInc','«include»'],['lnExt','«extend»']])$('#'+id).onclick=()=>{if(!S.sel||S.sel.o.type!=='line'){if(!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}setTool('arrow');LNPRE={label:t};armHintEl().textContent=tr('Pfeil aufziehen, Esc bricht ab');return}applySel({dash:true,start:'none',end:'arrow',label:t});syncControls(S.sel.o)};
+for(const[id,t]of[['lnInc','«include»'],['lnExt','«extend»']])$('#'+id).onclick=()=>{if(!S.sel||S.sel.o.type!=='line'){if(!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}setTool('arrow');LNPRE={label:t};lnPreMark();armHintEl().textContent=tr('Pfeil aufziehen, Esc bricht ab');return}applySel({dash:true,start:'none',end:'arrow',label:t});syncControls(S.sel.o)};
 
 /* Length (mm) and angle (degrees, 0 = right, counter-clockwise) of the selected line: the end point moves, the start stays; docked lines follow their symbols */
 function lnOne(){const o=S.sel&&S.sel.o;return o&&o.type==='line'?o:null}
