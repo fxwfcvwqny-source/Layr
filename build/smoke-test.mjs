@@ -532,17 +532,7 @@ else {
   const tpDbl = async o => { const p = await ev(`tpScr(tpPt(S.pages[0].objs[${o}]))`); await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p[0], y: p[1], button: 'none', buttons: 0 }); await sleep(60);
     for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n }); await sleep(150); };
   const tpSave = await ev("(window.tpOld=S.pages[0].objs.slice(),1)");
-  const tpKeys = await ev('TOPO_TPL.map(t=>t.k)');
-  ok('Topologien: five templates (star, ring, bus, tree, mesh) shown in fillSym', JSON.stringify(tpKeys) === '["topo_star","topo_ring","topo_bus","topo_tree","topo_mesh"]' && await ev("(()=>{const o=S.cat;S.cat='Topologien';buildCats();const n=document.querySelectorAll('#symgrid .sym.tpl').length,s=document.querySelectorAll('#symgrid .sym:not(.tpl)').length;S.cat='Netzwerk';buildCats();const m=document.querySelectorAll('#symgrid .sym.tpl').length;S.cat=o;buildCats();return n===5&&s>=8&&m===5})()") === true);
-  for (const k of tpKeys) {
-    await ev(`tpSet(orgFit(TOPO_TPL.find(t=>t.k==='${k}').b(),S.pages[0],40,1.5))`); await sleep(200);
-    const idx = await ev("S.pages[0].objs.map((o,i)=>o.type==='sym'&&o.label?i:-1).filter(i=>i>=0)");
-    let good = 0;
-    for (const i of idx) { await tpDbl(i); if (await ev(`!!editorEl&&editingObj===S.pages[0].objs[${i}]`) === true) good++; await ev('tpEsc()'); await sleep(80); }
-    ok(`Topologien ${k}: all ${idx.length} labelled devices open the label editor by double-click`, idx.length >= 5 && good === idx.length, { n: idx.length, good });
-  }
-  ok('Topologien: Bus has one long backbone with four drop lines docked to it', await ev("(()=>{const o=TOPO_TPL.find(t=>t.k==='topo_bus').b(),bb=o.find(x=>x.sym==='hub'),ls=o.filter(x=>x.type==='line');return bb.w>=400&&ls.length===4&&ls.every(l=>l.link.a===bb.oid||l.link.b===bb.oid)})()") === true);
-  await ev(`tpSet(orgFit(TOPO_TPL[0].b(),S.pages[0],40,1.5))`); await sleep(200);
+  await ev(`tpSet([sanObj({type:'sym',sym:'server',label:'Server',x:200,y:200,w:SYM.server.w,h:SYM.server.h,color:'#1b2a3a',lw:1.2,fill:'none',fs:11})])`); await sleep(200);
   await tpDbl(0); await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await ev('tpEsc()'); await sleep(100);
   ok('Topologien: typing into a device label is saved in the object', await ev("S.pages[0].objs[0].label.endsWith('Z')") === true, await ev('S.pages[0].objs[0].label'));
   // priority: a docked line across a device caption must not steal the double-click; free lines and label-less symbols keep their own editing
@@ -661,7 +651,7 @@ else {
   ok('Merged notes and to-dos wrap inside the panel too', !!nwj.mg && nwj.mg.pan && nwj.mg.ta && nwj.mg.rows >= 2 && nwj.mg.fit && nwj.mg.full, nwj);
   // Merging Layr-saved PDFs keeps their objects editable, remaps ids (same file twice) and joins the notes
   const mg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),mkDoc=async(n)=>{const d=await PDFLib.PDFDocument.create();for(let k=0;k<n;k++)d.addPage([595,842]);await openPdf(await d.save(),'m.pdf');await w(400)};"
-    + "await mkDoc(2);setTool('select');insertOrgTemplate('topo_star');S.pages[0].objs.push({type:'text',x:60,y:60,text:'Merge Hallo',fs:20,color:'#000000',lw:0,orient:'h'});S.pages[1].objs.push({type:'text',x:60,y:60,text:'Seite zwei',fs:20,color:'#000000',lw:0,orient:'h'});notesSet('Notiz A');tasksSet([{t:'Aufgabe A',d:false}]);markDirty();"
+    + "await mkDoc(2);setTool('select');insertOrgTemplate('net_home');S.pages[0].objs.push({type:'text',x:60,y:60,text:'Merge Hallo',fs:20,color:'#000000',lw:0,orient:'h'});S.pages[1].objs.push({type:'text',x:60,y:60,text:'Seite zwei',fs:20,color:'#000000',lw:0,orient:'h'});notesSet('Notiz A');tasksSet([{t:'Aufgabe A',d:false}]);markDirty();"
     + "const A=await buildOutput(),snapA=JSON.parse(JSON.stringify(S.pages.map(P=>P.objs)));await mkDoc(1);S.pages[0].objs=JSON.parse(JSON.stringify(snapA[0]));notesSet('Notiz B');tasksSet([]);markDirty();const B=await buildOutput();"
     + "await mkDoc(1);mItems=[{name:'a.pdf',bytes:A,pages:2},{name:'b.pdf',bytes:B,pages:1}];await $('#mOk').onclick();await w(1200);"
     + "const cnt=S.pages.map(P=>P.objs.length),oids=S.pages.flatMap(P=>P.objs.map(o=>o.oid).filter(Boolean)),dock=S.pages.map(P=>{const ids=new Set(P.objs.map(o=>o.oid));const L=P.objs.filter(o=>o.type==='line'&&o.link);return L.length>0&&L.every(o=>ids.has(o.link.a)&&ids.has(o.link.b))});"
@@ -840,7 +830,7 @@ else {
       r.undo = await ev("(()=>{undo();return S.pages.every(P=>P.objs.length===0)})()");
       return { r, pl, g };
     };
-    for (const [cat, k, pi] of [['Organigramm', 'einlinie', 0], ['Netzwerk', 'net_home', 0], ['Topologien', 'topo_star', 1]]) {
+    for (const [cat, k, pi] of [['Organigramm', 'einlinie', 0], ['Netzwerk', 'net_home', 0]]) {
       const { r } = await run(cat, k, pi, 0.5);
       ok(`Vorlage ${k}: armed (Kachel gedrückt, Hinweis), Vorschau folgt dem Zeiger, Klick platziert dort auf Seite ${pi + 1}, danach nicht mehr armed, Rückgängig = 1 Schritt`,
         r.armed && r.noInsert && r.ghost && r.placed && r.once && r.undo, r);
@@ -898,37 +888,14 @@ else {
       await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
     }
   }
-  // B3: the 8 old single topology tiles create grouped, real, editable nodes (setting topoEditOn); OFF keeps the single symbol
+  // old topology symbols: tiles place the single symbol as in 3.9.0; documents with them select, move and resize
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-    await ev(TPJS); // helpers are gone after the openPdf of the previous block
-    await ev("tplClickOn=true;topoEditOn=true;tplGroupOn=true;setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
+    await ev(TPJS);
     const click3 = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(80); };
-    const tile3 = s => ev(`(()=>{S.cat='Topologien';buildCats();const b=document.querySelector('#symgrid .sym[data-s="${s}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
-    const res = {};
-    for (const sy of ['t_star', 't_ring', 't_bus', 't_line', 't_mesh', 't_partmesh', 't_tree', 't_xstar']) {
-      await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
-      const t = await tile3(sy); await click3(t[0], t[1]);
-      const armed = await ev("!!ARM&&S.pages.every(P=>P.objs.length===0)");
-      await ev("S.pages[0].el.scrollIntoView({block:'start'})"); await sleep(250);
-      const g = await ev("(()=>{const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height*.4]})()");
-      await mv(g[0], g[1]); await click3(g[0], g[1]); await sleep(120);
-      const st = await ev("(()=>{const o=S.pages[0].objs,sy=o.filter(q=>q.type==='sym'),ln=o.filter(q=>q.type==='line');return {sym:sy.length,ln:ln.length,oneGid:new Set(o.map(q=>q.gid)).size===1&&!!o[0].gid,linked:ln.every(l=>l.link&&sy.some(q=>q.oid===l.link.a)&&sy.some(q=>q.oid===l.link.b)),old:sy.some(q=>/^t_/.test(q.sym)),hu:H.u.length,arm:ARM}})()");
-      let good = 0;
-      const idx = await ev("S.pages[0].objs.map((o,i)=>o.type==='sym'&&o.label?i:-1).filter(i=>i>=0)");
-      for (const i of idx) { await tpDbl(i); if (await ev(`!!editorEl&&editingObj===S.pages[0].objs[${i}]`) === true) good++;; await ev('tpEsc()'); await sleep(60); }
-      await ev("setSel(null)");
-      const un = await ev("(()=>{undo();return S.pages.every(P=>P.objs.length===0)})()");
-      res[sy] = { armed, ...st, lab: idx.length, good, un };
-      ok(`Topologie-Baustein ${sy}: Gruppe aus echten Knoten, Linien angedockt, Doppelklick je Knoten, Undo = 1 Schritt`,
-        armed && st.sym >= 4 && st.ln >= st.sym - 1 && st.oneGid && st.linked && !st.old && st.hu === 1 && st.arm === null && idx.length === st.sym && good === idx.length && un, res[sy]);
-    }
-    // setting OFF: the single symbol as before
-    await ev("topoEditOn=false;S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select')");
-    const t = await tile3('t_star'); await click3(t[0], t[1]);
-    const off = await ev("({arm:ARM,tool:S.tool,sym:S.sym})");
-    await ev("topoEditOn=true;setTool('select')");
-    ok('Topologie-Baustein: Einstellung aus wählt wie früher das Einzelsymbol (nicht armiert)', off.arm === null && off.tool === 'symbol' && off.sym === 't_star', off);
+    const tpl = await ev("(()=>{S.cat='Topologien';buildCats();const b=document.querySelector('#symgrid .sym[data-s=\"t_star\"]');b.click();return {tpls:document.querySelectorAll('#symgrid .tpl').length,arm:ARM,tool:S.tool,sym:S.sym,topoGone:typeof TOPO_TPL==='undefined'&&typeof topoEditOn==='undefined'&&!('topo_star' in (window.TPL_ALL||{}))&&!NET_TPL.some(t=>t.k.startsWith('topo_'))}})()");
+    ok('Topologie-Kacheln: keine Vorlagen, Klick wählt wie in 3.9.0 das Einzelsymbol (nicht armiert)', tpl.tpls === 0 && tpl.arm === null && tpl.tool === 'symbol' && tpl.sym === 't_star' && tpl.topoGone, tpl);
+    await ev("setTool('select')");
     // old documents: single symbols still select, move and resize with the mouse
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'t_ring',x:200,y:200,w:120,h:90,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'X'}));redraw(0);S.pages[0].el.scrollIntoView({block:'start'})");
     await sleep(300);
@@ -1068,13 +1035,6 @@ else {
     const hang = await ev("(()=>{window.dispatchEvent(new Event('blur'));return ARM&&ARM.drag===null})()"); await releaseAt(g[0], g[1]);
     await ev("armOff();S.pages.forEach(P=>P.objs=[]);setSel(null)");
     ok('Vorlage: pointerup eines anderen Zeigers wird ignoriert, Fenster-blur beendet ein hängendes Ziehen', o1.had && o1.still && o1.n === 0 && placed && hang === true, { o1, placed, hang });
-  }
-  // a11y: old topology tiles show the armed state, live region with keyboard hint
-  {
-    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');S.cat='Topologien';buildCats()");
-    const a = await ev("(()=>{const b=document.querySelector('#symgrid .sym[data-s=\"t_ring\"]'),o=document.querySelector('#symgrid .sym[data-s=\"t_star\"]');const p0=b.getAttribute('aria-pressed');b.click();const h=document.querySelector('.armhint');return {p0,p1:b.getAttribute('aria-pressed'),other:o.getAttribute('aria-pressed'),role:h.getAttribute('role'),txt:/Enter/.test(h.textContent),en:(()=>{const L0=LANG;LANG='en';const t=tr('Klicken zum Platzieren, Enter: in der Mitte platzieren, Esc bricht ab');LANG=L0;return /centre/.test(t)})()}})()");
-    await ev("armOff()"); const p2 = await ev("document.querySelector('#symgrid .sym[data-s=\"t_ring\"]').getAttribute('aria-pressed')");
-    ok('Alte Topologie-Kachel: aria-pressed zeigt die armierte Vorlage, Hinweis (role=status) nennt Enter, de/en', a.p0 === 'false' && a.p1 === 'true' && a.other === 'false' && p2 === 'false' && a.role === 'status' && a.txt && a.en, { a, p2 });
   }
   // armed template / «include» preset do not survive a tab switch
   {
@@ -1409,7 +1369,7 @@ else {
     await click310([410, 330]); await sleep(150);
     const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
     const was = await menu('Objektleiste am gewählten Objekt');
-    await ev("closeMenu()"); await click310([410, 330]); await sleep(200);
+    await ev("closeMenu()"); await sleep(450); await click310([410, 330]); await sleep(200); // wait for the menu fade-out, else the click lands on a menu row
     const offState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
     await sleep(500); for (let t = 0; t < 3 && await ev('obBarOn') === false; t++) { await menu('Objektleiste am gewählten Objekt'); await ev("closeMenu()"); await sleep(400); } await key310('Escape', 'Escape', 27); await click310([410, 330]); await sleep(250);
     const onState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
