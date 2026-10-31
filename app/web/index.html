@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-hBy3WGVZfAfebiNE3xI6mRkc2N2BOZYU0YDOwf4FqUk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-vB2dOn6ZY9N5yIcPBaqLx5cN3umPJ7Cr65CpbEoqCDQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3494,12 +3494,12 @@ def('num','Markierung','Nummer (zählt hoch)',20,20,'1',(c,o,x,y,w,h)=>{c.beginP
   const txt=(c,o,t,cx,cy,s)=>{c.save();c.setLineDash([]);c.fillStyle=o.color;c.font=`600 ${s}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(t,cx,cy);c.restore()};
   // RAID: one cylinder per drive with its content (A, B = data blocks, P/Q = parity); level is the label below
   const raid=(id,name,lab,L,pairs)=>{
-    def(id,CAT,name,L.length>3?72:58,52,lab,(c,o,x,y,w,h)=>{
-      const n=L.length,top=pairs?h*.3:0,gap=w*.04,cw=(w-gap*(n-1))/n,ch=h-top,mid=i=>x+i*(cw+gap)+cw/2;
+    def(id,CAT,name,L.length>3?72:58,66,lab,(c,o,x,y,w,h)=>{
+      const n=L.length,sh=h*.22,top=pairs?(h-sh)*.3:0,gap=w*.04,cw=(w-gap*(n-1))/n,ch=h-sh-top,mid=i=>x+i*(cw+gap)+cw/2;
       L.forEach((t,i)=>{const cx=x+i*(cw+gap);cyl(c,o,cx,y+top,cw,ch,.16);txt(c,o,t,cx+cw/2,y+top+ch*.64,h*.22)});
       if(pairs)thin(c,o,()=>{for(let i=0;i<n;i+=2){const a=mid(i),b=mid(i+1),yb=y+top,yy=y+top*.62;c.beginPath();c.moveTo(a,yb);c.lineTo(a,yy);c.lineTo(b,yy);c.lineTo(b,yb);c.stroke()}
         const p=(mid(0)+mid(1))/2,q=(mid(2)+mid(3))/2,ys=y+top*.62,yt=y+top*.1;c.beginPath();c.moveTo(p,ys);c.lineTo(p,yt);c.lineTo(q,yt);c.lineTo(q,ys);c.stroke()});
-      below(c,o,x,y,w,h)},{below:1})};
+      label(c,o,x+w/2,y+h-sh/2,w)},{inb:1})};
   raid('st_raid0','RAID 0 (Striping)','RAID 0',['A1','A2']);
   raid('st_raid1','RAID 1 (Spiegelung)','RAID 1',['A','A']);
   raid('st_raid5','RAID 5 (Parität)','RAID 5',['A','B','P']);
@@ -5074,7 +5074,7 @@ function newText(i,x,y){
 function editText(i,o,at){S.sel=null;openTextEditor(i,o,false,at)}
 function editLabel(i,o){if(!SYM[o.sym])return;
   editingObj=o;redraw(i);const s=SYM[o.sym];const fs=o.fs||11;
-  const y=s.below?o.y+o.h+2:o.y+Math.max(0,o.h/2-fs*.7);makeEditor(i,o.x,y,fs,o.color,o.label,{center:!['class','interface'].includes(o.sym),w:o.w});
+  const y=s.below?o.y+o.h+2:s.inb?o.y+o.h-fs*1.55:o.y+Math.max(0,o.h/2-fs*.7);makeEditor(i,o.x,y,fs,o.color,o.label,{center:!['class','interface'].includes(o.sym),w:o.w});
   editorDone=v=>{if(v!==o.label){pushHist();o.label=v;markDirty()}redraw(i)};
 }
 function editLineLabel(i,o){

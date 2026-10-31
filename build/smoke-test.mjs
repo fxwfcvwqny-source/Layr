@@ -1683,6 +1683,26 @@ else {
     ok('Speicher & Backup: englische Namen und Beschriftungen', en[0][0] === 'Storage & backup' && en[0][1] === 'Tape drive' && en[0][4] === 'Tape drive' && en[0][5] === 'Replication' && en[0][3] === 'Backup server' && en[1] === 'Bandlaufwerk', en);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redrawAll()");
   }
+  // 3.10-c: RAID text editable, math symbols, sidebar order, toggle state of the text format buttons
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'rm.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()", 30000);
+    await sleep(400);
+    await ev(TPJS);
+    // RAID: the level text is the symbol label, drawn inside the symbol and edited by double-click; survives save and reopen
+    await ev("S.pages[0].objs.push(sanObj({type:'sym',sym:'st_raid5',x:200,y:200,w:SYM.st_raid5.w,h:SYM.st_raid5.h,color:'#1b2a3a',lw:1.2,fill:'white',fs:11,label:'RAID 5'}));setTool('select');redraw(0)");
+    const raidPt = () => ev("(()=>{const o=S.pages[0].objs[0];return [o.x+o.w/2,o.y+o.h-(o.fs||11)*.8]})()");
+    await dblAt(await raidPt());
+    ok('RAID: Doppelklick auf den Text im Symbol öffnet den Texteditor', await ev('!!editorEl&&editingObj===S.pages[0].objs[0]') === true);
+    await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await key('Escape', 'Escape', 27); await sleep(150);
+    const rl = await ev('S.pages[0].objs[0].label');
+    ok('RAID: getippter Text steht im Label des Symbols (Esc übernimmt)', rl === 'RAID 5Z' && await ev('!editorEl') === true, rl);
+    const rp = await ev("(()=>{const o=S.pages[0].objs[0],cv=document.createElement('canvas');cv.width=cv.height=400;const c=cv.getContext('2d'),draw=l=>{c.clearRect(0,0,400,400);c.fillStyle=c.strokeStyle='#000';drawObj(c,Object.assign({},o,{label:l}));const d=c.getImageData(o.x,o.y+o.h-12,o.w,12).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>60)n++;return n};return[draw('RAID 5Z'),draw('')]})()");
+    ok('RAID: das Label wird im Symbol gezeichnet (unterer Streifen, nicht darunter)', rp[0] > rp[1] + 15, rp);
+    const rr = await ev("(async()=>{const out=await buildOutput();S.pages[0].objs=[];await openPdf(out,'rm2.pdf');await new Promise(r=>setTimeout(r,500));const o=S.pages[0].objs.find(x=>x.sym==='st_raid5');return o&&o.label})()", 30000);
+    ok('RAID: Text bleibt nach Speichern und Wiederöffnen erhalten', rr === 'RAID 5Z', rr);
+    await ev(TPJS);
+  }
   // B9: character autocorrect (rules, undo by Backspace/Ctrl+Z, switch, not in code blocks), special character picker, quick bar id, PDF text layer
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
