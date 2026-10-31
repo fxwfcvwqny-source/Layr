@@ -532,17 +532,7 @@ else {
   const tpDbl = async o => { const p = await ev(`tpScr(tpPt(S.pages[0].objs[${o}]))`); await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p[0], y: p[1], button: 'none', buttons: 0 }); await sleep(60);
     for (const n of [1, 2]) for (const type of ['mousePressed', 'mouseReleased']) await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: n }); await sleep(150); };
   const tpSave = await ev("(window.tpOld=S.pages[0].objs.slice(),1)");
-  const tpKeys = await ev('TOPO_TPL.map(t=>t.k)');
-  ok('Topologien: five templates (star, ring, bus, tree, mesh) shown in fillSym', JSON.stringify(tpKeys) === '["topo_star","topo_ring","topo_bus","topo_tree","topo_mesh"]' && await ev("(()=>{const o=S.cat;S.cat='Topologien';buildCats();const n=document.querySelectorAll('#symgrid .sym.tpl').length,s=document.querySelectorAll('#symgrid .sym:not(.tpl)').length;S.cat='Netzwerk';buildCats();const m=document.querySelectorAll('#symgrid .sym.tpl').length;S.cat=o;buildCats();return n===5&&s>=8&&m===5})()") === true);
-  for (const k of tpKeys) {
-    await ev(`tpSet(orgFit(TOPO_TPL.find(t=>t.k==='${k}').b(),S.pages[0],40,1.5))`); await sleep(200);
-    const idx = await ev("S.pages[0].objs.map((o,i)=>o.type==='sym'&&o.label?i:-1).filter(i=>i>=0)");
-    let good = 0;
-    for (const i of idx) { await tpDbl(i); if (await ev(`!!editorEl&&editingObj===S.pages[0].objs[${i}]`) === true) good++; await ev('tpEsc()'); await sleep(80); }
-    ok(`Topologien ${k}: all ${idx.length} labelled devices open the label editor by double-click`, idx.length >= 5 && good === idx.length, { n: idx.length, good });
-  }
-  ok('Topologien: Bus has one long backbone with four drop lines docked to it', await ev("(()=>{const o=TOPO_TPL.find(t=>t.k==='topo_bus').b(),bb=o.find(x=>x.sym==='hub'),ls=o.filter(x=>x.type==='line');return bb.w>=400&&ls.length===4&&ls.every(l=>l.link.a===bb.oid||l.link.b===bb.oid)})()") === true);
-  await ev(`tpSet(orgFit(TOPO_TPL[0].b(),S.pages[0],40,1.5))`); await sleep(200);
+  await ev(`tpSet([sanObj({type:'sym',sym:'server',label:'Server',x:200,y:200,w:SYM.server.w,h:SYM.server.h,color:'#1b2a3a',lw:1.2,fill:'none',fs:11})])`); await sleep(200);
   await tpDbl(0); await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await ev('tpEsc()'); await sleep(100);
   ok('Topologien: typing into a device label is saved in the object', await ev("S.pages[0].objs[0].label.endsWith('Z')") === true, await ev('S.pages[0].objs[0].label'));
   // priority: a docked line across a device caption must not steal the double-click; free lines and label-less symbols keep their own editing
@@ -661,7 +651,7 @@ else {
   ok('Merged notes and to-dos wrap inside the panel too', !!nwj.mg && nwj.mg.pan && nwj.mg.ta && nwj.mg.rows >= 2 && nwj.mg.fit && nwj.mg.full, nwj);
   // Merging Layr-saved PDFs keeps their objects editable, remaps ids (same file twice) and joins the notes
   const mg = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),mkDoc=async(n)=>{const d=await PDFLib.PDFDocument.create();for(let k=0;k<n;k++)d.addPage([595,842]);await openPdf(await d.save(),'m.pdf');await w(400)};"
-    + "await mkDoc(2);setTool('select');insertOrgTemplate('topo_star');S.pages[0].objs.push({type:'text',x:60,y:60,text:'Merge Hallo',fs:20,color:'#000000',lw:0,orient:'h'});S.pages[1].objs.push({type:'text',x:60,y:60,text:'Seite zwei',fs:20,color:'#000000',lw:0,orient:'h'});notesSet('Notiz A');tasksSet([{t:'Aufgabe A',d:false}]);markDirty();"
+    + "await mkDoc(2);setTool('select');insertOrgTemplate('net_home');S.pages[0].objs.push({type:'text',x:60,y:60,text:'Merge Hallo',fs:20,color:'#000000',lw:0,orient:'h'});S.pages[1].objs.push({type:'text',x:60,y:60,text:'Seite zwei',fs:20,color:'#000000',lw:0,orient:'h'});notesSet('Notiz A');tasksSet([{t:'Aufgabe A',d:false}]);markDirty();"
     + "const A=await buildOutput(),snapA=JSON.parse(JSON.stringify(S.pages.map(P=>P.objs)));await mkDoc(1);S.pages[0].objs=JSON.parse(JSON.stringify(snapA[0]));notesSet('Notiz B');tasksSet([]);markDirty();const B=await buildOutput();"
     + "await mkDoc(1);mItems=[{name:'a.pdf',bytes:A,pages:2},{name:'b.pdf',bytes:B,pages:1}];await $('#mOk').onclick();await w(1200);"
     + "const cnt=S.pages.map(P=>P.objs.length),oids=S.pages.flatMap(P=>P.objs.map(o=>o.oid).filter(Boolean)),dock=S.pages.map(P=>{const ids=new Set(P.objs.map(o=>o.oid));const L=P.objs.filter(o=>o.type==='line'&&o.link);return L.length>0&&L.every(o=>ids.has(o.link.a)&&ids.has(o.link.b))});"
@@ -716,9 +706,9 @@ else {
     + "o=mk(10);const T=[],t0=window.toast;window.toast=m=>{T.push(m);t0(m)};cm(o,('Zeile\\n').repeat(120));window.toast=t0;out.tall=o.h>P.h&&o.y===0&&T.some(m=>/ragt/.test(m));"
     + "o=mk(100,11);o.cells[1][0]='Ein Text der in einer Zelle bei grosser Schrift umbrechen muss';setSel({p:0,o});const h0=o.h;applySel({fs:30},false);out.fsGrow=o.h>h0+10;"
     + "o=mk(100,11);o.cells[1][1]='Ein Text der nach dem Ziehen der Spaltentrennlinie umbrechen muss';out.dragSetup=[o.x,o.y,o.w,o.h];setSel({p:0,o});"
-    + "const q=$('#tGrow');q.checked=false;q.onchange();o=mk(100,11);cm(o,LONG);out.offSame=Math.abs(o.h-60)<1e-6;o.h=60;o.cells[1][0]='';applySel({fs:30},false);out.offFs=Math.abs(o.h-60)<1e-6;q.checked=true;q.onchange();out.persist=localStorage.getItem('pdfwerkbank:tblgrow')==='1';return JSON.stringify(out)})()", 60000);
+    + "return JSON.stringify(out)})()", 60000);
   const tbj = typeof tgb === 'string' ? JSON.parse(tgb) : { err: tgb };
-  ok('Table grow: shifts up at the page end, notice when taller than the page, font size refits, Settings switch off keeps the old height', tbj.shift === true && tbj.tall === true && tbj.fsGrow === true && tbj.offSame === true && tbj.offFs === true && tbj.persist === true, tbj);
+  ok('Table grow: shifts up at the page end, notice when taller than the page, font size refits', tbj.shift === true && tbj.tall === true && tbj.fsGrow === true, tbj);
   {
     const [tx, ty, tw, th] = tbj.dragSetup || [0, 0, 0, 0];
     await ev("(()=>{const P=S.pages[0];P.objs.length=0;const o={type:'table',x:60,y:100,w:240,h:60,rows:2,cols:2,cw:[.5,.5],rh:[.5,.5],cells:[['a','b'],['','Ein Text der nach dem Ziehen der Spaltentrennlinie umbrechen muss']],fs:11,color:'#000000',lw:1,head:true,fill:'white'};P.objs.push(o);redraw(0);setTool('select');setSel({p:0,o})})()");
@@ -822,7 +812,7 @@ else {
   // Templates: click-to-place (B1). Real mouse; geometry relative to the page, not font-based.
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'tpl.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;setTool('select');setSel(null)})()");
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'tpl.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');setSel(null)})()");
     const click = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(60); };
     const pagePt = async (i, fy) => { await ev(`S.pages[${i}].el.scrollIntoView({block:'start'})`); await sleep(300); return ev(`(()=>{const P=S.pages[${i}],r=P.el.getBoundingClientRect();return {l:r.left,t:r.top,z:S.zoom,w:P.w,h:P.h,cx:r.left+P.w*S.zoom/2,cy:r.top+P.h*S.zoom*${fy}}})()`); };
     const tileXY = cat => ev(`(()=>{S.cat=${JSON.stringify(cat)};buildCats();const b=document.querySelector('#symgrid .sym.tpl[data-k="'+window.__tk+'"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
@@ -840,7 +830,7 @@ else {
       r.undo = await ev("(()=>{undo();return S.pages.every(P=>P.objs.length===0)})()");
       return { r, pl, g };
     };
-    for (const [cat, k, pi] of [['Organigramm', 'einlinie', 0], ['Netzwerk', 'net_home', 0], ['Topologien', 'topo_star', 1]]) {
+    for (const [cat, k, pi] of [['Organigramm', 'einlinie', 0], ['Netzwerk', 'net_home', 0]]) {
       const { r } = await run(cat, k, pi, 0.5);
       ok(`Vorlage ${k}: armed (Kachel gedrückt, Hinweis), Vorschau folgt dem Zeiger, Klick platziert dort auf Seite ${pi + 1}, danach nicht mehr armed, Rückgängig = 1 Schritt`,
         r.armed && r.noInsert && r.ghost && r.placed && r.once && r.undo, r);
@@ -881,14 +871,6 @@ else {
       const nat = await ev("(()=>{const bb=orgBBox(NET_TPL.find(t=>t.k==='net_home').b());return bb.w/bb.h})()");
       ok('Vorlage: Ziehen bestimmt die Größe (Seitenverhältnis bleibt, Ecke am Startpunkt)', d.w > 0 && Math.abs(d.w / d.h - nat) < 0.02 && Math.abs(g.l + d.x * d.z - (g.cx - 100)) < 3 && Math.abs(g.t + d.y * d.z - g.cy) < 3 && d.w * d.z < 520, { d, nat });
     }
-    // setting OFF: old behaviour, centre insertion without arming
-    {
-      await ev("window.__tk='net_home';S.pages.forEach(P=>P.objs=[]);setSel(null);tplClickOn=false");
-      const t = await tileXY('Netzwerk'); await click(t[0], t[1]);
-      const off = await ev("ARM===null&&S.pages[0].objs.length>2&&Math.abs((()=>{const bb=orgBBox(S.pages[0].objs.filter(o=>o.type==='sym'));return bb.x+bb.w/2-S.pages[0].w/2})())<2");
-      await ev("tplClickOn=true;S.pages.forEach(P=>P.objs=[]);setSel(null)");
-      ok('Vorlage: Einstellung aus platziert wie früher sofort in der Mitte', off === true, off);
-    }
     // keyboard: first Enter arms, second Enter places at the viewer centre
     {
       await ev("window.__tk='net_home';S.pages.forEach(P=>P.objs=[])");
@@ -898,37 +880,14 @@ else {
       await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
     }
   }
-  // B3: the 8 old single topology tiles create grouped, real, editable nodes (setting topoEditOn); OFF keeps the single symbol
+  // old topology symbols: tiles place the single symbol as in 3.9.0; documents with them select, move and resize
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-    await ev(TPJS); // helpers are gone after the openPdf of the previous block
-    await ev("tplClickOn=true;topoEditOn=true;tplGroupOn=true;setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
+    await ev(TPJS);
     const click3 = async (x, y) => { await mv(x, y); await pressAt(x, y); await releaseAt(x, y); await sleep(80); };
-    const tile3 = s => ev(`(()=>{S.cat='Topologien';buildCats();const b=document.querySelector('#symgrid .sym[data-s="${s}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
-    const res = {};
-    for (const sy of ['t_star', 't_ring', 't_bus', 't_line', 't_mesh', 't_partmesh', 't_tree', 't_xstar']) {
-      await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);H.u=[];H.r=[];updUndo()");
-      const t = await tile3(sy); await click3(t[0], t[1]);
-      const armed = await ev("!!ARM&&S.pages.every(P=>P.objs.length===0)");
-      await ev("S.pages[0].el.scrollIntoView({block:'start'})"); await sleep(250);
-      const g = await ev("(()=>{const r=S.pages[0].el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height*.4]})()");
-      await mv(g[0], g[1]); await click3(g[0], g[1]); await sleep(120);
-      const st = await ev("(()=>{const o=S.pages[0].objs,sy=o.filter(q=>q.type==='sym'),ln=o.filter(q=>q.type==='line');return {sym:sy.length,ln:ln.length,oneGid:new Set(o.map(q=>q.gid)).size===1&&!!o[0].gid,linked:ln.every(l=>l.link&&sy.some(q=>q.oid===l.link.a)&&sy.some(q=>q.oid===l.link.b)),old:sy.some(q=>/^t_/.test(q.sym)),hu:H.u.length,arm:ARM}})()");
-      let good = 0;
-      const idx = await ev("S.pages[0].objs.map((o,i)=>o.type==='sym'&&o.label?i:-1).filter(i=>i>=0)");
-      for (const i of idx) { await tpDbl(i); if (await ev(`!!editorEl&&editingObj===S.pages[0].objs[${i}]`) === true) good++;; await ev('tpEsc()'); await sleep(60); }
-      await ev("setSel(null)");
-      const un = await ev("(()=>{undo();return S.pages.every(P=>P.objs.length===0)})()");
-      res[sy] = { armed, ...st, lab: idx.length, good, un };
-      ok(`Topologie-Baustein ${sy}: Gruppe aus echten Knoten, Linien angedockt, Doppelklick je Knoten, Undo = 1 Schritt`,
-        armed && st.sym >= 4 && st.ln >= st.sym - 1 && st.oneGid && st.linked && !st.old && st.hu === 1 && st.arm === null && idx.length === st.sym && good === idx.length && un, res[sy]);
-    }
-    // setting OFF: the single symbol as before
-    await ev("topoEditOn=false;S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select')");
-    const t = await tile3('t_star'); await click3(t[0], t[1]);
-    const off = await ev("({arm:ARM,tool:S.tool,sym:S.sym})");
-    await ev("topoEditOn=true;setTool('select')");
-    ok('Topologie-Baustein: Einstellung aus wählt wie früher das Einzelsymbol (nicht armiert)', off.arm === null && off.tool === 'symbol' && off.sym === 't_star', off);
+    const tpl = await ev("(()=>{S.cat='Topologien';buildCats();const b=document.querySelector('#symgrid .sym[data-s=\"t_star\"]');b.click();return {tpls:document.querySelectorAll('#symgrid .tpl').length,arm:ARM,tool:S.tool,sym:S.sym,topoGone:typeof TOPO_TPL==='undefined'&&typeof topoEditOn==='undefined'&&!('topo_star' in (window.TPL_ALL||{}))&&!NET_TPL.some(t=>t.k.startsWith('topo_'))}})()");
+    ok('Topologie-Kacheln: keine Vorlagen, Klick wählt wie in 3.9.0 das Einzelsymbol (nicht armiert)', tpl.tpls === 0 && tpl.arm === null && tpl.tool === 'symbol' && tpl.sym === 't_star' && tpl.topoGone, tpl);
+    await ev("setTool('select')");
     // old documents: single symbols still select, move and resize with the mouse
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'t_ring',x:200,y:200,w:120,h:90,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'X'}));redraw(0);S.pages[0].el.scrollIntoView({block:'start'})");
     await sleep(300);
@@ -949,7 +908,7 @@ else {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     const zoomB4 = await ev('S.zoom');
     await ev(TPJS);
-    await ev("tplClickOn=true;S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
+    await ev("S.pages.forEach(P=>P.objs=[]);zoomTo(1);S.pages[0].objs.push(sanObj({type:'sym',sym:'pc',x:260,y:200,w:40,h:30,color:'#1b2a3a',lw:1.2,fill:'white',fs:10,label:'Eins'}));redraw(0);setSel(null);H.u=[];H.r=[];updUndo()");
     const dbl4 = async (ix = 0) => { await sleep(700); const p = await ev(`tpScr(tpPt(S.pages[0].objs[${ix}]))`); await mv(p[0], p[1]); for (const n of [1, 2]) { await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: p[0], y: p[1], button: 'left', buttons: 1, clickCount: n }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p[0], y: p[1], button: 'left', buttons: 0, clickCount: n }); } await sleep(250); };
     const state4 = () => ev("({n:S.pages[0].objs.length,hu:H.u.length,hr:H.r.length,first:S.pages[0].objs[0]&&S.pages[0].objs[0].label})");
     // template placed by click over an existing device, then a second click 150 ms later: the template must stay (was undone before)
@@ -1087,13 +1046,6 @@ else {
     await ev("armOff();S.pages.forEach(P=>P.objs=[]);setSel(null)");
     ok('Vorlage: pointerup eines anderen Zeigers wird ignoriert, Fenster-blur beendet ein hängendes Ziehen', o1.had && o1.still && o1.n === 0 && placed && hang === true, { o1, placed, hang });
   }
-  // a11y: old topology tiles show the armed state, live region with keyboard hint
-  {
-    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');S.cat='Topologien';buildCats()");
-    const a = await ev("(()=>{const b=document.querySelector('#symgrid .sym[data-s=\"t_ring\"]'),o=document.querySelector('#symgrid .sym[data-s=\"t_star\"]');const p0=b.getAttribute('aria-pressed');b.click();const h=document.querySelector('.armhint');return {p0,p1:b.getAttribute('aria-pressed'),other:o.getAttribute('aria-pressed'),role:h.getAttribute('role'),txt:/Enter/.test(h.textContent),en:(()=>{const L0=LANG;LANG='en';const t=tr('Klicken zum Platzieren, Enter: in der Mitte platzieren, Esc bricht ab');LANG=L0;return /centre/.test(t)})()}})()");
-    await ev("armOff()"); const p2 = await ev("document.querySelector('#symgrid .sym[data-s=\"t_ring\"]').getAttribute('aria-pressed')");
-    ok('Alte Topologie-Kachel: aria-pressed zeigt die armierte Vorlage, Hinweis (role=status) nennt Enter, de/en', a.p0 === 'false' && a.p1 === 'true' && a.other === 'false' && p2 === 'false' && a.role === 'status' && a.txt && a.en, { a, p2 });
-  }
   // armed template / «include» preset do not survive a tab switch
   {
     const r = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);const b=await d.save();const t0=TAB;armOn('net_home');LNPRE={label:'«include»'};const ok=await tabOpenWith(()=>tabLoad(b,'tabB.pdf'));const afterOpen=[ARM===null,LNPRE===null];armOn('net_home');LNPRE={label:'«extend»'};await tabSwitch_(t0);return JSON.stringify({ok,afterOpen,afterSwitch:[ARM===null,LNPRE===null],tabs:TABS.length})})()", 40000);
@@ -1104,7 +1056,7 @@ else {
   // Templates as groups (B2): gid on all parts, click selects all, move/scale keep proportions, Alt selects one
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'grp.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;tplGroupOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});S.pages[0].objs.push({type:'rect',x:20,y:700,w:80,h:50,color:'#000000',lw:1,fill:'none'});insertOrgTemplate('net_home',{i:0,x:300,y:200,tl:false});insertOrgTemplate('net_office',{i:0,x:300,y:560,sc:.5,tl:false});setSel(null);redraw(0)})()", 20000);
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'grp.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});S.pages[0].objs.push({type:'rect',x:20,y:700,w:80,h:50,color:'#000000',lw:1,fill:'none'});insertOrgTemplate('net_home',{i:0,x:300,y:200,tl:false});insertOrgTemplate('net_office',{i:0,x:300,y:560,sc:.5,tl:false});setSel(null);redraw(0)})()", 20000);
     await sleep(500);
     const scr = () => ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left,r.top,S.zoom]})()");
     let sc = await scr();
@@ -1157,17 +1109,13 @@ else {
     // save and reopen keeps the groups
     const rt = await ev("(async()=>{const before=JSON.stringify(S.pages[0].objs.map(o=>o.gid||null));const b=await buildOutput();await openPdf(b,'grp2.pdf');await new Promise(r=>setTimeout(r,800));return JSON.stringify([before===JSON.stringify(S.pages[0].objs.map(o=>o.gid||null)),new Set(S.pages[0].objs.filter(o=>o.gid).map(o=>o.gid)).size])})()", 30000).then(JSON.parse);
     ok('Gruppen: Speichern und Wiederöffnen behält die gid-Gruppen', rt[0] === true && rt[1] === 3, rt);
-    // old behaviour: objects without gid select alone; setting off selects single members
+    // objects without gid select alone
     await ev('zoomTo(1)'); await sleep(500); sc = await scr();
     await clickAt([20, 725]);
     const old1 = await ev("JSON.stringify([selItems().length,S.sel&&S.sel.o.type])").then(JSON.parse);
-    await ev("tplGroupOn=false;setSel(null)");
-    const f2 = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid);return [o.x+o.w/2,o.y+o.h/2]})()");
-    await clickAt(f2);
-    const off = await ev("selItems().length");
-    await ev("tplGroupOn=true;setSel(null)");
-    ok('Gruppen: Objekte ohne gid und Einstellung aus wählen wie früher einzeln', old1[0] === 1 && old1[1] === 'rect' && off === 1, { old1, off });
+    ok('Gruppen: Objekte ohne gid wählen einzeln', old1[0] === 1 && old1[1] === 'rect', old1);
     // click on empty page clears the group selection
+    const f2 = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='cloud'&&o.gid);return [o.x+o.w/2,o.y+o.h/2]})()");
     await clickAt(f2);
     await clickAt([560, 100]);
     ok('Gruppen: Klick auf leere Fläche hebt die Auswahl auf', await ev("!S.sel") === true);
@@ -1176,7 +1124,7 @@ else {
   // 3.10 B5: select tool development (multi-select, groups, align, guides, mini bar, resize modifiers, z-order, Tab). Shared helpers.
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await ev("window.scroll310=()=>{const v=document.getElementById('viewer');document.scrollingElement.scrollTop=0;document.body.scrollTop=0;v.scrollTop+=S.pages[0].el.getBoundingClientRect().top-v.getBoundingClientRect().top-10}");
-  const open310 = async (objsJs) => { await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'b5.pdf');await new Promise(r=>setTimeout(r,500));tplClickOn=true;tplGroupOn=true;GD.on=true;GD.grid=false;obBarOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));scroll310();${objsJs};setSel(null);redraw(0)})()`, 20000); await sleep(400); };
+  const open310 = async (objsJs) => { await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'b5.pdf');await new Promise(r=>setTimeout(r,500));GD.on=true;GD.grid=false;obBarOn=true;setTool('select');setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));scroll310();${objsJs};setSel(null);redraw(0)})()`, 20000); await sleep(400); };
   const pt310 = async (p) => { const sc = await ev("(()=>{scroll310();const r=S.pages[0].el.getBoundingClientRect();return [r.left,r.top,S.zoom]})()"); return [sc[0] + p[0] * sc[2], sc[1] + p[1] * sc[2]]; };
   const click310 = async (p, mod = 0, cc = 1) => { const c = await pt310(p); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: cc, modifiers: mod }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: c[0], y: c[1], button: 'left', buttons: 0, clickCount: cc, modifiers: mod }); await sleep(120); };
   const drag310 = async (a, b, mod = 0, steps = 8) => { const c = await pt310(a), d = await pt310(b); await mv(c[0], c[1]); await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: c[0], y: c[1], button: 'left', buttons: 1, clickCount: 1, modifiers: mod }); for (let i = 1; i <= steps; i++) await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: c[0] + (d[0] - c[0]) * i / steps, y: c[1] + (d[1] - c[1]) * i / steps, button: 'left', buttons: 1, modifiers: mod }); await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: d[0], y: d[1], button: 'left', buttons: 0, clickCount: 1, modifiers: mod }); await sleep(150); };
@@ -1430,7 +1378,7 @@ else {
     await ev("closeEditor();setSel(null)");
     // setting off (via the real Settings menu): bar absent; on again: present
     await click310([410, 330]); await sleep(150);
-    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
+    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
     const was = await menu('Objektleiste am gewählten Objekt');
     await ev("closeMenu()"); await sleep(450); await click310([410, 330]); await sleep(200); // the closing menu must be gone, else the click lands on it
     const offState = await ev("[obBarOn,localStorage.getItem('pdfwerkbank:objBar'),document.getElementById('obBar').hidden]");
@@ -1548,7 +1496,7 @@ else {
     ok('Tab: englische Ansage', /^Object \d of 3: /.test(le), le);
     // setting off (via the Settings menu): Tab does not change the selection
     const clickEl = async (sel) => { const r = await ev(`(()=>{const b=document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(200); };
-    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); await ev('closeMenu()'); return r[2]; };
+    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); await ev('closeMenu()'); return r[2]; };
     const was = await menu('Tab wechselt zwischen Objekten');
     await key310('Escape', 'Escape', 27); await click310([345, 125]);
     const before = await cur();
@@ -1566,7 +1514,7 @@ else {
     const px = (x, y) => ev(`(()=>{const P=S.pages[0],k=P.ink.width/P.w,d=P.ictx.getImageData(Math.round(${x}*k),Math.round(${y}*k),1,1).data;return [d[0],d[1],d[2],d[3]]})()`);
     const nr = (a, b, t = 0.6) => Math.abs(a - b) < t;
     const clickEl = async (sel) => { const r = await ev(`(()=>{const b=document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`); await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(200); };
-    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
+    const menu = async (txt) => { await clickEl('#bSetMenu'); await sleep(450); const r = await ev(`(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith(${JSON.stringify(txt)}));if(!b)return null;b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()`); if (!r) return null; await mv(r[0], r[1]); await pressAt(r[0], r[1]); await releaseAt(r[0], r[1]); await sleep(300); return r[2]; };
     await open310(IMG);
     await click310([200, 150]);
     const hk = await ev("JSON.stringify(handles(S.sel.o).map(h=>h.k).sort())").then(JSON.parse);
@@ -1603,12 +1551,6 @@ else {
     await open310(IMG); await click310([200, 150]);
     await drag310([300, 200], [400, 230], 8); o = await O();
     ok('Bild: Umschalt am Eckgriff verzerrt weiterhin frei', nr(o.w, 300) && nr(o.h, 130), o);
-    // setting off hides the side handles
-    await open310(IMG); await click310([200, 150]);
-    const was = await menu('Bilder frei strecken');
-    const off = await ev("JSON.stringify([imgSideOn,handles(S.sel.o).length,localStorage.getItem('pdfwerkbank:imgSide')])").then(JSON.parse);
-    await sleep(300); const m2 = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(x=>x.textContent.startsWith('Bilder frei strecken'));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,b.getAttribute('aria-checked')]})()"); if (m2) { await mv(m2[0], m2[1]); await pressAt(m2[0], m2[1]); await releaseAt(m2[0], m2[1]); await sleep(300); } const on = await ev("JSON.stringify([imgSideOn,handles(S.sel.o).length])").then(JSON.parse);
-    ok('Bild: Einstellung "Bilder frei strecken" (Standard an) aus: nur 4 Eckgriffe; wieder an: 8', was === 'true' && off.join() === 'false,4,0' && on.join() === 'true,8', { was, off, on, m2 });
     // crop: Shift+C, drag the left edge in; box and crop change together, visible pixels keep their scale
     await open310(IMG); await click310([200, 150]);
     const h0 = await ev('H.u.length');
@@ -1648,8 +1590,8 @@ else {
   // 10 Review fixes: groups count as one unit only when fully selected
   {
     const nr = (a, b, t = 0.6) => Math.abs(a - b) < t;
-    for (const tplOn of [true, false]) {
-      await open310("insertOrgTemplate('net_home',{i:0,x:200,y:150,sc:.4,tl:false});tplGroupOn=" + tplOn);
+    for (const tplOn of [true]) {
+      await open310("insertOrgTemplate('net_home',{i:0,x:200,y:150,sc:.4,tl:false})");
       const pts = await ev("JSON.stringify((()=>{const m=S.pages[0].objs.filter(o=>o.gid&&o.type==='sym');const a=m[0],b=m.find(o=>Math.abs(o.x-a.x)>5);return [a,b].map(o=>[o.x+o.w/2,o.y+o.h/2])})())").then(JSON.parse);
       await ev("(()=>{const m=S.pages[0].objs.filter(o=>o.gid&&o.type==='sym');const a=m[0],b=m.find(o=>Math.abs(o.x-a.x)>5);selectItems(0,[a,b])})()");
       const n = await ev("selItems().length");
@@ -1659,7 +1601,6 @@ else {
       await ev("groupSel()");
       ok('Gruppieren: zwei Teile einer Vorlage lassen sich mit Strg+G gruppieren (Vorlagengruppe ' + (tplOn ? 'an' : 'aus') + ')', await ev("selItems().filter(o=>o.gg).length") === 2);
     }
-    await ev("tplGroupOn=true");
   }
   // 11 Crop mode and document switch / foreign history entries
   {
@@ -1753,6 +1694,92 @@ else {
     const en = await ev("(()=>{setLang('en');const r=[tr('Speicher & Backup'),tr('Bandlaufwerk'),tr('Replikation'),tr('Backup-Server'),SYM.st_tape.label,SYM.st_repl.label,1];setLang('de');return JSON.stringify([r,SYM.st_tape.label])})()").then(JSON.parse);
     ok('Speicher & Backup: englische Namen und Beschriftungen', en[0][0] === 'Storage & backup' && en[0][1] === 'Tape drive' && en[0][4] === 'Tape drive' && en[0][5] === 'Replication' && en[0][3] === 'Backup server' && en[1] === 'Bandlaufwerk', en);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redrawAll()");
+  }
+  // 3.10-c: RAID text editable, math symbols, sidebar order, toggle state of the text format buttons
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'rm.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()", 30000);
+    await sleep(400);
+    await ev(TPJS);
+    // RAID: the level text is the symbol label, drawn inside the symbol and edited by double-click; survives save and reopen
+    await ev("S.pages[0].objs.push(sanObj({type:'sym',sym:'st_raid5',x:200,y:200,w:SYM.st_raid5.w,h:SYM.st_raid5.h,color:'#1b2a3a',lw:1.2,fill:'white',fs:11,label:'RAID 5'}));setTool('select');redraw(0)");
+    const raidPt = () => ev("(()=>{const o=S.pages[0].objs[0];return [o.x+o.w/2,o.y+o.h-(o.fs||11)*.8]})()");
+    await dblAt(await raidPt());
+    ok('RAID: Doppelklick auf den Text im Symbol öffnet den Texteditor', await ev('!!editorEl&&editingObj===S.pages[0].objs[0]') === true);
+    await key('End', 'End', 35); await key('Z', 'KeyZ', 90, 'Z'); await key('Escape', 'Escape', 27); await sleep(150);
+    const rl = await ev('S.pages[0].objs[0].label');
+    ok('RAID: getippter Text steht im Label des Symbols (Esc übernimmt)', rl === 'RAID 5Z' && await ev('!editorEl') === true, rl);
+    const rp = await ev("(()=>{const o=S.pages[0].objs[0],cv=document.createElement('canvas');cv.width=cv.height=400;const c=cv.getContext('2d'),draw=l=>{c.clearRect(0,0,400,400);c.fillStyle=c.strokeStyle='#000';drawObj(c,Object.assign({},o,{label:l}));const d=c.getImageData(o.x,o.y+o.h-12,o.w,12).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>60)n++;return n};return[draw('RAID 5Z'),draw('')]})()");
+    ok('RAID: das Label wird im Symbol gezeichnet (unterer Streifen, nicht darunter)', rp[0] > rp[1] + 15, rp);
+    const rr = await ev("(async()=>{const out=await buildOutput();S.pages[0].objs=[];await openPdf(out,'rm2.pdf');await new Promise(r=>setTimeout(r,500));const o=S.pages[0].objs.find(x=>x.sym==='st_raid5');return o&&o.label})()", 30000);
+    ok('RAID: Text bleibt nach Speichern und Wiederöffnen erhalten', rr === 'RAID 5Z', rr);
+    await ev(TPJS);
+    // math symbols
+    const MA = await ev("JSON.stringify({cat:CATS.includes('Mathe & Logik'),ids:Object.values(SYM).filter(s=>s.cat==='Mathe & Logik').map(s=>s.id)})").then(JSON.parse);
+    const MAen = await ev("(()=>{setLang('en');const r=[tr('Mathe & Logik'),tr('Größer gleich'),tr('Kleiner gleich')];setLang('de');return r})()");
+    ok('Mathe & Logik: Gruppe mit 12 Symbolen (≥ ≤ ≠ ≈ ± × ÷ → ⇒ ∞ √ ∑), de/en', MA.cat && MA.ids.length === 12 && MA.ids.includes('mt_ge') && MA.ids.includes('mt_le') && MAen.join() === 'Math & logic,Greater than or equal,Less than or equal', { MA, MAen });
+    const mpx = await ev("JSON.stringify(Object.values(SYM).filter(s=>s.cat==='Mathe & Logik').map(s=>{const cv=document.createElement('canvas');cv.width=120;cv.height=120;const c=cv.getContext('2d');c.strokeStyle=c.fillStyle='#000';s.draw(c,{type:'sym',sym:s.id,color:'#000',lw:1.2,fill:'none',fs:11,label:''},20,20,s.w,s.h);const d=c.getImageData(0,0,120,120).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>60)n++;return n}))").then(JSON.parse);
+    ok('Mathe & Logik: jedes Symbol zeichnet Pixel (auch als Kachelbild)', mpx.length === 12 && mpx.every(n => n > 40), mpx);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redraw(0)");
+    for (const id of ['mt_ge', 'mt_le']) {
+      const tl = await ev(`(()=>{S.cat='Mathe & Logik';buildCats();const b=document.querySelector('#symgrid .sym[data-s="${id}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+      await mv(tl[0], tl[1]); await pressAt(tl[0], tl[1]); await releaseAt(tl[0], tl[1]); await sleep(150);
+      const g = await ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+150*S.zoom,r.top+150*S.zoom]})()");
+      await mv(g[0], g[1]); await pressAt(g[0], g[1]); await releaseAt(g[0], g[1]); await sleep(200);
+      const pl = await ev(`JSON.stringify(S.pages[0].objs.filter(o=>o.sym==='${id}').map(o=>[o.w,o.h,o.label||'']))`);
+      ok(`Mathe & Logik: ${id} per Klick platziert`, pl === '[[36,36,""]]', pl);
+      await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redraw(0)");
+    }
+    // sidebar order: text format first, fill directly under the colour swatches, before the width
+    const ord = await ev("(()=>{const q=s=>document.querySelector(s),top=e=>e.getBoundingClientRect().top;const p=q('#pProps').querySelector('.sec:not([hidden])');return JSON.stringify({first:p.id,fmtFirst:!!q('#tfSec #tfmt')&&!!q('#tfSec #tfbg'),order:top(q('#tfmt'))<top(q('#swatches'))&&top(q('#swatches'))<top(q('#fill'))&&top(q('#fill'))<top(q('#lw')),fillInColour:q('#fill').closest('.sec')===q('#swatches').closest('.sec'),ovf:q('.panel').scrollWidth<=q('.panel').clientWidth})})()").then(JSON.parse);
+    ok('Seitenleiste: Textformat ganz oben, Füllung direkt unter den Farben, kein Überlauf', ord.first === 'tfSec' && ord.fmtFirst && ord.order && ord.fillInColour && ord.ovf, ord);
+    // text format toggles: the visual state always equals the real state (no stuck pressed look), without and with a selection
+    await ev("(()=>{const o={type:'text',x:72,y:100,text:'Toggle',fs:18,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);S.itog=o;return 1})()");
+    const tog = async (k, label) => {
+      const st = () => ev(`(()=>{const b=document.querySelector('#tfmt [data-k=${k}]');return {p:b.getAttribute('aria-pressed'),bg:getComputedStyle(b).backgroundColor,sh:getComputedStyle(b).boxShadow,real:!!(S.sel&&S.sel.o.type==='text'?S.sel.o[${JSON.stringify(k)}]:S[${JSON.stringify(k)}])}})()`);
+      const off0 = await st();
+      await ev(`document.querySelector('#tfmt [data-k=${k}]').click()`); await mv(5, 5); await sleep(350);
+      const on = await st();
+      await ev(`document.querySelector('#tfmt [data-k=${k}]').click()`); await mv(5, 5); await sleep(350);
+      const off1 = await st();
+      ok(`Textformat ${k} (${label}): an und aus ändern aria-pressed und Hintergrund, aus sieht wieder aus wie vorher`,
+        off0.p === 'false' && on.p === 'true' && on.real === true && on.bg !== off0.bg && on.sh !== off0.sh && off1.p === 'false' && off1.real === false && off1.bg === off0.bg && off1.sh === off0.sh, { off0, on, off1 });
+    };
+    await ev("setSel(null);setTool('text')");
+    for (const k of ['bold', 'italic', 'underline']) await tog(k, 'ohne Auswahl');
+    await ev("setTool('select');selectItems(0,[S.itog]);syncControls(S.itog)");
+    for (const k of ['bold', 'italic', 'underline']) await tog(k, 'Textobjekt gewählt');
+    await ev("setSel(null);setTool('select');openTextEditor(0,S.itog,false);syncControls(S.itog)"); await sleep(300);
+    for (const k of ['bold', 'italic', 'underline']) await tog(k, 'Editor offen');
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redraw(0)");
+  }
+  // M1: header menus are grouped (section headings), capped in size, scroll, distinct icons, keyboard and Esc focus return
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    const J = e => ev(e).then(JSON.parse);
+    const probe = async id => { await ev(`document.getElementById('${id}').click()`); await sleep(500); return J(`JSON.stringify((()=>{const c=document.getElementById('ctx'),r=c.getBoundingClientRect(),ic=[...c.querySelectorAll('.hm-ic use')].map(u=>u.getAttribute('href')),d=ic.filter((x,i)=>ic.indexOf(x)!==i);return{role:c.getAttribute('role'),h:r.height,w:r.width,heads:[...c.querySelectorAll('.hm-sh')].map(x=>x.textContent),labels:[...c.querySelectorAll('button .hm-l')].map(x=>x.textContent),roles:[...new Set([...c.querySelectorAll('button')].map(b=>b.getAttribute('role')))],dups:d,right:r.right<=innerWidth}})())`); };
+    const close = async () => { await key('Escape', 'Escape', 27); await sleep(450); };
+    const fm = await probe('bFileMenu'); await close();
+    const vm = await probe('bViewMenu'); await close();
+    const sm = await probe('bSetMenu');
+    ok('Menüs: Datei, Ansicht, Einstellungen sind in Abschnitte gegliedert, höchstens 560 px hoch und 400 px breit, passen in den Bildschirm', [fm, vm, sm].every(m => m.role === 'menu' && m.h <= 561 && m.w <= 401 && m.heads.length >= 3 && m.right), { fm: [fm.h, fm.w, fm.heads], vm: [vm.h, vm.w, vm.heads], sm: [sm.h, sm.w, sm.heads] });
+    ok('Menüs: kein Symbol wiederholt sich innerhalb eines Menüs; Zeilen sind menuitem oder menuitemcheckbox', [fm, vm, sm].every(m => m.dups.length === 0 && m.roles.every(r => r === 'menuitem' || r === 'menuitemcheckbox')), { f: fm.dups, v: vm.dups, s: sm.dups });
+    const need = { f: ['PDF öffnen', 'Neues Blatt', 'Bilder zu PDF', 'PDFs zusammenführen', 'Seiten ordnen', 'PDFs vergleichen', 'Seiten herauslösen', 'Speichern unter', 'Seitenzahlen & Kopfzeile', 'Scan verbessern', 'Als Bild speichern', 'Kleinere Kopie speichern', 'Passwortschutz', 'Drucken'], v: ['Seitenvorschau', 'Werkzeugleiste', 'Lineal', 'Geteilte Ansicht', 'Nachtmodus für Seiten', 'Präsentieren', 'Vergrößern', 'Verkleinern', 'An Breite anpassen', 'Hilfslinien', 'Raster (5 mm)', 'Tablet-Modus'], s: ['Design anpassen', 'Werkzeugleiste anpassen', 'Schreiben & Rechtschreibung', 'Tastenkürzel', 'Hilfslinien', 'Objektleiste am gewählten Objekt', 'Tab wechselt zwischen Objekten', 'Auswahl nach dem Setzen', 'Gesperrte Objekte'] };
+    const has = (m, k) => need[k].filter(n => !m.labels.some(l => l.startsWith(n)));
+    ok('Menüs: alle bisherigen Einträge sind noch erreichbar', has(fm, 'f').length === 0 && has(vm, 'v').length === 0 && has(sm, 's').length === 0, { f: has(fm, 'f'), v: has(vm, 'v'), s: has(sm, 's') });
+    ok('Menüs: entfernte Schalter fehlen in den Einstellungen', !sm.labels.some(l => /Vorlagen per Klick|Vorlagen als Gruppe|Bilder frei strecken/.test(l)), sm.labels);
+    // keyboard: arrows move focus (and scroll the focused row into view), End reaches the last row, Esc closes and returns focus to the button
+    await key('ArrowDown', 'ArrowDown', 40);
+    const k1 = await ev("document.activeElement.closest('#ctx')&&[...document.querySelectorAll('#ctx button')].indexOf(document.activeElement)");
+    await key('End', 'End', 35);
+    const k2 = await J("JSON.stringify((()=>{const c=document.getElementById('ctx'),b=document.activeElement,r=b.getBoundingClientRect(),cr=c.getBoundingClientRect();return[b===[...c.querySelectorAll('button')].pop(),r.top>=cr.top-1&&r.bottom<=cr.bottom+1]})())");
+    await close();
+    const k3 = await ev("document.activeElement.id");
+    ok('Menüs: Pfeil runter, Ende (Zeile bleibt sichtbar), Esc schließt und gibt den Fokus an den Knopf zurück', k1 === 1 && k2[0] === true && k2[1] === true && k3 === 'bSetMenu', { k1, k2, k3 });
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 960, height: 540, deviceScaleFactor: 1, mobile: false }); await sleep(400);
+    const sm2 = await probe('bSetMenu'); await close();
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false }); await sleep(300);
+    ok('Menüs: bei 960x540 höchstens 80 % der Höhe, Rest scrollt', sm2.h <= 432.5, sm2.h);
   }
   // B9: character autocorrect (rules, undo by Backspace/Ctrl+Z, switch, not in code blocks), special character picker, quick bar id, PDF text layer
   {
@@ -1871,17 +1898,10 @@ else {
     await ev("(async()=>{design.motion='off';design.pager=DDEF.pager;applyDesign(true);const d=await PDFLib.PDFDocument.create();for(let i=0;i<5;i++)d.addPage([595,842]);await openPdf(await d.save(),'pg5.pdf');await new Promise(r=>setTimeout(r,600));S.pages.forEach((P,i)=>P.objs.push({type:'text',x:60,y:80,text:'P'+(i+1),fs:20,color:'#000000',orient:'h',lw:0}));setSel(null);redrawAll();zoomTo(.5);if(!thumbsOn)toggleThumbs(true);await new Promise(r=>setTimeout(r,900));return 1})()", 60000);
     const order = () => J("S.pages.map(P=>(P.objs.find(o=>o.type==='text')||{}).text||'-').join()");
     const wait = async (c, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await ev(c) === true) return true; await sleep(150); } return false; };
-    // arrows: off by default, on with the setting
-    const a0 = await ev("!document.querySelector('#thumbs .th-bar')&&thArrows===false");
-    await ev("document.querySelector('#dThArrows button[data-v=on]').click()"); await sleep(300);
-    const a1 = await J("[!!document.querySelector('#thumbs .th-bar'),document.querySelector('#thumbs .th-bar button').title,localStorage.getItem('pdfwerkbank:tharrows')]");
-    await ev("document.querySelector('#dThArrows button[data-v=off]').click()"); await sleep(300);
-    const a2 = await ev("!document.querySelector('#thumbs .th-bar')");
-    ok('Seitenvorschau: Verschiebe-Pfeile standardmäßig aus, mit Einstellung an (Tooltip „Seite nach oben verschieben“), wieder aus', a0 === true && a1[0] === true && /^Seite nach oben verschieben/.test(a1[1]) && a1[2] === '1' && a2 === true, { a0, a1, a2 });
     // add page with the + button at the end (menu)
     const ctr = sel => ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
     let p = await ctr('#thAdd'); await mv(p[0], p[1]); await pressAt(p[0], p[1]); await releaseAt(p[0], p[1]); await sleep(300);
-    const item = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(b=>/Größe der letzten/.test(b.textContent));if(!b)return null;const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
+    const item = await ev("(()=>{const b=[...document.querySelectorAll('#ctx button')].find(b=>/Größe der letzten/.test(b.textContent));if(!b)return null;b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()");
     if (item) { await mv(item[0], item[1]); await pressAt(item[0], item[1]); await releaseAt(item[0], item[1]); }
     const added = await wait("S.pages.length===6&&!rbBusy");
     const o1 = await order();
@@ -2158,6 +2178,64 @@ else {
   {
     const ac = await ev("(()=>{S.autoChar=true;const L='x'.repeat(5000),r=[acRule(L+' -','>'),acRule(L+' <-',' '),acRule(L+' ..','.'),acRule(L+' (c',')'),acRule(L+'a-','>'),acRule(L+' +-','5'),acRule(L+'!','='),acRule(L+'<=','>')];return JSON.stringify(r)})()").then(JSON.parse);
     ok('Review: Autokorrektur nutzt nur das Textende (gleiches Ergebnis wie vorher)', JSON.stringify(ac) === JSON.stringify([[1, '→'], [2, '← '], [2, '…'], [2, '©'], [1, '→'], [2, '±5'], [1, '≠'], null]), ac);
+  }
+  // Merge A+C: select tool strand (A) with the menu/sidebar/symbol strand (C)
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    const mkc = () => ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'mc.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    await mkc();
+    // 1. a pasted template can be moved after fast clicks and does not vanish
+    await ev("insertOrgTemplate('net_home',{i:0,x:150,y:150,sc:.4,tl:false});setTool('select');setSel(null)");
+    const n0 = await ev("S.pages[0].objs.length");
+    const c0 = await ev("(()=>{const m=S.pages[0].objs.filter(o=>o.gid);const o=m[0];return [o.x+o.w/2,o.y+o.h/2]})()");
+    await click310(c0); await click310(c0); await key310('c', 'KeyC', 67, 2); await key310('v', 'KeyV', 86, 2); await sleep(300);
+    const n1 = await ev("S.pages[0].objs.length");
+    const px0 = await ev("(()=>{const o=S.pages[0].objs.filter(o=>o.type==='sym').pop();return [o.x,o.y]})()");
+    const sc = await ev("(()=>{const o=S.pages[0].objs.filter(o=>o.type==='sym').pop();return [o.x+o.w/2,o.y+o.h/2]})()");
+    await click310(sc); await click310(sc); await drag310(sc, [sc[0] + 60, sc[1] + 40]);
+    const px1 = await ev("(()=>{const o=S.pages[0].objs.filter(o=>o.type==='sym').pop();return [o.x,o.y,S.pages[0].objs.length]})()");
+    ok('Merge A+C: eingefügte Vorlage lässt sich nach schnellen Klicks verschieben und verschwindet nicht', n1 === 2 * n0 && px1[2] === n1 && Math.abs(px1[0] - px0[0] - 60) < 2 && Math.abs(px1[1] - px0[1] - 40) < 2, { n0, n1, px0, px1 });
+    // 2. line/arrow tool: dragging on an existing line moves it, no new object
+    await mkc();
+    await ev("S.pages[0].objs.push({type:'line',x1:100,y1:300,x2:300,y2:300,color:'#000000',lw:2});redrawAll();setTool('line')");
+    await drag310([200, 300], [200, 340]);
+    const ln = await ev("JSON.stringify([S.pages[0].objs.length,S.pages[0].objs[0].y1,S.pages[0].objs[0].y2])").then(JSON.parse);
+    ok('Merge A+C: Linienwerkzeug verschiebt eine vorhandene Linie (kein neues Objekt)', ln[0] === 1 && Math.abs(ln[1] - 340) < 2 && Math.abs(ln[2] - 340) < 2, ln);
+    await ev("setTool('select')");
+    // 3. settings menu: every row reachable by keyboard, removed switches are gone
+    await ev("document.getElementById('bSetMenu').click()"); await sleep(500);
+    const nb = await ev("document.querySelectorAll('#ctx button').length");
+    const seen = new Set();
+    for (let i = 0; i < nb + 3; i++) { await key310('ArrowDown', 'ArrowDown', 40); seen.add(await ev("[...document.querySelectorAll('#ctx button')].indexOf(document.activeElement)")); }
+    const labels = await ev("JSON.stringify([...document.querySelectorAll('#ctx button')].map(b=>b.textContent))").then(JSON.parse);
+    await key310('Escape', 'Escape', 27); await sleep(450);
+    ok('Merge A+C: jede Zeile des Einstellungsmenüs per Pfeiltasten erreichbar, entfernte Schalter fehlen', nb > 5 && seen.size >= nb && !labels.some(l => /Doppelklick bearbeitet|Topologie-Bausteine|vorlagen per klick|Vorlagen als Gruppe|Bilder frei strecken/i.test(l)), { nb, seen: seen.size });
+    // 4. sidebar Textformat toggles on and off a selected text box
+    await ev("(()=>{const o={type:'text',x:100,y:200,text:'Abc',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redrawAll();setSel({p:0,o})})()"); await sleep(300);
+    const b1 = await ev("(()=>{const b=document.querySelector('#tfmt [data-k=bold]');b.click();return [S.sel.o.bold,b.getAttribute('aria-pressed')]})()"); await sleep(200);
+    const b2 = await ev("(()=>{const b=document.querySelector('#tfmt [data-k=bold]');b.click();return [!!S.sel.o.bold,b.getAttribute('aria-pressed')]})()");
+    ok('Merge A+C: Textformat Fett in der Seitenleiste schaltet an und wieder aus', b1[0] === true && b1[1] === 'true' && b2[0] === false && b2[1] === 'false', { b1, b2 });
+    // 5. object bar crop button (real click) for an image
+    await mkc();
+    await ev("(async()=>{const cv=document.createElement('canvas');cv.width=200;cv.height=100;cv.getContext('2d').fillRect(0,0,200,100);const src=cv.toDataURL('image/png');const id=imgId(src);S.imgs[id]=src;const im=imgEl(id);await im.decode();const o={type:'image',x:100,y:100,w:200,h:100,img:id,lw:0,color:'#000000'};S.pages[0].objs.push(o);redrawAll();setSel({p:0,o});obUpdate();return 1})()"); await sleep(400);
+    const cb = await ev("(()=>{const r=document.getElementById('obCrop').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2,r.width]})()");
+    await mv(cb[0], cb[1]); await pressAt(cb[0], cb[1]); await releaseAt(cb[0], cb[1]); await sleep(300);
+    ok('Merge A+C: Zuschneiden-Knopf der Objektleiste startet den Zuschnitt per Mausklick', cb[2] > 0 && await ev("!!CRP") === true, cb);
+    await key310('Escape', 'Escape', 27); await ev("CRP&&cropEnd(false)");
+    // 6. Mathe & Logik symbol and RAID symbol: click-to-place, align + distribute, double-click edits the RAID label
+    await mkc();
+    const tile = (cat, id) => ev(`(()=>{S.cat=${JSON.stringify(cat)};buildCats();const b=document.querySelector('#symgrid .sym[data-s="${id}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+    const pgp = (u, v) => ev(`(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+${u}*S.zoom,r.top+${v}*S.zoom]})()`);
+    for (const [cat, id, u, v] of [['Mathe & Logik', 'mt_ge', 100, 150], ['Speicher & Backup', 'st_raid5', 250, 280], ['Mathe & Logik', 'mt_inf', 450, 200]]) { const q = await tile(cat, id); await mv(q[0], q[1]); await pressAt(q[0], q[1]); await releaseAt(q[0], q[1]); await sleep(150); const p = await pgp(u, v); await mv(p[0], p[1]); await pressAt(p[0], p[1]); await releaseAt(p[0], p[1]); await sleep(200); }
+    const pl = await ev("JSON.stringify(S.pages[0].objs.map(o=>o.sym))").then(JSON.parse);
+    await ev("setTool('select');setSel(null)");
+    const al = await ev("(()=>{const O=S.pages[0].objs;selectItems(0,O.slice());alignSel('t');const t=O.map(o=>o.y);O[0].x=100;O[1].x=250;O[2].x=500;alignSel('dh');const b=O.map(o=>[o.x,o.x+o.w]).sort((a,b)=>a[0]-b[0]);return JSON.stringify([t,b[1][0]-b[0][1],b[2][0]-b[1][1]])})()").then(JSON.parse);
+    const rc = await ev("(()=>{const o=S.pages[0].objs.find(o=>o.sym==='st_raid5');return [o.x+o.w/2,o.y+o.h/2]})()");
+    await ev("setSel(null)"); await click310(rc, 0, 1); await click310(rc, 0, 2); await sleep(300);
+    const ed = await ev("JSON.stringify([!!editorEl,editingObj&&editingObj.sym])").then(JSON.parse);
+    await ev("ED&&ED.esc()");
+    ok('Merge A+C: Mathe-Symbol und RAID-Symbol per Klick gesetzt, Ausrichten/Verteilen, Doppelklick bearbeitet das RAID-Etikett', pl.join() === 'mt_ge,st_raid5,mt_inf' && al[0].every(y => Math.abs(y - al[0][0]) < 0.6) && Math.abs(al[1] - al[2]) < 0.6 && ed[0] === true && ed[1] === 'st_raid5', { pl, al, ed });
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

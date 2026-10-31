@@ -19,13 +19,8 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] [Linux] Vorlage platzieren und sofort anklicken → bleibt sichtbar, Zeiger bleibt sichtbar, Auswahl möglich.
 - [ ] Platzierte Vorlage anklicken → ganze Vorlage ausgewählt; verschieben, skalieren, kopieren (Strg+C/V) → bleibt zusammen.
 - [ ] Alt+Klick oder Doppelklick auf ein Teil → nur dieses Teil gewählt und bearbeitbar. [Linux] Alt kann vom Fenstermanager belegt sein.
-- [ ] Topologie Stern, Ring, Bus, Baum, Masche → echte Geräte mit Beschriftung, Linien angedockt, jedes Gerät einzeln bearbeitbar.
-- [ ] Alte einzelne Topologie-Symbole → nicht in den Knoten bearbeitbar (bekannte Grenze).
 - [ ] Symbolgruppe "Speicher & Backup": RAID 0/1/5/6/10, NAS, Backupserver, Band, Cloud-Backup, Snapshot, Replikation, externe Platte, SAN-Switch → alle sichtbar, RAID-Buchstaben gleich groß.
 - [ ] Dunkles Design → dunkle Symbole bleiben sichtbar.
-- [ ] Schalter "Vorlagen per Klick platzieren" (Standard AN) AUS → Vorlage landet wie früher in der Blattmitte.
-- [ ] Schalter "Vorlagen als Gruppe auswählen" (Standard AN) AUS → Klick wählt nur das Teil.
-- [ ] Schalter "Topologie-Bausteine als bearbeitbare Knoten" (Standard AN) AUS → Stern usw. kommt als ein Symbol.
 - [ ] «include» / «extend» ohne gewählte Linie klicken → Pfeilwerkzeug mit gestricheltem offenem Pfeil und Beschriftung; Esc bricht ab.
 - [ ] «include» / «extend» mit gewählter Linie → Linie bekommt die Beschriftung.
 
@@ -48,9 +43,7 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Tab / Umschalt+Tab mit Auswahlwerkzeug → nächstes/voriges Objekt der Seite, Gruppen als ein Halt, Ansage durch Screenreader.
 - [ ] Esc nach Tab → normales Tab durch die Oberfläche wieder möglich.
 - [ ] Schalter "Tab wechselt zwischen Objekten" (Standard AN) AUS → Tab läuft nur durch die Oberfläche.
-- [ ] Doppelklick auf ein Objekt mit Symbol-, Form-, Linien- oder Textwerkzeug → Objekt wird bearbeitet, kein Kringel/Punkt bleibt zurück.
 - [ ] Doppelklick auf Gerät mit durchlaufender Linie → Gerät wird bearbeitet, nicht die Linie.
-- [ ] Stiftstrich zwei Mal schnell kurz hintereinander → beide Striche bleiben.
 
 ## 4. Text
 - [ ] Wörter im Textfeld markieren, Fett/Kursiv/Unterstrichen/Hervorgehoben → nur die Wörter ändern sich; Mischzustand in den Knöpfen sichtbar.
@@ -66,7 +59,6 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Tastenkürzel-Liste (auch ohne gewähltes Objekt) → "Sonderzeichen-Auswahl", Gruppieren und die Reihenfolge-Einträge sind dort, umbelegbar, Konflikte werden gemeldet.
 - [ ] Lineal: drehen, Winkel im Feld eintippen, Umschalt rastet in 15° → Drehung um die Mitte.
 - [ ] Tabelle mit viel Zellentext → Zeile wächst nach unten, Tabelle bleibt auf der Seite; Schriftgröße/Spalte ändern → passt neu.
-- [ ] Schalter "Tabelle wächst mit dem Text" (Standard AN, Tabellenpanel) AUS → Text wird wie früher abgeschnitten.
 - [ ] Großes Textfeld, viel tippen → Blatt wackelt nicht seitwärts. [Windows] besonders prüfen.
 - [ ] Lange Notizen speichern, schließen, öffnen → nichts abgeschnitten.
 
@@ -74,7 +66,6 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Bild wählen, mittlerer Seitengriff ziehen → nur Breite oder Höhe ändert sich (verzerrt).
 - [ ] Doppelklick auf einen Seitengriff → Seitenverhältnis wieder wie Original.
 - [ ] Eckgriff → bleibt proportional; Umschalt/Alt wie in der Seitenleisten-Info beschrieben.
-- [ ] Schalter "Bilder frei strecken (Seitengriffe)" (Standard AN) AUS → nur Eckgriffe.
 - [ ] Zuschneiden-Knopf, Doppelklick oder Umschalt+C → Zuschneidemodus; Rand ziehen, Maße in mm sichtbar.
 - [ ] Zuschneidemodus per Tastatur: Tab wählt die Kante, Pfeile bewegen, Umschalt = 10 pt → Ansage.
 - [ ] Zuschneiden speichern, neu öffnen → bleibt, Zuschnitt änderbar; einmaliger Hinweis, dass das ganze Bild in der Datei bleibt.
@@ -83,8 +74,9 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 ## 6. Seiten und Navigation
 - [ ] Seitenvorschau: "+" und Einfügeleisten zwischen den Miniaturen → neue Seite an der Stelle.
 - [ ] Miniatur ziehen → Reihenfolge ändert sich; Lesezeichen-Warnung erscheint, wenn das Dokument welche hat (bekannte Grenze).
-- [ ] Verschiebe-Pfeile an den Miniaturen sind standardmäßig aus; Alt+Hoch/Runter und Rechtsklick-Menü gehen weiter.
-- [ ] Einstellung "Verschiebe-Pfeile an der Seitenvorschau" (Standard AUS) auf "Pfeile zeigen" → zwei Knöpfe über der Liste (verschieben die aktuelle Seite).
+- [ ] Keine Verschiebe-Pfeile an den Miniaturen; Ziehen, Alt+Hoch/Runter und Rechtsklick-Menü verschieben Seiten.
+- [ ] Topologie-Kacheln (Stern, Ring, Bus, Linie, Mesh, Teilvermascht, Baum, Erweiterter Stern) setzen wie in 3.9 ein einzelnes Symbol; keine Topologie-Vorlagen.
+- [ ] Kopfmenüs Datei, Ansicht, Einstellungen: Abschnittsüberschriften, höchstens ca. 560 px hoch (sonst Scrollen), Pfeiltasten, Pos1/Ende, Esc gibt den Fokus an den Knopf zurück; jeder Eintrag hat ein eigenes Symbol.
 - [ ] Viele Seiten: Miniaturen laden beim Scrollen, kein Ruckeln.
 - [ ] Feld "Seite 3 / 12": Zahl tippen, Enter → Sprung; zu große Zahl wird begrenzt; Esc stellt zurück.
 - [ ] Strg+Alt+G → Fokus im Seitenfeld, auch wenn es transparent war.
@@ -125,7 +117,6 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 
 ## Bekannte Grenzen (bitte nicht melden)
 - Gedrehter Text hat achsenparallele Hervorhebung; Texthintergrund und Wortformatierung fehlen bei gestapeltem Text.
-- Alte einzelne Topologie-Symbole sind nicht in den Knoten bearbeitbar.
 - Zuschneiden blendet nur aus, das ganze Bild bleibt in der Datei (Schwärzen entfernt endgültig).
 - Lesezeichen gehen beim Neuaufbau und Umsortieren der Seiten verloren (Warnung erscheint).
 - Textebene fehlt in geteilter Ansicht und Präsentation.
