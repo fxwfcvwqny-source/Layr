@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-vB2dOn6ZY9N5yIcPBaqLx5cN3umPJ7Cr65CpbEoqCDQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-U0zbCLpjZhZmaWBdn+h1MOlaYvVoDaObpzK9IUBVu0w=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3533,6 +3533,12 @@ def('num','Markierung','Nummer (zählt hoch)',20,20,'1',(c,o,x,y,w,h)=>{c.beginP
     'NAS mit Einschüben':'NAS with drive bays','Backup-Server':'Backup server','Bandlaufwerk (Tape)':'Tape drive','Bandlaufwerk':'Tape drive','Cloud-Backup':'Cloud backup','Offsite-Kopie / Replikation':'Offsite copy / replication','Replikation':'Replication',
     'USB-/externe Festplatte':'USB / external hard disk','Ext. Festplatte':'External disk',...I18N_EN});
 })();
+/* Mathe & Logik: large glyphs as placeable symbols (no label). After the last column-0 def(), like the storage group. */
+const MATH_SYMS=[['mt_ge','\u2265','Größer gleich'],['mt_le','\u2264','Kleiner gleich'],['mt_ne','\u2260','Ungleich'],['mt_approx','\u2248','Ungefähr gleich'],['mt_pm','\u00b1','Plus-Minus'],['mt_times','\u00d7','Mal'],['mt_div','\u00f7','Geteilt'],['mt_arrow','\u2192','Pfeil (folgt)'],['mt_impl','\u21d2','Impliziert'],['mt_inf','\u221e','Unendlich'],['mt_sqrt','\u221a','Wurzel'],['mt_sum','\u2211','Summe']];
+;(function(){
+  for(const[id,g,name]of MATH_SYMS){def(id,'Mathe & Logik',name,36,36,'',(c,o,x,y,w,h)=>{c.save();c.setLineDash([]);c.fillStyle=o.color;c.font=`600 ${Math.min(h*.9,w*1.1)}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(g,x+w/2,y+h*.54);c.restore()});ANCHOR_RECT_SYMS.add(id)}
+  Object.assign(I18N_EN,{'Mathe & Logik':'Math & logic','Textformat':'Text format','Größer gleich':'Greater than or equal','Kleiner gleich':'Less than or equal','Ungleich':'Not equal','Ungefähr gleich':'Approximately equal','Plus-Minus':'Plus-minus','Mal':'Times','Geteilt':'Divided by','Pfeil (folgt)':'Arrow (then)','Impliziert':'Implies','Unendlich':'Infinity','Wurzel':'Square root','Summe':'Sum',...I18N_EN});
+})();
 /* Double-click in any placement/shape tool (setting dblAllOn): remember the history length at the first click so the dblclick handler can take back what that click placed */
 var dblAllOn=true;try{dblAllOn=localStorage.getItem('pdfwerkbank:dblAll')!=='0'}catch(e){}
 {const l0=layout;layout=function(){const r=l0.apply(this,arguments);armRefresh();return r}}
@@ -4713,7 +4719,7 @@ function attachInk(P,i){
     if(o.type==='table'){const rc=tblCell(o,x,y);if(rc)editCell(i,o,rc[0],rc[1])}else if(o.type==='text')editText(i,o,[e.clientX,e.clientY,'word']);else if(o.type==='sym'&&!NOLBL.includes(o.sym))editLabel(i,o);else if(o.type==='line')editLineLabel(i,o);else if(o.type==='image')cropStart(i,o);
   });
 }
-const NOLBL=['start','end','flowend','fork','activation','timer','check','cross','star','exclam','question'];
+const NOLBL=['start','end','flowend','fork','activation','timer','check','cross','star','exclam','question',...MATH_SYMS.map(m=>m[0])];
 function angSnap(x0,y0,x,y){const a=Math.atan2(y-y0,x-x0),st=Math.PI/12,s=Math.round(a/st)*st,l=Math.hypot(x-x0,y-y0);return[x0+Math.cos(s)*l,y0+Math.sin(s)*l]}
 function eraseAt(P,i,x,y,st){
   const tol=8/S.zoom;const hits=P.objs.filter(o=>!o.locked&&hit(o,x,y,tol,true));if(!hits.length)return;

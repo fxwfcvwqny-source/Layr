@@ -1702,6 +1702,22 @@ else {
     const rr = await ev("(async()=>{const out=await buildOutput();S.pages[0].objs=[];await openPdf(out,'rm2.pdf');await new Promise(r=>setTimeout(r,500));const o=S.pages[0].objs.find(x=>x.sym==='st_raid5');return o&&o.label})()", 30000);
     ok('RAID: Text bleibt nach Speichern und Wiederöffnen erhalten', rr === 'RAID 5Z', rr);
     await ev(TPJS);
+    // math symbols
+    const MA = await ev("JSON.stringify({cat:CATS.includes('Mathe & Logik'),ids:Object.values(SYM).filter(s=>s.cat==='Mathe & Logik').map(s=>s.id)})").then(JSON.parse);
+    const MAen = await ev("(()=>{setLang('en');const r=[tr('Mathe & Logik'),tr('Größer gleich'),tr('Kleiner gleich')];setLang('de');return r})()");
+    ok('Mathe & Logik: Gruppe mit 12 Symbolen (≥ ≤ ≠ ≈ ± × ÷ → ⇒ ∞ √ ∑), de/en', MA.cat && MA.ids.length === 12 && MA.ids.includes('mt_ge') && MA.ids.includes('mt_le') && MAen.join() === 'Math & logic,Greater than or equal,Less than or equal', { MA, MAen });
+    const mpx = await ev("JSON.stringify(Object.values(SYM).filter(s=>s.cat==='Mathe & Logik').map(s=>{const cv=document.createElement('canvas');cv.width=120;cv.height=120;const c=cv.getContext('2d');c.strokeStyle=c.fillStyle='#000';s.draw(c,{type:'sym',sym:s.id,color:'#000',lw:1.2,fill:'none',fs:11,label:''},20,20,s.w,s.h);const d=c.getImageData(0,0,120,120).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>60)n++;return n}))").then(JSON.parse);
+    ok('Mathe & Logik: jedes Symbol zeichnet Pixel (auch als Kachelbild)', mpx.length === 12 && mpx.every(n => n > 40), mpx);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redraw(0)");
+    for (const id of ['mt_ge', 'mt_le']) {
+      const tl = await ev(`(()=>{S.cat='Mathe & Logik';buildCats();const b=document.querySelector('#symgrid .sym[data-s="${id}"]');b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()`);
+      await mv(tl[0], tl[1]); await pressAt(tl[0], tl[1]); await releaseAt(tl[0], tl[1]); await sleep(150);
+      const g = await ev("(()=>{S.pages[0].el.scrollIntoView({block:'start'});const r=S.pages[0].el.getBoundingClientRect();return [r.left+150*S.zoom,r.top+150*S.zoom]})()");
+      await mv(g[0], g[1]); await pressAt(g[0], g[1]); await releaseAt(g[0], g[1]); await sleep(200);
+      const pl = await ev(`JSON.stringify(S.pages[0].objs.filter(o=>o.sym==='${id}').map(o=>[o.w,o.h,o.label||'']))`);
+      ok(`Mathe & Logik: ${id} per Klick platziert`, pl === '[[36,36,""]]', pl);
+      await ev("S.pages.forEach(P=>P.objs=[]);setSel(null);setTool('select');redraw(0)");
+    }
   }
   // B9: character autocorrect (rules, undo by Backspace/Ctrl+Z, switch, not in code blocks), special character picker, quick bar id, PDF text layer
   {
