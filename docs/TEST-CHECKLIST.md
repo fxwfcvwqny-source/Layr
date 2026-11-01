@@ -137,7 +137,8 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - Lesezeichen gehen beim Neuaufbau und Umsortieren der Seiten verloren (Warnung erscheint).
 - Textebene fehlt in geteilter Ansicht und Präsentation.
 - Alt+Klick/Alt+Ziehen kann unter KDE/Xfce vom Fenstermanager belegt sein.
-- Mit "Nachtmodus für Seiten" wird die Blattfarbe "Weiß" dunkel gezeigt.
+- Mit "Nachtmodus" wird die Blattfarbe "Weiß" dunkel gezeigt.
+- Nachtmodus an/aus mit Hell/Dunkel und Blattfarbe Weiß/Grau/Nacht prüfen → Nacht an setzt das Design auf Dunkel und zeigt Seiten dunkel (Blattfarbe Nacht bleibt dunkel, nicht weiß); Nacht aus stellt den vorherigen Grundmodus wieder her; Grundmodus Hell bei Nacht an schaltet Nacht aus; Dunkel allein macht Seiten nicht dunkel; Speichern/Drucken bleiben hell.
 - Neue Speicher-&-Backup-Symbole fehlen in älteren Versionen und gehen verloren, wenn die Datei dort erneut gespeichert wird.
 - Ältere Layr-Versionen ignorieren Wortformatierung, Zuschnitt und Gruppen; Teile einer Vorlage, die in älteren Versionen dupliziert wurden, bilden in 3.10 mit dem Original eine Gruppe.
 - [Linux] Fenstersymbol unter GNOME/Wayland bleibt schwarz.
