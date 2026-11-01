@@ -2089,7 +2089,7 @@ else {
     await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ac2.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;S.autoCap=false;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});const o={type:'text',x:72,y:200,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.a4K=k=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));window.a4=s=>{const st=ED.eng.st;st.v='';st.c=st.a=0;for(const ch of s)a4K(ch);return ED.eng.st.v};return 1})()");
     await sleep(300);
     const same = ['git push --force', 'x<-1', 'f(c)', '(a) (b) (c)', '<=>', '+---+', 'i++--', 'http://a.b/c--d', 'user@mail--x', '1--2', 'a<->b', '"zitat" und \'x\'', 'a-b', 'wait.. ok', 'x --y', '1+-'];
-    const conv = [['a -- b', 'a – b'], ['-- x', '– x'], ['a <- b', 'a ← b'], ['x <-> y', 'x ↔ y'], ['+-5', '±5'], ['Copyright (c) 2026', 'Copyright © 2026'], ['a->b', 'a→b'], ['wait...', 'wait…'], ['a != b', 'a ≠ b'], ['a => b', 'a ⇒ b'], ['x (tm)', 'x ™'], ['(R) y', '® y']];
+    const conv = [['a -- b', 'a – b'], ['-- x', '– x'], ['a <- b', 'a ← b'], ['x <-> y', 'x ↔ y'], ['+-5', '±5'], ['Copyright (c) 2026', 'Copyright © 2026'], ['a -> b', 'a → b'], ['wait...', 'wait…'], ['a != b', 'a ≠ b'], ['a => b', 'a ⇒ b'], ['x (tm)', 'x ™'], ['(R) y', '® y']];
     const bad = [], badc = [];
     for (const i of same) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== i) bad.push([i, r]); }
     for (const [i, e] of conv) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== e) badc.push([i, r, e]); }
@@ -2249,8 +2249,8 @@ else {
   }
   // Review fix 5
   {
-    const ac = await ev("(()=>{S.autoChar=true;const L='x'.repeat(5000),r=[acRule(L+' -','>'),acRule(L+' <-',' '),acRule(L+' ..','.'),acRule(L+' (c',')'),acRule(L+'a-','>'),acRule(L+' +-','5'),acRule(L+'!','='),acRule(L+'<=','>')];return JSON.stringify(r)})()").then(JSON.parse);
-    ok('Review: Autokorrektur nutzt nur das Textende (gleiches Ergebnis wie vorher)', JSON.stringify(ac) === JSON.stringify([[1, '→'], [2, '← '], [2, '…'], [2, '©'], [1, '→'], [2, '±5'], [1, '≠'], null]), ac);
+    const ac = await ev("(()=>{S.autoChar=true;const L='x'.repeat(5000),r=[acRule(L+' -','>'),acRule(L+' <-',' '),acRule(L+' ..','.'),acRule(L+' (c',')'),acRule(L+'a-','>'),acRule(L+' +-','5'),acRule(L+' !','='),acRule(L+'<=','>')];return JSON.stringify(r)})()").then(JSON.parse);
+    ok('Review: Autokorrektur nutzt nur das Textende (gleiches Ergebnis wie vorher)', JSON.stringify(ac) === JSON.stringify([[1, '→'], [2, '← '], [2, '…'], [2, '©'], null, [2, '±5'], [1, '≠'], null]), ac);
   }
   // Merge A+C: select tool strand (A) with the menu/sidebar/symbol strand (C)
   {
@@ -2586,6 +2586,109 @@ else {
     const rb2 = await ev("selItems().length");
     ok('T1-08: Aufziehrahmen über Teile einer Vorlage wählt die ganze Vorlage', rb2 === 3, rb2);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
+  // T2 text fixes (round 4)
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t2.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});S.autoCap=false;return 1})()`, 60000);
+    // T2-01: native insert/cut work when the text starts with an empty line
+    await ev("newText(0,300,400);ED.eng.put('\\nhello world');ED.focus()");
+    await key310('Home', 'Home', 36, 2);
+    await cdp('Input.insertText', { text: 'XY' });
+    const p1 = await ev('ED.o.text');
+    await key310('a', 'KeyA', 65, 2);
+    await cdp('Input.insertText', { text: 'NEW' });
+    const p2 = await ev('ED.o.text');
+    ok('T2-01: Einfügen bei Cursor 0 vor führender Leerzeile und Ersetzen der Auswahl', p1 === 'XY\nhello world' && p2 === 'NEW', { p1, p2 });
+    // T2-05: typing between two runs never leaves overlapping runs; removing italic from the new char does not make it bold
+    await ev("newText(0,300,400);ED.eng.put('abcdef');setSty(ED.o,0,3,'italic',true);setSty(ED.o,3,6,'bold',true);ED.focus()");
+    await key310('Home', 'Home', 36);
+    for (let i = 0; i < 3; i++) await key310('ArrowRight', 'ArrowRight', 39);
+    await cdp('Input.insertText', { text: 'X' });
+    const ov = await ev("(ED.o.sty||[]).some((s,i,a)=>i&&a[i-1].b>s.a)");
+    await key310('ArrowLeft', 'ArrowLeft', 37, 8);
+    await key310('i', 'KeyI', 73, 2);
+    const xb = await ev("[styVal(ED.o,3,'bold'),styVal(ED.o,3,'italic'),ED.o.text]");
+    ok('T2-05: keine überlappenden Runs, Kursiv entfernen macht das Zeichen nicht fett', ov === false && xb[0] === false && xb[1] === false && xb[2] === 'abcXdef', { ov, xb });
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-09: Ctrl+Z after a whole-field format change undoes the format, not a character
+    await ev("newText(0,300,400);ED.focus()");
+    await cdp('Input.insertText', { text: 'abc' });
+    await key310('b', 'KeyB', 66, 2);
+    const b1 = await ev("[ED.o.bold,ED.o.text]");
+    await key310('z', 'KeyZ', 90, 2);
+    const b2 = await ev("[!!ED.o.bold,ED.o.text]");
+    ok('T2-09: Strg+Z nimmt Formatierung des ganzen Feldes zurück und löscht keinen Text', b1[0] === true && b2[0] === false && b2[1] === 'abc', { b1, b2 });
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-10: sidebar background for selected words must not change the default for new fields
+    await ev("S.hbg='';newText(0,300,400);ED.focus()");
+    await cdp('Input.insertText', { text: 'abc def' });
+    for (let i = 0; i < 3; i++) await key310('ArrowLeft', 'ArrowLeft', 37, 8);
+    await ev("[...document.querySelectorAll('#tfpw .edsw')].find(x=>x.dataset.c).click()");
+    const hb = await ev("[S.hbg,(ED.o.sty||[]).length>0,!ED.o.hbg]");
+    ok('T2-10: Hintergrund für markierte Wörter ändert den Standard nicht', hb[0] === '' && hb[1] === true && hb[2] === true, hb);
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-07: autocorrect not inside identifiers, operators, URLs, enumerations
+    await ev("S.autoChar=true;newText(0,300,400);ED.focus();window.t2K=k=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));window.t2T=s=>{const st=ED.eng.st;st.v='';st.c=st.a=0;for(const ch of s)t2K(ch);return st.v}");
+    const ac7 = {};
+    for (const i of ['p->next', 'http://a.de/x->y', 'f=(x)=>x', '==>', 'if(a!=b)']) ac7[i] = await ev(`t2T(${JSON.stringify(i)})`);
+    const enumv = await ev("(()=>{const st=ED.eng.st;st.v='(a) x\\n(b) y\\n';st.c=st.a=st.v.length;for(const ch of '(c)')t2K(ch);return st.v})()");
+    ok('T2-07: Autokorrektur lässt p->next, URLs, =>/!= in Code und (c) in Aufzählungen stehen', Object.entries(ac7).every(([k, v]) => v === k) && enumv === '(a) x\n(b) y\n(c)', { ac7, enumv });
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-08: Enter after "v. Chr. ..." / "a) ..." at top level keeps the typed text; numbered lists still continue
+    const ent = [];
+    for (const [first, second] of [['v. Chr. geboren', 'x'], ['a) eins', 'zwei'], ['1. eins', 'zwei']]) {
+      await ev("newText(0,300,400);ED.focus()");
+      await cdp('Input.insertText', { text: first });
+      await key310('Enter', 'Enter', 13);
+      await cdp('Input.insertText', { text: second });
+      ent.push(await ev('ED.o.text'));
+      await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    }
+    ok('T2-08: Enter nach "v. Chr." und "a)" auf Ebene 0 lässt den Text, "1." zählt weiter', JSON.stringify(ent) === JSON.stringify(['v. Chr. geboren\nx', 'a) eins\nzwei', '1. eins\n2. zwei']), ent);
+    // T2-02: text fields keep more than 200000 characters through save/open; beyond the editor limit the text is cut with a notice
+    const big = await ev("(async()=>{newText(0,72,100);ED.eng.put('x'.repeat(210000));const n0=ED.o.text.length;closeEditor();await openPdf(await buildOutput(),'big.pdf');await new Promise(r=>setTimeout(r,500));return [n0,S.pages[0].objs[0].text.length]})()", 60000);
+    ok('T2-02: Textfeld mit 210000 Zeichen bleibt beim Speichern und Öffnen vollständig', Array.isArray(big) && big[0] === 210000 && big[1] === 210000, big);
+    const cut = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);newText(0,72,100);ED.eng.put('x'.repeat(1000050));const n=ED.o.text.length;closeEditor();return [n,document.querySelector('.toast')?.textContent||'']})()", 60000);
+    ok('T2-02: über 1 Million Zeichen wird mit Hinweis gekürzt', Array.isArray(cut) && cut[0] === 1000000 && /begrenzt|limited/.test(cut[1]), cut);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-03: a table cell cuts at 20000 characters while editing, with a notice (instead of silently on open)
+    await ev("(()=>{S.pages.forEach(P=>P.objs=[]);const o=newTable(60,100,2,2);S.pages[0].objs.push(o);redraw(0);editCell(0,o,0,0)})()");
+    await cdp('Input.insertText', { text: 'y'.repeat(20500) });
+    const cl2 = await ev("(()=>{const t=document.querySelector('.toast')?.textContent||'';closeEditor();return [S.pages[0].objs[0].cells[0][0].length,t]})()");
+    ok('T2-03: Tabellenzelle kürzt bei 20000 Zeichen mit Hinweis', cl2[0] === 20000 && /20 000|20,000/.test(cl2[1]), cl2);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-04: the 5001st task is refused with a notice instead of being lost on save
+    const tk4 = await ev("(()=>{tasksSet(Array.from({length:5000},(_,i)=>({t:'T'+i,d:false})));const r=addTask('extra',false);const n=S.tasks.length;const t=document.querySelector('.toast')?.textContent||'';tasksSet([]);return [r,n,t]})()");
+    ok('T2-04: die 5001. Aufgabe wird mit Hinweis abgelehnt', tk4[0] === false && tk4[1] === 5000 && /5000/.test(tk4[2]), tk4);
+    // T2-13: table rows shrink back after the content gets shorter or the font smaller
+    const tb = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);const o=newTable(60,100,3,3);o.w=300;o.h=60;S.pages[0].objs.push(o);redraw(0);const h0=o.h;o.cells[0][0]='word '.repeat(60);tblFit(o);const h1=o.h;o.cells[0][0]='';tblFit(o);const h2=o.h;o.cells[0][0]='word '.repeat(60);o.fs=24;tblFit(o);const h3=o.h;o.fs=11;tblFit(o);const h4=o.h;o.cells[0][0]='';tblFit(o);const r=[h0,h1,h2,h3,h4,o.h];S.pages.forEach(P=>P.objs=[]);return r.map(v=>Math.round(v*10)/10)})()");
+    ok('T2-13: Tabellenzeilen schrumpfen nach kürzerem Text und kleinerer Schrift auf die alte Höhe zurück', tb[1] > tb[0] * 1.5 && Math.abs(tb[2] - tb[0]) < .5 && tb[3] > tb[4] && Math.abs(tb[5] - tb[0]) < .5, tb);
+    // T2-14: the quick bar of a text field at the right page edge stays inside the viewer
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([420,500]);await openPdf(await d.save(),'narrow.pdf');await new Promise(r=>setTimeout(r,900));newText(0,300,100);ED.eng.put('Hallo');return 1})()", 30000);
+    await sleep(300);
+    const qb = await ev("(()=>{const b=document.querySelector('.tbx .edbar').getBoundingClientRect(),v=document.getElementById('viewer'),r=v.getBoundingClientRect();const res=[Math.round(b.right),Math.round(r.left+v.clientWidth),v.scrollWidth>v.clientWidth];closeEditor();return res})()");
+    ok('T2-14: Schnellleiste am rechten Seitenrand bleibt im Fenster, keine waagrechte Bildlaufleiste', qb[0] <= qb[1] && qb[2] === false, qb);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-12: Backspace and arrows treat an emoji (surrogate pair) as one step; rich wrapping never splits it
+    await ev("newText(0,72,100);ED.focus()");
+    await cdp('Input.insertText', { text: 'Hi \u{1F600}' });
+    await key310('ArrowLeft', 'ArrowLeft', 37);
+    const em1 = await ev('ED.eng.st.c');
+    await key310('ArrowRight', 'ArrowRight', 39);
+    await key310('Backspace', 'Backspace', 8);
+    const em2 = await ev('ED.o.text');
+    await ev("closeEditor();newText(0,72,100);ED.focus()");
+    await cdp('Input.insertText', { text: 'ab' });
+    await key310('ArrowLeft', 'ArrowLeft', 37, 8);
+    await key310('b', 'KeyB', 66, 2);
+    await key310('End', 'End', 35);
+    await cdp('Input.insertText', { text: '\u{1F600}'.repeat(300) });
+    const em3 = await ev("(()=>{const L=textBox(ED.o).lines;const r=[L.length>3,L.filter(l=>/[\\ud800-\\udbff]$|^[\\udc00-\\udfff]/.test(l)).length];closeEditor();S.pages.forEach(P=>P.objs=[]);return r})()");
+    ok('T2-12: Rücktaste und Pfeile zerteilen kein Emoji, Umbruch mit Teilformat auch nicht', em1 === 3 && em2 === 'Hi ' && em3[0] === true && em3[1] === 0, { em1, em2, em3 });
+    // T2-15: adding/removing a task with 4000 tasks does not rebuild the whole list
+    const tp = await ev("(async()=>{tasksSet(Array.from({length:4000},(_,i)=>({t:'T'+i,d:false})));const ul=document.getElementById('ntTaskList'),first=ul.firstChild;const t0=performance.now();addTask('neu',false);const ta=performance.now()-t0;const same=ul.firstChild===first&&ul.children.length===4001;const li=ul.lastChild;const t1=performance.now();removeTask(S.tasks[4000],li,-2);await new Promise(r=>setTimeout(r,400));const tr=performance.now()-t1-400;const same2=ul.firstChild===first&&ul.children.length===4000&&S.tasks.length===4000;tasksSet([]);return [same,same2,Math.round(ta),Math.round(tr)]})()", 60000);
+    ok('T2-15: Aufgabe anlegen und entfernen baut die Liste nicht neu auf', tp[0] === true && tp[1] === true, tp);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

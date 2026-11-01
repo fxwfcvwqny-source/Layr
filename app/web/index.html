@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lQw+L7IuW0N5FE/mIuNoN8zl9ZFJ4rt9HF/2n8Jl2YI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-D0qB7+TgtnIujo6rc4h+ZCT8n9wgpZM28gRY8xpxGfw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2557,7 +2557,7 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 'Fotos und Scans in der PDF werden verkleinert, z. B. für E-Mail oder Upload. Deine Datei bleibt, wie sie ist; die Kopie bekommt einen eigenen Namen.':'Photos and scans in the PDF are made smaller, e.g. for email or upload. Your file stays as it is; the copy gets its own name.',
 'Stufe':'Level','Leicht':'Light','Stark':'Strong','In Layr bearbeitbar lassen (größer)':'Keep editable in Layr (larger)','Bild ':'Image ','Speichert':'Saving',
 'Die Datei lässt sich kaum verkleinern (':'The file can hardly be made smaller (','Von ':'From ',' auf ':' to ',' verkleinert.':'.','Verkleinern hat nicht geklappt: ':'Making it smaller failed: ',
-'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
+'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Eine Zelle fasst höchstens 20 000 Zeichen, der Rest wurde gekürzt.':'A cell holds at most 20,000 characters, the rest was cut.','Es sind höchstens 5000 Aufgaben möglich.':'At most 5000 tasks are possible.','Beim Zusammenführen wurden nur die ersten 5000 Aufgaben übernommen.':'Only the first 5000 tasks were kept when merging.','Der Text ist auf 1 Million Zeichen begrenzt und wurde gekürzt.':'The text is limited to 1 million characters and was shortened.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
 'Schwärzen':'Redact','Inhalt dauerhaft unkenntlich machen':'Remove content permanently','Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.':'Drag areas that should be made unreadable. Then “Apply redaction”: the content there is removed from the PDF for good.',
 'Verwerfen':'Discard','Schwärzen anwenden':'Apply redaction','1 Bereich zum Schwärzen markiert':'1 area marked for redaction',' Bereiche zum Schwärzen markiert':' areas marked for redaction',
 'Endgültig schwärzen?':'Redact permanently?','Alles in den markierten Bereichen wird schwarz und aus der Datei entfernt – auch aus der versteckten Originalfassung, die Layr in der PDF mitspeichert.':'Everything in the marked areas turns black and is removed from the file – also from the hidden original that Layr keeps inside the PDF.',
@@ -3347,7 +3347,7 @@ function editCell(i,o,r,k){const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.2
   mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;
   const y0=cellY0(Y[r],ch,lh,wrapLines(mctx,txt,Math.max(10,cw-8)).length);
   // editor border 1.5px and padding 2px sit outside the text: shift box so the text lands where drawTable draws it
-  const box=makeEditor(i,X[k]+4-3.5/S.zoom,y0-lh/2-1.5/S.zoom,fs,o.color,txt,{w:cw-8,bold:o.head&&r===0});
+  const box=makeEditor(i,X[k]+4-3.5/S.zoom,y0-lh/2-1.5/S.zoom,fs,o.color,txt,{w:cw-8,bold:o.head&&r===0,max:20000,onMax:()=>toast('Eine Zelle fasst höchstens 20 000 Zeichen, der Rest wurde gekürzt.')});
   box.style.width=(cw-8)*S.zoom+7+'px';box.style.lineHeight='1.22';box.style.whiteSpace='pre-wrap';box.style.overflowWrap='anywhere';box.style.fontFamily=fam;
   editorDone=v=>{delete o.__ec;if(v!==((o.cells[r]&&o.cells[r][k])||'')){pushHist();o.cells[r][k]=v;markDirty()}redraw(i)};
   box.addEventListener('keydown',e=>{if(e.key!=='Tab')return;e.preventDefault();e.stopImmediatePropagation();let n=r*o.cols+k+(e.shiftKey?-1:1);n=(n+o.rows*o.cols)%(o.rows*o.cols);closeEditor();editCell(i,o,Math.floor(n/o.cols),n%o.cols)},true)}
@@ -3568,9 +3568,12 @@ const MATH_SYMS=[['mt_ge','\u2265','Größer gleich'],['mt_le','\u2264','Kleiner
   Object.assign(I18N_EN,{'Mathe & Logik':'Math & logic','Öffnen & Neu':'Open & new','Seiten & Dateien':'Pages & files','Speichern & Bearbeiten':'Save & edit','Exportieren & Drucken':'Export & print','Anzeige':'Display','Zoom':'Zoom','Hilfen':'Aids','Kopfleiste':'Header bar','Erscheinungsbild':'Appearance','Schreiben':'Writing','Bedienung':'Controls','Update & Datenschutz':'Update & privacy','Textformat':'Text format','Größer gleich':'Greater than or equal','Kleiner gleich':'Less than or equal','Ungleich':'Not equal','Ungefähr gleich':'Approximately equal','Plus-Minus':'Plus-minus','Mal':'Times','Geteilt':'Divided by','Pfeil (folgt)':'Arrow (then)','Impliziert':'Implies','Unendlich':'Infinity','Wurzel':'Square root','Summe':'Sum',...I18N_EN});
 })();
 // Rows grow downward when a cell's wrapped text needs more room (applied when a cell edit is committed, so old tables render unchanged)
-function tblFit(o){const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;
-  for(let r=0;r<o.rows;r++){let h=Y[r+1]-Y[r];for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;
-    mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;const n=wrapLines(mctx,t,Math.max(10,X[k+1]-X[k]-8)).length;if(n>1&&n*lh+4>h){h=n*lh+4;grew=true}}H.push(h)}
+function tblFit(o){const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;if(!o.__rh0)tmpProp(o,'__rh0',{});const base=o.__rh0;
+  for(let r=0;r<o.rows;r++){let h=Y[r+1]-Y[r],need=0;for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;
+    mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;const n=wrapLines(mctx,t,Math.max(10,X[k+1]-X[k]-8)).length;if(n>1)need=Math.max(need,n*lh+4)}
+    // rows that grew remember their old height (not saved) and shrink back to it when the content needs less
+    if(need>h){if(base[r]==null)base[r]=h;h=need;grew=true}else if(base[r]!=null){const g=Math.max(need,base[r]);if(g<h-.01){h=g;grew=true}if(h<=base[r]+.01)delete base[r]}
+    H.push(h)}
   if(!grew)return false;const tot=H.reduce((q,v)=>q+v,0);o.h=tot;o.rh=H.map(v=>v/tot);
   const P=S.pages.find(P=>P.objs.includes(o));if(P&&o.y+o.h>P.h){o.y=Math.max(0,P.h-o.h);if(o.h>P.h)toast('Die Tabelle ragt über die Seite hinaus.')}return true}
 const editCell0=editCell;
@@ -4832,10 +4835,10 @@ function textEngine(host,initial,opt){
   const norm=t=>{t=String(t).replace(/\r\n?/g,'\n');return opt.single?t.replace(/\n/g,' '):t};
   // Das unsichtbare Feld hält nur die Zeile mit dem Cursor (Bereich ms..me des Textes), nie den ganzen Text
   let ms=0,me=0;
-  const sync=()=>{if(comp)return;ms=st.v.lastIndexOf('\n',lo()-1)+1;const e=st.v.indexOf('\n',hi());me=e<0?st.v.length:e;
+  const sync=()=>{if(comp)return;ms=lo()?st.v.lastIndexOf('\n',lo()-1)+1:0;const e=st.v.indexOf('\n',hi());me=e<0?st.v.length:e;
     const seg=st.v.slice(ms,me);if(sink.value!==seg)sink.value=seg;
     try{sink.setSelectionRange(lo()-ms,hi()-ms,st.c<st.a?'backward':'forward')}catch(e){}};
-  const upd=()=>{sync();try{opt.onChange(st)}catch(err){dbg('FEHLER beim Zeichnen: '+(err&&err.stack||err))}};
+  const upd=()=>{if(opt.max&&st.v.length>opt.max){st.v=st.v.slice(0,opt.max);st.c=Math.min(st.c,opt.max);st.a=Math.min(st.a,opt.max);if(opt.onMax)opt.onMax()}sync();try{opt.onChange(st)}catch(err){dbg('FEHLER beim Zeichnen: '+(err&&err.stack||err))}};
   const snap=()=>opt.snap?opt.snap():null,rec=()=>{hist.push([st.v,st.c,st.a,snap()]);if(hist.length>400)hist.shift();fut.length=0};
   const put=t=>{t=norm(t);if(!t&&lo()===hi())return;rec();const l=lo();st.v=st.v.slice(0,l)+t+st.v.slice(hi());st.c=st.a=l+t.length;upd()};
   // Was das Textfeld selbst geändert hat (Tippen, Einfügen, Ausschneiden, Eingabesystem) übernehmen
@@ -4850,17 +4853,20 @@ function textEngine(host,initial,opt){
   const typeChar=t=>{if(lo()===hi()){const r=acRule(st.v.slice(0,st.c),t);if(r){put(t);const pv=st.v,pc=st.c;rec();st.v=st.v.slice(0,st.c-t.length-r[0])+r[1]+st.v.slice(st.c);st.c=st.a=st.c-t.length-r[0]+r[1].length;acSnap={v:st.v,c:st.c,pv,pc};upd();return}}
     const u=lo()===hi()?capOf(t):null;if(!u||!needCap(st.v.slice(0,st.c))){put(t);return}
     put(t);rec();st.v=st.v.slice(0,st.c-1)+u+st.v.slice(st.c);upd()};
+  // one step = one code point, so Backspace/arrows never split a surrogate pair (emoji)
+  const cpL=i=>i>1&&/[\udc00-\udfff]/.test(st.v[i-1])&&/[\ud800-\udbff]/.test(st.v[i-2])?i-2:Math.max(0,i-1);
+  const cpR=i=>/[\ud800-\udbff]/.test(st.v[i]||'')&&/[\udc00-\udfff]/.test(st.v[i+1]||'')?i+2:Math.min(st.v.length,i+1);
   const del=(dir,word)=>{if(lo()!==hi())return put('');let a=st.c,b=st.c;
-    if(dir<0)a=word?wordL(st.c):Math.max(0,st.c-1);else b=word?wordR(st.c):Math.min(st.v.length,st.c+1);if(a===b)return;st.c=a;st.a=b;put('')};
+    if(dir<0)a=word?wordL(st.c):cpL(st.c);else b=word?wordR(st.c):cpR(st.c);if(a===b)return;st.c=a;st.a=b;put('')};
   const move=(i,ext)=>{st.c=clamp(i,0,st.v.length);if(!ext)st.a=st.c;upd()};
   // Zeilenweise Bewegung ohne Geometrie (für Beschriftungen): nach Zeilenumbrüchen
-  const edge=(i,d)=>d<0?st.v.lastIndexOf('\n',i-1)+1:(st.v.indexOf('\n',i)<0?st.v.length:st.v.indexOf('\n',i));
+  const edge=(i,d)=>d<0?(i?st.v.lastIndexOf('\n',i-1)+1:0):(st.v.indexOf('\n',i)<0?st.v.length:st.v.indexOf('\n',i));
   const vert=(i,d)=>{const s0=edge(i,-1),col=i-s0;if(d<0){if(s0===0)return 0;const p=edge(s0-1,-1);return Math.min(p+col,s0-1)}
     const e0=edge(i,1);if(e0>=st.v.length)return st.v.length;const n=e0+1;return Math.min(n+col,edge(n,1))};
   /* Aufzählungen: Eine Zeile „   • Text“ ist ein Punkt. Je drei Leerzeichen davor = eine Ebene tiefer.
      Punkte je Ebene: • ◦ ▪   Nummern: 1. / a) / i.  (Enter setzt fort, Tab rückt ein, Umschalt+Tab aus) */
-  const IND='   ',BUL=['•','◦','▪'],LRX=/^((?: {3})*)(•|◦|▪|\d+\.|[a-z]\)|[ivx]+\.) /;
-  const lineRange=i=>{const a=st.v.lastIndexOf('\n',i-1)+1,e=st.v.indexOf('\n',i);return[a,e<0?st.v.length:e]};
+  const IND='   ',BUL=['•','◦','▪'],LRX=/^((?: {3})*)(•|◦|▪|\d+\.|(?<=^ +)(?:[a-z]\)|[ivx]+\.)) /; // letter/roman markers only on nested levels: top-level "a) " or "v. Chr. " is plain text
+  const lineRange=i=>{const a=i?st.v.lastIndexOf('\n',i-1)+1:0,e=st.v.indexOf('\n',i);return[a,e<0?st.v.length:e]};
   const info=a=>{const e=st.v.indexOf('\n',a),L=st.v.slice(a,e<0?st.v.length:e),m=L.match(LRX);if(!m)return null;
     const lvl=m[1].length/3,mk=m[2];return{lvl,mk,kind:BUL.includes(mk)?'b':'n',pre:m[0].length,rest:L.slice(m[0].length)}};
   const roman=n=>['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii'][n-1]||String(n);
@@ -4913,8 +4919,8 @@ function textEngine(host,initial,opt){
     if(k==='Backspace'&&ac&&ac.v===st.v&&ac.c===st.c&&lo()===hi()&&!mod){rec();st.v=ac.pv;st.c=st.a=ac.pc;upd()}
     else if(k==='Backspace'){if(!(opt.lists&&!mod&&listBack()))del(-1,mod)}else if(k==='Delete')del(1,mod);
     else if(k==='Enter'&&!mod&&!e.altKey&&!opt.single){dbg('enter: start');if(!(opt.lists&&!sh&&listEnter()))put('\n');dbg('enter: fertig, Zeilen='+st.v.split('\n').length)}
-    else if(k==='ArrowLeft')move(!sh&&lo()!==hi()?lo():mod?wordL(st.c):st.c-1,sh);
-    else if(k==='ArrowRight')move(!sh&&lo()!==hi()?hi():mod?wordR(st.c):st.c+1,sh);
+    else if(k==='ArrowLeft')move(!sh&&lo()!==hi()?lo():mod?wordL(st.c):cpL(st.c),sh);
+    else if(k==='ArrowRight')move(!sh&&lo()!==hi()?hi():mod?wordR(st.c):cpR(st.c),sh);
     else if(k==='ArrowUp'||k==='ArrowDown'){const d=k==='ArrowUp'?-1:1;move((opt.vert||vert)(st.c,d),sh)}
     else if(k==='Home'){let t=mod?0:(opt.edge||edge)(st.c,-1);if(opt.lists&&!mod){const[a]=lineRange(st.c),I=info(a);if(I&&t<=a+I.pre&&st.c>a+I.pre)t=a+I.pre}move(t,sh)}
     else if(k==='End')move(mod?st.v.length:(opt.edge||edge)(st.c,1),sh);
@@ -4950,7 +4956,7 @@ function makeEditor(i,x,y,fs,color,value,opt={}){
   const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   const render=st=>{const l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);
     disp.innerHTML=esc(st.v.slice(0,l))+(l===h?'<i class="crt2"></i>':'<mark>'+esc(st.v.slice(l,h))+'</mark>')+esc(st.v.slice(h))+'​'};
-  const eng=textEngine(box,value,{onChange:render});render(eng.st);
+  const eng=textEngine(box,value,{onChange:render,max:opt.max,onMax:opt.onMax});render(eng.st);
   box.addEventListener('keydown',e=>{e.stopPropagation();if(e.defaultPrevented)return;if(e.key==='Escape'||(e.key==='Enter'&&(e.ctrlKey||e.metaKey))){e.preventDefault();closeEditor()}});
   const at=(cx,cy)=>{let idx=eng.st.v.length;
     const r=document.caretRangeFromPoint&&document.caretRangeFromPoint(cx,cy);
@@ -5020,7 +5026,7 @@ function syncFmt(o){o=fmtTarget(o);const g=k=>o?o[k]:S[k];
   $('#tfpw').querySelectorAll('.edsw').forEach(x=>x.setAttribute('aria-pressed',x.dataset.c.toLowerCase()===h.toLowerCase()));
   const ci=$('#tfpw .edcin');if(/^#[0-9a-f]{6}$/i.test(h))ci.value=h}
 {const bg=$('#tfbg');bg.innerHTML=QB_HTML.bg;const b=bg.querySelector('[data-a=bg]'),pal=bg.querySelector('.edpal'),ci=bg.querySelector('.edcin'),pw=$('#tfpw');pal.hidden=false;pw.appendChild(pal); // palette opens inline: .sec clips popovers
-  const pick=(c,range)=>{S.hbg=c;applySel({hbg:c},range);syncFmt()},open=v=>{if(v)showEl(pw);else animHide(pw);b.setAttribute('aria-expanded',v)};
+  const pick=(c,range)=>{const q=ED&&ED.eng&&ED.eng.st;if(!(q&&q.c!==q.a))S.hbg=c;applySel({hbg:c},range);syncFmt()},open=v=>{if(v)showEl(pw);else animHide(pw);b.setAttribute('aria-expanded',v)};
   document.querySelectorAll('#tfmt button').forEach(x=>x.onclick=()=>{const k=x.dataset.k,v=!x.matches('[aria-pressed=true]'),q=ED&&ED.eng&&ED.eng.st;if(!(q&&q.c!==q.a))S[k]=v;applySel({[k]:v});syncFmt();if(ED&&ED.focus)ED.focus()});
   b.onclick=()=>open(pw.hidden||!!pw._ah);
   pal.querySelectorAll('.edsw').forEach(x=>x.onclick=()=>{pick(x.dataset.c);open(false)});
@@ -5074,7 +5080,9 @@ function openTextEditor(i,o,isNew,at){
           const d=document.createElement('b');d.style.left=x0*z+'px';d.style.top=li*lh+'px';d.style.width=Math.max(2,(x1-x0)*z)+'px';d.style.height=lh+'px';selL.appendChild(d)}}}
     {const fn=bF.firstChild;fn.textContent=fontName(o.font);const fc=FONT_MAP[o.font||''];fn.style.fontFamily=fc&&fc.css?fc.css:''}
     if(document.activeElement!==fsIn)fsIn.value=o.fs;{const q=eng?eng.st:null,l=q?Math.min(q.c,q.a):0,h=q?Math.max(q.c,q.a):0,pr=k=>String(h>l&&o.orient!=='stack'?styState(o,l,h,k):!!o[k]);bB.setAttribute('aria-pressed',pr('bold'));bU.setAttribute('aria-pressed',pr('underline'));bI.setAttribute('aria-pressed',pr('italic'))}syncFmt(o);if(eng){const lk=eng.listKind();bLb.setAttribute('aria-pressed',lk==='b');bLn.setAttribute('aria-pressed',lk==='n')}const cc=!eng?o.color:(()=>{const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);return h>l?spanColorAt(o,l):o.color})();cbar.style.background=cc;pal.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(cc).toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(cc))edcin.value=cc;const stk=o.orient==='stack';bBg.disabled=stk;bBg.title=tr(stk?'Hintergrund gibt es nicht für gestapelten Text':'Texthintergrund');cbarB.style.background=o.hbg||'transparent';palB.querySelectorAll('.edsw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c.toLowerCase()===String(o.hbg||'').toLowerCase()));if(/^#[0-9a-f]{6}$/i.test(o.hbg))edcinB.value=o.hbg;
-    root.classList.toggle('flip',o.y*z<46*({s:1,m:1.1,l:1.3}[design.qbar]||1))};
+    root.classList.toggle('flip',o.y*z<46*({s:1,m:1.1,l:1.3}[design.qbar]||1));
+    {const bar=root.querySelector('.edbar'),vw=$('#viewer');if(bar&&vw){bar.style.left='';const r=bar.getBoundingClientRect(),v=vw.getBoundingClientRect(),ov=r.right-(v.left+vw.clientWidth)+4;if(ov>0)bar.style.left=-1-Math.min(ov,Math.max(0,r.left-v.left))+'px'}}}; // keep the quick bar inside the viewer at the right page edge
+  const BOXK=['bold','italic','underline','hbg','color','fs','font'];let boxRec=0;
   const set=props=>{
     // Farbe bei markiertem Text: nur für die markierten Zeichen
     if('color' in props&&eng){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);if(h>l){eng.rec();setSpanColor(o,l,h,props.color);props={...props};delete props.color;if(!Object.keys(props).length){refresh();redraw(i);return}}}
@@ -5083,10 +5091,12 @@ function openTextEditor(i,o,isNew,at){
     if(eng&&o.orient!=='stack'){const st=eng.st,l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);
       if(h>l&&['bold','italic','underline','hbg'].some(k=>k in props)){props={...props};eng.rec();keepCtr(o,()=>{for(const k of['bold','italic','underline','hbg'])if(k in props){const v=k==='hbg'?props.hbg||'':styState(o,l,h,k)!==true;setSty(o,l,h,k,v);delete props[k]}});
         if(!Object.keys(props).length){syncFmt(o);refresh();redraw(i);return}}}
+    if(eng&&BOXK.some(k=>k in props&&(o[k]||'')!==(props[k]||''))&&Date.now()-boxRec>800)eng.rec(); // whole-field format is one undo step (coalesced for slider drags)
+    boxRec=Date.now();
     keepCtr(o,()=>{for(const k of['fs','color','bold','orient','underline','italic','hbg','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];if(!o.hbg)delete o.hbg});
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}for(const k of['bold','underline','italic','hbg'])if(k in props)S[k]=k==='hbg'?(o.hbg||''):!!o[k];syncFmt(o);if('color' in props)setColor(o.color,true);textClamp(o,P,true);refresh();redraw(i)};
-  eng=textEngine(area,o.text,{lists:true,snap:()=>[o.sty?JSON.stringify(o.sty):'',o.spans?JSON.stringify(o.spans):''],restore:(q,v)=>{o.text=v;if(q[0])o.sty=JSON.parse(q[0]);else delete o.sty;if(q[1])o.spans=JSON.parse(q[1]);else delete o.spans},onChange:st=>{keepCtr(o,()=>{shiftSpans(o,o.text,st.v);o.text=st.v});textClamp(o,P,true);refresh();redraw(i)},
+  eng=textEngine(area,o.text,{lists:true,max:TXT_MAX,onMax:()=>toast('Der Text ist auf 1 Million Zeichen begrenzt und wurde gekürzt.'),snap:()=>[o.sty?JSON.stringify(o.sty):'',o.spans?JSON.stringify(o.spans):'',JSON.stringify(BOXK.map(k=>o[k]))],restore:(q,v)=>{o.text=v;if(q[0])o.sty=JSON.parse(q[0]);else delete o.sty;if(q[1])o.spans=JSON.parse(q[1]);else delete o.spans;if(q[2]){const b=JSON.parse(q[2]);keepCtr(o,()=>BOXK.forEach((k,j)=>{if(b[j]==null)delete o[k];else o[k]=b[j]}));syncFmt(o)}},onChange:st=>{keepCtr(o,()=>{shiftSpans(o,o.text,st.v);o.text=st.v});textClamp(o,P,true);refresh();redraw(i)},
     vert:(idx,d)=>{const p=idxPos(o,g,idx),li=p.li+d;if(li<0)return 0;if(li>=g.b.lines.length)return o.text.length;return posIdx(o,g,p.x,(li+.5)*g.b.lh)},
     edge:(idx,d)=>{const p=idxPos(o,g,idx);return g.starts[p.li]+(d<0?0:g.b.lines[p.li].length)},
     onEmptyUndo:()=>{if(o.text===startText&&JSON.stringify({...o,text:startText})===origJson){closeEditor();undo()}}});
@@ -5565,9 +5575,9 @@ function taskEl(t,isNew){const li=document.createElement('li');li.className='nt-
   ta.addEventListener('blur',()=>{if(!ta.value.trim())removeTask(t,li,-2)});
   del.onclick=()=>removeTask(t,li,-2);return li}
 function removeTask(t,li,focusIdx){const k=S.tasks.indexOf(t);if(k<0)return;S.tasks.splice(k,1);tasksChanged();
-  const done=()=>{renderTasks();if(focusIdx>=0){const tt=document.querySelectorAll('#ntTaskList .nt-tt')[focusIdx];if(tt){tt.focus();tt.setSelectionRange(tt.value.length,tt.value.length)}}else if(focusIdx===-1)$('#ntNew').focus()};
+  const done=()=>{if(li.isConnected){li.remove();tasksProg()}else renderTasks();if(focusIdx>=0){const tt=document.querySelectorAll('#ntTaskList .nt-tt')[focusIdx];if(tt){tt.focus();tt.setSelectionRange(tt.value.length,tt.value.length)}}else if(focusIdx===-1)$('#ntNew').focus()};
   if(motionOff()||!li.isConnected)done();else{li.classList.add('leave');setTimeout(done,190)}}
-function addTask(text,done){S.tasks=S.tasks||[];S.tasks.push({t:text,d:!!done});renderTasks(S.tasks.length-1);const ul=$('#ntTaskList');ul.scrollTop=ul.scrollHeight;tasksChanged()}
+function addTask(text,done){S.tasks=S.tasks||[];if(S.tasks.length>=5000){toast('Es sind höchstens 5000 Aufgaben möglich.');return false}const t={t:text,d:!!done};S.tasks.push(t);const ul=$('#ntTaskList');if(ul){ul.appendChild(taskEl(t,true));tasksProg();ul.scrollTop=ul.scrollHeight}tasksChanged();return true} // adds one row instead of rebuilding all
 function notesSet(v){S.notes=v||'';const t=document.getElementById('ntText');if(t&&t.value!==S.notes)t.value=S.notes;notesUpd()}
 function notesIsOpen(){const n=document.getElementById('notes');return!!n&&!n.hidden&&!n._ah}
 function notesOpen(v){const n=$('#notes');if(v==null)v=!notesIsOpen();
@@ -5575,11 +5585,11 @@ function notesOpen(v){const n=$('#notes');if(v==null)v=!notesIsOpen();
   else animHide(n);$('#bNotes').setAttribute('aria-pressed',v)}
 {const n=$('#notes'),t=$('#ntText');let nT=0;
   const changed=()=>{S.notes=t.value;notesUpd();const ns=$('#ntState');ns.textContent='Wird mit dem PDF gespeichert …';ns.classList.add('dirty');clearTimeout(nT);nT=setTimeout(()=>{try{if(!S.sample&&!crNoStore())localStorage.setItem(storeKey()+':notes',S.notes)}catch(e){}markDirty()},450)};
-  const ins=(txt,lineStart)=>{t.focus();let a=t.selectionStart,b=t.selectionEnd;if(lineStart){a=b=t.value.lastIndexOf('\n',a-1)+1;t.setRangeText(txt,a,a,'preserve')}else t.setRangeText(txt,a,b,'end');changed()};
-  const swap=(ls,n,txt)=>{t.focus();t.setRangeText(txt,ls,ls+n,'preserve');changed()};const lsOf=()=>t.value.lastIndexOf('\n',t.selectionStart-1)+1;
+  const ins=(txt,lineStart)=>{t.focus();let a=t.selectionStart,b=t.selectionEnd;if(lineStart){a=b=a?t.value.lastIndexOf('\n',a-1)+1:0;t.setRangeText(txt,a,a,'preserve')}else t.setRangeText(txt,a,b,'end');changed()};
+  const swap=(ls,n,txt)=>{t.focus();t.setRangeText(txt,ls,ls+n,'preserve');changed()};const lsOf=()=>t.selectionStart?t.value.lastIndexOf('\n',t.selectionStart-1)+1:0;
   t.addEventListener('input',changed);
   t.addEventListener('keydown',e=>{
-    if(e.key==='Enter'&&!e.shiftKey&&!e.ctrlKey){const a=t.selectionStart,ls=t.value.lastIndexOf('\n',a-1)+1,line=t.value.slice(ls,a),m=line.match(/^(\s*)(• |- |☐ |☑ |(\d+)\. )/);
+    if(e.key==='Enter'&&!e.shiftKey&&!e.ctrlKey){const a=t.selectionStart,ls=a?t.value.lastIndexOf('\n',a-1)+1:0,line=t.value.slice(ls,a),m=line.match(/^(\s*)(• |- |☐ |☑ |(\d+)\. )/);
       if(m){e.preventDefault();if(line.trim()===m[2].trim()){t.setRangeText('',ls,a,'end');changed();return}const nx=m[3]?(+m[3]+1)+'. ':m[2]==='☑ '?'☐ ':m[2];ins('\n'+m[1]+nx)}}});
   n.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();notesOpen(false);$('#bNotes').focus()}
     else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();save(e.shiftKey)}});
@@ -5587,10 +5597,10 @@ function notesOpen(v){const n=$('#notes');if(v==null)v=!notesIsOpen();
   $('#ntStamp').onclick=()=>{const d=new Date(),p=v=>String(v).padStart(2,'0');ins(p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+', '+p(d.getHours())+':'+p(d.getMinutes())+' – ')};
   $('#ntList').onclick=()=>{const ls=lsOf(),v=t.value;if(v.startsWith('• ',ls))swap(ls,2,'');else if(v.startsWith('☐ ',ls)||v.startsWith('☑ ',ls))swap(ls,2,'• ');else ins('• ',true)};
   $('#ntTodo').onclick=()=>{const nw=$('#ntNew');if(document.activeElement===t){const ls=lsOf(),le=t.value.indexOf('\n',ls),line=t.value.slice(ls,le<0?t.value.length:le),body=line.replace(/^\s*([☐☑•-]|\d+\.)\s*/,'').trim();
-      if(body){addTask(body,/^\s*☑/.test(line));t.setRangeText('',ls,le<0?t.value.length:le+1,'start');changed();toast('Zeile als Aufgabe übernommen.');return}}
+      if(body){if(!addTask(body,/^\s*☑/.test(line)))return;t.setRangeText('',ls,le<0?t.value.length:le+1,'start');changed();toast('Zeile als Aufgabe übernommen.');return}}
     nw.focus()};
   $('#ntTodo').addEventListener('mousedown',e=>{if(document.activeElement===t)e.preventDefault()});
-  {const nw=$('#ntNew');nw.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=nw.value.trim();if(!v)return;nw.value='';addTask(v,false)}})}
+  {const nw=$('#ntNew');nw.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=nw.value.trim();if(!v)return;if(addTask(v,false))nw.value=''}})}
   $('#ntCopy').onclick=async()=>{try{await navigator.clipboard.writeText(t.value);toast('Notizen kopiert.')}catch(e){t.select();document.execCommand('copy');toast('Notizen kopiert.')}};
   addEventListener('resize',()=>{if(notesIsOpen()){const h=document.querySelector('header');if(h&&innerWidth>860)n.style.top=(h.getBoundingClientRect().bottom+10)+'px';else n.style.top=''}})}
 if(!S.tasks)S.tasks=[];renderTasks();
@@ -6538,9 +6548,11 @@ const isNum=v=>typeof v==='number'&&Number.isFinite(v);
 const COL_RX=/^(#[0-9a-f]{3,8}|rgba?\(\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*(,\s*[\d.]+\s*)?\)|[a-z]{3,20})$/i;
 const RES_IDS=new Set(['__proto__','constructor','prototype','toString','valueOf','hasOwnProperty',...Object.getOwnPropertyNames(Object.prototype)]);
 function sanId(v){if(typeof v!=='string')return null;v=v.replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);return v&&!RES_IDS.has(v)?v:null}
+const TXT_MAX=1e6; // text field limit; the editor cuts at the same length and says so
 function sanObj(o){
   if(!o||typeof o!=='object'||Array.isArray(o)||!OBJ_TYPES.has(o.type))return null;
   const r=sanVal(o,0);if(!r||typeof r!=='object')return null;
+  if(o.type==='text'&&typeof o.text==='string')r.text=o.text.slice(0,TXT_MAX);
   if(typeof r.color!=='string'||!COL_RX.test(r.color))r.color='#1b1f24';
   if(r.lw!=null&&!(isNum(r.lw)&&r.lw>=0&&r.lw<=200))r.lw=1;if(r.lw==null)r.lw=r.type==='text'||r.type==='image'?0:1;
   if(r.alpha!=null&&!(isNum(r.alpha)&&r.alpha>0&&r.alpha<=1))delete r.alpha;
@@ -6612,6 +6624,7 @@ function shiftSpans(o,oldT,newT){oldT=String(oldT);newT=String(newT);if((!o.span
 const STY_BOX=(o,k)=>k==='hbg'?(o.hbg||''):!!o[k];
 function styVal(o,i,k){const s=(o.sty||[]).find(s=>s.a<=i&&i<s.b);return s&&k in s?s[k]:STY_BOX(o,k)}
 function normSty(o){const n=String(o.text||'').length;let sp=(o.sty||[]).map(s=>{const q={a:Math.max(0,s.a|0),b:Math.min(n,s.b|0)};for(const k of['bold','italic','underline','hbg'])if(k in s&&s[k]!==STY_BOX(o,k))q[k]=s[k];return q}).filter(q=>q.b>q.a&&Object.keys(q).length>2).sort((x,y)=>x.a-y.a);
+  {let e=0;sp=sp.filter(q=>{q.a=Math.max(q.a,e);e=Math.max(e,q.b);return q.b>q.a})} // overlaps: first run wins, as in sanObj
   const key=q=>JSON.stringify([q.bold,q.italic,q.underline,q.hbg]),out=[];for(const q of sp){const l=out[out.length-1];if(l&&l.b===q.a&&key(l)===key(q))l.b=q.b;else out.push(q)}
   if(out.length)o.sty=out;else delete o.sty}
 // set k to v for all characters in [a,b): split the runs at the edges, fill gaps
@@ -6641,7 +6654,7 @@ const STY_W=new WeakMap();
 function wrapRichC(o){const f=tfont(o),c=STY_W.get(o.sty);if(c&&c.t===o.text&&c.w===o.wrapW&&c.f===f)return c.l;const l=wrapRich(o,o.wrapW);STY_W.set(o.sty,{t:o.text,w:o.wrapW,f,l});return l}
 // same line breaking as wrapLines, but on text indexes with per-run widths
 function wrapRich(o,maxW){const T=String(o.text),W=(a,b)=>wSty(o,a,b),out=[];out.soft=new Set();let off=0;
-  const cut=(a,b)=>{let i=a;while(b-i>1&&W(i,b)>maxW){let k=i+1;while(k<b&&W(i,k+1)<=maxW)k++;out.soft.add(out.length);out.push(T.slice(i,k));i=k}return i};
+  const cut=(a,b)=>{let i=a;while(b-i>1&&W(i,b)>maxW){let k=i+1;while(k<b&&W(i,k+1)<=maxW)k++;if(/[\ud800-\udbff]/.test(T[k-1])&&/[\udc00-\udfff]/.test(T[k]||''))k=k-1>i?k-1:k+1;out.soft.add(out.length);out.push(T.slice(i,k));i=k}return i};
   for(const para of T.split('\n')){const end=off+para.length;let cs=off,ce=off,ws=off;
     for(;;){let we=T.indexOf(' ',ws);if(we<0||we>end)we=end;
       if(ce>cs&&W(cs,we)>maxW){cs=cut(cs,ce);if(W(cs,we)>maxW){out.push(T.slice(cs,ce));cs=ws;ce=we}else ce=we}else ce=we;
@@ -6975,14 +6988,14 @@ function needCap(before){if(!S.autoCap)return false;const line=before.slice(befo
 const capOf=ch=>{if(!ch||ch.length!==1||!/\p{Ll}/u.test(ch))return null;const u=ch.toUpperCase();return u.length===1&&u!==ch?u:null};
 /* Zeichen-Autokorrektur (Textfelder, Zellen, Beschriftungen, Notizen): wird ausgelöst, wenn das letzte Zeichen des Musters getippt ist. Gibt [Anzahl zu ersetzender Zeichen davor, Ersatz] zurück. */
 S.autoChar=true;try{S.autoChar=localStorage.getItem('pdfwerkbank:autochar')!=='0'}catch(e){}
-function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;before=before.slice(-8); // only the tail matters: keeps the regexes cheap on huge texts
+function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;const full=before;before=before.slice(-8); // only the tail matters: keeps the regexes cheap on huge texts
   // conservative: dashes and arrows need a word boundary (start or whitespace) in front, so URLs, options (--force), operators (i++--, x<-1) and ASCII art stay as typed
   if(t===' '){if(/(^|\s)--$/.test(before))return[2,'– '];if(/(^|\s)<-$/.test(before))return[2,'← ']}
-  else if(t==='>'){if(/(^|\s)<-$/.test(before))return[2,'↔'];if(/(^|[^-<])-$/.test(before))return[1,'→'];if(before.endsWith('=')&&!before.endsWith('<='))return[1,'⇒']}
+  else if(t==='>'){if(/(^|\s)<-$/.test(before))return[2,'↔'];if(/(^|\s)-$/.test(before))return[1,'→'];if(/(^|\s)=$/.test(before))return[1,'⇒']}
   else if(/\d/.test(t)){if(/(^|\s)\+-$/.test(before))return[2,'±'+t]}
   else if(t==='.'){if(before.endsWith('..')&&!before.endsWith('…'))return[2,'…']}
-  else if(t==='='){if(before.endsWith('!'))return[1,'≠']}
-  else if(t===')'){const m=/(^|\s)\((c|r|tm)$/i.exec(before);if(m&&!/\)\s*$/.test(before.slice(0,before.length-m[0].length+m[1].length)))return[m[0].length-m[1].length,{c:'©',r:'®',tm:'™'}[m[2].toLowerCase()]]}
+  else if(t==='='){if(/(^|\s)!$/.test(before))return[1,'≠']}
+  else if(t===')'){const m=/(^|\s)\((c|r|tm)$/i.exec(before);if(m&&!(m[2]==='c'&&/(^|\n)[ \t]*\(b\)[^\n]*\n[ \t]*\(c$/.test(full.slice(-300)))&&!/\)\s*$/.test(before.slice(0,before.length-m[0].length+m[1].length)))return[m[0].length-m[1].length,{c:'©',r:'®',tm:'™'}[m[2].toLowerCase()]]}
   return null}
 {const nt=document.getElementById('ntText');if(nt){let acN=null;
   nt.addEventListener('keydown',e=>{if(e.key==='Backspace'&&acN&&acN.v===nt.value&&acN.p===nt.selectionStart&&nt.selectionStart===nt.selectionEnd){e.preventDefault();document.execCommand('undo');nt.setSelectionRange(nt.selectionEnd,nt.selectionEnd)}acN=null;
@@ -7522,6 +7535,7 @@ $('#mOk').onclick=async()=>{
      // ids are random, but the same file merged twice would clash: give every source its own ids so docked lines stay with their own devices
     if(String(inote).trim())notes.push(inote);tasks.push(...itasks)}
   const name=($('#mName').value.trim()||'Zusammengeführt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
+  if(tasks.length>5000)toast('Beim Zusammenführen wurden nur die ersten 5000 Aufgaben übernommen.');
   closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs,notes:notes.join('\n\n----------\n\n').slice(0,5e6),tasks:tasksCap(tasks)})},true));
   if(!ok)return;markDirty();
   toast(`${mItems.length} Dateien mit zusammen ${S.pages.length} Seiten zusammengeführt. Mit „Speichern“ sicherst du „${name}“.`);
