@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lLTAUtSdmitpY0f6qGGUQeyn04u/862LuMMa9bgAFaE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Ewlw90NkzYpDK1yUQ5Tw1MLfWx9AZTyQft3HBtR0ESk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4375,12 +4375,13 @@ setTimeout(()=>{try{alUI()}catch(e){}},0);
 /* ---------- 3.10: Objektleiste (obBar): kleine Leiste über dem gewählten Objekt ----------
    Hidden while dragging/resizing, typing, with another tool, or when the setting is off. F6 moves focus into it, Esc back to the page. */
 var obBarOn=true;try{obBarOn=localStorage.getItem('pdfwerkbank:objBar')!=='0'}catch(e){}
-var obBusy=false,obRaf=0;const obBar=$('#obBar');
+var obBusy=false,obRaf=0;const OB_TOOLS=['select','lasso','rect','ellipse','symbol']; // rect/ellipse/symbol keep the freshly placed object selected
+const obBar=$('#obBar');
 function obPalOpen(v){const pal=$('#obPal');pal.hidden=!v;$('#obCol').setAttribute('aria-expanded',v)}
 function obHide(){if(!obBar.hidden){obBar.hidden=true;obPalOpen(false)}}
 function obSoon(){if(obRaf)return;obRaf=requestAnimationFrame(()=>{obRaf=0;try{obUpdate()}catch(e){}})}
 function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
-  if(!obBarOn||!P||!P.ink||obBusy||CRP||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||!tsBar.hidden||sel.o===editingObj||document.querySelector('.modal:not([hidden])')){obHide();return}
+  if(!obBarOn||!P||!P.ink||obBusy||CRP||editorEl||ED||!OB_TOOLS.includes(S.tool)||S.draft||!tsBar.hidden||sel.o===editingObj||document.querySelector('.modal:not([hidden])')){obHide();return}
   const T=selItems();if(!T.length){obHide();return}
   const lk=T.some(o=>!o.locked),L=$('#obLock'),lt=tr(lk?'Sperren':'Entsperren');L.title=lt;L.setAttribute('aria-label',lt);
   $('#obAl').hidden=alUnits(T.filter(o=>!alFixed(o))).length<2;$('#obCrop').hidden=!(T.length===1&&T[0].type==='image'&&!T[0].locked);
@@ -4389,8 +4390,13 @@ function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
   const top=r.top+b.y*z,bot=top+b.h*z,left=r.left+b.x*z,wid=b.w*z;
   if(bot<vr.top||top>vr.bottom){obHide();return}
   const gap=sel.o.type==='group'||(sel.o.type==='text'&&sel.o.orient==='h')?40:16; // clear of the group label / rotation handle
+  const x=Math.round(Math.max(vr.left+4,Math.min(vr.right-w-4,left+wid/2-w/2)));
   let y=top-h-gap;if(y<vr.top+4)y=bot+14;
-  obBar.style.left=Math.round(Math.max(vr.left+4,Math.min(vr.right-w-4,left+wid/2-w/2)))+'px';
+  // a selected table has its own bar (.tblbar): never cover it, try the other side of the table or the far side of that bar
+  const tbe=sel.o.type==='table'?document.getElementById('tblBar'):null,tb=tbe&&!tbe.hidden?tbe.getBoundingClientRect():null;
+  if(tb&&x<tb.right+4&&x+w>tb.left-4&&y<tb.bottom+4&&y+h>tb.top-4){
+    const ok=v=>v>=vr.top+4&&v+h<=vb-4&&(v+h<=tb.top-4||v>=tb.bottom+4),c=[top-h-gap,bot+14,tb.top-h-6,tb.bottom+6].find(ok);if(c!==undefined)y=c}
+  obBar.style.left=x+'px';
   obBar.style.top=Math.round(Math.max(vr.top+4,Math.min(vb-h-4,y)))+'px'}
 viewer.addEventListener('scroll',obSoon);addEventListener('resize',obSoon);
 for(const[c,n]of COLORS){const b=document.createElement('button');b.type='button';b.className='tsw';b.style.background=c;b.title=n;b.setAttribute('aria-label',tr(n));b.dataset.c=c;b.onclick=()=>{setColor(c);obPalOpen(false);$('#obCol').focus()};$('#obPal').appendChild(b)}
