@@ -2419,6 +2419,17 @@ else {
     ok('T3-03: verschlüsselte Datei wird beim Zusammenführen abgelehnt (Hinweis, nicht hinzugefügt)', Array.isArray(enc) && enc[0] === enc[1] && enc[2] === true, enc);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T3-04): rotating a page rotates redaction areas and highlights with it
+  {
+    const r = await ev(`(async()=>{const W=ms=>new Promise(r=>setTimeout(r,ms));const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t304.pdf');await W(500);
+      S.pages[0].objs=[{type:'redact',x:60,y:50,w:300,h:35,color:'#000000',lw:0},{type:'hl',x:55,y:60,w:200,h:20,q:[[[0,0],[200,0],[200,20],[0,20]]],color:'#ffd60a',lw:0,alpha:.38}];
+      rotatePages([0],90);for(let k=0;k<80&&(rbBusy||!S.pages[0].objs.length);k++)await W(100);await W(300);
+      const o=S.pages[0].objs;return [S.pages[0].w,o.map(x=>[x.type,x.x,x.y,x.w,x.h]),o.find(x=>x.type==='hl').q]})()`, 30000);
+    // 595x842 turned 90 clockwise maps (x,y) to (842-y,x): redact 300x35 at (60,50) becomes 35x300 at (757,60); hl 200x20 at (55,60) becomes 20x200 at (762,55)
+    const rd = r && r[1] && r[1].find(x => x[0] === 'redact'), hl = r && r[1] && r[1].find(x => x[0] === 'hl');
+    ok('T3-04: Seite drehen dreht Schwärzungsbereich und Markierung mit', !!rd && !!hl && JSON.stringify(rd.slice(1)) === '[757,60,35,300]' && JSON.stringify(hl.slice(1)) === '[762,55,20,200]' && JSON.stringify(r[2]) === '[[[20,0],[20,200],[0,200],[0,0]]]', r);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
