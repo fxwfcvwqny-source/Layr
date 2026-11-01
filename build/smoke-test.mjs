@@ -1083,10 +1083,12 @@ else {
     ok('Gruppen: Klick auf ein Teil wählt alle Teile der Vorlage (Gruppenrahmen), nicht die zweite Vorlage', s1[0] === first.n && s1[1] === 'group' && s1[2] === 1, s1);
     // drag moves all members by the same amount
     const g0 = (await geo()).filter(a => a[0] === first.gid), other0 = (await geo()).filter(a => a[0] !== first.gid), HU = await ev('H.u.length');
+    await ev('window.__gd=GD.on;GD.on=false'); // smart guides now also snap groups with lines: off here, this check measures the plain drag
     { const c = cl(first.c); await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 8; i++) await dragTo(c[0] - 6 * i, c[1] + 4 * i); await releaseAt(c[0] - 48, c[1] + 32); await sleep(150); }
     const g1 = (await geo()).filter(a => a[0] === first.gid), other1 = (await geo()).filter(a => a[0] !== first.gid);
     const dd = g1.map((a, k) => [a[1] - g0[k][1], a[2] - g0[k][2]]);
     ok('Gruppen: Ziehen verschiebt alle Teile gleich (Abstände bleiben), die andere Vorlage bleibt', dd.every(d => Math.abs(d[0] + 48 / sc[2]) < 1 && Math.abs(d[1] - 32 / sc[2]) < 1) && JSON.stringify(other0) === JSON.stringify(other1) && await ev('H.u.length') === HU + 1, { d0: dd[0], n: dd.length });
+    await ev('GD.on=window.__gd');
     // scale with the corner handle keeps proportions
     const gs0 = (await geo()).filter(a => a[0] === first.gid);
     const br = await ev("(()=>{const h=handles(S.sel.o).find(h=>h.k==='br');return [h.x,h.y]})()");
