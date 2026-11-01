@@ -2687,6 +2687,37 @@ else {
     const tp = await ev("(async()=>{tasksSet(Array.from({length:4000},(_,i)=>({t:'T'+i,d:false})));const ul=document.getElementById('ntTaskList'),first=ul.firstChild;const t0=performance.now();addTask('neu',false);const ta=performance.now()-t0;const same=ul.firstChild===first&&ul.children.length===4001;const li=ul.lastChild;const t1=performance.now();removeTask(S.tasks[4000],li,-2);await new Promise(r=>setTimeout(r,400));const tr=performance.now()-t1-400;const same2=ul.firstChild===first&&ul.children.length===4000&&S.tasks.length===4000;tasksSet([]);return [same,same2,Math.round(ta),Math.round(tr)]})()", 60000);
     ok('T2-15: Aufgabe anlegen und entfernen baut die Liste nicht neu auf', tp[0] === true && tp[1] === true, tp);
   }
+  // Customize symbols: hidden group leaves the palette, placed objects keep rendering and survive save + reopen, "Alle zeigen" restores, bad storage tolerated
+  {
+    await ev("(async()=>{localStorage.removeItem('pdfwerkbank:symhide');SYM_HID=new Set();const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'sh.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages[0].objs=[sanObj({type:'sym',sym:'router',x:100,y:100,w:SYM.router.w,h:SYM.router.h,color:'#1b2a3a',lw:1.2,fill:'white',fs:11,label:'R1'})];S.cat='Netzwerk';buildCats();return 1})()", 30000);
+    const px = "(()=>{const o=S.pages[0].objs.find(x=>x.sym==='router'),cv=document.createElement('canvas');cv.width=cv.height=400;const c=cv.getContext('2d');c.fillStyle=c.strokeStyle='#000';drawObj(c,o);const d=c.getImageData(0,0,400,400).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>60)n++;return n})()";
+    const n0 = await ev(px);
+    await ev("symOpen()");
+    const dlg = await ev("(()=>{const d=document.getElementById('symDlg'),g=[...d.querySelectorAll('.sym-g input[type=checkbox]')].find(i=>i.getAttribute('aria-label')===tr('Netzwerk'));return [!d.hidden,document.getElementById('app').inert,!!g,g&&g.checked,d.getAttribute('aria-modal'),!!d.querySelector('.sym-g button[aria-expanded]')]})()");
+    ok('Symbole anpassen: Dialog offen, App inert, Gruppen-Checkbox mit Beschriftung', dlg[0] && dlg[1] && dlg[2] && dlg[3] && dlg[4] === 'true' && dlg[5], dlg);
+    await ev("[...document.querySelectorAll('#symDlg .sym-g input[type=checkbox]')].find(i=>i.getAttribute('aria-label')===tr('Netzwerk')).click()");
+    const hid = await ev("(()=>[[...document.getElementById('catSel').options].some(o=>o.value==='Netzwerk'),!!document.querySelector('#symgrid [data-s=router]'),JSON.parse(localStorage.getItem('pdfwerkbank:symhide')).includes('router'),S.cat])()");
+    ok('Symbole anpassen: ausgeblendete Gruppe fehlt in der Palette und ist gemerkt', hid[0] === false && hid[1] === false && hid[2] === true && hid[3] !== 'Netzwerk', hid);
+    ok('Symbole anpassen: gesetztes Symbol einer ausgeblendeten Gruppe wird weiter gezeichnet', n0 > 50 && await ev(px) === n0, n0);
+    const rt = await ev("(async()=>{const out=await buildOutput();S.pages[0].objs=[];await openPdf(out,'sh2.pdf');await new Promise(r=>setTimeout(r,500));const o=S.pages[0].objs.find(x=>x.sym==='router');return o&&o.label})()", 30000);
+    ok('Symbole anpassen: Objekt bleibt nach Speichern und Wiederöffnen erhalten', rt === 'R1' && await ev(px) === n0, rt);
+    await ev("{const d=document.getElementById('symDlg');d.querySelector('.sym-g button[aria-expanded]').click()}");
+    await ev("document.querySelector('#symDlg .sym-s input').click()");
+    ok('Symbole anpassen: einzelnes Symbol lässt sich ausblenden (Gruppe teilweise)', await ev("(()=>{const m=document.querySelector('#symDlg .sym-g input[type=checkbox]');return m.indeterminate&&SYM_HID.size>0})()") === true);
+    await ev("for(const c of CATS)for(const s of Object.values(SYM))SYM_HID.add(s.id);buildCats()");
+    const hint = await ev("document.getElementById('symgrid').textContent");
+    ok('Symbole anpassen: sind alle ausgeblendet, steht ein Hinweis statt einer leeren Palette', /Alle Symbole ausgeblendet/.test(hint) && await ev("document.getElementById('catSel').options.length") === 0, hint);
+    await ev("document.getElementById('symAll').click()");
+    const all = await ev("(()=>[SYM_HID.size,[...document.getElementById('catSel').options].some(o=>o.value==='Netzwerk'),localStorage.getItem('pdfwerkbank:symhide')])()");
+    ok('Symbole anpassen: Alle zeigen stellt die Palette wieder her', all[0] === 0 && all[1] === true && all[2] === '[]', all);
+    await ev("document.getElementById('symDone').click()");
+    await sleep(500);
+    ok('Symbole anpassen: Schließen gibt die App wieder frei', await ev("document.getElementById('symDlg').hidden&&!document.getElementById('app').inert") === true);
+    const bad = [];
+    for (const v of ['{bad', '"x"', '123', '[1,null,"nosuch","router"]', 'null']) bad.push(await ev(`(()=>{localStorage.setItem('pdfwerkbank:symhide',${JSON.stringify(v)});return JSON.stringify([...symHidLoad()])})()`));
+    ok('Symbole anpassen: kaputter oder unbekannter Speicherwert wird ignoriert', JSON.stringify(bad) === JSON.stringify(['[]', '[]', '[]', '["router"]', '[]']), bad);
+    await ev("localStorage.removeItem('pdfwerkbank:symhide');SYM_HID=new Set();S.pages[0].objs=[];buildCats()");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

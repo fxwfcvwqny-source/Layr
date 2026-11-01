@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Hu7z6RgFEfteHCseU2eMRtmzosfQ1uvSR+0eV6Jvy3s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Jw/QT/2BS36VVJgFYHdeKTMTkP09rBmczGhDxGwHaVQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1175,7 +1175,15 @@ select.fm{padding:0 .1em;background-color:rgba(66,133,244,.11)}
 .tb-r kbd{min-width:22px;height:20px;padding:0 6px;display:inline-grid;place-items:center;border-radius:5px;font:500 10.5px/1 var(--f-mono);color:var(--muted);
   background:color-mix(in srgb,var(--ink) 4%,var(--panel));border:1px solid color-mix(in srgb,var(--ink) 11%,transparent);border-bottom-width:2px}
 .tb-r .tgl{flex:none;margin:0}
-#tbInfo{margin:0}
+#tbInfo,#symInfo{margin:0}
+.sym-g{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:var(--r)}
+.sym-g:hover{background:var(--hover)}
+.sym-g label{flex:1;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;font-weight:500}
+.sym-g small{color:var(--muted);font-weight:400}
+.sym-g .ib[aria-expanded="true"] svg{transform:rotate(90deg)}
+.sym-s{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:2px 8px;padding:0 8px 6px 46px}
+.sym-s label{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:2px 0;cursor:pointer}
+.symhint{grid-column:1/-1;color:var(--muted);font-size:12.5px;padding:8px 2px}
 .sig-od{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sig-od input#sigOrt{height:30px;border:1px solid transparent;border-radius:8px;padding:0 10px;background:var(--fill);color:var(--ink);width:170px}
 .sig-od input#sigOrt:disabled{opacity:.5}
@@ -1875,6 +1883,15 @@ header,.file{min-width:0}
     <div class="tb-list" id="tbList"></div>
     <p class="hint" id="tbInfo"></p>
     <div class="ab-btns asr-btns"><button class="btn" id="tbReset" type="button">Standard wiederherstellen</button><button class="btn primary" id="tbDone" type="button">Fertig</button></div>
+  </div>
+</div>
+<div class="modal" id="symDlg" hidden role="dialog" aria-modal="true" aria-labelledby="symT">
+  <div class="card ipcard tbcard">
+    <div class="ip-h"><h2 id="symT">Symbole anpassen</h2><button class="ib" id="symX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
+    <p class="hint">Wähle, welche Symbole in der Symbol-Palette erscheinen. Bereits gesetzte Symbole in Dateien bleiben unverändert.</p>
+    <div class="tb-list" id="symList"></div>
+    <p class="hint" id="symInfo" aria-live="polite"></p>
+    <div class="ab-btns asr-btns"><button class="btn" id="symAll" type="button">Alle zeigen</button><button class="btn primary" id="symDone" type="button">Schließen</button></div>
   </div>
 </div>
 <div class="modal" id="decoDlg" hidden role="dialog" aria-modal="true" aria-labelledby="dcT">
@@ -5202,21 +5219,51 @@ function thumb(id){
   c.setTransform(k*sc,0,0,k*sc,k*(W-s.w*sc)/2,k*(Hh-s.h*sc)/2);c.lineCap='round';c.lineJoin='round';c.strokeStyle=o.color;c.fillStyle=o.color;c.lineWidth=o.lw;
   s.draw(c,o,0,0,s.w,s.h);return cv;
 }
+/* Symbole anpassen: nur die Anzeige in der Palette; SYM, gesetzte Objekte und das Dateiformat bleiben unberührt */
+function symHidLoad(){try{const a=JSON.parse(localStorage.getItem('pdfwerkbank:symhide'));if(Array.isArray(a))return new Set(a.filter(id=>typeof id==='string'&&SYM[id]))}catch(e){}return new Set()}
+let SYM_HID=symHidLoad();
+const symVis=c=>Object.values(SYM).filter(s=>s.cat===c&&!SYM_HID.has(s.id));
+function symHidSave(){try{localStorage.setItem('pdfwerkbank:symhide',JSON.stringify([...SYM_HID]))}catch(e){}}
+function symCount(){const n=SYM_HID.size;$('#symInfo').textContent=n===0?tr('Alle Symbole werden angezeigt.'):n+tr(' Symbole ausgeblendet.')}
+function symRender(open){const L=$('#symList');L.textContent='';
+  for(const c of CATS){const all=Object.values(SYM).filter(s=>s.cat===c),box=document.createElement('div'),sub=document.createElement('div');
+    const row=document.createElement('div');row.className='sym-g';
+    const ex=document.createElement('button');ex.type='button';ex.className='ib';ex.setAttribute('aria-expanded',open===c?'true':'false');ex.setAttribute('aria-label',tr('Einzelne Symbole zeigen')+': '+tr(c));ex.innerHTML='<svg class="ph" aria-hidden="true"><use href="#ph-caret-right"/></svg>';
+    const lb=document.createElement('label'),m=document.createElement('input');m.type='checkbox';m.setAttribute('aria-label',tr(c));
+    const nm=document.createElement('span'),cn=document.createElement('small');nm.textContent=tr(c);lb.append(m,nm,cn);row.append(ex,lb);
+    sub.className='sym-s';sub.hidden=open!==c;sub.setAttribute('role','group');sub.setAttribute('aria-label',tr(c));
+    const inps=all.map(s=>{const l=document.createElement('label'),i=document.createElement('input');i.type='checkbox';i.checked=!SYM_HID.has(s.id);i.dataset.id=s.id;i.setAttribute('aria-label',s.name);
+      l.append(i,document.createTextNode(s.name));sub.appendChild(l);
+      i.onchange=()=>{i.checked?SYM_HID.delete(s.id):SYM_HID.add(s.id);upd();symHidSave();buildCats();symCount()};return i});
+    const upd=()=>{const n=inps.filter(i=>i.checked).length;m.checked=n===all.length;m.indeterminate=n>0&&n<all.length;cn.textContent=' '+n+'/'+all.length};
+    m.onchange=()=>{for(const s of all)m.checked?SYM_HID.delete(s.id):SYM_HID.add(s.id);inps.forEach(i=>i.checked=m.checked);upd();symHidSave();buildCats();symCount()};
+    ex.onclick=()=>{const o=sub.hidden;sub.hidden=!o;ex.setAttribute('aria-expanded',o)};
+    upd();box.append(row,sub);L.appendChild(box)}
+  symCount()}
+function symOpen(){closeMenu&&closeMenu();symRender();showEl($('#symDlg'))}
+function symClose(){animHide($('#symDlg'))}
+{const d=$('#symDlg');$('#symX').onclick=symClose;$('#symDone').onclick=symClose;
+  $('#symAll').onclick=()=>{SYM_HID.clear();symHidSave();buildCats();symRender();toast(tr('Alle Symbole werden angezeigt.'))};
+  d.addEventListener('pointerdown',e=>{if(e.target===d)symClose()});d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();symClose()}})}
+Object.assign(I18N_EN,{'Symbole anpassen':'Customize symbols','Wähle, welche Symbole in der Symbol-Palette erscheinen. Bereits gesetzte Symbole in Dateien bleiben unverändert.':'Choose which symbols appear in the symbol palette. Symbols already placed in files stay unchanged.','Alle zeigen':'Show all','Alle Symbole werden angezeigt.':'All symbols are shown.',' Symbole ausgeblendet.':' symbols hidden.','Einzelne Symbole zeigen':'Show single symbols','Alle Symbole ausgeblendet. Einstellungen > Symbole anpassen':'All symbols hidden. Settings > Customize symbols','Festlegen, welche Symbole in der Palette stehen':'Choose which symbols the palette shows'});
 let symPop=null,symPopBtn=null;
 function tplTile(e,k,after){
   if(e.detail===0){if(ARM&&ARM.k===k){armOff();insertOrgTemplate(k);after&&after()}else armOn(k);return} // keyboard: Enter arms, Enter again places at the centre as before
   armOn(k);after&&after()}
 function fillSym(sel,grid,after){
-  sel.innerHTML='';for(const c of CATS){const op=document.createElement('option');op.value=c;op.textContent=c+' ('+Object.values(SYM).filter(s=>s.cat===c).length+')';sel.appendChild(op)}
+  sel.innerHTML='';const vc=CATS.filter(c=>symVis(c).length);if(vc.length&&!vc.includes(S.cat))S.cat=vc[0];
+  for(const c of vc){const op=document.createElement('option');op.value=c;op.textContent=c+' ('+symVis(c).length+')';sel.appendChild(op)}
   sel.value=S.cat;sel.onchange=()=>{S.cat=sel.value;buildCats()};
-  grid.innerHTML='';if(S.cat==='Formen')symTableBtn(grid,after);
+  grid.innerHTML='';
+  if(!vc.length){const p=document.createElement('p');p.className='symhint';p.textContent=tr('Alle Symbole ausgeblendet. Einstellungen > Symbole anpassen');grid.appendChild(p);return}
+  if(S.cat==='Formen')symTableBtn(grid,after);
   const TPLS=S.cat==='Organigramm'?ORG_TPL:S.cat==='Netzwerk'?NET_TPL:null;
   if(TPLS){const h=document.createElement('div');h.className='tpl-h';h.textContent='Vorlagen';grid.appendChild(h);
     for(const t of TPLS){const b=document.createElement('button');b.type='button';b.className='sym tpl';b.title=t.n;b.append(orgThumb(t));const sp=document.createElement('span');sp.textContent=t.n;b.append(sp);
       b.dataset.k=t.k;b.setAttribute('aria-pressed',!!ARM&&ARM.k===t.k);
       b.onclick=e=>tplTile(e,t.k,after);grid.appendChild(b)}
     const h2=document.createElement('div');h2.className='tpl-h';h2.textContent=S.cat==='Netzwerk'?'Geräte':'Bausteine';grid.appendChild(h2)}
-  for(const s of Object.values(SYM).filter(s=>s.cat===S.cat)){
+  for(const s of symVis(S.cat)){
     const b=document.createElement('button');b.type='button';b.className='sym';b.title=s.name;b.dataset.s=s.id;b.setAttribute('aria-pressed',s.id===S.sym&&S.tool==='symbol');
     b.append(thumb(s.id));const sp=document.createElement('span');sp.textContent=s.name;b.append(sp);
     b.onclick=e=>{S.sym=s.id;setTool('symbol');buildCats();after&&after()};grid.appendChild(b);
@@ -7740,7 +7787,7 @@ const HM_IC={
   splitv:'ly-split',
   swap:'arrows-left-right',close:'x',
   moon:'moon',
-  tools:'wrench',tbcfg:'sliders-horizontal',objbar:'toolbox',tabobj:'selection-all',keepsel:'cursor',lockpass:'lock-open',
+  tools:'wrench',tbcfg:'sliders-horizontal',symcfg:'shapes',objbar:'toolbox',tabobj:'selection-all',keepsel:'cursor',lockpass:'lock-open',
   undo:'arrow-u-up-left',redo:'arrow-u-up-right',
   find:'magnifying-glass',notes:'note-pencil',
   mic:'microphone',auto:'clock-clockwise'};
@@ -7809,6 +7856,7 @@ $('#bSetMenu').onclick=()=>{const up=$('#bInfo').classList.contains('has-upd');h
   {h:'Erscheinungsbild'},
   {ic:'design',t:'Design anpassen',d:'Farben, Leisten, hell oder dunkel',run:()=>$('#bDesign').click()},
   {ic:'tbcfg',t:'Werkzeugleiste anpassen',d:'Festlegen, was oben steht',run:()=>tbOpen()},
+  {ic:'symcfg',t:'Symbole anpassen',d:'Festlegen, welche Symbole in der Palette stehen',run:()=>symOpen()},
   {h:'Schreiben'},
   {ic:'writing',t:'Schreiben & Rechtschreibung',d:'Wörterbuch, Großschreibung, Diktieren',run:()=>wrOpen(true)},
   {h:'Bedienung'},

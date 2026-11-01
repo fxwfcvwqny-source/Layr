@@ -116,6 +116,7 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Strg+] / Strg+[ und mit Umschalt → Reihenfolge; Alternativen Strg+Umschalt+Hoch/Runter, Strg+Alt+Umschalt+Hoch/Runter.
 - [ ] Strg+Alt+G → Seitenfeld. Strg+Umschalt+K → Sonderzeichen.
 - [ ] Umschalt+C → Zuschneiden (Bild gewählt). Tab / Umschalt+Tab → Objekte. F6 → Objektleiste. Strg+I → Kursiv.
+- [ ] Einstellungen > Symbole anpassen: Gruppe abwählen → fehlt in der Symbol-Palette; bereits gesetzte Symbole davon bleiben sichtbar, auch nach Speichern/Wiederöffnen. "Alle zeigen" bringt alles zurück. Alles abwählen → Hinweis statt leerer Palette. Tastatur und Screenreader-Namen am Dialog prüfen.
 
 ## 9. Barrierefreiheit
 - [ ] Alles mit der Tastatur erreichbar: Schalter, Objektleiste, Zuschneiden, Seitenwahl; sichtbarer Fokus.
