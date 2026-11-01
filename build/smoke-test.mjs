@@ -2463,6 +2463,9 @@ else {
     const cl2 = await ev("(()=>{const t=document.querySelector('.toast')?.textContent||'';closeEditor();return [S.pages[0].objs[0].cells[0][0].length,t]})()");
     ok('T2-03: Tabellenzelle kürzt bei 20000 Zeichen mit Hinweis', cl2[0] === 20000 && /20 000|20,000/.test(cl2[1]), cl2);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-04: the 5001st task is refused with a notice instead of being lost on save
+    const tk4 = await ev("(()=>{tasksSet(Array.from({length:5000},(_,i)=>({t:'T'+i,d:false})));const r=addTask('extra',false);const n=S.tasks.length;const t=document.querySelector('.toast')?.textContent||'';tasksSet([]);return [r,n,t]})()");
+    ok('T2-04: die 5001. Aufgabe wird mit Hinweis abgelehnt', tk4[0] === false && tk4[1] === 5000 && /5000/.test(tk4[2]), tk4);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

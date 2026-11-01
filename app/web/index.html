@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-0sPxAwDInQ5dkfNtwh8Fq3T1g4bf+Tf1dPQBjyRZ6GQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-hVxw9MGwdJ5PBVepIimUIu/uLiJ0AsKOLMZnzYJn2fM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2557,7 +2557,7 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 'Fotos und Scans in der PDF werden verkleinert, z. B. für E-Mail oder Upload. Deine Datei bleibt, wie sie ist; die Kopie bekommt einen eigenen Namen.':'Photos and scans in the PDF are made smaller, e.g. for email or upload. Your file stays as it is; the copy gets its own name.',
 'Stufe':'Level','Leicht':'Light','Stark':'Strong','In Layr bearbeitbar lassen (größer)':'Keep editable in Layr (larger)','Bild ':'Image ','Speichert':'Saving',
 'Die Datei lässt sich kaum verkleinern (':'The file can hardly be made smaller (','Von ':'From ',' auf ':' to ',' verkleinert.':'.','Verkleinern hat nicht geklappt: ':'Making it smaller failed: ',
-'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Eine Zelle fasst höchstens 20 000 Zeichen, der Rest wurde gekürzt.':'A cell holds at most 20,000 characters, the rest was cut.','Der Text ist auf 1 Million Zeichen begrenzt und wurde gekürzt.':'The text is limited to 1 million characters and was shortened.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
+'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Eine Zelle fasst höchstens 20 000 Zeichen, der Rest wurde gekürzt.':'A cell holds at most 20,000 characters, the rest was cut.','Es sind höchstens 5000 Aufgaben möglich.':'At most 5000 tasks are possible.','Beim Zusammenführen wurden nur die ersten 5000 Aufgaben übernommen.':'Only the first 5000 tasks were kept when merging.','Der Text ist auf 1 Million Zeichen begrenzt und wurde gekürzt.':'The text is limited to 1 million characters and was shortened.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
 'Schwärzen':'Redact','Inhalt dauerhaft unkenntlich machen':'Remove content permanently','Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.':'Drag areas that should be made unreadable. Then “Apply redaction”: the content there is removed from the PDF for good.',
 'Verwerfen':'Discard','Schwärzen anwenden':'Apply redaction','1 Bereich zum Schwärzen markiert':'1 area marked for redaction',' Bereiche zum Schwärzen markiert':' areas marked for redaction',
 'Endgültig schwärzen?':'Redact permanently?','Alles in den markierten Bereichen wird schwarz und aus der Datei entfernt – auch aus der versteckten Originalfassung, die Layr in der PDF mitspeichert.':'Everything in the marked areas turns black and is removed from the file – also from the hidden original that Layr keeps inside the PDF.',
@@ -5557,7 +5557,7 @@ function taskEl(t,isNew){const li=document.createElement('li');li.className='nt-
 function removeTask(t,li,focusIdx){const k=S.tasks.indexOf(t);if(k<0)return;S.tasks.splice(k,1);tasksChanged();
   const done=()=>{renderTasks();if(focusIdx>=0){const tt=document.querySelectorAll('#ntTaskList .nt-tt')[focusIdx];if(tt){tt.focus();tt.setSelectionRange(tt.value.length,tt.value.length)}}else if(focusIdx===-1)$('#ntNew').focus()};
   if(motionOff()||!li.isConnected)done();else{li.classList.add('leave');setTimeout(done,190)}}
-function addTask(text,done){S.tasks=S.tasks||[];S.tasks.push({t:text,d:!!done});renderTasks(S.tasks.length-1);const ul=$('#ntTaskList');ul.scrollTop=ul.scrollHeight;tasksChanged()}
+function addTask(text,done){S.tasks=S.tasks||[];if(S.tasks.length>=5000){toast('Es sind höchstens 5000 Aufgaben möglich.');return false}S.tasks.push({t:text,d:!!done});renderTasks(S.tasks.length-1);const ul=$('#ntTaskList');ul.scrollTop=ul.scrollHeight;tasksChanged();return true}
 function notesSet(v){S.notes=v||'';const t=document.getElementById('ntText');if(t&&t.value!==S.notes)t.value=S.notes;notesUpd()}
 function notesIsOpen(){const n=document.getElementById('notes');return!!n&&!n.hidden&&!n._ah}
 function notesOpen(v){const n=$('#notes');if(v==null)v=!notesIsOpen();
@@ -5577,10 +5577,10 @@ function notesOpen(v){const n=$('#notes');if(v==null)v=!notesIsOpen();
   $('#ntStamp').onclick=()=>{const d=new Date(),p=v=>String(v).padStart(2,'0');ins(p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+', '+p(d.getHours())+':'+p(d.getMinutes())+' – ')};
   $('#ntList').onclick=()=>{const ls=lsOf(),v=t.value;if(v.startsWith('• ',ls))swap(ls,2,'');else if(v.startsWith('☐ ',ls)||v.startsWith('☑ ',ls))swap(ls,2,'• ');else ins('• ',true)};
   $('#ntTodo').onclick=()=>{const nw=$('#ntNew');if(document.activeElement===t){const ls=lsOf(),le=t.value.indexOf('\n',ls),line=t.value.slice(ls,le<0?t.value.length:le),body=line.replace(/^\s*([☐☑•-]|\d+\.)\s*/,'').trim();
-      if(body){addTask(body,/^\s*☑/.test(line));t.setRangeText('',ls,le<0?t.value.length:le+1,'start');changed();toast('Zeile als Aufgabe übernommen.');return}}
+      if(body){if(!addTask(body,/^\s*☑/.test(line)))return;t.setRangeText('',ls,le<0?t.value.length:le+1,'start');changed();toast('Zeile als Aufgabe übernommen.');return}}
     nw.focus()};
   $('#ntTodo').addEventListener('mousedown',e=>{if(document.activeElement===t)e.preventDefault()});
-  {const nw=$('#ntNew');nw.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=nw.value.trim();if(!v)return;nw.value='';addTask(v,false)}})}
+  {const nw=$('#ntNew');nw.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=nw.value.trim();if(!v)return;if(addTask(v,false))nw.value=''}})}
   $('#ntCopy').onclick=async()=>{try{await navigator.clipboard.writeText(t.value);toast('Notizen kopiert.')}catch(e){t.select();document.execCommand('copy');toast('Notizen kopiert.')}};
   addEventListener('resize',()=>{if(notesIsOpen()){const h=document.querySelector('header');if(h&&innerWidth>860)n.style.top=(h.getBoundingClientRect().bottom+10)+'px';else n.style.top=''}})}
 if(!S.tasks)S.tasks=[];renderTasks();
@@ -7511,6 +7511,7 @@ $('#mOk').onclick=async()=>{
      // ids are random, but the same file merged twice would clash: give every source its own ids so docked lines stay with their own devices
     if(String(inote).trim())notes.push(inote);tasks.push(...itasks)}
   const name=($('#mName').value.trim()||'Zusammengeführt').replace(/[\\/:*?"<>|]/g,'-').replace(/\.pdf$/i,'')+'.pdf';
+  if(tasks.length>5000)toast('Beim Zusammenführen wurden nur die ersten 5000 Aufgaben übernommen.');
   closeMerge();const bytes=await out.save();const ok=await tabGate(()=>tabOpenWith(()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();return tabLoad(bytes,name,{isNew:true,objs,notes:notes.join('\n\n----------\n\n').slice(0,5e6),tasks:tasksCap(tasks)})},true));
   if(!ok)return;markDirty();
   toast(`${mItems.length} Dateien mit zusammen ${S.pages.length} Seiten zusammengeführt. Mit „Speichern“ sicherst du „${name}“.`);
