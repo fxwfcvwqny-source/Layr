@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-39To08pttLF9sXbEKODE9VuX0ik5EQmbu55DhG12o/s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lQw+L7IuW0N5FE/mIuNoN8zl9ZFJ4rt9HF/2n8Jl2YI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4599,6 +4599,8 @@ function lassoFinish(i,L,add){const P=S.pages[i];if(!P)return;const poly=L.pts;
   if(!motionOff()&&poly.length>2){const F={p:i,pts:poly,t0:performance.now(),rect:!!L.rect};S.lassoFade=F;const step=()=>{if(S.lassoFade!==F){redraw(i);return}redraw(i);requestAnimationFrame(step)};requestAnimationFrame(step)}
   if(poly.length<3||QS.area(poly)<16/(S.zoom*S.zoom)){redraw(i);return}
   let found;if(L.rect){const xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);found=P.objs.filter(o=>{const b=bbox(o);return b.x<=x1&&b.x+b.w>=x0&&b.y<=y1&&b.y+b.h>=y0})}else found=P.objs.filter(o=>lassoHit(o,poly));
+  {const sel=new Set(found.filter(o=>!o.locked));for(const o of [...sel])for(const q of grpOf(P,o))if(!q.locked)sel.add(q); // no locked objects; a touched template/group is taken whole
+    found=P.objs.filter(o=>sel.has(o))}
   if(add&&S.sel&&S.sel.p===i)found=[...new Set([...selItems(),...found])];
   selectItems(i,found);redraw(i)}
 function groupResize(o,st,x,y,shift,alt){const gb=st.ob,k=st.mode;if(!k||k.length!==2)return;const left=k[1]==='l',top=k[0]==='t',m=alt?2:1,ax=alt?gb.x+gb.w/2:left?gb.x+gb.w:gb.x,ay=alt?gb.y+gb.h/2:top?gb.y+gb.h:gb.y;

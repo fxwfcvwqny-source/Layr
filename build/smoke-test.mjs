@@ -2572,6 +2572,19 @@ else {
     await ev("S.dirty=false;S.pages.forEach(P=>P.objs=[]);setSel(null)");
     fs.rmSync(dir, { recursive: true, force: true });
   }
+  // Bug round 4 (T1-08): rubber band skips locked objects and takes a touched template whole
+  {
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t108.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    await ev("S.pages[0].objs=[{type:'rect',x:100,y:100,w:60,h:40,color:'#000000',lw:1,fill:'white',oid:'a108'},{type:'rect',x:100,y:160,w:60,h:40,color:'#000000',lw:1,fill:'white',oid:'b108',locked:true},{type:'rect',x:300,y:100,w:60,h:40,color:'#000000',lw:1,fill:'white',gid:'g108'},{type:'rect',x:380,y:100,w:60,h:40,color:'#000000',lw:1,fill:'white',gid:'g108'},{type:'rect',x:460,y:100,w:60,h:40,color:'#000000',lw:1,fill:'white',gid:'g108'}];redrawAll();setSel(null)");
+    await drag310([60, 60], [200, 230], 0, 8);
+    const rb1 = await ev("JSON.stringify(selItems().map(o=>o.oid))").then(JSON.parse);
+    ok('T1-08: Aufziehrahmen wählt gesperrte Objekte nicht', rb1.length === 1 && rb1[0] === 'a108', rb1);
+    await ev("setSel(null)");
+    await drag310([280, 60], [370, 150], 0, 8);
+    const rb2 = await ev("selItems().length");
+    ok('T1-08: Aufziehrahmen über Teile einer Vorlage wählt die ganze Vorlage', rb2 === 3, rb2);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
