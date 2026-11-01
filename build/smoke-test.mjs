@@ -2443,6 +2443,23 @@ else {
     ok('T1-01: schnelles Strg+Z über eine Seitenoperation behält den Rückgängig-Stapel', Array.isArray(r) && r[0][1] === 595 && r[0][0] === 110 && r[0][2] === 1 && r[1] === 100 && r[2] === 0, r);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T1-02): moved, pasted and arrow-moved objects stay on the page
+  {
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t102.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(0.5);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    await ev("S.pages[0].objs=[{type:'rect',x:130,y:120,w:60,h:40,color:'#000000',lw:1,fill:'white',oid:'o102'}];redrawAll();setSel(null)");
+    await drag310([160, 140], [1100, 1600], 0, 12);
+    const m1 = await ev("(()=>{const o=S.pages[0].objs[0];return [o.x,o.y]})()");
+    ok('T1-02: Ziehen weit über den Seitenrand lässt den Rest des Objekts auf der Seite', m1[0] <= 595 - 20 + .01 && m1[1] <= 842 - 20 + .01 && m1[0] > 130, m1);
+    await ev("S.pages[0].objs=[{type:'rect',x:400,y:700,w:60,h:40,color:'#000000',lw:1,fill:'white'}];redrawAll();selectItems(0,S.pages[0].objs.slice());copySel()");
+    for (let k = 0; k < 30; k++) await ev("pasteClip()");
+    const m2 = await ev("(()=>{const o=S.pages[0].objs;return [o.length,Math.max(...o.map(x=>x.x)),Math.max(...o.map(x=>x.y))]})()");
+    ok('T1-02: 30x Einfügen am Seitenrand bleibt auf der Seite', m2[0] === 31 && m2[1] <= 575.01 && m2[2] <= 822.01, m2);
+    await ev("S.pages[0].objs=[{type:'rect',x:560,y:100,w:60,h:40,color:'#000000',lw:1,fill:'white'}];redrawAll();selectItems(0,S.pages[0].objs.slice());document.activeElement&&document.activeElement.blur()");
+    for (let k = 0; k < 40; k++) await key310('ArrowRight', 'ArrowRight', 39, 8);
+    const m3 = await ev("S.pages[0].objs[0].x");
+    ok('T1-02: Pfeiltasten schieben das Objekt nicht von der Seite', m3 <= 575.01, m3);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
