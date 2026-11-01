@@ -2412,6 +2412,13 @@ else {
     ok('T3-02: Zusammenführen behält Pfeile auf duplizierten Seiten', Array.isArray(r) && r.length === 4 && r[0] === 'rect,sym,line' && r[1] === 'rect,sym,line', r);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T3-03): merge refuses encrypted sources
+  {
+    const enc = await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([200,200]);d.context.trailerInfo.Encrypt=d.context.register(d.context.obj({Filter:'Standard'}));
+      const fake=await d.save();openMerge();const n0=mItems.length;await addMergeFiles([new File([fake],'enc.pdf',{type:'application/pdf'})]);const n1=mItems.length;closeMerge();return [n0,n1,/passwortgesch|password-protected/.test(document.querySelector('.toast').textContent)]})()`, 15000);
+    ok('T3-03: verschlüsselte Datei wird beim Zusammenführen abgelehnt (Hinweis, nicht hinzugefügt)', Array.isArray(enc) && enc[0] === enc[1] && enc[2] === true, enc);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
