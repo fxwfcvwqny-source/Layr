@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lCvrtYqw87zNCJSFYF4P2gVmJIy5KXA+LkE9gFBoLpA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-wxuQd4nslBVVQ83kzrdpRVGL6d1ghE1Mwww0UxS2NOE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6597,6 +6597,7 @@ function shiftSpans(o,oldT,newT){oldT=String(oldT);newT=String(newT);if((!o.span
 const STY_BOX=(o,k)=>k==='hbg'?(o.hbg||''):!!o[k];
 function styVal(o,i,k){const s=(o.sty||[]).find(s=>s.a<=i&&i<s.b);return s&&k in s?s[k]:STY_BOX(o,k)}
 function normSty(o){const n=String(o.text||'').length;let sp=(o.sty||[]).map(s=>{const q={a:Math.max(0,s.a|0),b:Math.min(n,s.b|0)};for(const k of['bold','italic','underline','hbg'])if(k in s&&s[k]!==STY_BOX(o,k))q[k]=s[k];return q}).filter(q=>q.b>q.a&&Object.keys(q).length>2).sort((x,y)=>x.a-y.a);
+  {let e=0;sp=sp.filter(q=>{q.a=Math.max(q.a,e);e=Math.max(e,q.b);return q.b>q.a})} // overlaps: first run wins, as in sanObj
   const key=q=>JSON.stringify([q.bold,q.italic,q.underline,q.hbg]),out=[];for(const q of sp){const l=out[out.length-1];if(l&&l.b===q.a&&key(l)===key(q))l.b=q.b;else out.push(q)}
   if(out.length)o.sty=out;else delete o.sty}
 // set k to v for all characters in [a,b): split the runs at the edges, fill gaps

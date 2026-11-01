@@ -2405,6 +2405,16 @@ else {
     await cdp('Input.insertText', { text: 'NEW' });
     const p2 = await ev('ED.o.text');
     ok('T2-01: Einfügen bei Cursor 0 vor führender Leerzeile und Ersetzen der Auswahl', p1 === 'XY\nhello world' && p2 === 'NEW', { p1, p2 });
+    // T2-05: typing between two runs never leaves overlapping runs; removing italic from the new char does not make it bold
+    await ev("newText(0,300,400);ED.eng.put('abcdef');setSty(ED.o,0,3,'italic',true);setSty(ED.o,3,6,'bold',true);ED.focus()");
+    await key310('Home', 'Home', 36);
+    for (let i = 0; i < 3; i++) await key310('ArrowRight', 'ArrowRight', 39);
+    await cdp('Input.insertText', { text: 'X' });
+    const ov = await ev("(ED.o.sty||[]).some((s,i,a)=>i&&a[i-1].b>s.a)");
+    await key310('ArrowLeft', 'ArrowLeft', 37, 8);
+    await key310('i', 'KeyI', 73, 2);
+    const xb = await ev("[styVal(ED.o,3,'bold'),styVal(ED.o,3,'italic'),ED.o.text]");
+    ok('T2-05: keine überlappenden Runs, Kursiv entfernen macht das Zeichen nicht fett', ov === false && xb[0] === false && xb[1] === false && xb[2] === 'abcXdef', { ov, xb });
     await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
