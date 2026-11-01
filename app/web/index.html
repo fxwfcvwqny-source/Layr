@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-POup3NvgivhV/PYvRF3Zbh5eI03ps/kP7CrDlAuM/g4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+sVU//SDxyYRgOXq1wUddtGaLiTdWeqZWIdd583+Z/k=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3274,7 +3274,7 @@ const NET_TPL=[
 ];
 
 function orgBBox(objs){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of objs){if(o.type!=='sym')continue;a=Math.min(a,o.x);b=Math.min(b,o.y);c=Math.max(c,o.x+o.w);d=Math.max(d,o.y+o.h)}return{x:a,y:b,w:c-a,h:d-b}}
-function orgFit(objs,P,top,max,fix){const bb=orgBBox(objs),sc=fix||Math.min(max||1,(P.w-60)/bb.w,(P.h-80)/bb.h),ox=(P.w-bb.w*sc)/2-bb.x*sc,oy=top-bb.y*sc;
+function orgFit(objs,P,top,max,fix){const bb=orgBBox(objs),sc=fix||Math.min(max||1.4,(P.w-60)/bb.w,(P.h-80)/bb.h),ox=(P.w-bb.w*sc)/2-bb.x*sc,oy=top-bb.y*sc;
   for(const o of objs)if(o.type==='sym'){o.x=o.x*sc+ox;o.y=o.y*sc+oy;o.w*=sc;o.h*=sc;o.fs=Math.max(6,Math.round(o.fs*sc*2)/2);o.lw=Math.max(.6,o.lw*Math.max(.7,sc))}else o.lw=Math.max(.6,o.lw*Math.max(.7,sc));
   const PP={objs};orgRelink(PP);return objs}
 /* at={i,x,y,sc,tl}: place on page i with its centre (tl: top-left) at x,y in page units, clamped to the page; without it: page centre of the visible area */
@@ -3294,7 +3294,7 @@ armHintEl(); // live region exists from the start so the first hint is announced
 function armOff(){if(!ARM)return;ARM=null;document.querySelectorAll('.armghost').forEach(g=>g.remove());armHintEl().textContent='';$('#app').classList.remove('armed');armMark()}
 function armOn(k){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===k);if(!t||!S.pages.length)return;setTool('select');
   ARM={k,n:t.n,m:{}};$('#app').classList.add('armed');armHintEl().textContent=tr('Klicken zum Platzieren, Enter: in der Mitte platzieren, Esc bricht ab');armMark()}
-function armMetrics(i){const P=S.pages[i],key=i+'|'+P.w+'x'+P.h;if(!ARM.m[key]){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===ARM.k),ob=t.b(),bb=orgBBox(ob),f0=(ob.find(o=>o.type==='sym')||{fs:10}).fs;ARM.m[key]={bb,f0,sc:Math.min(t.max||1,(P.w-60)/bb.w,(P.h-80)/bb.h)}}return ARM.m[key]}
+function armMetrics(i){const P=S.pages[i],key=i+'|'+P.w+'x'+P.h;if(!ARM.m[key]){const t=[...ORG_TPL,...NET_TPL].find(x=>x.k===ARM.k),ob=t.b(),bb=orgBBox(ob),f0=(ob.find(o=>o.type==='sym')||{fs:10}).fs;ARM.m[key]={bb,f0,sc:Math.min(t.max||1.4,(P.w-60)/bb.w,(P.h-80)/bb.h)}}return ARM.m[key]}
 // geometry of the placement for page i: pointer (cx,cy) in client px, optional drag start d; returns page units {x,y,sc,tl,w,h}
 // room for the device captions under the lowest symbols (orgBBox ignores them): 1.5 x the scaled font size, as in insertOrgTemplate
 const fm=(M,sc)=>Math.max(6,Math.round(M.f0*sc*2)/2)*1.5;
