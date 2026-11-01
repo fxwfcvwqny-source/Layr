@@ -2392,6 +2392,16 @@ else {
     ok('Review 3: sanObj kürzt Leerzeichen am Rand der RAID-Buchstaben', sl === 'A,B', sl);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T3-01): a recovery snapshot newer than the embedded Layr data is restored
+  {
+    const r = await ev(`(async()=>{const W=ms=>new Promise(r=>setTimeout(r,ms));const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t301.pdf');await W(400);
+      S.pages[0].objs.push(sanObj({type:'rect',x:50,y:50,w:40,h:40,color:'#000000',lw:1}));markDirty();await W(600);const out=await buildOutput();
+      await openPdf(out.slice(),'t301.pdf');await W(400);const n1=S.pages[0].objs.length;
+      S.pages[0].objs.push(sanObj({type:'rect',x:150,y:50,w:40,h:40,color:'#000000',lw:1}));markDirty();await W(700);
+      await openPdf(out.slice(),'t301.pdf');await W(400);return [n1,S.pages[0].objs.length]})()`, 30000);
+    ok('T3-01: Layr-Datei: neuerer Wiederherstellungsstand wird geladen, gleicher nicht doppelt', Array.isArray(r) && r[0] === 1 && r[1] === 2, r);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
