@@ -1849,7 +1849,7 @@ else {
     const sm = await probe('bSetMenu');
     ok('Menüs: Datei, Ansicht, Einstellungen sind in Abschnitte gegliedert, höchstens 560 px hoch und 400 px breit, passen in den Bildschirm', [fm, vm, sm].every(m => m.role === 'menu' && m.h <= 561 && m.w <= 401 && m.heads.length >= 3 && m.right), { fm: [fm.h, fm.w, fm.heads], vm: [vm.h, vm.w, vm.heads], sm: [sm.h, sm.w, sm.heads] });
     ok('Menüs: kein Symbol wiederholt sich innerhalb eines Menüs; Zeilen sind menuitem oder menuitemcheckbox', [fm, vm, sm].every(m => m.dups.length === 0 && m.roles.every(r => r === 'menuitem' || r === 'menuitemcheckbox')), { f: fm.dups, v: vm.dups, s: sm.dups });
-    const need = { f: ['PDF öffnen', 'Neues Blatt', 'Bilder zu PDF', 'PDFs zusammenführen', 'Seiten ordnen', 'PDFs vergleichen', 'Seiten herauslösen', 'Speichern unter', 'Seitenzahlen & Kopfzeile', 'Scan verbessern', 'Als Bild speichern', 'Kleinere Kopie speichern', 'Passwortschutz', 'Drucken'], v: ['Seitenvorschau', 'Werkzeugleiste', 'Lineal', 'Geteilte Ansicht', 'Nachtmodus für Seiten', 'Präsentieren', 'Vergrößern', 'Verkleinern', 'An Breite anpassen', 'Hilfslinien', 'Raster (5 mm)', 'Tablet-Modus'], s: ['Design anpassen', 'Werkzeugleiste anpassen', 'Schreiben & Rechtschreibung', 'Tastenkürzel', 'Hilfslinien', 'Objektleiste am gewählten Objekt', 'Tab wechselt zwischen Objekten', 'Auswahl nach dem Setzen', 'Gesperrte Objekte'] };
+    const need = { f: ['PDF öffnen', 'Neues Blatt', 'Bilder zu PDF', 'PDFs zusammenführen', 'Seiten ordnen', 'PDFs vergleichen', 'Seiten herauslösen', 'Speichern unter', 'Seitenzahlen & Kopfzeile', 'Scan verbessern', 'Als Bild speichern', 'Kleinere Kopie speichern', 'Passwortschutz', 'Drucken'], v: ['Seitenvorschau', 'Werkzeugleiste', 'Lineal', 'Geteilte Ansicht', 'Nachtmodus', 'Präsentieren', 'Vergrößern', 'Verkleinern', 'An Breite anpassen', 'Hilfslinien', 'Raster (5 mm)', 'Tablet-Modus'], s: ['Design anpassen', 'Werkzeugleiste anpassen', 'Schreiben & Rechtschreibung', 'Tastenkürzel', 'Hilfslinien', 'Objektleiste am gewählten Objekt', 'Tab wechselt zwischen Objekten', 'Auswahl nach dem Setzen', 'Gesperrte Objekte'] };
     const has = (m, k) => need[k].filter(n => !m.labels.some(l => l.startsWith(n)));
     ok('Menüs: alle bisherigen Einträge sind noch erreichbar', has(fm, 'f').length === 0 && has(vm, 'v').length === 0 && has(sm, 's').length === 0, { f: has(fm, 'f'), v: has(vm, 'v'), s: has(sm, 's') });
     ok('Menüs: entfernte Schalter fehlen in den Einstellungen', !sm.labels.some(l => /Vorlagen per Klick|Vorlagen als Gruppe|Bilder frei strecken/.test(l)), sm.labels);
@@ -1874,7 +1874,7 @@ else {
     await ev("(()=>{const o={type:'text',x:72,y:200,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);return 1})()");
     await sleep(300);
     await ev("window.acKey=(k,o={})=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...o}));window.acType=s=>{for(const ch of s)acKey(ch)};window.acSet=()=>{const st=ED.eng.st;st.v='';st.c=st.a=0};window.acV=()=>ED.eng.st.v");
-    const cases = [['->', '→'], ['<- ', '← '], ['<->', '↔'], ['=>', '⇒'], ['1 -- 2', '1 – 2'], ['1...', '1…'], ['(c)', '©'], ['(R)', '®'], ['(tm)', '™'], ['+-5', '±5'], ['!=', '≠']];
+    const cases = [['->', '→'], ['<- ', '← '], ['<->', '↔'], ['=>', '⇒'], ['1 -- 2', '1 – 2'], ['1...', '1…'], ['(c)', '©'], ['(R)', '®'], ['(tm)', '™'], ['+-5', '±5'], ['!=', '≠'], ['<=', '≤'], ['>=', '≥']];
     const got = [];
     for (const [i, o] of cases) { await ev(`acSet();acType(${JSON.stringify(i)})`); got.push(await ev('acV()')); }
     ok('Autokorrektur: alle Regeln lösen beim letzten Zeichen aus', JSON.stringify(got) === JSON.stringify(cases.map(c => c[1])), got);
@@ -1888,7 +1888,9 @@ else {
     const bs2 = await ev('acV()');
     await ev("acSet();acType('->x');acKey('Backspace');acKey('Backspace')");
     const bs3 = await ev('acV()');
-    ok('Autokorrektur: Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück', bs === '->' && uz === '...' && bs2 === '->' && bs3 === '', { bs, uz, bs2, bs3 });
+    await ev("acSet();acType('1 <=');acKey('Backspace')"); const bs4 = await ev('acV()');
+    await ev("acSet();acType('1 >=');acKey('z',{ctrlKey:true})"); const uz2 = await ev('acV()');
+    ok('Autokorrektur: Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück', bs === '->' && uz === '...' && bs2 === '->' && bs3 === '' && bs4 === '1 <=' && uz2 === '1 >=', { bs, uz, bs2, bs3, bs4, uz2 });
     await ev("S.autoChar=false;acSet();acType('-> => (c)')");
     const off = await ev('acV()'); await ev('S.autoChar=true');
     ok('Autokorrektur: ausgeschaltet bleibt der Text wie getippt', off === '-> => (c)', off);
@@ -2100,8 +2102,8 @@ else {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ac2.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;S.autoCap=false;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});const o={type:'text',x:72,y:200,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.a4K=k=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));window.a4=s=>{const st=ED.eng.st;st.v='';st.c=st.a=0;for(const ch of s)a4K(ch);return ED.eng.st.v};return 1})()");
     await sleep(300);
-    const same = ['git push --force', 'x<-1', 'f(c)', '(a) (b) (c)', '<=>', '+---+', 'i++--', 'http://a.b/c--d', 'user@mail--x', '1--2', 'a<->b', '"zitat" und \'x\'', 'a-b', 'wait.. ok', 'x --y', '1+-'];
-    const conv = [['a -- b', 'a – b'], ['-- x', '– x'], ['a <- b', 'a ← b'], ['x <-> y', 'x ↔ y'], ['+-5', '±5'], ['Copyright (c) 2026', 'Copyright © 2026'], ['a -> b', 'a → b'], ['wait...', 'wait…'], ['a != b', 'a ≠ b'], ['a => b', 'a ⇒ b'], ['x (tm)', 'x ™'], ['(R) y', '® y']];
+    const same = ['git push --force', 'x<-1', 'f(c)', '(a) (b) (c)', 'a<=>b', 'x<=y', 'a>=b', 'a=>b', '+---+', 'i++--', 'http://a.b/c--d', 'user@mail--x', '1--2', 'a<->b', '"zitat" und \'x\'', 'a-b', 'wait.. ok', 'x --y', '1+-'];
+    const conv = [['a -- b', 'a – b'], ['-- x', '– x'], ['a <- b', 'a ← b'], ['x <-> y', 'x ↔ y'], ['+-5', '±5'], ['Copyright (c) 2026', 'Copyright © 2026'], ['a -> b', 'a → b'], ['wait...', 'wait…'], ['a != b', 'a ≠ b'], ['a <= b', 'a ≤ b'], ['a >= b', 'a ≥ b'], ['>= 3', '≥ 3'], ['a => b', 'a ⇒ b'], ['x (tm)', 'x ™'], ['(R) y', '® y']];
     const bad = [], badc = [];
     for (const i of same) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== i) bad.push([i, r]); }
     for (const [i, e] of conv) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== e) badc.push([i, r, e]); }

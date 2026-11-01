@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3L3BXPKiZomipMmnSG5Qq7DnETYFlRbS7kJb7cjRYOk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ogoR0hqoZt6lhHjKYSewQilSOP73ttBSe6B+8I0MyHg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1864,7 +1864,7 @@ header,.file{min-width:0}
         <div class="wr-wl" id="wrWords"></div><p class="hint" id="wrNone">Noch keine. Rechtsklick auf ein rot unterstrichenes Wort → „Zum Wörterbuch hinzufügen“.</p></div>
     </section>
     <section class="wr-s"><h3>Schreiben</h3><div class="seg" id="dAutoCap"><button data-v="on">Satzanfang groß</button><button data-v="off">Aus</button></div><p class="hint">Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.</p></section>
-    <section class="wr-s"><h3>Autokorrektur für Zeichen (→, –, …)</h3><div class="seg" id="dAutoChar"><button data-v="on">Zeichen ersetzen</button><button data-v="off">Aus</button></div><p class="hint">Beim Tippen werden ersetzt: -&gt; zu →, &lt;- zu ←, &lt;-&gt; zu ↔, =&gt; zu ⇒, -- (zwischen Leerzeichen) zu –, ... zu …, (c) zu ©, (r) zu ®, (tm) zu ™, +- zu ±, != zu ≠. Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück. Nicht in Codeblöcken, Adress- und Rechnerfeldern. Sonderzeichen-Auswahl: Strg+Umschalt+K.</p></section>
+    <section class="wr-s"><h3>Autokorrektur für Zeichen (→, –, …)</h3><div class="seg" id="dAutoChar"><button data-v="on">Zeichen ersetzen</button><button data-v="off">Aus</button></div><p class="hint">Beim Tippen werden ersetzt: -&gt; zu →, &lt;- zu ←, &lt;-&gt; zu ↔, =&gt; zu ⇒, -- (zwischen Leerzeichen) zu –, ... zu …, (c) zu ©, (r) zu ®, (tm) zu ™, +- zu ±, != zu ≠, <= zu ≤, >= zu ≥. Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück. Nicht in Codeblöcken, Adress- und Rechnerfeldern. Sonderzeichen-Auswahl: Strg+Umschalt+K.</p></section>
     <section class="wr-s" id="asrSec" hidden><h3>Diktieren</h3><div class="ab-row"><span class="upd-i"><svg class="ph" aria-hidden="true"><use href="#ph-microphone"/></svg></span><div><span class="hint" id="asrInfo"></span></div></div><div class="ab-btns"><button class="btn" id="asrSet">Einrichten</button><button class="btn" id="asrDel" hidden>Sprachmodell entfernen</button></div><p class="hint" id="wrDictKey"></p><button class="btn" id="wrKeys" type="button" style="align-self:flex-start">Tastenkürzel ändern</button></section>
     </div>
   </div>
@@ -2492,7 +2492,7 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 'Seite nach oben verschieben':'Move page up','Seite nach unten verschieben':'Move page down','Seite am Ende hinzufügen':'Add page at the end','Leere Seite hier einfügen':'Insert blank page here','Leere Seite (Größe der letzten Seite)':'Blank page (size of the last page)','Leere A4-Seite':'Blank A4 page','Letzte Seite duplizieren':'Duplicate last page','Seite hinzufügen':'Add page','Lesezeichen gehen beim Umsortieren verloren.':'Bookmarks are lost when pages are reordered.',
 'Schreiben':'Writing','Satzanfang groß':'Capitalize sentences','Aus':'Off',
 'Autokorrektur für Zeichen (→, –, …)':'Autocorrect for characters (→, –, …)','Zeichen ersetzen':'Replace characters',
-'Beim Tippen werden ersetzt: -> zu →, <- zu ←, <-> zu ↔, => zu ⇒, -- (zwischen Leerzeichen) zu –, ... zu …, (c) zu ©, (r) zu ®, (tm) zu ™, +- zu ±, != zu ≠. Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück. Nicht in Codeblöcken, Adress- und Rechnerfeldern. Sonderzeichen-Auswahl: Strg+Umschalt+K.':'While typing these are replaced: -> to →, <- to ←, <-> to ↔, => to ⇒, -- (between spaces) to –, ... to …, (c) to ©, (r) to ®, (tm) to ™, +- to ±, != to ≠. Backspace or Ctrl+Z right after brings back the typed characters. Not in code blocks, address and calculator fields. Special character picker: Ctrl+Shift+K.',
+'Beim Tippen werden ersetzt: -> zu →, <- zu ←, <-> zu ↔, => zu ⇒, -- (zwischen Leerzeichen) zu –, ... zu …, (c) zu ©, (r) zu ®, (tm) zu ™, +- zu ±, != zu ≠, <= zu ≤, >= zu ≥. Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück. Nicht in Codeblöcken, Adress- und Rechnerfeldern. Sonderzeichen-Auswahl: Strg+Umschalt+K.':'While typing these are replaced: -> to →, <- to ←, <-> to ↔, => to ⇒, -- (between spaces) to –, ... to …, (c) to ©, (r) to ®, (tm) to ™, +- to ±, != to ≠, <= to ≤, >= to ≥. Backspace or Ctrl+Z right after brings back the typed characters. Not in code blocks, address and calculator fields. Special character picker: Ctrl+Shift+K.',
 'Der erste Buchstabe eines Satzes wird automatisch groß. Strg+Z direkt danach macht ihn wieder klein.':'The first letter of a sentence is capitalized automatically. Ctrl+Z right after makes it lowercase again.',
 'Tabelle':'Table','Zeilen':'Rows','Spalten':'Columns','Zeile':'Row','Spalte':'Column','Zeile entfernen':'Remove row','Zeile hinzufügen':'Add row','Spalte entfernen':'Remove column','Spalte hinzufügen':'Add column',
 'Kopfzeile':'Header','Kopfzeile hervorheben ein/aus':'Highlight header row on/off','Gleich breit':'Even widths','Spalten gleich breit':'Even column widths',
@@ -2694,7 +2694,7 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 ' Verbindung':' connection',' Verbindungen':' connections',' Verbindungen angelegt.':' connections created.','Keine freien Ports mehr.':'No free ports left.','Patchliste als Tabelle eingefügt.':'Patch list inserted as a table.',
 'Als Markdown speichern':'Save as Markdown','Exportiert am ':'Exported on ','Markierungen':'Highlights','Textfelder':'Text boxes','S. ':'p. ',
 'Buchstaben in den Zylindern, durch Komma getrennt (z. B. A,B,P)':'Letters inside the cylinders, comma separated (e.g. A,B,P)','Noch keine Notizen, Aufgaben oder Markierungen.':'No notes, tasks or highlights yet.','Geteilte Ansicht':'Split view','Zweite Spalte: andere Stelle, Tab oder Datei':'Second column: another place, tab or file',
-'Nachtmodus für Seiten':'Night mode for pages','Seiten dunkel anzeigen, gespeichert wird hell':'Show pages dark, saved files stay light','Inhalt der zweiten Spalte':'Content of the second column',
+'Nachtmodus':'Night mode','Dunkles Design, Seiten dunkel; gespeichert wird hell':'Dark design and dark pages; saved files stay light','Inhalt der zweiten Spalte':'Content of the second column',
 'Mitscrollen':'Scroll along','Geteilte Ansicht schließen':'Close split view','Dieses Dokument':'This document','Andere Datei wählen':'Choose another file',
 'Karten aus deinen Textmarker-Markierungen und eigene Karten – mit Wiederholungsplan, Antwort eintippen und Export für Anki.':'Cards from your highlights and your own cards – with a review schedule, typed answers and export for Anki.',
 'Jede Textmarker-Markierung wird zur Karte: Vorne steht der Satz mit einer Lücke, hinten das Markierte. Eigene Karten kannst du unten anlegen. Karten und Lernstand werden in der PDF gespeichert.':'Every highlight becomes a card: the front shows the sentence with a gap, the back the highlighted text. You can add your own cards below. Cards and progress are saved in the PDF.',
@@ -3589,7 +3589,7 @@ var RAID_LTR,RAID_DEF={};
 const MATH_SYMS=[['mt_ge','\u2265','Größer gleich'],['mt_le','\u2264','Kleiner gleich'],['mt_ne','\u2260','Ungleich'],['mt_approx','\u2248','Ungefähr gleich'],['mt_pm','\u00b1','Plus-Minus'],['mt_times','\u00d7','Mal'],['mt_div','\u00f7','Geteilt'],['mt_arrow','\u2192','Pfeil (folgt)'],['mt_impl','\u21d2','Impliziert'],['mt_inf','\u221e','Unendlich'],['mt_sqrt','\u221a','Wurzel'],['mt_sum','\u2211','Summe']];
 ;(function(){
   for(const[id,g,name]of MATH_SYMS){def(id,'Mathe & Logik',name,36,36,'',(c,o,x,y,w,h)=>{c.save();c.setLineDash([]);c.fillStyle=o.color;c.font=`600 ${Math.min(h*.9,w*1.1)}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(g,x+w/2,y+h*.54);c.restore()});ANCHOR_RECT_SYMS.add(id)}
-  Object.assign(I18N_EN,{'Mathe & Logik':'Math & logic','Öffnen & Neu':'Open & new','Seiten & Dateien':'Pages & files','Speichern & Bearbeiten':'Save & edit','Exportieren & Drucken':'Export & print','Anzeige':'Display','Zoom':'Zoom','Hilfen':'Aids','Kopfleiste':'Header bar','Erscheinungsbild':'Appearance','Schreiben':'Writing','Bedienung':'Controls','Update & Datenschutz':'Update & privacy','Textformat':'Text format','Größer gleich':'Greater than or equal','Kleiner gleich':'Less than or equal','Ungleich':'Not equal','Ungefähr gleich':'Approximately equal','Plus-Minus':'Plus-minus','Mal':'Times','Geteilt':'Divided by','Pfeil (folgt)':'Arrow (then)','Impliziert':'Implies','Unendlich':'Infinity','Wurzel':'Square root','Summe':'Sum',...I18N_EN});
+  Object.assign(I18N_EN,{'Mathe & Logik':'Math & logic','Öffnen & Neu':'Open & new','Seiten & Dateien':'Pages & files','Speichern & Bearbeiten':'Save & edit','Exportieren & Drucken':'Export & print','Anzeige':'Display','Zoom':'Zoom','Hilfen':'Helpers','Kopfleiste':'Header bar','Erscheinungsbild':'Appearance','Schreiben':'Writing','Bedienung':'Controls','Update & Datenschutz':'Update & privacy','Textformat':'Text format','Größer gleich':'Greater than or equal','Kleiner gleich':'Less than or equal','Ungleich':'Not equal','Ungefähr gleich':'Approximately equal','Plus-Minus':'Plus-minus','Mal':'Times','Geteilt':'Divided by','Pfeil (folgt)':'Arrow (then)','Impliziert':'Implies','Unendlich':'Infinity','Wurzel':'Square root','Summe':'Sum',...I18N_EN});
 })();
 // Rows grow downward when a cell's wrapped text needs more room (applied when a cell edit is committed, so old tables render unchanged)
 function tblFit(o){const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;if(!o.__rh0)tmpProp(o,'__rh0',{});const base=o.__rh0;
@@ -5525,9 +5525,14 @@ const dSan=d=>{const o={...d},opts=id=>[...document.querySelectorAll('#'+id+' bu
 const ACCENTS=[['petrol','Petrol','#0b6570'],['blue','Blau','#2457c5'],['indigo','Indigo','#4338ca'],['violet','Violett','#6d3fc8'],['pink','Beere','#b8336a'],['coral','Koralle','#c2412d'],['orange','Orange','#c0560a'],['gold','Gold','#a16207'],['green','Grün','#2f7d32'],['slate','Schiefer','#3d4b5c']];
 const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar'],['dQbStyle','qbarStyle'],['dSaveStyle','saveStyle'],['dHints','hints'],['dPager','pager'],['dPagerPos','pagerPos']];
 let design={...DDEF};try{Object.assign(design,JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}'));if(design.desk==='dots')design.desk='plain'}catch(e){}design=dSan(qbSan(design));
+// Night mode state lives here (not at nightSet) because applyDesign reads it; see the matrix above nightSet.
+let NIGHT=false,NIGHT_PREV='system';try{NIGHT=localStorage.getItem('pdfwerkbank:night')==='1';NIGHT_PREV=localStorage.getItem('pdfwerkbank:night-prev')||'system'}catch(e){}
+if(NIGHT&&design.theme!=='dark'){NIGHT_PREV=design.theme;design.theme='dark'} // saved by an older version: Night used to be independent of the theme
 const mixHex=(h,t)=>{const n=parseInt(h.slice(1),16),c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,'0'));return'#'+c.join('')};
 let designTheme=null; // theme of the last applyDesign call; only a real switch suspends transitions
 function applyDesign(save){const r=document.documentElement;design=dSan(qbSan(design));
+  if(NIGHT&&design.theme!=='dark')NIGHT=false; // base mode left Dark: Night switches off, no restore
+  r.classList.toggle('night',NIGHT);
   if(design.theme==='system')r.removeAttribute('data-theme');else r.dataset.theme=design.theme;
   for(const k of ['accent','toolbar','density','corners','desk','deskc','sheet','shadow','motion','light','dark','bars','tbstyle','qbar'])r.dataset[k]=design[k];r.dataset.savestyle=design.saveStyle;r.dataset.hints=design.hints;r.dataset.pager=design.pager;r.dataset.pagerpos=design.pagerPos;try{placePager()}catch(e){}
   r.dataset.qbstyle=design.qbarStyle;
@@ -5547,7 +5552,7 @@ function applyDesign(save){const r=document.documentElement;design=dSan(qbSan(de
   if(design.accentC)$('#dAccC').value=design.accentC;
   _acc='';requestAnimationFrame(()=>moveToolInd&&moveToolInd());
   const tc=design.theme!==designTheme;designTheme=design.theme;
-  if(save){if(tc){r.classList.add('theme-anim');clearTimeout(applyDesign.t);applyDesign.t=setTimeout(()=>r.classList.remove('theme-anim'),420)}try{localStorage.setItem('pdfwerkbank:design',JSON.stringify(design))}catch(e){}if(S.pages)redrawAll();setSaveState();spApply()}}
+  if(save){if(tc){r.classList.add('theme-anim');clearTimeout(applyDesign.t);applyDesign.t=setTimeout(()=>r.classList.remove('theme-anim'),420)}try{localStorage.setItem('pdfwerkbank:design',JSON.stringify(design));localStorage.setItem('pdfwerkbank:night',NIGHT?'1':'0');localStorage.setItem('pdfwerkbank:night-prev',NIGHT_PREV)}catch(e){}if(S.pages)redrawAll();setSaveState();spApply()}}
 for(const [k,n,c] of ACCENTS){const b=document.createElement('button');b.className='acc';b.dataset.v=k;b.title=n;b.setAttribute('aria-label',n);b.style.setProperty('--c',c);b.onclick=()=>{design.accent=k;applyDesign(true)};$('#dAccent').appendChild(b)}
 {const b=document.createElement('button');b.className='acc custom';b.dataset.v='custom';b.title='Eigene Farbe';b.setAttribute('aria-label','Eigene Farbe');b.onclick=()=>{if(!design.accentC)$('#dAccC').click();else{design.accent='custom';applyDesign(true)}};$('#dAccent').appendChild(b)}
 {const live=rafLast(v=>{design.barsC=v;design.bars='custom';applyDesign(false)});$('#dBarC').addEventListener('input',e=>live(e.target.value));$('#dBarC').addEventListener('change',()=>applyDesign(true))}
@@ -7055,7 +7060,7 @@ function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;const fu
   else if(t==='>'){if(/(^|\s)<-$/.test(before))return[2,'↔'];if(/(^|\s)-$/.test(before))return[1,'→'];if(/(^|\s)=$/.test(before))return[1,'⇒']}
   else if(/\d/.test(t)){if(/(^|\s)\+-$/.test(before))return[2,'±'+t]}
   else if(t==='.'){if(before.endsWith('..')&&!before.endsWith('…'))return[2,'…']}
-  else if(t==='='){if(/(^|\s)!$/.test(before))return[1,'≠']}
+  else if(t==='='){const m=/(^|\s)([!<>])$/.exec(before);if(m)return[1,{'!':'≠','<':'≤','>':'≥'}[m[2]]]}
   else if(t===')'){const m=/(^|\s)\((c|r|tm)$/i.exec(before);if(m&&!(m[2]==='c'&&/(^|\n)[ \t]*\(b\)[^\n]*\n[ \t]*\(c$/.test(full.slice(-300)))&&!/\)\s*$/.test(before.slice(0,before.length-m[0].length+m[1].length)))return[m[0].length-m[1].length,{c:'©',r:'®',tm:'™'}[m[2].toLowerCase()]]}
   return null}
 {const nt=document.getElementById('ntText');if(nt){let acN=null;
@@ -7852,7 +7857,7 @@ $('#bViewMenu').onclick=()=>hmOpen($('#bViewMenu'),[
   {ic:'sidebar',t:'Seitenleiste',get:()=>hmPressed('bTglSide'),hidden:innerWidth<=860,run:()=>$('#bTglSide').click()},
   {ic:'ruler',t:'Lineal',get:()=>!!(typeof rulerOn!=='undefined'&&rulerOn),k:kbOf('tool:ruler'),run:()=>toggleRuler()},
   {ic:'splitv',t:'Geteilte Ansicht',d:'Zweite Spalte: andere Stelle, Tab oder Datei',get:()=>SPV.on,run:()=>spvOpen(!SPV.on)},
-  {ic:'moon',t:'Nachtmodus für Seiten',d:'Seiten dunkel anzeigen, gespeichert wird hell',get:()=>NIGHT,run:()=>nightSet(!NIGHT)},
+  {ic:'moon',t:'Nachtmodus',d:'Dunkles Design, Seiten dunkel; gespeichert wird hell',get:()=>NIGHT,run:()=>nightSet(!NIGHT)},
   {ic:'present',t:'Präsentieren',k:kbOf('tool:present'),run:()=>prsStart()},
   {h:'Zoom'},
   {ic:'zin',t:'Vergrößern',k:kbOf('zoomIn'),run:()=>zoomTo(S.zoom*1.2)},{ic:'zout',t:'Verkleinern',k:kbOf('zoomOut'),run:()=>zoomTo(S.zoom/1.2)},{ic:'fit',t:'An Breite anpassen',k:kbOf('fit'),run:()=>fitZoom()},
@@ -9590,9 +9595,17 @@ async function notesMd(){if(!S.pages.length){toast(tr('Erst eine PDF öffnen.'))
   if(tx.length){L.push('## '+tr('Textfelder'),'');for(const[i,a]of tx)L.push('- '+tr('S. ')+(i+1)+': '+a.replace(/\n/g,' / '));L.push('')}
   if(L.length<=4){toast(tr('Noch keine Notizen, Aufgaben oder Markierungen.'));return}
   return exBytes(exBase()+' – '+tr('Notizen')+'.md',new TextEncoder().encode(L.join('\n')),'text/markdown')}
-// Nachtmodus: nur die Anzeige der Seiten (Speichern, Drucken und Export bleiben hell)
-let NIGHT=false;try{NIGHT=localStorage.getItem('pdfwerkbank:night')==='1'}catch(e){}
-function nightSet(on){NIGHT=!!on;document.documentElement.classList.toggle('night',NIGHT);try{localStorage.setItem('pdfwerkbank:night',NIGHT?'1':'0')}catch(e){}}nightSet(NIGHT);
+/* Nachtmodus = Grundmodus Dunkel + Seiten dunkel. Kein eigener Layer: Zustand NIGHT gilt nur bei design.theme==='dark' (applyDesign erzwingt das).
+   Zustandsmatrix (Grundmodus -> Nacht):
+   - Nacht AN: design.theme wird 'dark' (wie Dunkel im Design-Fenster), vorheriger Grundmodus wird in NIGHT_PREV gemerkt, Klasse html.night dreht die Seiten um.
+   - Nacht AUS: Grundmodus wird auf NIGHT_PREV zurueckgesetzt, falls er noch 'dark' ist; Seiten normal.
+   - Grundmodus Hell/System waehrend Nacht AN: Nacht geht aus, kein Zurueck. Grundmodus Dunkel allein macht die Seiten nicht dunkel.
+   - Blattfarbe Nacht: wird in Nacht nicht doppelt gedreht (CSS html.night:root[data-sheet=night]); Seiten bleiben dunkel.
+   - Speichern, Drucken, Export: unveraendert hell (nur CSS-Filter der Ansicht). */
+function nightSet(on){on=!!on;if(on===NIGHT)return;
+  if(on){NIGHT_PREV=design.theme;design.theme='dark';NIGHT=true}
+  else{NIGHT=false;if(design.theme==='dark'&&NIGHT_PREV!=='dark')design.theme=NIGHT_PREV}
+  applyDesign(true)}
 // geteilte Ansicht: zweite Spalte (nur lesen) mit diesem Dokument, einem anderen Tab oder einer Datei
 const SPV={on:false,pc:null,src:'self',doc:null,own:false,sync:true,lock:0,t:0};
 function spvEl(){let el=document.getElementById('spvPane');if(el)return el;el=document.createElement('div');el.id='spvPane';el.className='spv';el.hidden=true;
@@ -9758,7 +9771,7 @@ const FN_SYN={'Passwortschutz':'passwort kennwort verschlüsseln sperren schütz
   'Scan verbessern':'gerade schief kontrast schwarzweiß aufhellen','PDFs vergleichen':'unterschied diff änderungen versionen compare','Lernkarten':'karteikarten anki flashcards lernen vokabeln',
   'Präsentieren':'präsentation vollbild beamer laser presentation','Drucken':'printer ausdrucken print','Als Bild speichern':'export png jpg bild screenshot',
   'Kleinere Kopie speichern':'komprimieren verkleinern größe email compress','Seitenzahlen & Kopfzeile':'seitennummer fußzeile wasserzeichen kopfzeile watermark',
-  'Geteilte Ansicht':'nebeneinander zwei seiten split splitscreen spalte','Nachtmodus für Seiten':'dunkel nacht dark mode invertieren',
+  'Geteilte Ansicht':'nebeneinander zwei seiten split splitscreen spalte','Nachtmodus':'dunkel nacht dark mode invertieren',
   'Formularfeld':'formular feld ausfüllen textfeld checkbox kästchen dropdown form','Diagramm aus Text':'mindmap chart diagramm logik schaltung struktogramm nassi wahrheitstabelle',
   'Schwärzen':'redact zensieren unkenntlich entfernen anonymisieren','Rack-Planer':'rack schrank serverschrank patchpanel patchliste','Codeblock':'code quellcode syntax programm',
   'Unterschrift':'signatur unterschreiben signature','Notizen ein/aus':'notizen notes aufgaben todo','Hilfslinien (beim Verschieben und Größe ändern)':'raster ausrichten snap guides','Design anpassen':'farbe theme dunkel hell aussehen'};

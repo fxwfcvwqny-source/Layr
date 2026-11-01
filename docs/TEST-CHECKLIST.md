@@ -70,6 +70,7 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Tippen von `->` `<-` `<->` `=>` `...` `(c)` `(tm)` `+-` `!=` mit Leerzeichen → werden ersetzt; Rückschritt direkt danach bringt die Zeichen zurück.
 - [ ] `--` zwischen Leerzeichen → Gedankenstrich. In URL, Optionen (`--help`) und Aufzählung → keine Ersetzung.
 - [ ] Autokorrektur auch in Tabellenzellen, Beschriftungen und Notizen → funktioniert; in Notizen nach Rückschritt kein Rest-Auswahlbereich.
+- [ ] In einem Textfeld " <=" und " >=" tippen → ≤ bzw. ≥; Rückschritt bringt die getippten Zeichen zurück; x<=y und a>=b ohne Leerzeichen davor bleiben unverändert.
 - [ ] Einstellung "Autokorrektur für Zeichen (→, –, …)" (Standard: "Zeichen ersetzen") auf "Aus" → nichts wird ersetzt.
 - [ ] Strg+Umschalt+K → Sonderzeichen-Auswahl (Aufzählungszeichen, Pfeile); Zeichen einfügen. Auch über den Knopf in der Schnellleiste.
 - [ ] Tastenkürzel-Liste (auch ohne gewähltes Objekt) → "Sonderzeichen-Auswahl", Gruppieren und die Reihenfolge-Einträge sind dort, umbelegbar, Konflikte werden gemeldet.
@@ -139,7 +140,8 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - Lesezeichen gehen beim Neuaufbau und Umsortieren der Seiten verloren (Warnung erscheint).
 - Textebene fehlt in geteilter Ansicht und Präsentation.
 - Alt+Klick/Alt+Ziehen kann unter KDE/Xfce vom Fenstermanager belegt sein.
-- Mit "Nachtmodus für Seiten" wird die Blattfarbe "Weiß" dunkel gezeigt.
+- Mit "Nachtmodus" wird die Blattfarbe "Weiß" dunkel gezeigt.
+- Nachtmodus an/aus mit Hell/Dunkel und Blattfarbe Weiß/Grau/Nacht prüfen → Nacht an setzt das Design auf Dunkel und zeigt Seiten dunkel (Blattfarbe Nacht bleibt dunkel, nicht weiß); Nacht aus stellt den vorherigen Grundmodus wieder her; Grundmodus Hell bei Nacht an schaltet Nacht aus; Dunkel allein macht Seiten nicht dunkel; Speichern/Drucken bleiben hell.
 - Neue Speicher-&-Backup-Symbole fehlen in älteren Versionen und gehen verloren, wenn die Datei dort erneut gespeichert wird.
 - Ältere Layr-Versionen ignorieren Wortformatierung, Zuschnitt und Gruppen; Teile einer Vorlage, die in älteren Versionen dupliziert wurden, bilden in 3.10 mit dem Original eine Gruppe.
 - [Linux] Fenstersymbol unter GNOME/Wayland bleibt schwarz.
