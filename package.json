@@ -47,7 +47,8 @@
         "ext": "pdf",
         "name": "PDF-Dokument",
         "description": "PDF-Dokument",
-        "role": "Editor"
+        "role": "Editor",
+        "icon": "build/pdf-icon.ico"
       }
     ],
     "win": {

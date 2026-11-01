@@ -734,6 +734,9 @@ else {
   ok('Transparent window icon: files exist, png corners alpha 0, ico 16..256, BrowserWindow + win.icon wired, installer/Store/linux package icons untouched',
     icoOk && fs.existsSync('app/icon-transparent.png') && JSON.stringify(pngCorners('build/icon-transparent.png')) === '[0,0]' && JSON.stringify(pngCorners('app/icon-transparent.png')) === '[0,0]' && winIcon
     && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico' && [pj.win.icon, pj.nsis.installerIcon, pj.nsis.uninstallerIcon, pj.linux.icon].every(f => fs.existsSync(f)) && fs.existsSync('build/appx/Square44x44Logo.png'));
+  // PDF file association has its own document icon (ico 16..256), win.icon stays the Layr logo
+  const pdfIco = (() => { try { const b = fs.readFileSync('build/pdf-icon.ico'), n = b.readUInt16LE(4), s = []; for (let i = 0; i < n; i++) s.push(b[6 + 16 * i] || 256); return [16, 24, 32, 48, 64, 128, 256].every(x => s.includes(x)); } catch (e) { return false; } })();
+  ok('PDF file association icon: build/pdf-icon.ico has 16..256, fileAssociations pdf points to it, win.icon unchanged', pdfIco && (pj.fileAssociations.find(f => f.ext === 'pdf') || {}).icon === 'build/pdf-icon.ico' && pj.win.icon === 'build/icon-transparent.ico');
   // Ruler rotates around its centre: the angle field and the handle (Shift = 15 degree steps) keep the centre fixed
   const rz = await ev("(()=>{toggleRuler(true);R.x=300;R.y=250;R.a=0;drawRuler();const c=()=>{const r=ruler.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]},c0=c(),inp=$('#rulerAngIn');inp.value='30';inp.dispatchEvent(new Event('input'));const c1=c(),a1=R.a,sec=!$('#rulerSec').hidden;const h=$('#rulerRot').getBoundingClientRect();return JSON.stringify({c0,c1,a1,sec,hx:h.left+h.width/2,hy:h.top+h.height/2})})()");
   const rzj = JSON.parse(rz || '{}');
