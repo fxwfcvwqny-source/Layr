@@ -2501,6 +2501,15 @@ else {
     ok('T1-06: Rechteck-Werkzeug auf einem Vorlagenteil verschiebt die ganze Vorlage', tp[1] === 3 && tp[0].every((p, k) => Math.abs(p[0] - (140 + k * 80)) < 1 && Math.abs(p[1] - 240) < 1), tp);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T1-07): line length field accepts a comma and has an upper limit
+  {
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t107.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);return 1})()`, 60000);
+    const lenTry = txt => ev(`(()=>{S.pages[0].objs=[{type:'line',x1:100,y1:300,x2:200,y2:300,color:'#000000',lw:1,start:'none',end:'none'}];redrawAll();setSel({p:0,o:S.pages[0].objs[0]});const i=document.getElementById('lnLen');i.value=${JSON.stringify(txt)};i.onchange();const o=S.pages[0].objs[0];return +(Math.hypot(o.x2-o.x1,o.y2-o.y1)*25.4/72).toFixed(2)})()`);
+    const l1 = await lenTry('12,5'), l2 = await lenTry('12.5'), l3 = await lenTry('5000'), l4 = await lenTry('abc');
+    ok('T1-07: Längenfeld nimmt 12,5 und 12.5 als 12,5 mm', l1 === 12.5 && l2 === 12.5, [l1, l2]);
+    ok('T1-07: Längenfeld lehnt 5000 mm und Text ab (Länge bleibt)', l3 === +(100 * 25.4 / 72).toFixed(2) && l4 === l3, [l3, l4]);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

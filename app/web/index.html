@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-a+O7Cx4uptTJqADsqOShiLnnrBx1jcAnh3zWOxcbrKI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-f5mGsblbSjkkAL07ehTDL/us1aayPW3OcZO48G1ytx8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1674,7 +1674,7 @@ header,.file{min-width:0}
       <div class="row"><label for="startH" style="width:44px">Anfang</label><select id="startH"></select></div>
       <div class="row"><label for="endH" style="width:44px">Ende</label><select id="endH"></select></div>
       <div class="row"><label class="chk"><input type="checkbox" id="dash"> Gestrichelt</label><label class="chk"><input type="checkbox" id="elbow"> Gewinkelt</label></div>
-      <div class="row"><label for="lnLen" style="width:44px">Länge</label><input type="number" id="lnLen" min="0.5" step="0.1" aria-label="Länge der Linie in Millimetern" disabled style="width:72px"><span class="val">mm</span></div>
+      <div class="row"><label for="lnLen" style="width:44px">Länge</label><input type="text" inputmode="decimal" id="lnLen" aria-label="Länge der Linie in Millimetern" disabled style="width:72px"><span class="val">mm</span></div>
       <div class="row"><label for="lnAng" style="width:44px">Winkel</label><input type="number" id="lnAng" step="1" aria-label="Winkel der Linie in Grad, 0 nach rechts, gegen den Uhrzeigersinn" title="0° zeigt nach rechts, gegen den Uhrzeigersinn" disabled style="width:72px"><span class="val">°</span></div>
       <p class="lnnote" id="lnGeoNote" hidden>Angedockte Linie: Länge und Winkel ergeben sich aus den Symbolen.</p>
       <div class="row"><button class="btn" id="lnInc" title="Gewählte Linie beschriften, oder Pfeil mit «include» zeichnen" aria-label="include-Pfeil">«include»</button><button class="btn" id="lnExt" title="Gewählte Linie beschriften, oder Pfeil mit «extend» zeichnen" aria-label="extend-Pfeil">«extend»</button></div>
@@ -3024,9 +3024,10 @@ function lnDeg(o){return(Math.atan2(-(o.y2-o.y1),o.x2-o.x1)*180/Math.PI+360)%360
 function lnSync(o){if(o===undefined)o=lnOne();const L=$('#lnLen'),A=$('#lnAng');if(!L||!A)return;const dk=!!(o&&o.link&&(o.link.a||o.link.b));
   L.disabled=A.disabled=!o||dk||!!o.locked;$('#lnGeoNote').hidden=!dk;
   if(!o){L.value=A.value='';return}L.value=lnMm(o).toFixed(1);A.value=String(Math.round(lnDeg(o)*10)/10)}
-function lnSet(len,ang){const o=lnOne();if(!o||o.locked||(o.link&&(o.link.a||o.link.b)))return;if(!(len>=.5)||!isFinite(ang)){lnSync(o);return}
+const LN_MAX=2000; // mm, larger than any sheet
+function lnSet(len,ang){const o=lnOne();if(!o||o.locked||(o.link&&(o.link.a||o.link.b)))return;if(!(len>=.5&&len<=LN_MAX)||!isFinite(ang)){lnSync(o);return}
   pushHist();const r=len*72/25.4,a=ang*Math.PI/180;o.x2=o.x1+Math.cos(a)*r;o.y2=o.y1-Math.sin(a)*r;redraw(S.sel.p);markDirty();lnSync(o)}
-$('#lnLen').onchange=()=>{const o=lnOne();if(o)lnSet(+$('#lnLen').value,lnDeg(o))};
+$('#lnLen').onchange=()=>{const o=lnOne(),t=$('#lnLen').value;if(o)lnSet(/^\s*\d+(?:[.,]\d+)?\s*$/.test(t)?parseFloat(t.replace(',','.')):NaN,lnDeg(o))};
 $('#lnAng').onchange=()=>{const o=lnOne();if(o)lnSet(lnMm(o),+$('#lnAng').value)};
 
 /* Eigenschaften auf die Auswahl anwenden */
