@@ -117,8 +117,13 @@ Release notes for version 3.10.0.
 - Alt+click / Alt+drag may be taken by the window manager on some Linux desktops (KDE, Xfce); the same actions are available without Alt where possible.
 - With the "Night mode for pages" switch on, the sheet option "White" is shown dark.
 - Under Wayland/GNOME the window icon comes from the .desktop file and stays black.
-- New symbols (group "Storage & backup") are unknown to older versions: they are not shown there and are removed when the file is saved again in an older version.
+- New symbols (groups "Storage & backup" and "Math & logic") are unknown to older versions: they are not shown there and are removed when the file is saved again in an older version.
 - Older versions keep at most 5000 to-dos.
+- Undo keeps the last 10 page operations (insert, delete, move, rotate pages); older steps, including object steps before them, are dropped.
+- Crash recovery does not restore unsaved changes of a file that Layr has already saved once (saved files embed their annotations); plain PDFs are restored as before.
+- Merging password-protected PDFs is refused with a message; unlock them first.
+- Notes above 5 million characters and a single to-do above 20,000 characters are cut when the file is saved and reopened; text boxes are limited to 1 million characters.
+- Arrow keys and Backspace step through code points: complex emoji sequences (joined with ZWJ) can still be split.
 - Local recovery data from 3.9.0 has no content fingerprint: if two files with the same name and size were edited unsaved, the file opened first takes it over.
 - Ctrl+Alt+Shift+Up/Down may be taken by the window manager on some Linux desktops.
 
