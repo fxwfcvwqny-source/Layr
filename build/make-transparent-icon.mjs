@@ -1,6 +1,6 @@
 // Builds the transparent Layr icon (window / taskbar variant) from build/icon.png: the black rounded square is removed,
 // the document glyph gets a thin dark outline so it stays visible on light and dark bars.
-// Writes build/icon-transparent.png (512), app/icon-transparent.png and .ico (copies for the window) and build/icon-transparent.ico (16..256).
+// Writes build/icon-transparent.png (512), app/icon-transparent.png (copy for the window) and build/icon-transparent.ico (16..256).
 // Usage: node build/make-transparent-icon.mjs   (pure Node, no packages)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const BG = [20, 21, 28]; // black rounded-square colour in build/icon.png
 const OUTLINE = [16, 20, 70], OUT_R = 7, MARGIN = 0.02; // outline colour, radius in 512px units, free margin around the glyph
-const SIZES = [16, 20, 24, 32, 48, 64, 128, 256];
+const SIZES = [16, 24, 32, 48, 64, 128, 256];
 
 const crcT = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
 const crc = b => { let c = ~0; for (const x of b) c = crcT[(c ^ x) & 255] ^ (c >>> 8); return ~c >>> 0; };
@@ -88,26 +88,22 @@ function render(n) {
   return encodePng(n, n, out);
 }
 
-// Hand-tuned 16, 20 and 24 px: three-page stack drawn on the pixel grid (no resampling, so the white text bars survive):
-// front page blue with dark outline, folded corner and white bars, two lighter pages behind.
-const SMALL = { 16: { w: 9, h: 11, off: 2, fold: 3, bar: 1, bars: [5, 8], bw: 5 }, 20: { w: 11, h: 14, off: 2, fold: 4, bar: 1, bars: [6, 9], bw: 6 }, 24: { w: 14, h: 17, off: 3, fold: 5, bar: 2, bars: [7, 11], bw: 8 } };
+// Hand-tuned 16 and 24 px: simplified three-page stack without text lines, drawn on the pixel grid (no resampling blur),
+// with a 1 px light edge around the silhouette so it stays visible on dark taskbars (the saturated blues carry it on light ones).
 function small(n) {
-  const P = SMALL[n], out = new Uint8Array(n * n * 4), set = (x, y, c) => { if (x < 0 || y < 0 || x >= n || y >= n) return; const i = (y * n + x) * 4; out[i] = c[0]; out[i + 1] = c[1]; out[i + 2] = c[2]; out[i + 3] = 255; };
-  const ox = Math.floor((n - P.w - 2 * P.off) / 2), top = Math.floor((n - P.h - 2 * P.off) / 2), fx = ox, fy = top + 2 * P.off;
-  const pages = [[[204, 208, 255], 2], [[132, 141, 255], 1], [[43, 59, 255], 0]]; // fill colour, steps behind the front page
-  for (const [c, k] of pages) {
-    const x0 = fx + k * P.off, y0 = fy - k * P.off;
-    for (let y = 0; y < P.h; y++) for (let x = 0; x < P.w; x++) {
-      const edge = x === 0 || y === 0 || x === P.w - 1 || y === P.h - 1; let col = edge ? OUTLINE : c;
-      if (k === 0) { const cx = x - (P.w - P.fold), cy = y; if (cx >= 0 && cy < P.fold) { if (cx > cy) continue; col = cx === cy ? OUTLINE : [204, 208, 255]; } }
-      set(x0 + x, y0 + y, col);
-    }
+  const P = n === 16 ? { w: 10, off: 2, fold: 3 } : { w: 16, off: 3, fold: 5 }, out = new Uint8Array(n * n * 4), set = (x, y, c, a = 255) => { const i = (y * n + x) * 4; out[i] = c[0]; out[i + 1] = c[1]; out[i + 2] = c[2]; out[i + 3] = a; };
+  const pages = [[[158, 166, 255], 2 * P.off, 0], [[110, 122, 255], P.off, P.off], [[43, 59, 255], 0, 2 * P.off]]; // colour, x offset, y offset
+  for (const [c, ox, oy] of pages) for (let y = 0; y < P.w; y++) for (let x = 0; x < P.w; x++) {
+    if (c[0] === 43 && x >= P.w - P.fold && y < P.fold) { const cx = x - (P.w - P.fold), cy = y; if (cx > cy) continue; if (cx === cy) { set(1 + ox + x, 1 + oy + y, [190, 198, 255]); continue; } }
+    set(1 + ox + x, 1 + oy + y, c);
   }
-  for (const by of P.bars) for (let t = 0; t < P.bar; t++) for (let x = 0; x < P.bw; x++) set(fx + 2 + x, fy + by + t, [255, 255, 255]);
+  const edge = [232, 236, 255], mark = [];
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!out[(y * n + x) * 4 + 3]) { let hit = false; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < n && Y < n && out[(Y * n + X) * 4 + 3] === 255) hit = true; } if (hit) mark.push([x, y]); }
+  for (const [x, y] of mark) set(x, y, edge, 255);
   return encodePng(n, n, out);
 }
-const renderSize = n => SMALL[n] ? small(n) : render(n);
-if (process.argv[2] === '--mock') { for (const n of [16, 20, 24]) fs.writeFileSync(process.argv[3] + '/small-' + n + '.png', small(n)); process.exit(0); }
+const renderSize = n => (n === 16 || n === 24) ? small(n) : render(n);
+if (process.argv[2] === '--mock') { for (const n of [16, 24]) fs.writeFileSync(process.argv[3] + '/small-' + n + '.png', small(n)); process.exit(0); }
 const master = render(512);
 fs.writeFileSync(path.join(here, 'icon-transparent.png'), master);
 fs.writeFileSync(path.join(here, '..', 'app', 'icon-transparent.png'), master);
@@ -117,5 +113,4 @@ const head = Buffer.alloc(6 + 16 * imgs.length); head.writeUInt16LE(1, 2); head.
 let off = head.length;
 imgs.forEach((b, i) => { const n = SIZES[i], e = 6 + 16 * i; head[e] = n === 256 ? 0 : n; head[e + 1] = n === 256 ? 0 : n; head.writeUInt16LE(1, e + 4); head.writeUInt16LE(32, e + 6); head.writeUInt32LE(b.length, e + 8); head.writeUInt32LE(off, e + 12); off += b.length; });
 fs.writeFileSync(path.join(here, 'icon-transparent.ico'), Buffer.concat([head, ...imgs]));
-fs.copyFileSync(path.join(here, 'icon-transparent.ico'), path.join(here, '..', 'app', 'icon-transparent.ico')); // BrowserWindow icon on Windows
 console.log('wrote icon-transparent.png, app/icon-transparent.png, icon-transparent.ico (' + SIZES.join(',') + ')');
