@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-QN3Sg8NtpyHmKH6UitGkGQgRtxDu0WL/X+BYjEwLy14=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-IWoB+0xtnneCb689I3vPvmNM6v3+gpL5laU26y6N/0s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5915,7 +5915,8 @@ function updImgUI(){const sec=document.getElementById('imgSec');if(!sec)return;c
   inp.onchange=async()=>{const fs=[...inp.files];inp.value='';if(!fs.length)return;
     if(inp.dataset.mode==='replace'){const o=imgTarget();if(!o)return;let r;try{r=await prepImage(fs[0])}catch(e){toast(tr('Dieses Bild lässt sich nicht lesen.'));return}
       const id=imgId(r.src);S.imgs[id]=r.src;imgLsPut(id,r.src);const im=imgEl(id);try{await im.decode()}catch(e){}
-      pushHist();const cy=o.y+o.h/2;o.img=id;delete o.crop;o.h=o.w*r.h/r.w;o.y=cy-o.h/2;redraw(S.sel.p);markDirty();toast(tr('Bild ersetzt.'));return}
+      pushHist();const cx=o.x+o.w/2,cy=o.y+o.h/2,k=Math.min(o.w/r.w,o.h/r.h);o.img=id;delete o.crop;o.w=r.w*k;o.h=r.h*k;o.x=cx-o.w/2;o.y=cy-o.h/2;pageKeep([o],S.pages[S.sel.p]); // contain in the old box
+      redraw(S.sel.p);markDirty();toast(tr('Bild ersetzt.'));return}
     insertImages(fs,null,null)};
   const a=$('#imgAlpha');let hist=false;
   a.addEventListener('input',()=>{const o=imgTarget();if(!o)return;if(!hist){pushHist();hist=true}const v=+a.value;o.alpha=v>=100?undefined:v/100;if(o.alpha===undefined)delete o.alpha;$('#imgAlphaV').textContent=v+' %';redraw(S.sel.p)});

@@ -2524,6 +2524,16 @@ else {
     ok('T1-04: Linie rastet beim Verschieben an der Kante des Rechtecks ein (y=100)', gd[1] === 100 && gd[0] > 0, gd);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T3-08): replacing an image with another aspect ratio keeps it inside the old box
+  {
+    const r = await ev(`(async()=>{const W=ms=>new Promise(r=>setTimeout(r,ms));const png=async(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').fillRect(0,0,w,h);return new Blob([await new Promise(r=>c.toBlob(r,'image/png'))],{type:'image/png'})};
+      const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t308.pdf');await W(500);setTool('select');S.pages.forEach(P=>P.objs=[]);
+      const inp=document.getElementById('imgIn');const feed=async(w,h)=>{const dt=new DataTransfer();dt.items.add(new File([await png(w,h)],'x.png',{type:'image/png'}));inp.files=dt.files;await inp.onchange()};
+      inp.dataset.mode='new';await feed(400,200);await W(500);const o=S.pages[0].objs.find(x=>x.type==='image');if(!o)return null;o.x=100;o.y=300;o.w=400;o.h=200;setSel({p:0,o});
+      inp.dataset.mode='replace';await feed(100,300);await W(300);return [o.x,o.y,o.w,o.h].map(v=>+v.toFixed(1))})()`, 30000);
+    ok('T3-08: Bild ersetzen (100x300 in 400x200) passt ins alte Feld', Array.isArray(r) && Math.abs(r[2] - 66.7) < .2 && r[3] === 200 && Math.abs(r[0] - 266.7) < .2 && r[1] === 300, r);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
