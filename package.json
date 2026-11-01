@@ -48,7 +48,7 @@
         "name": "PDF-Dokument",
         "description": "PDF-Dokument",
         "role": "Editor",
-        "icon": "build/pdf-icon.ico"
+        "icon": "build/icon-transparent.ico"
       }
     ],
     "win": {
