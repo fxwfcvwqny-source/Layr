@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-zuofeFQajN09/j6cuQPMf7Oi1EAfa8hJ5VmZUXr8g0Q=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-s+y7j8M3IAA6Rhz16rMknflBYw85sdRD2beG+Wrmjp8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4846,7 +4846,7 @@ function textEngine(host,initial,opt){
     const e0=edge(i,1);if(e0>=st.v.length)return st.v.length;const n=e0+1;return Math.min(n+col,edge(n,1))};
   /* Aufzählungen: Eine Zeile „   • Text“ ist ein Punkt. Je drei Leerzeichen davor = eine Ebene tiefer.
      Punkte je Ebene: • ◦ ▪   Nummern: 1. / a) / i.  (Enter setzt fort, Tab rückt ein, Umschalt+Tab aus) */
-  const IND='   ',BUL=['•','◦','▪'],LRX=/^((?: {3})*)(•|◦|▪|\d+\.|[a-z]\)|[ivx]+\.) /;
+  const IND='   ',BUL=['•','◦','▪'],LRX=/^((?: {3})*)(•|◦|▪|\d+\.|(?<=^ +)(?:[a-z]\)|[ivx]+\.)) /; // letter/roman markers only on nested levels: top-level "a) " or "v. Chr. " is plain text
   const lineRange=i=>{const a=i?st.v.lastIndexOf('\n',i-1)+1:0,e=st.v.indexOf('\n',i);return[a,e<0?st.v.length:e]};
   const info=a=>{const e=st.v.indexOf('\n',a),L=st.v.slice(a,e<0?st.v.length:e),m=L.match(LRX);if(!m)return null;
     const lvl=m[1].length/3,mk=m[2];return{lvl,mk,kind:BUL.includes(mk)?'b':'n',pre:m[0].length,rest:L.slice(m[0].length)}};

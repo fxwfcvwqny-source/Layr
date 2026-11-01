@@ -2440,6 +2440,17 @@ else {
     const enumv = await ev("(()=>{const st=ED.eng.st;st.v='(a) x\\n(b) y\\n';st.c=st.a=st.v.length;for(const ch of '(c)')t2K(ch);return st.v})()");
     ok('T2-07: Autokorrektur lässt p->next, URLs, =>/!= in Code und (c) in Aufzählungen stehen', Object.entries(ac7).every(([k, v]) => v === k) && enumv === '(a) x\n(b) y\n(c)', { ac7, enumv });
     await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-08: Enter after "v. Chr. ..." / "a) ..." at top level keeps the typed text; numbered lists still continue
+    const ent = [];
+    for (const [first, second] of [['v. Chr. geboren', 'x'], ['a) eins', 'zwei'], ['1. eins', 'zwei']]) {
+      await ev("newText(0,300,400);ED.focus()");
+      await cdp('Input.insertText', { text: first });
+      await key310('Enter', 'Enter', 13);
+      await cdp('Input.insertText', { text: second });
+      ent.push(await ev('ED.o.text'));
+      await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    }
+    ok('T2-08: Enter nach "v. Chr." und "a)" auf Ebene 0 lässt den Text, "1." zählt weiter', JSON.stringify(ent) === JSON.stringify(['v. Chr. geboren\nx', 'a) eins\nzwei', '1. eins\n2. zwei']), ent);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
