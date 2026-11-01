@@ -2392,6 +2392,21 @@ else {
     ok('Review 3: sanObj kürzt Leerzeichen am Rand der RAID-Buchstaben', sl === 'A,B', sl);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // T2 text fixes (round 4)
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t2.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});S.autoCap=false;return 1})()`, 60000);
+    // T2-01: native insert/cut work when the text starts with an empty line
+    await ev("newText(0,300,400);ED.eng.put('\\nhello world');ED.focus()");
+    await key310('Home', 'Home', 36, 2);
+    await cdp('Input.insertText', { text: 'XY' });
+    const p1 = await ev('ED.o.text');
+    await key310('a', 'KeyA', 65, 2);
+    await cdp('Input.insertText', { text: 'NEW' });
+    const p2 = await ev('ED.o.text');
+    ok('T2-01: Einfügen bei Cursor 0 vor führender Leerzeile und Ersetzen der Auswahl', p1 === 'XY\nhello world' && p2 === 'NEW', { p1, p2 });
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

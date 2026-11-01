@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-POup3NvgivhV/PYvRF3Zbh5eI03ps/kP7CrDlAuM/g4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lCvrtYqw87zNCJSFYF4P2gVmJIy5KXA+LkE9gFBoLpA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4819,7 +4819,7 @@ function textEngine(host,initial,opt){
   const norm=t=>{t=String(t).replace(/\r\n?/g,'\n');return opt.single?t.replace(/\n/g,' '):t};
   // Das unsichtbare Feld hält nur die Zeile mit dem Cursor (Bereich ms..me des Textes), nie den ganzen Text
   let ms=0,me=0;
-  const sync=()=>{if(comp)return;ms=st.v.lastIndexOf('\n',lo()-1)+1;const e=st.v.indexOf('\n',hi());me=e<0?st.v.length:e;
+  const sync=()=>{if(comp)return;ms=lo()?st.v.lastIndexOf('\n',lo()-1)+1:0;const e=st.v.indexOf('\n',hi());me=e<0?st.v.length:e;
     const seg=st.v.slice(ms,me);if(sink.value!==seg)sink.value=seg;
     try{sink.setSelectionRange(lo()-ms,hi()-ms,st.c<st.a?'backward':'forward')}catch(e){}};
   const upd=()=>{sync();try{opt.onChange(st)}catch(err){dbg('FEHLER beim Zeichnen: '+(err&&err.stack||err))}};
@@ -4841,13 +4841,13 @@ function textEngine(host,initial,opt){
     if(dir<0)a=word?wordL(st.c):Math.max(0,st.c-1);else b=word?wordR(st.c):Math.min(st.v.length,st.c+1);if(a===b)return;st.c=a;st.a=b;put('')};
   const move=(i,ext)=>{st.c=clamp(i,0,st.v.length);if(!ext)st.a=st.c;upd()};
   // Zeilenweise Bewegung ohne Geometrie (für Beschriftungen): nach Zeilenumbrüchen
-  const edge=(i,d)=>d<0?st.v.lastIndexOf('\n',i-1)+1:(st.v.indexOf('\n',i)<0?st.v.length:st.v.indexOf('\n',i));
+  const edge=(i,d)=>d<0?(i?st.v.lastIndexOf('\n',i-1)+1:0):(st.v.indexOf('\n',i)<0?st.v.length:st.v.indexOf('\n',i));
   const vert=(i,d)=>{const s0=edge(i,-1),col=i-s0;if(d<0){if(s0===0)return 0;const p=edge(s0-1,-1);return Math.min(p+col,s0-1)}
     const e0=edge(i,1);if(e0>=st.v.length)return st.v.length;const n=e0+1;return Math.min(n+col,edge(n,1))};
   /* Aufzählungen: Eine Zeile „   • Text“ ist ein Punkt. Je drei Leerzeichen davor = eine Ebene tiefer.
      Punkte je Ebene: • ◦ ▪   Nummern: 1. / a) / i.  (Enter setzt fort, Tab rückt ein, Umschalt+Tab aus) */
   const IND='   ',BUL=['•','◦','▪'],LRX=/^((?: {3})*)(•|◦|▪|\d+\.|[a-z]\)|[ivx]+\.) /;
-  const lineRange=i=>{const a=st.v.lastIndexOf('\n',i-1)+1,e=st.v.indexOf('\n',i);return[a,e<0?st.v.length:e]};
+  const lineRange=i=>{const a=i?st.v.lastIndexOf('\n',i-1)+1:0,e=st.v.indexOf('\n',i);return[a,e<0?st.v.length:e]};
   const info=a=>{const e=st.v.indexOf('\n',a),L=st.v.slice(a,e<0?st.v.length:e),m=L.match(LRX);if(!m)return null;
     const lvl=m[1].length/3,mk=m[2];return{lvl,mk,kind:BUL.includes(mk)?'b':'n',pre:m[0].length,rest:L.slice(m[0].length)}};
   const roman=n=>['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii'][n-1]||String(n);
@@ -5562,11 +5562,11 @@ function notesOpen(v){const n=$('#notes');if(v==null)v=!notesIsOpen();
   else animHide(n);$('#bNotes').setAttribute('aria-pressed',v)}
 {const n=$('#notes'),t=$('#ntText');let nT=0;
   const changed=()=>{S.notes=t.value;notesUpd();const ns=$('#ntState');ns.textContent='Wird mit dem PDF gespeichert …';ns.classList.add('dirty');clearTimeout(nT);nT=setTimeout(()=>{try{if(!S.sample&&!crNoStore())localStorage.setItem(storeKey()+':notes',S.notes)}catch(e){}markDirty()},450)};
-  const ins=(txt,lineStart)=>{t.focus();let a=t.selectionStart,b=t.selectionEnd;if(lineStart){a=b=t.value.lastIndexOf('\n',a-1)+1;t.setRangeText(txt,a,a,'preserve')}else t.setRangeText(txt,a,b,'end');changed()};
-  const swap=(ls,n,txt)=>{t.focus();t.setRangeText(txt,ls,ls+n,'preserve');changed()};const lsOf=()=>t.value.lastIndexOf('\n',t.selectionStart-1)+1;
+  const ins=(txt,lineStart)=>{t.focus();let a=t.selectionStart,b=t.selectionEnd;if(lineStart){a=b=a?t.value.lastIndexOf('\n',a-1)+1:0;t.setRangeText(txt,a,a,'preserve')}else t.setRangeText(txt,a,b,'end');changed()};
+  const swap=(ls,n,txt)=>{t.focus();t.setRangeText(txt,ls,ls+n,'preserve');changed()};const lsOf=()=>t.selectionStart?t.value.lastIndexOf('\n',t.selectionStart-1)+1:0;
   t.addEventListener('input',changed);
   t.addEventListener('keydown',e=>{
-    if(e.key==='Enter'&&!e.shiftKey&&!e.ctrlKey){const a=t.selectionStart,ls=t.value.lastIndexOf('\n',a-1)+1,line=t.value.slice(ls,a),m=line.match(/^(\s*)(• |- |☐ |☑ |(\d+)\. )/);
+    if(e.key==='Enter'&&!e.shiftKey&&!e.ctrlKey){const a=t.selectionStart,ls=a?t.value.lastIndexOf('\n',a-1)+1:0,line=t.value.slice(ls,a),m=line.match(/^(\s*)(• |- |☐ |☑ |(\d+)\. )/);
       if(m){e.preventDefault();if(line.trim()===m[2].trim()){t.setRangeText('',ls,a,'end');changed();return}const nx=m[3]?(+m[3]+1)+'. ':m[2]==='☑ '?'☐ ':m[2];ins('\n'+m[1]+nx)}}});
   n.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();notesOpen(false);$('#bNotes').focus()}
     else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();save(e.shiftKey)}});
