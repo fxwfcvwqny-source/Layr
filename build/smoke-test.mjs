@@ -779,6 +779,9 @@ else {
   const tfj = JSON.parse(tf || '{}');
   ok('Sidebar format toggles: bold switches on and off, new text inherits italic/background, selected text follows, no background for stacked text',
     tfj.on && tfj.off && tfj.inh && tfj.selB && tfj.selBg && tfj.selIt && tfj.stack && tfj.noBg, tfj);
+  ok('Sidebar background picker: after a pick the palette is closed and the button has no stuck pressed state',
+    await ev("(()=>{const b=document.querySelector('#tfbg [data-a=bg]'),pw=document.querySelector('#tfpw');b.click();const o=!pw.hidden;document.querySelector('#tfpw .edsw[data-c=\"#ffd60a\"]').click();"
+      + "const r=o&&b.getAttribute('aria-expanded')==='false'&&!b.hasAttribute('aria-pressed')&&(pw.hidden||!!pw._ah);S.hbg='';syncFmt();return r})()") === true);
   // Numbers use the UI font with tabular figures (C2)
   ok('UI numbers (page, zoom, value labels) use the UI font with tabular figures, not the mono font',
     await ev("['.status .pg','.zoomv','.val','.page .pno'].every(q=>{const e=document.querySelector(q);if(!e)return false;const c=getComputedStyle(e);return c.fontFamily===getComputedStyle(document.body).fontFamily&&c.fontVariantNumeric.includes('tabular-nums')})") === true);
@@ -1390,6 +1393,10 @@ else {
     ok('Objektleiste: Duplizieren, Löschen, Sperren, Farbe, Nach vorne/hinten mit aria-label, kein Ausrichten bei einem Objekt', ['Duplizieren', 'Löschen', 'Sperren', 'Farbe', 'Nach vorne', 'Nach hinten'].every(n => names.includes(n)) && !names.includes('Links ausrichten'), names);
     const tsv = await ev("(()=>{tsBar.hidden=false;obUpdate();const r=obBar.hidden;tsBar.hidden=true;obUpdate();return JSON.stringify([r,obBar.hidden])})()").then(JSON.parse);
     ok('Objektleiste: überdeckt nicht die Textauswahl-Leiste (bei sichtbarer #tsBar ist die Objektleiste weg, danach wieder da)', tsv[0] === true && tsv[1] === false, tsv);
+    const obt = await ev("(()=>{const o=S.sel.o,p=S.sel.p,r={};for(const t of['rect','ellipse','symbol','pen']){setTool(t);setSel({p,o});obUpdate();r[t]=obBar.hidden}setTool('select');setSel({p:0,o});obUpdate();return JSON.stringify(r)})()").then(JSON.parse);
+    ok('Objektleiste: bleibt nach dem Platzieren mit Rechteck-, Ellipsen- und Symbolwerkzeug sichtbar, mit dem Stift nicht', obt.rect === false && obt.ellipse === false && obt.symbol === false && obt.pen === true, obt);
+    const obtb = await ev("(()=>{const P=S.pages[0],t=newTable(150,8,3,3);P.objs.push(t);setTool('select');setSel({p:0,o:t});redraw(0);obUpdate();const a=obBar.getBoundingClientRect(),b=document.getElementById('tblBar').getBoundingClientRect(),ov=!obBar.hidden&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;P.objs.pop();setSel(null);return ov})()");
+    ok('Objektleiste: überdeckt bei einer gewählten Tabelle nie die Tabellenleiste', obtb === false, obtb);
     // hidden while dragging, back afterwards at the new place
     { const c = await pt310([250, 330]); await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 6; i++) await dragTo(c[0] + 10 * i, c[1] + 6 * i); await sleep(100); var during = await bar(); await releaseAt(c[0] + 60, c[1] + 36); await sleep(250); }
     b = await bar(); sb = await selBox();

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-boccDv2I7+LPpsj/K2BJBO1cs4W+L+vHpEVSgGleLBE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3L3BXPKiZomipMmnSG5Qq7DnETYFlRbS7kJb7cjRYOk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -670,7 +670,7 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .drawer-bg:not([hidden]){animation:lyr-fade .2s ease-out}
 .studio:not([hidden]){animation:lyr-slide .3s cubic-bezier(.2,.85,.25,1)}
 .toast:not([hidden]){animation:lyr-toast .26s cubic-bezier(.2,.85,.25,1)}
-.symPop:not([hidden]),.edpal:not([hidden]),.ctx:not([hidden]){animation:lyr-unfold .24s cubic-bezier(.2,.85,.25,1);transform-origin:top center}
+.symPop:not([hidden]),.edpal:not([hidden]),.tfpw:not([hidden]),.ctx:not([hidden]){animation:lyr-unfold .24s cubic-bezier(.2,.85,.25,1);transform-origin:top center}
 .tbx.flip .edpal:not([hidden]){animation-name:lyr-unfold-up}
 .tbx .edbar{animation:lyr-drop .2s ease-out}
 .tip:not([hidden]){animation:lyr-fade .14s ease-out}
@@ -731,7 +731,7 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .modal.closing .card{animation:lyr-zoom-out .2s cubic-bezier(.4,0,1,1) forwards}
 .studio.closing{animation:lyr-slide-out .22s ease-in forwards}
 .drawer-bg.closing{animation:lyr-fade-out .22s ease-in forwards}
-.symPop.closing,.edpal.closing,.ctx.closing{animation:lyr-fold .16s ease-in forwards}
+.symPop.closing,.edpal.closing,.tfpw.closing,.ctx.closing{animation:lyr-fold .16s ease-in forwards}
 .toast.closing{animation:lyr-toast-out .22s ease-in forwards}
 /* Aufklappbare Abschnitte im Seitenbereich */
 .panel .sec{overflow:hidden;transition:height .32s cubic-bezier(.3,.9,.3,1),padding .32s}
@@ -4395,12 +4395,13 @@ setTimeout(()=>{try{alUI()}catch(e){}},0);
 /* ---------- 3.10: Objektleiste (obBar): kleine Leiste über dem gewählten Objekt ----------
    Hidden while dragging/resizing, typing, with another tool, or when the setting is off. F6 moves focus into it, Esc back to the page. */
 var obBarOn=true;try{obBarOn=localStorage.getItem('pdfwerkbank:objBar')!=='0'}catch(e){}
-var obBusy=false,obRaf=0;const obBar=$('#obBar');
+var obBusy=false,obRaf=0;const OB_TOOLS=['select','lasso','rect','ellipse','symbol']; // rect/ellipse/symbol keep the freshly placed object selected
+const obBar=$('#obBar');
 function obPalOpen(v){const pal=$('#obPal');pal.hidden=!v;$('#obCol').setAttribute('aria-expanded',v)}
 function obHide(){if(!obBar.hidden){obBar.hidden=true;obPalOpen(false)}}
 function obSoon(){if(obRaf)return;obRaf=requestAnimationFrame(()=>{obRaf=0;try{obUpdate()}catch(e){}})}
 function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
-  if(!obBarOn||!P||!P.ink||obBusy||CRP||editorEl||ED||(S.tool!=='select'&&S.tool!=='lasso')||!tsBar.hidden||sel.o===editingObj||document.querySelector('.modal:not([hidden])')){obHide();return}
+  if(!obBarOn||!P||!P.ink||obBusy||CRP||editorEl||ED||!OB_TOOLS.includes(S.tool)||S.draft||!tsBar.hidden||sel.o===editingObj||document.querySelector('.modal:not([hidden])')){obHide();return}
   const T=selItems();if(!T.length){obHide();return}
   const lk=T.some(o=>!o.locked),L=$('#obLock'),lt=tr(lk?'Sperren':'Entsperren');L.title=lt;L.setAttribute('aria-label',lt);
   $('#obAl').hidden=alUnits(T.filter(o=>!alFixed(o))).length<2;$('#obCrop').hidden=!(T.length===1&&T[0].type==='image'&&!T[0].locked);
@@ -4409,8 +4410,13 @@ function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
   const top=r.top+b.y*z,bot=top+b.h*z,left=r.left+b.x*z,wid=b.w*z;
   if(bot<vr.top||top>vr.bottom){obHide();return}
   const gap=sel.o.type==='group'||(sel.o.type==='text'&&sel.o.orient==='h')?40:16; // clear of the group label / rotation handle
+  const x=Math.round(Math.max(vr.left+4,Math.min(vr.right-w-4,left+wid/2-w/2)));
   let y=top-h-gap;if(y<vr.top+4)y=bot+14;
-  obBar.style.left=Math.round(Math.max(vr.left+4,Math.min(vr.right-w-4,left+wid/2-w/2)))+'px';
+  // a selected table has its own bar (.tblbar): never cover it, try the other side of the table or the far side of that bar
+  const tbe=sel.o.type==='table'?document.getElementById('tblBar'):null,tb=tbe&&!tbe.hidden?tbe.getBoundingClientRect():null;
+  if(tb&&x<tb.right+4&&x+w>tb.left-4&&y<tb.bottom+4&&y+h>tb.top-4){
+    const ok=v=>v>=vr.top+4&&v+h<=vb-4&&(v+h<=tb.top-4||v>=tb.bottom+4),c=[top-h-gap,bot+14,tb.top-h-6,tb.bottom+6].find(ok);if(c!==undefined)y=c}
+  obBar.style.left=x+'px';
   obBar.style.top=Math.round(Math.max(vr.top+4,Math.min(vb-h-4,y)))+'px'}
 viewer.addEventListener('scroll',obSoon);addEventListener('resize',obSoon);
 for(const[c,n]of COLORS){const b=document.createElement('button');b.type='button';b.className='tsw';b.style.background=c;b.title=n;b.setAttribute('aria-label',tr(n));b.dataset.c=c;b.onclick=()=>{setColor(c);obPalOpen(false);$('#obCol').focus()};$('#obPal').appendChild(b)}
@@ -5045,7 +5051,7 @@ function syncFmt(o){o=fmtTarget(o);const g=k=>o?o[k]:S[k];
   const sel=ED&&ED.o===o&&ED.eng&&o.orient!=='stack'?(q=>[Math.min(q.c,q.a),Math.max(q.c,q.a)])(ED.eng.st):[0,0];
   document.querySelectorAll('#tfmt button').forEach(b=>b.setAttribute('aria-pressed',String(sel[1]>sel[0]&&b.dataset.k!=='hbg'?styState(o,sel[0],sel[1],b.dataset.k):!!g(b.dataset.k))));
   const bg=$('#tfbg'),b=bg.querySelector('[data-a=bg]'),h=g('hbg')||'',stk=(o?o.orient:S.orient)==='stack';
-  b.setAttribute('aria-pressed',!!h);b.disabled=stk;b.title=tr(stk?'Hintergrund gibt es nicht für gestapelten Text':'Texthintergrund');b.setAttribute('aria-label',b.title);
+  b.removeAttribute('aria-pressed');b.disabled=stk;b.title=tr(stk?'Hintergrund gibt es nicht für gestapelten Text':'Texthintergrund');b.setAttribute('aria-label',b.title);
   bg.querySelector('.cbar').style.background=h||'transparent';
   $('#tfpw').querySelectorAll('.edsw').forEach(x=>x.setAttribute('aria-pressed',x.dataset.c.toLowerCase()===h.toLowerCase()));
   const ci=$('#tfpw .edcin');if(/^#[0-9a-f]{6}$/i.test(h))ci.value=h}
@@ -5053,7 +5059,7 @@ function syncFmt(o){o=fmtTarget(o);const g=k=>o?o[k]:S[k];
   const pick=(c,range)=>{const q=ED&&ED.eng&&ED.eng.st;if(!(q&&q.c!==q.a))S.hbg=c;applySel({hbg:c},range);syncFmt()},open=v=>{if(v)showEl(pw);else animHide(pw);b.setAttribute('aria-expanded',v)};
   document.querySelectorAll('#tfmt button').forEach(x=>x.onclick=()=>{const k=x.dataset.k,v=!x.matches('[aria-pressed=true]'),q=ED&&ED.eng&&ED.eng.st;if(!(q&&q.c!==q.a))S[k]=v;applySel({[k]:v});syncFmt();if(ED&&ED.focus)ED.focus()});
   b.onclick=()=>open(pw.hidden||!!pw._ah);
-  pal.querySelectorAll('.edsw').forEach(x=>x.onclick=()=>{pick(x.dataset.c);open(false)});
+  pal.querySelectorAll('.edsw').forEach(x=>x.onclick=e=>{pick(x.dataset.c);open(false);if(!e.detail)b.focus()}); // keyboard pick: focus back on the button (a mouse pick would pop the panel hint)
   {const live=rafLast(c=>pick(c,true));ci.addEventListener('input',()=>live(ci.value))}ci.addEventListener('change',()=>{ctrlHist=false;open(false)});
   document.addEventListener('pointerdown',e=>{if(!pw.hidden&&!bg.contains(e.target)&&!pw.contains(e.target))open(false)},true);
   $('#tfmt').closest('.sec').addEventListener('keydown',e=>{if(e.key==='Escape'&&!pw.hidden){e.preventDefault();e.stopPropagation();open(false);b.focus()}});
