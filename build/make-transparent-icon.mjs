@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const BG = [20, 21, 28]; // black rounded-square colour in build/icon.png
 const OUTLINE = [16, 20, 70], OUT_R = 7, MARGIN = 0.02; // outline colour, radius in 512px units, free margin around the glyph
-const SIZES = [16, 24, 32, 48, 64, 128, 256];
+const SIZES = [16, 20, 24, 32, 48, 64, 128, 256];
 
 const crcT = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
 const crc = b => { let c = ~0; for (const x of b) c = crcT[(c ^ x) & 255] ^ (c >>> 8); return ~c >>> 0; };
@@ -45,29 +45,31 @@ for (let i = 0; i < W * H; i++) {
   if (a < 0.02) continue;
   G[i * 4] = Math.max(0, Math.min(255, (r - (1 - a) * BG[0]) / a)); G[i * 4 + 1] = Math.max(0, Math.min(255, (g - (1 - a) * BG[1]) / a)); G[i * 4 + 2] = Math.min(255, (b - (1 - a) * BG[2]) / a); G[i * 4 + 3] = a;
 }
-// 2) outline: dilate the coverage by OUT_R and put the glyph over it
-const O = new Float32Array(W * H), R2 = OUT_R * OUT_R;
-for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-  if (G[(y * W + x) * 4 + 3] <= 0) continue;
-  const a = G[(y * W + x) * 4 + 3];
-  for (let dy = -OUT_R; dy <= OUT_R; dy++) for (let dx = -OUT_R; dx <= OUT_R; dx++) {
-    if (dx * dx + dy * dy > R2) continue; const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= W || Y >= H) continue;
-    if (a > O[Y * W + X]) O[Y * W + X] = a;
+// 2) outline: dilate the coverage by r and put the glyph over it
+function outline(g, r) {
+  const O = new Float32Array(W * H), R2 = r * r, ri = Math.ceil(r), C = new Float32Array(W * H * 4); // C: premultiplied result
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const a = g[(y * W + x) * 4 + 3]; if (a <= 0) continue;
+    for (let dy = -ri; dy <= ri; dy++) for (let dx = -ri; dx <= ri; dx++) {
+      if (dx * dx + dy * dy > R2) continue; const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= W || Y >= H) continue;
+      if (a > O[Y * W + X]) O[Y * W + X] = a;
+    }
   }
+  for (let i = 0; i < W * H; i++) {
+    const ga = g[i * 4 + 3], oa = O[i], A = ga + oa * (1 - ga);
+    for (let k = 0; k < 3; k++) C[i * 4 + k] = g[i * 4 + k] * ga + OUTLINE[k] * oa * (1 - ga);
+    C[i * 4 + 3] = A * 255;
+  }
+  return C;
 }
-const C = new Float32Array(W * H * 4); // premultiplied result
-for (let i = 0; i < W * H; i++) {
-  const ga = G[i * 4 + 3], oa = O[i], A = ga + oa * (1 - ga);
-  for (let k = 0; k < 3; k++) C[i * 4 + k] = G[i * 4 + k] * ga + OUTLINE[k] * oa * (1 - ga);
-  C[i * 4 + 3] = A * 255;
-}
+let C = outline(G, OUT_R);
 // 3) crop to the glyph box plus a small margin, square
 let x0 = W, y0 = H, x1 = 0, y1 = 0;
 for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (C[(y * W + x) * 4 + 3] > 8) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
 const side = Math.max(x1 - x0 + 1, y1 - y0 + 1) * (1 + 2 * MARGIN), cx = (x0 + x1 + 1) / 2, cy = (y0 + y1 + 1) / 2, sx = cx - side / 2, sy = cy - side / 2;
 const px = (x, y, k) => (x < 0 || y < 0 || x >= W || y >= H) ? 0 : C[(y * W + x) * 4 + k];
 // 4) resample (premultiplied): box filter when shrinking, bilinear when enlarging
-function render(n) {
+function render(n, raw) {
   const s = side / n, out = new Uint8Array(n * n * 4);
   for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
     const v = [0, 0, 0, 0];
@@ -85,25 +87,28 @@ function render(n) {
     const a = v[3]; out[(y * n + x) * 4 + 3] = Math.round(a);
     for (let k = 0; k < 3; k++) out[(y * n + x) * 4 + k] = a > 0 ? Math.min(255, Math.round(v[k] * 255 / a)) : 0;
   }
-  return encodePng(n, n, out);
+  return raw ? out : encodePng(n, n, out);
 }
 
-// Hand-tuned 16 and 24 px: simplified three-page stack without text lines, drawn on the pixel grid (no resampling blur),
-// with a 1 px light edge around the silhouette so it stays visible on dark taskbars (the saturated blues carry it on light ones).
+// 16, 20 and 24 px: same art, but the three text bars are cut out of the art, the rest is box-filtered (outline OUTPX px thick),
+// and the bars are drawn back snapped to whole pixels (same colours, same relative positions) so they do not blur away.
+const BARS = [[111, 277, 266, 302, [255, 255, 255]], [111, 339, 318, 364, [201, 205, 255]], [111, 401, 224, 426, [149, 157, 255]]]; // x0,y0,x1,y1 in the 512 icon, colour
+const OUTPX = Number(process.env.OUTPX || 0.5), SMALL = [16, 20, 24];
 function small(n) {
-  const P = n === 16 ? { w: 10, off: 2, fold: 3 } : { w: 16, off: 3, fold: 5 }, out = new Uint8Array(n * n * 4), set = (x, y, c, a = 255) => { const i = (y * n + x) * 4; out[i] = c[0]; out[i + 1] = c[1]; out[i + 2] = c[2]; out[i + 3] = a; };
-  const pages = [[[158, 166, 255], 2 * P.off, 0], [[110, 122, 255], P.off, P.off], [[43, 59, 255], 0, 2 * P.off]]; // colour, x offset, y offset
-  for (const [c, ox, oy] of pages) for (let y = 0; y < P.w; y++) for (let x = 0; x < P.w; x++) {
-    if (c[0] === 43 && x >= P.w - P.fold && y < P.fold) { const cx = x - (P.w - P.fold), cy = y; if (cx > cy) continue; if (cx === cy) { set(1 + ox + x, 1 + oy + y, [190, 198, 255]); continue; } }
-    set(1 + ox + x, 1 + oy + y, c);
+  const k = side / 512, s = side / n, g = G.slice(), page = [43, 59, 255];
+  for (const [bx0, by0, bx1, by1] of BARS) for (let y = Math.floor(sy + by0 * k) - 2; y <= Math.ceil(sy + (by1 + 1) * k) + 2; y++) for (let x = Math.floor(sx + bx0 * k) - 2; x <= Math.ceil(sx + (bx1 + 1) * k) + 2; x++) {
+    const i = (y * W + x) * 4; if (g[i + 3] > 0) { g[i] = page[0]; g[i + 1] = page[1]; g[i + 2] = page[2]; }
   }
-  const edge = [232, 236, 255], mark = [];
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!out[(y * n + x) * 4 + 3]) { let hit = false; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < n && Y < n && out[(Y * n + X) * 4 + 3] === 255) hit = true; } if (hit) mark.push([x, y]); }
-  for (const [x, y] of mark) set(x, y, edge, 255);
+  const base = C; C = outline(g, Math.max(OUT_R, OUTPX * s)); const out = render(n, true); C = base;
+  let prev = -9;
+  for (const [bx0, by0, bx1, by1, col] of BARS) {
+    const q = 512 / n, y = Math.max(prev + 2, Math.round((by0 + by1 + 1) / 2 / q - 0.5)), x0 = Math.round(bx0 / q), x1 = Math.max(x0 + 2, Math.round((bx1 + 1) / q)); prev = y;
+    for (let x = x0; x < x1; x++) { const i = (y * n + x) * 4; out[i] = col[0]; out[i + 1] = col[1]; out[i + 2] = col[2]; out[i + 3] = 255; }
+  }
   return encodePng(n, n, out);
 }
-const renderSize = n => (n === 16 || n === 24) ? small(n) : render(n);
-if (process.argv[2] === '--mock') { for (const n of [16, 24]) fs.writeFileSync(process.argv[3] + '/small-' + n + '.png', small(n)); process.exit(0); }
+const renderSize = n => SMALL.includes(n) ? small(n) : render(n);
+if (process.argv[2] === '--mock') { for (const n of SMALL) fs.writeFileSync(process.argv[3] + '/small-' + n + '.png', small(n)); process.exit(0); }
 const master = render(512);
 fs.writeFileSync(path.join(here, 'icon-transparent.png'), master);
 fs.writeFileSync(path.join(here, '..', 'app', 'icon-transparent.png'), master);
