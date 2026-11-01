@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jyEdD74U+8b+sNLOF8NnEfnwRbHecc2MjHaIHXkzuYg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Hu7z6RgFEfteHCseU2eMRtmzosfQ1uvSR+0eV6Jvy3s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4080,7 +4080,7 @@ function moveObj(o,dx,dy,all){
 }
 // Keep at least 20 pt (or the whole extent if smaller) of the objects' common box on the page, so they stay visible and grabbable
 function pageKeep(list,P){if(!P)return;let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of list){if(o.type==='text')continue;let q;try{q=bbox(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}
-  if(!isFinite(a+b+c+d))return;const mx=Math.min(20,c-a),my=Math.min(20,d-b),dx=a>P.w-mx?P.w-mx-a:c<mx?mx-c:0,dy=b>P.h-my?P.h-my-b:d<my?my-d:0;if(dx||dy)for(const o of list)moveObj(o,dx,dy)}
+  if(!isFinite(a+b+c+d)||a>c)return;const mx=Math.min(20,c-a),my=Math.min(20,d-b),dx=a>P.w-mx?P.w-mx-a:c<mx?mx-c:0,dy=b>P.h-my?P.h-my-b:d<my?my-d:0;if(dx||dy)for(const o of list)moveObj(o,dx,dy)}
 function norm(o){if(o.w<0){o.x+=o.w;o.w=-o.w}if(o.h<0){o.y+=o.h;o.h=-o.h}return o}
 function handles(o){
   if(o.locked)return[];
