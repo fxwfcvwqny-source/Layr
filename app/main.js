@@ -277,6 +277,7 @@ handle('export', async (_e, name, data) => {
 // Anhang in der PDF, Layr kann beim nächsten Öffnen also alles weiter bearbeiten oder wieder entfernen.
 // Erst in eine zufällig benannte, exklusiv angelegte Hilfsdatei schreiben (folgt keinem Symlink), dann ersetzen.
 function writeSafe(t, data, noReplace) {
+  if (!noReplace) { try { t = fs.realpathSync(t); } catch (e) {} }   // save through a symlink: replace the target, keep the link
   const dir = path.dirname(t), tmp = path.join(dir, `.${path.basename(t)}.${crypto.randomBytes(8).toString('hex')}.layr-tmp`);
   const fd = fs.openSync(tmp, 'wx', 0o600);
   try { let off = 0; while (off < data.length) off += fs.writeSync(fd, data, off, data.length - off); fs.fsyncSync(fd); }

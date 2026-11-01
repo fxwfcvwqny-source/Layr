@@ -2544,6 +2544,22 @@ else {
     const pg = await ev("[curPage()+1,document.getElementById('pgNum').value]");
     ok('T3-09: zweites Strg+Alt+G in der Seitenwahl springt zu Seite 1 (kein "51")', pg[0] === 1 && pg[1] === '1', pg);
   }
+  // Bug round 4 (T3-06): saving through a symlink keeps the link
+  if (process.platform === 'linux') {
+    const dir = fs.mkdtempSync(os.tmpdir() + '/layr-t306-');
+    fs.mkdirSync(dir + '/real');
+    const pdfBytes = await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);return Array.from(await d.save())})()`);
+    fs.writeFileSync(dir + '/real/target.pdf', Buffer.from(pdfBytes));
+    fs.symlinkSync(dir + '/real/target.pdf', dir + '/link.pdf');
+    const size0 = fs.statSync(dir + '/real/target.pdf').size;
+    // a second launch with the same profile hands the file to the running instance (new tab)
+    spawn(exe, ['--no-sandbox', dir + '/link.pdf'], { env, stdio: 'ignore' });
+    const opened = await waitFor("S.name==='link.pdf'", 20000);
+    const sv = await ev(`(async()=>{S.pages[0].objs.push(sanObj({type:'rect',x:50,y:50,w:40,h:40,color:'#000000',lw:1}));markDirty();return await save()})()`, 30000);
+    const isLink = fs.lstatSync(dir + '/link.pdf').isSymbolicLink(), size1 = fs.statSync(dir + '/real/target.pdf').size;
+    ok('T3-06: Speichern über einen Symlink behält den Link und schreibt das Ziel', opened && sv === true && isLink && size1 > size0, { opened, sv, isLink, size0, size1 });
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
