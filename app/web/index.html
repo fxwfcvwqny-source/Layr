@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-f5mGsblbSjkkAL07ehTDL/us1aayPW3OcZO48G1ytx8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-QN3Sg8NtpyHmKH6UitGkGQgRtxDu0WL/X+BYjEwLy14=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3867,7 +3867,7 @@ try{const j=JSON.parse(localStorage.getItem('pdfwerkbank:guides')||'{}');if(type
 function gdSave(){try{localStorage.setItem('pdfwerkbank:guides',JSON.stringify(GD))}catch(e){}}
 const GRID=5*72/25.4;
 function gdApply(){document.getElementById('app').classList.toggle('pen-only',GD.pen);try{redrawAll()}catch(e){}}
-function gdBox(L){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of L){let q;try{q=o.type==='text'?bbox(o):boxOf(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
+function gdBox(L){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of L){let q;try{q=o.type==='text'||o.type==='line'||o.type==='pen'||o.type==='measure'?bbox(o):boxOf(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}return{x:a,y:b,w:c-a,h:d-b}}
 // Candidate lines (page edges, 36 pt margins, page centre, other objects' edges and centres), computed ONCE per drag and kept in st.gc
 function gdCands(P,moving){const B=[],X=[[0,'p'],[36,'p'],[P.w/2,'c'],[P.w-36,'p'],[P.w,'p']],Y=[[0,'p'],[36,'p'],[P.h/2,'c'],[P.h-36,'p'],[P.h,'p']];GD.built=(GD.built||0)+1;
   const mv=new Set(moving.flatMap(o=>o.type==='group'?o.items:[o]).map(o=>o.oid).filter(Boolean));

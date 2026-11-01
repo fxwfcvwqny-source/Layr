@@ -2510,6 +2510,20 @@ else {
     ok('T1-07: Längenfeld lehnt 5000 mm und Text ab (Länge bleibt)', l3 === +(100 * 25.4 / 72).toFixed(2) && l4 === l3, [l3, l4]);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T1-04): smart guides also work when moving a line
+  {
+    await ev(`(async()=>{design.motion='off';applyDesign(true);GD.on=true;const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t104.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    await ev("S.pages[0].objs=[{type:'rect',x:100,y:100,w:60,h:40,color:'#000000',lw:1,fill:'white',oid:'r104'},{type:'line',x1:300,y1:300,x2:400,y2:300,color:'#000000',lw:2,start:'none',end:'none',dash:false,elbow:false}];redrawAll();setSel(null)");
+    await click310([350, 300]);
+    const a = await pt310([350, 300]), b = await pt310([350, 103]);
+    await mv(a[0], a[1]);
+    await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: a[0], y: a[1], button: 'left', buttons: 1, clickCount: 1 });
+    for (let k = 1; k <= 10; k++) await mv(a[0], a[1] + (b[1] - a[1]) * k / 10, 1);
+    const gd = await ev("JSON.stringify([S.guides?S.guides.ys.length:0,S.pages[0].objs[1].y1])").then(JSON.parse);
+    await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: b[0], y: b[1], button: 'left', buttons: 0, clickCount: 1 });
+    ok('T1-04: Linie rastet beim Verschieben an der Kante des Rechtecks ein (y=100)', gd[1] === 100 && gd[0] > 0, gd);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
