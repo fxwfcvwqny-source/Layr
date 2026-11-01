@@ -2425,6 +2425,14 @@ else {
     const b2 = await ev("[!!ED.o.bold,ED.o.text]");
     ok('T2-09: Strg+Z nimmt Formatierung des ganzen Feldes zurück und löscht keinen Text', b1[0] === true && b2[0] === false && b2[1] === 'abc', { b1, b2 });
     await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-10: sidebar background for selected words must not change the default for new fields
+    await ev("S.hbg='';newText(0,300,400);ED.focus()");
+    await cdp('Input.insertText', { text: 'abc def' });
+    for (let i = 0; i < 3; i++) await key310('ArrowLeft', 'ArrowLeft', 37, 8);
+    await ev("[...document.querySelectorAll('#tfpw .edsw')].find(x=>x.dataset.c).click()");
+    const hb = await ev("[S.hbg,(ED.o.sty||[]).length>0,!ED.o.hbg]");
+    ok('T2-10: Hintergrund für markierte Wörter ändert den Standard nicht', hb[0] === '' && hb[1] === true && hb[2] === true, hb);
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZPREacEk8cfyqFtd7hZlvbfeAwaUzkfHbjjJPvb27Yw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Rr07rd4AUKWmjj8WS/v97zuzjOLaAm98qf/dBvNHRdQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5007,7 +5007,7 @@ function syncFmt(o){o=fmtTarget(o);const g=k=>o?o[k]:S[k];
   $('#tfpw').querySelectorAll('.edsw').forEach(x=>x.setAttribute('aria-pressed',x.dataset.c.toLowerCase()===h.toLowerCase()));
   const ci=$('#tfpw .edcin');if(/^#[0-9a-f]{6}$/i.test(h))ci.value=h}
 {const bg=$('#tfbg');bg.innerHTML=QB_HTML.bg;const b=bg.querySelector('[data-a=bg]'),pal=bg.querySelector('.edpal'),ci=bg.querySelector('.edcin'),pw=$('#tfpw');pal.hidden=false;pw.appendChild(pal); // palette opens inline: .sec clips popovers
-  const pick=(c,range)=>{S.hbg=c;applySel({hbg:c},range);syncFmt()},open=v=>{if(v)showEl(pw);else animHide(pw);b.setAttribute('aria-expanded',v)};
+  const pick=(c,range)=>{const q=ED&&ED.eng&&ED.eng.st;if(!(q&&q.c!==q.a))S.hbg=c;applySel({hbg:c},range);syncFmt()},open=v=>{if(v)showEl(pw);else animHide(pw);b.setAttribute('aria-expanded',v)};
   document.querySelectorAll('#tfmt button').forEach(x=>x.onclick=()=>{const k=x.dataset.k,v=!x.matches('[aria-pressed=true]'),q=ED&&ED.eng&&ED.eng.st;if(!(q&&q.c!==q.a))S[k]=v;applySel({[k]:v});syncFmt();if(ED&&ED.focus)ED.focus()});
   b.onclick=()=>open(pw.hidden||!!pw._ah);
   pal.querySelectorAll('.edsw').forEach(x=>x.onclick=()=>{pick(x.dataset.c);open(false)});
