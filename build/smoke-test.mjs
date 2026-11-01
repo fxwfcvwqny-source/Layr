@@ -2460,6 +2460,24 @@ else {
     ok('T1-02: Pfeiltasten schieben das Objekt nicht von der Seite', m3 <= 575.01, m3);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T1-03): Esc or a tool key during a drawing drag leaves no ghost draft
+  {
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t103.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    const res = [];
+    for (const tool of ['line', 'rect', 'pen']) {
+      await ev(`setTool('${tool}')`);
+      const a = await pt310([300, 300]), b = await pt310([400, 350]);
+      await mv(a[0], a[1]);
+      await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: a[0], y: a[1], button: 'left', buttons: 1, clickCount: 1 });
+      await mv(b[0] - 50, b[1] - 20, 1); await mv(b[0], b[1], 1);
+      await key310('Escape', 'Escape', 27);
+      await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: b[0], y: b[1], button: 'left', buttons: 0, clickCount: 1 });
+      await sleep(150);
+      res.push(await ev("[!!S.draft,S.tool,S.pages[0].objs.length]"));
+    }
+    ok('T1-03: Esc mitten im Zeichnen entfernt den Entwurf und zeichnet nichts', res.every(x => x[0] === false && x[1] === 'select' && x[2] === 0), res);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
