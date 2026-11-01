@@ -2466,6 +2466,9 @@ else {
     // T2-04: the 5001st task is refused with a notice instead of being lost on save
     const tk4 = await ev("(()=>{tasksSet(Array.from({length:5000},(_,i)=>({t:'T'+i,d:false})));const r=addTask('extra',false);const n=S.tasks.length;const t=document.querySelector('.toast')?.textContent||'';tasksSet([]);return [r,n,t]})()");
     ok('T2-04: die 5001. Aufgabe wird mit Hinweis abgelehnt', tk4[0] === false && tk4[1] === 5000 && /5000/.test(tk4[2]), tk4);
+    // T2-13: table rows shrink back after the content gets shorter or the font smaller
+    const tb = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);const o=newTable(60,100,3,3);o.w=300;o.h=60;S.pages[0].objs.push(o);redraw(0);const h0=o.h;o.cells[0][0]='word '.repeat(60);tblFit(o);const h1=o.h;o.cells[0][0]='';tblFit(o);const h2=o.h;o.cells[0][0]='word '.repeat(60);o.fs=24;tblFit(o);const h3=o.h;o.fs=11;tblFit(o);const h4=o.h;o.cells[0][0]='';tblFit(o);const r=[h0,h1,h2,h3,h4,o.h];S.pages.forEach(P=>P.objs=[]);return r.map(v=>Math.round(v*10)/10)})()");
+    ok('T2-13: Tabellenzeilen schrumpfen nach kürzerem Text und kleinerer Schrift auf die alte Höhe zurück', tb[1] > tb[0] * 1.5 && Math.abs(tb[2] - tb[0]) < .5 && tb[3] > tb[4] && Math.abs(tb[5] - tb[0]) < .5, tb);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

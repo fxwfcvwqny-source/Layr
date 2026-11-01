@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-hVxw9MGwdJ5PBVepIimUIu/uLiJ0AsKOLMZnzYJn2fM=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-W7FlAl92+u+2j9KBtm6C3y69Hu2ezVYU2nj4afUSM7o=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3564,9 +3564,12 @@ const MATH_SYMS=[['mt_ge','\u2265','Größer gleich'],['mt_le','\u2264','Kleiner
   Object.assign(I18N_EN,{'Mathe & Logik':'Math & logic','Öffnen & Neu':'Open & new','Seiten & Dateien':'Pages & files','Speichern & Bearbeiten':'Save & edit','Exportieren & Drucken':'Export & print','Anzeige':'Display','Zoom':'Zoom','Hilfen':'Aids','Kopfleiste':'Header bar','Erscheinungsbild':'Appearance','Schreiben':'Writing','Bedienung':'Controls','Update & Datenschutz':'Update & privacy','Textformat':'Text format','Größer gleich':'Greater than or equal','Kleiner gleich':'Less than or equal','Ungleich':'Not equal','Ungefähr gleich':'Approximately equal','Plus-Minus':'Plus-minus','Mal':'Times','Geteilt':'Divided by','Pfeil (folgt)':'Arrow (then)','Impliziert':'Implies','Unendlich':'Infinity','Wurzel':'Square root','Summe':'Sum',...I18N_EN});
 })();
 // Rows grow downward when a cell's wrapped text needs more room (applied when a cell edit is committed, so old tables render unchanged)
-function tblFit(o){const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;
-  for(let r=0;r<o.rows;r++){let h=Y[r+1]-Y[r];for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;
-    mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;const n=wrapLines(mctx,t,Math.max(10,X[k+1]-X[k]-8)).length;if(n>1&&n*lh+4>h){h=n*lh+4;grew=true}}H.push(h)}
+function tblFit(o){const fs=o.fs||11,lh=fs*1.22,fam=famOf(o),X=tblCols(o),Y=tblRows(o),H=[];let grew=false;if(!o.__rh0)tmpProp(o,'__rh0',{});const base=o.__rh0;
+  for(let r=0;r<o.rows;r++){let h=Y[r+1]-Y[r],need=0;for(let k=0;k<o.cols;k++){const t=o.cells[r]&&o.cells[r][k];if(!t)continue;
+    mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;const n=wrapLines(mctx,t,Math.max(10,X[k+1]-X[k]-8)).length;if(n>1)need=Math.max(need,n*lh+4)}
+    // rows that grew remember their old height (not saved) and shrink back to it when the content needs less
+    if(need>h){if(base[r]==null)base[r]=h;h=need;grew=true}else if(base[r]!=null){const g=Math.max(need,base[r]);if(g<h-.01){h=g;grew=true}if(h<=base[r]+.01)delete base[r]}
+    H.push(h)}
   if(!grew)return false;const tot=H.reduce((q,v)=>q+v,0);o.h=tot;o.rh=H.map(v=>v/tot);
   const P=S.pages.find(P=>P.objs.includes(o));if(P&&o.y+o.h>P.h){o.y=Math.max(0,P.h-o.h);if(o.h>P.h)toast('Die Tabelle ragt über die Seite hinaus.')}return true}
 const editCell0=editCell;
