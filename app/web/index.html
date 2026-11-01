@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-IWoB+0xtnneCb689I3vPvmNM6v3+gpL5laU26y6N/0s=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8ovjh7GJxVdDPr6b/aSbwHbT51KMtz0rkBNnNI4bXbg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7213,7 +7213,7 @@ function pgFocus(){const inp=document.getElementById('pgNum');if(!inp||!S.pages.
   inp.addEventListener('focus',()=>inp.select());
   inp.addEventListener('blur',()=>{PGE.edit=false;pgSync();document.getElementById('pager').classList.remove('pg-live')});
   inp.addEventListener('keydown',e=>{e.stopPropagation();const cur=PGE.edit&&inp.value?+inp.value:curPage()+1;
-    if(e.key==='Enter'){e.preventDefault();if(inp.value)pgGo(+inp.value);else{PGE.edit=false;pgSync()}}
+    if(e.key==='Enter'){e.preventDefault();if(inp.value)pgGo(+inp.value);else{PGE.edit=false;pgSync()}inp.blur()} // leave the field so the next Ctrl+Alt+G selects it again
     else if(e.key==='Escape'){e.preventDefault();PGE.edit=false;pgSync();inp.blur()}
     else if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();pgGo(cur+(e.key==='ArrowUp'?-1:1))}});
   document.getElementById('pgPrev').onclick=()=>pgGo(curPage());document.getElementById('pgNext').onclick=()=>pgGo(curPage()+2)}

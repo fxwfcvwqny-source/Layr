@@ -2534,6 +2534,16 @@ else {
     ok('T3-08: Bild ersetzen (100x300 in 400x200) passt ins alte Feld', Array.isArray(r) && Math.abs(r[2] - 66.7) < .2 && r[3] === 200 && Math.abs(r[0] - 266.7) < .2 && r[1] === 300, r);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T3-09): a second Ctrl+Alt+G in the page field selects it, digits are not appended
+  {
+    await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();for(let i=0;i<30;i++)d.addPage([300,400]);await openPdf(await d.save(),'t309.pdf');await new Promise(r=>setTimeout(r,800));setTool('select');return 1})()`, 60000);
+    await ev("document.activeElement&&document.activeElement.blur()");
+    const typeDigit = async d => { await cdp('Input.insertText', { text: d }); };
+    await key310('g', 'KeyG', 71, 2 | 1); await typeDigit('5'); await key310('Enter', 'Enter', 13); await sleep(500);
+    await key310('g', 'KeyG', 71, 2 | 1); await typeDigit('1'); await key310('Enter', 'Enter', 13); await sleep(500);
+    const pg = await ev("[curPage()+1,document.getElementById('pgNum').value]");
+    ok('T3-09: zweites Strg+Alt+G in der Seitenwahl springt zu Seite 1 (kein "51")', pg[0] === 1 && pg[1] === '1', pg);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
