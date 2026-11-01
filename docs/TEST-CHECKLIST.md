@@ -70,6 +70,7 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Tippen von `->` `<-` `<->` `=>` `...` `(c)` `(tm)` `+-` `!=` mit Leerzeichen → werden ersetzt; Rückschritt direkt danach bringt die Zeichen zurück.
 - [ ] `--` zwischen Leerzeichen → Gedankenstrich. In URL, Optionen (`--help`) und Aufzählung → keine Ersetzung.
 - [ ] Autokorrektur auch in Tabellenzellen, Beschriftungen und Notizen → funktioniert; in Notizen nach Rückschritt kein Rest-Auswahlbereich.
+- [ ] In einem Textfeld " <=" und " >=" tippen → ≤ bzw. ≥; Rückschritt bringt die getippten Zeichen zurück; x<=y und a>=b ohne Leerzeichen davor bleiben unverändert.
 - [ ] Einstellung "Autokorrektur für Zeichen (→, –, …)" (Standard: "Zeichen ersetzen") auf "Aus" → nichts wird ersetzt.
 - [ ] Strg+Umschalt+K → Sonderzeichen-Auswahl (Aufzählungszeichen, Pfeile); Zeichen einfügen. Auch über den Knopf in der Schnellleiste.
 - [ ] Tastenkürzel-Liste (auch ohne gewähltes Objekt) → "Sonderzeichen-Auswahl", Gruppieren und die Reihenfolge-Einträge sind dort, umbelegbar, Konflikte werden gemeldet.

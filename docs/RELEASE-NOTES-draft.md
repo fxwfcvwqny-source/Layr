@@ -44,7 +44,7 @@ Release notes for version 3.10.0.
 ### Text
 - Partial formatting: bold, italic, underline and highlight for the selected characters (`sty` runs), with a mixed state in the toggles; undo/redo restores it.
 - Sidebar text section: bold, italic, underline and background toggles that show their state, can be switched off and apply to the selection. New text boxes inherit italic and background.
-- Character autocorrect: `->` to arrow, `<-`, `<->`, `=>`, `--` to en dash, `...`, (c), (r), (tm), `+-`, `!=`. Backspace or Ctrl+Z right after undoes it. Only at word boundaries; not in options, operators, URLs and enumerations.
+- Character autocorrect: `->` to arrow, `<-`, `<->`, `=>`, `--` to en dash, `...`, (c), (r), (tm), `+-`, `!=`, `<=`, `>=`. Backspace or Ctrl+Z right after undoes it. Only at word boundaries; not in options, operators, URLs and enumerations.
 - Special character picker: Ctrl+Shift+K or the quick bar button (remappable in the shortcut list).
 - Table rows grow downward when a cell text needs more lines; the table stays inside the page.
 - Ruler rotates around its centre; angle field in the panel; Shift snaps to 15 degrees.
