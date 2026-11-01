@@ -2491,6 +2491,9 @@ else {
     await cdp('Input.insertText', { text: '\u{1F600}'.repeat(300) });
     const em3 = await ev("(()=>{const L=textBox(ED.o).lines;const r=[L.length>3,L.filter(l=>/[\\ud800-\\udbff]$|^[\\udc00-\\udfff]/.test(l)).length];closeEditor();S.pages.forEach(P=>P.objs=[]);return r})()");
     ok('T2-12: Rücktaste und Pfeile zerteilen kein Emoji, Umbruch mit Teilformat auch nicht', em1 === 3 && em2 === 'Hi ' && em3[0] === true && em3[1] === 0, { em1, em2, em3 });
+    // T2-15: adding/removing a task with 4000 tasks does not rebuild the whole list
+    const tp = await ev("(async()=>{tasksSet(Array.from({length:4000},(_,i)=>({t:'T'+i,d:false})));const ul=document.getElementById('ntTaskList'),first=ul.firstChild;const t0=performance.now();addTask('neu',false);const ta=performance.now()-t0;const same=ul.firstChild===first&&ul.children.length===4001;const li=ul.lastChild;const t1=performance.now();removeTask(S.tasks[4000],li,-2);await new Promise(r=>setTimeout(r,400));const tr=performance.now()-t1-400;const same2=ul.firstChild===first&&ul.children.length===4000&&S.tasks.length===4000;tasksSet([]);return [same,same2,Math.round(ta),Math.round(tr)]})()", 60000);
+    ok('T2-15: Aufgabe anlegen und entfernen baut die Liste nicht neu auf', tp[0] === true && tp[1] === true, tp);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-c5I4oNaxMaQDWAyWarPeH1o6ME58XeTxHkV77kL9D+I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WIRVQKlCOY7/6qjTKsQoyfpBP/IOHbA7q6Pd8GuuRCc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5562,9 +5562,9 @@ function taskEl(t,isNew){const li=document.createElement('li');li.className='nt-
   ta.addEventListener('blur',()=>{if(!ta.value.trim())removeTask(t,li,-2)});
   del.onclick=()=>removeTask(t,li,-2);return li}
 function removeTask(t,li,focusIdx){const k=S.tasks.indexOf(t);if(k<0)return;S.tasks.splice(k,1);tasksChanged();
-  const done=()=>{renderTasks();if(focusIdx>=0){const tt=document.querySelectorAll('#ntTaskList .nt-tt')[focusIdx];if(tt){tt.focus();tt.setSelectionRange(tt.value.length,tt.value.length)}}else if(focusIdx===-1)$('#ntNew').focus()};
+  const done=()=>{if(li.isConnected){li.remove();tasksProg()}else renderTasks();if(focusIdx>=0){const tt=document.querySelectorAll('#ntTaskList .nt-tt')[focusIdx];if(tt){tt.focus();tt.setSelectionRange(tt.value.length,tt.value.length)}}else if(focusIdx===-1)$('#ntNew').focus()};
   if(motionOff()||!li.isConnected)done();else{li.classList.add('leave');setTimeout(done,190)}}
-function addTask(text,done){S.tasks=S.tasks||[];if(S.tasks.length>=5000){toast('Es sind höchstens 5000 Aufgaben möglich.');return false}S.tasks.push({t:text,d:!!done});renderTasks(S.tasks.length-1);const ul=$('#ntTaskList');ul.scrollTop=ul.scrollHeight;tasksChanged();return true}
+function addTask(text,done){S.tasks=S.tasks||[];if(S.tasks.length>=5000){toast('Es sind höchstens 5000 Aufgaben möglich.');return false}const t={t:text,d:!!done};S.tasks.push(t);const ul=$('#ntTaskList');if(ul){ul.appendChild(taskEl(t,true));tasksProg();ul.scrollTop=ul.scrollHeight}tasksChanged();return true} // adds one row instead of rebuilding all
 function notesSet(v){S.notes=v||'';const t=document.getElementById('ntText');if(t&&t.value!==S.notes)t.value=S.notes;notesUpd()}
 function notesIsOpen(){const n=document.getElementById('notes');return!!n&&!n.hidden&&!n._ah}
 function notesOpen(v){const n=$('#notes');if(v==null)v=!notesIsOpen();
