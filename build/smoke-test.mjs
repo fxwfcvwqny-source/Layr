@@ -2478,6 +2478,20 @@ else {
     ok('T1-03: Esc mitten im Zeichnen entfernt den Entwurf und zeichnet nichts', res.every(x => x[0] === false && x[1] === 'select' && x[2] === 0), res);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T1-05): dragging a small selected object from its inside moves it instead of resizing
+  {
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t105.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(0.5);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    await ev("S.pages[0].objs=[{type:'rect',x:150,y:150,w:30,h:20,color:'#000000',lw:1,fill:'white',oid:'s105'}];redrawAll();setSel(null)");
+    await click310([165, 160]);
+    await drag310([165, 160], [225, 200], 0, 10);
+    const sm = await ev("(()=>{const o=S.pages[0].objs[0];return [o.x,o.y,o.w,o.h]})()");
+    ok('T1-05: kleines Rechteck (30x20 bei 50 %) lässt sich von innen verschieben', Math.abs(sm[0] - 210) < 1 && Math.abs(sm[1] - 190) < 1 && sm[2] === 30 && sm[3] === 20, sm);
+    await ev("S.pages[0].objs=[{type:'rect',x:150,y:150,w:100,h:60,color:'#000000',lw:1,fill:'white',oid:'s105b'}];redrawAll();setSel({p:0,o:S.pages[0].objs[0]})");
+    await drag310([250, 210], [280, 230], 0, 10);
+    const bg = await ev("(()=>{const o=S.pages[0].objs[0];return [o.x,o.y,o.w,o.h]})()");
+    ok('T1-05: Ecken-Griff eines normalen Rechtecks ändert weiterhin die Größe', bg[2] === 130 && bg[3] === 80, bg);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
