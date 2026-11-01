@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-a+fWaRSIqHqnuYaah2kjtRPqogaWGzMXiX9EGvFNE6c=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-rlzTqBQDrgQvUPdbE3MUHO87akRw9CJFTwHE290BbpA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3359,7 +3359,7 @@ function tblTarget(){if(!S.sel)return null;const o=S.sel.o;return o.type==='tabl
 function updTblUI(){try{updImgUI()}catch(e){}const sec=document.getElementById('tblSec');if(!sec)return;const t=tblTarget();sec.hidden=!(S.tool==='table'||t);
   $('#tRv').textContent=t?t.rows:(S.tblR||3);$('#tCv').textContent=t?t.cols:(S.tblC||3);$('#tHead').checked=t?!!t.head:S.tblHead!==false;$('#tEven').disabled=!t;const tc=document.getElementById('tChart');if(tc){tc.disabled=!t;tc.onclick=()=>{const tt=tblTarget();if(tt)dgOpen({p:S.sel?S.sel.p:curPage(),o:tt},'chart')}}}
 function tblResize(o,dr,dc){
-  if(dr>0){const hOld=o.h,hNew=hOld+hOld/o.rows;o.rh=[...o.rh.map(f=>f*hOld/hNew),(hNew-hOld)/hNew];o.h=hNew;o.rows++;o.cells.push(Array(o.cols).fill(''))}
+  if(dr)delete o.__rh0;if(dr>0){const hOld=o.h,hNew=hOld+hOld/o.rows;o.rh=[...o.rh.map(f=>f*hOld/hNew),(hNew-hOld)/hNew];o.h=hNew;o.rows++;o.cells.push(Array(o.cols).fill(''))}
   if(dr<0&&o.rows>1){const last=o.rh[o.rh.length-1],hNew=o.h*(1-last);o.rh=o.rh.slice(0,-1).map(f=>f/(1-last));o.h=hNew;o.rows--;o.cells.pop()}
   if(dc>0){const wOld=o.w,wNew=wOld+wOld/o.cols;o.cw=[...o.cw.map(f=>f*wOld/wNew),(wNew-wOld)/wNew];o.w=wNew;o.cols++;o.cells.forEach(r=>r.push(''))}
   if(dc<0&&o.cols>1){const last=o.cw[o.cw.length-1],wNew=o.w*(1-last);o.cw=o.cw.slice(0,-1).map(f=>f/(1-last));o.w=wNew;o.cols--;o.cells.forEach(r=>r.pop())}}
@@ -4111,7 +4111,7 @@ function resizeTo(o,st,x,y,shift,alt){
   const g=st.orig,gb=st.ob,k=st.mode;
   if(o.type==='table'&&k[0]==='m'){const R=k==='mt'||k==='mb',end=k==='mb'||k==='mr',L0=R?gb.h:gb.w,A=(R?g.rh:g.cw).map(f=>f*L0),j=end?A.length-1:0,p0=R?gb.y:gb.x,v=R?y:x;
     A[j]=Math.max(10,A[j]+(end?v-(p0+L0):p0-v));const L=A.reduce((s,q)=>s+q,0),F=A.map(q=>q/L);
-    if(R){o.rh=F;o.h=L;if(!end)o.y=gb.y+gb.h-L}else{o.cw=F;o.w=L;if(!end)o.x=gb.x+gb.w-L}return}
+    if(R){delete o.__rh0;o.rh=F;o.h=L;if(!end)o.y=gb.y+gb.h-L}else{o.cw=F;o.w=L;if(!end)o.x=gb.x+gb.w-L}return}
   if(o.type==='image'&&k[0]==='m'){ // side handle: stretch one dimension only (Shift/Alt ignored)
     if(k==='mr')o.w=Math.max(4,x-gb.x);else if(k==='ml'){const nx=Math.min(x,gb.x+gb.w-4);o.w=gb.x+gb.w-nx;o.x=nx}
     else if(k==='mb')o.h=Math.max(4,y-gb.y);else{const ny=Math.min(y,gb.y+gb.h-4);o.h=gb.y+gb.h-ny;o.y=ny}return}
@@ -4735,7 +4735,7 @@ function attachInk(P,i){
           if(dk){const sd=one?autoSides(dk,other,[x,y],[o.x2,o.y2]):autoSides(other,dk,[o.x1,o.y1],[x,y]);const q=orgAnchor(dk,st.dockPick!=='auto'?st.dockPick:one?sd[0]:sd[1]);x=q[0];y=q[1]}
           if(one){o.x1=x;o.y1=y}else{o.x2=x;o.y2=y}}
         else if(st.mode==='tcol'||st.mode==='trow'){const X=st.mode==='tcol',k=st.idx,fr=X?o.cw:o.rh,len=X?o.w:o.h,pos=(X?x-o.x:y-o.y)/len;
-          let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;tblHintSet(o,st.mode,k,x,y)}
+          let a=0;for(let j=0;j<k-1;j++)a+=fr[j];const b=a+fr[k-1]+fr[k],mn=10/len,np=Math.max(a+mn,Math.min(b-mn,pos));fr[k-1]=np-a;fr[k]=b-np;if(!X)delete o.__rh0;tblHintSet(o,st.mode,k,x,y)}
         else if(st.mode==='rot'){const r=rotFromPointer(st.orig,x,y,e.shiftKey,e.altKey);S.rotHint={o,deg:r};if(r)o.rot=r;else delete o.rot}
         else if(CRP&&CRP.o===o){cropDrag(o,st,x,y);imgHintSet(o,x,y)}
         else if(rotOf(st.orig)){resizeRotated(o,st,x,y,e.shiftKey);textClamp(o,P,false)}
@@ -6880,9 +6880,9 @@ function selModeToggle(){S.selMode=S.selMode==='rect'?'free':'rect';try{localSto
 // Tabelle: Zeile/Spalte an beliebiger Stelle einfügen oder löschen (Höhen/Breiten bleiben stimmig)
 function tblInsert(o,dim,at){const R=dim==='r',n=R?o.rows:o.cols;if(n>=(R?200:60))return;at=clamp(at,0,n);
   const fr=R?o.rh:o.cw,len=R?o.h:o.w,add=len/n,nl=len+add;const f=fr.map(v=>v*len/nl);f.splice(at,0,add/nl);
-  if(R){o.rh=f;o.h=nl;o.rows++;o.cells.splice(at,0,Array(o.cols).fill(''))}else{o.cw=f;o.w=nl;o.cols++;o.cells.forEach(r=>r.splice(at,0,''))}}
+  if(R){delete o.__rh0;o.rh=f;o.h=nl;o.rows++;o.cells.splice(at,0,Array(o.cols).fill(''))}else{o.cw=f;o.w=nl;o.cols++;o.cells.forEach(r=>r.splice(at,0,''))}}
 function tblDelete(o,dim,at){const R=dim==='r',n=R?o.rows:o.cols;if(n<=1)return;const fr=R?o.rh:o.cw,len=R?o.h:o.w,g=fr[at],nl=len*(1-g);
-  const f=fr.filter((_,k)=>k!==at).map(v=>v/(1-g));if(R){o.rh=f;o.h=nl;o.rows--;o.cells.splice(at,1)}else{o.cw=f;o.w=nl;o.cols--;o.cells.forEach(r=>r.splice(at,1))}}
+  const f=fr.filter((_,k)=>k!==at).map(v=>v/(1-g));if(R){delete o.__rh0;o.rh=f;o.h=nl;o.rows--;o.cells.splice(at,1)}else{o.cw=f;o.w=nl;o.cols--;o.cells.forEach(r=>r.splice(at,1))}}
 function tblMenu(i,o,r,c,x,y){ctx.innerHTML='';const add=(t,f,dis)=>{const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr(t);b.disabled=!!dis;b.onclick=()=>{closeMenu();pushHist();f();redraw(i);markDirty();updTblUI()};ctx.appendChild(b)};
   const sep=()=>ctx.appendChild(document.createElement('hr'));
   {const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr('Zelle bearbeiten');b.onclick=()=>{closeMenu();editCell(i,o,r,c)};ctx.appendChild(b)}sep();

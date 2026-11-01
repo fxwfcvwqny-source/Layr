@@ -2659,6 +2659,9 @@ else {
     // T2-13: table rows shrink back after the content gets shorter or the font smaller
     const tb = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);const o=newTable(60,100,3,3);o.w=300;o.h=60;S.pages[0].objs.push(o);redraw(0);const h0=o.h;o.cells[0][0]='word '.repeat(60);tblFit(o);const h1=o.h;o.cells[0][0]='';tblFit(o);const h2=o.h;o.cells[0][0]='word '.repeat(60);o.fs=24;tblFit(o);const h3=o.h;o.fs=11;tblFit(o);const h4=o.h;o.cells[0][0]='';tblFit(o);const r=[h0,h1,h2,h3,h4,o.h];S.pages.forEach(P=>P.objs=[]);return r.map(v=>Math.round(v*10)/10)})()");
     ok('T2-13: Tabellenzeilen schrumpfen nach kürzerem Text und kleinerer Schrift auf die alte Höhe zurück', tb[1] > tb[0] * 1.5 && Math.abs(tb[2] - tb[0]) < .5 && tb[3] > tb[4] && Math.abs(tb[5] - tb[0]) < .5, tb);
+    // Table row heights the user changed (insert/delete/drag) are not shrunk back by the remember-height logic
+    const tb2 = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);const o=newTable(60,100,3,3);o.w=300;o.h=60;S.pages[0].objs.push(o);redraw(0);o.cells[0][0]='word '.repeat(60);tblFit(o);const h1=o.h;tblInsert(o,'r',3);const h2=o.h;o.cells[0][0]='';tblFit(o);const r=[h1,h2,o.h];S.pages.forEach(P=>P.objs=[]);return r})()");
+    ok('Tabelle: nach Zeile einfügen schrumpft die vergrößerte Zeile nicht zurück', tb2[2] >= tb2[1] - .5, tb2);
     // T2-14: the quick bar of a text field at the right page edge stays inside the viewer
     await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([420,500]);await openPdf(await d.save(),'narrow.pdf');await new Promise(r=>setTimeout(r,900));newText(0,300,100);ED.eng.put('Hallo');return 1})()", 30000);
     await sleep(300);
