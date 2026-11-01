@@ -778,6 +778,9 @@ else {
   const tfj = JSON.parse(tf || '{}');
   ok('Sidebar format toggles: bold switches on and off, new text inherits italic/background, selected text follows, no background for stacked text',
     tfj.on && tfj.off && tfj.inh && tfj.selB && tfj.selBg && tfj.selIt && tfj.stack && tfj.noBg, tfj);
+  ok('Sidebar background picker: after a pick the palette is closed and the button has no stuck pressed state',
+    await ev("(()=>{const b=document.querySelector('#tfbg [data-a=bg]'),pw=document.querySelector('#tfpw');b.click();const o=!pw.hidden;document.querySelector('#tfpw .edsw[data-c=\"#ffd60a\"]').click();"
+      + "const r=o&&b.getAttribute('aria-expanded')==='false'&&!b.hasAttribute('aria-pressed')&&(pw.hidden||!!pw._ah);S.hbg='';syncFmt();return r})()") === true);
   // Numbers use the UI font with tabular figures (C2)
   ok('UI numbers (page, zoom, value labels) use the UI font with tabular figures, not the mono font',
     await ev("['.status .pg','.zoomv','.val','.page .pno'].every(q=>{const e=document.querySelector(q);if(!e)return false;const c=getComputedStyle(e);return c.fontFamily===getComputedStyle(document.body).fontFamily&&c.fontVariantNumeric.includes('tabular-nums')})") === true);
