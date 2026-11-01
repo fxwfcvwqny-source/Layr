@@ -63,6 +63,7 @@ Release notes for version 3.10.0.
 - Save status indicator next to the file name: icon or text variant; unsaved is red; error state.
 - Sidebar tips: a floating hint beside the panel while a control is focused or hovered.
 - Numbers in the interface (page, zoom, value labels, counters) use the interface font with tabular figures; code, keys and tables keep the mono font.
+- Settings > Customize symbols: choose which symbol groups and single symbols the palette shows (all shown by default, "Show all" restores). Symbols already placed in files are never affected.
 - Transparent Layr icon for the window, taskbar and exe, with hand-tuned 16 and 24 px variants. The installer and the Store keep the black tile.
 
 ### Accessibility
