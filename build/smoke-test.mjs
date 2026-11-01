@@ -2492,6 +2492,15 @@ else {
     ok('T1-05: Ecken-Griff eines normalen Rechtecks ändert weiterhin die Größe', bg[2] === 130 && bg[3] === 80, bg);
     await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T1-06): drawing tools press on a template part and move the whole template
+  {
+    await ev(`(async()=>{design.motion='off';applyDesign(true);const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'t106.pdf');await new Promise(r=>setTimeout(r,600));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});return 1})()`, 60000);
+    await ev("S.pages[0].objs=[0,1,2].map(k=>({type:'rect',x:100+k*80,y:200,w:60,h:40,color:'#000000',lw:1,fill:'white',gid:'g106',oid:'t'+k}));redrawAll();setSel(null);setTool('rect')");
+    await drag310([130, 220], [170, 260], 0, 8);
+    const tp = await ev("JSON.stringify([S.pages[0].objs.map(o=>[o.x,o.y]),selItems().length])").then(JSON.parse);
+    ok('T1-06: Rechteck-Werkzeug auf einem Vorlagenteil verschiebt die ganze Vorlage', tp[1] === 3 && tp[0].every((p, k) => Math.abs(p[0] - (140 + k * 80)) < 1 && Math.abs(p[1] - 240) < 1), tp);
+    await ev("setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
