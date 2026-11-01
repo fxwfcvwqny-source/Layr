@@ -97,7 +97,8 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Feld "Seite 3 / 12": Zahl tippen, Enter → Sprung; zu große Zahl wird begrenzt; Esc stellt zurück.
 - [ ] Strg+Alt+G → Fokus im Seitenfeld, auch wenn es transparent war.
 - [ ] Design "Seitenwahl": Unten schwebend (Standard) / In der Seitenvorschau / Aus → entsprechend; bei "Aus" nur Anzeige unten links.
-- [ ] Zeichenwerkzeug oder bereitgehaltene Vorlage aktiv → schwebende Seitenwahl ist blass und lässt Klicks durch.
+- [ ] Zeichenwerkzeug oder bereitgehaltene Vorlage aktiv → schwebende Seitenwahl bleibt voll bedienbar (Klick, Ctrl+Alt+G), zeichnet/platziert nichts.
+- [ ] Design "Position der Seitenwahl" Links (Standard) / Mitte / Rechts → nur bei "Unten schwebend"; auch in geteilter Ansicht; Objektleiste verdeckt sie nicht.
 - [ ] Präsentation und schmale geteilte Ansicht → Seitenwahl ausgeblendet.
 - [ ] Zwei PDFs zusammenführen (eine mit Layr-Textfeldern) → Textfelder bleiben bearbeitbar, Notizen und Aufgaben beider werden zusammengeführt.
 - [ ] Zusammenführen mit ausgefülltem Formular → eingetragene Werte bleiben (ggf. mit Hinweis).

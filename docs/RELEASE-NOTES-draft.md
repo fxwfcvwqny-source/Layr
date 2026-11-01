@@ -56,6 +56,7 @@ Release notes for version 3.10.0.
 ### Pages and navigation
 - Page sidebar: add pages with + and with insert strips between thumbnails, drag to reorder, lazy thumbnails.
 - Page selector "Seite 3 / 12": type a number and press Enter. Floating, in the preview, or off. Ctrl+Alt+G focuses it.
+- The floating page selector works in every tool, sits at the bottom left by default, and its position (left, center, right) is a Design option.
 - Merge keeps Layr objects editable (embedded originals are used), joins notes and to-dos, and keeps filled form values.
 
 ### Settings and design
@@ -87,6 +88,7 @@ Release notes for version 3.10.0.
 | Autokorrektur für Zeichen (→, –, …) | on (Zeichen ersetzen) | Schreiben & Rechtschreibung |
 | Speicheranzeige (Symbol / Text) | Symbol | Design |
 | Seitenwahl (Unten schwebend / In der Seitenvorschau / Aus) | Unten schwebend | Design |
+| Position der Seitenwahl (Links / Mitte / Rechts) | Links | Design |
 | Tipps in der Seitenleiste | on | Design |
 
 ## Changes of behaviour
