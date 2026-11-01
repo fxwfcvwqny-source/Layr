@@ -2560,6 +2560,18 @@ else {
     ok('T3-06: Speichern über einen Symlink behält den Link und schreibt das Ziel', opened && sv === true && isLink && size1 > size0, { opened, sv, isLink, size0, size1 });
     fs.rmSync(dir, { recursive: true, force: true });
   }
+  // Bug round 4 (T3-07): a read-only file is not overwritten silently
+  if (process.platform === 'linux') {
+    const dir = fs.mkdtempSync(os.tmpdir() + '/layr-t307-');
+    const pdfBytes = await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);return Array.from(await d.save())})()`);
+    fs.writeFileSync(dir + '/ro.pdf', Buffer.from(pdfBytes)); fs.chmodSync(dir + '/ro.pdf', 0o444);
+    spawn(exe, ['--no-sandbox', dir + '/ro.pdf'], { env, stdio: 'ignore' });
+    const opened2 = await waitFor("S.name==='ro.pdf'", 20000);
+    const sv2 = await ev(`(async()=>{S.pages[0].objs.push(sanObj({type:'rect',x:50,y:50,w:40,h:40,color:'#000000',lw:1}));markDirty();const r=await save();return [r,document.querySelector('.toast').textContent]})()`, 30000);
+    ok('T3-07: schreibgeschützte Datei wird nicht überschrieben, Hinweis erscheint', opened2 && sv2[0] === false && /schreibgesch|read-only/.test(sv2[1]) && fs.statSync(dir + '/ro.pdf').size === pdfBytes.length, { opened2, sv2 });
+    await ev("S.dirty=false;S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
