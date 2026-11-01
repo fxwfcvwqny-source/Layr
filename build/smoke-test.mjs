@@ -2430,6 +2430,19 @@ else {
     ok('T3-04: Seite drehen dreht Schwärzungsbereich und Markierung mit', !!rd && !!hl && JSON.stringify(rd.slice(1)) === '[757,60,35,300]' && JSON.stringify(hl.slice(1)) === '[762,55,20,200]' && JSON.stringify(r[2]) === '[[[20,0],[20,200],[0,200],[0,0]]]', r);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T1-01): fast Ctrl+Z across a page operation keeps the undo stack consistent
+  {
+    const r = await ev(`(async()=>{const W=ms=>new Promise(r=>setTimeout(r,ms));const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'t101.pdf');await W(500);
+      S.pages[0].objs=[{type:'rect',x:100,y:100,w:50,h:40,color:'#000000',lw:1}];S.pages[1].objs=[{type:'rect',x:100,y:100,w:50,h:40,color:'#000000',lw:1}];H.u=[];H.r=[];
+      pushHist();S.pages[0].objs[0].x=110;markDirty();
+      rotatePages([1],90);for(let k=0;k<80&&(rbBusy||H.u.length<2);k++)await W(100);await W(500);
+      undo();await W(30);undo();await W(1500);
+      const a=[S.pages[0].objs[0].x,S.pages[1].w,H.u.length,H.r.length];
+      undo();await W(300);return [a,S.pages[0].objs[0].x,H.u.length,H.r.length]})()`, 40000);
+    // expected: the first fast press undoes the rotation, the second is ignored; a later undo restores the move
+    ok('T1-01: schnelles Strg+Z über eine Seitenoperation behält den Rückgängig-Stapel', Array.isArray(r) && r[0][1] === 595 && r[0][0] === 110 && r[0][2] === 1 && r[1] === 100 && r[2] === 0, r);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

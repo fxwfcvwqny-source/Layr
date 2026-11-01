@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-j47PUuVdBn5ic5YJoEmyD+66+1NChD3BdResVLWTI8A=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uKYsGQQLmzz2X0Tytv7MqfHL+UdjuLDJifGg4VbEuHw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4274,9 +4274,10 @@ const snapshot=()=>JSON.stringify(S.pages.map(p=>p.objs),(k,v)=>k==='_editing'?u
 function pushHist(){H.n++;H.u.push(snapshot());if(H.u.length>150)H.u.shift();H.r=[];updUndo()}
 function restoreSnap(js){const a=JSON.parse(js);a.forEach((objs,i)=>{if(S.pages[i])S.pages[i].objs=objs});setSel(null);redrawAll();markDirty()}
 const docSnap=()=>({doc:S.bytes,name:S.name,isNew:S.isNew,bg:S.bg,sample:S.sample,objs:JSON.parse(snapshot())});
-async function applyDocSnap(d){const cp=curPage();await openPdf(d.doc,d.name,{isNew:d.isNew,bg:d.bg,sample:d.sample,objs:JSON.parse(JSON.stringify(d.objs)),keepHist:true});updUndo();markDirty();scrollToPage(Math.min(cp,S.pages.length-1))}
-function undo(){closeEditor();if(!H.u.length)return;const e=H.u.pop();if(typeof e!=='string'){H.r.push(docSnap());applyDocSnap(e);return}H.r.push(snapshot());restoreSnap(e);updUndo()}
-function redo(){closeEditor();if(!H.r.length)return;const e=H.r.pop();if(typeof e!=='string'){H.u.push(docSnap());capDocHist();applyDocSnap(e);return}H.u.push(snapshot());restoreSnap(e);updUndo()}
+let dsBusy=false; // undo/redo ignored while a document snapshot is reopening, else the next step is overwritten by it
+async function applyDocSnap(d){dsBusy=true;try{const cp=curPage();await openPdf(d.doc,d.name,{isNew:d.isNew,bg:d.bg,sample:d.sample,objs:JSON.parse(JSON.stringify(d.objs)),keepHist:true});updUndo();markDirty();scrollToPage(Math.min(cp,S.pages.length-1))}finally{dsBusy=false}}
+function undo(){closeEditor();if(dsBusy||!H.u.length)return;const e=H.u.pop();if(typeof e!=='string'){H.r.push(docSnap());applyDocSnap(e);return}H.r.push(snapshot());restoreSnap(e);updUndo()}
+function redo(){closeEditor();if(dsBusy||!H.r.length)return;const e=H.r.pop();if(typeof e!=='string'){H.u.push(docSnap());capDocHist();applyDocSnap(e);return}H.u.push(snapshot());restoreSnap(e);updUndo()}
 function updUndo(){$('#bUndo').disabled=!H.u.length;$('#bRedo').disabled=!H.r.length;lnSync()}
 const storeKeyOld=()=>'pdfwerkbank:'+S.name+':'+(S.bytes?S.bytes.length:0);
 // Recovery key = name + length + content fingerprint (S.fp, computed once per opened document), so equal-named equal-sized files stay apart
