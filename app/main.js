@@ -307,7 +307,7 @@ listen('new-doc', () => { savedPath = null; currentFile = null; });
 handle('autosave', (_e, name, data) => {
   if (!isPdfBytes(data)) return null;
   const known = savedPath || currentFile;
-  if (known) { if (isReadOnly(known)) return null; writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known); }
+  if (known) { if (isReadOnly(known)) return { ro: path.basename(known) }; writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known); }
   // neues Blatt: im zuletzt benutzten Ordner unter einem freien Namen anlegen, nie eine vorhandene Datei ersetzen
   const dir = path.resolve(lastDir), b = safeBase(name).replace(/\.pdf$/i, '');
   for (let n = 1; n < 1000; n++) {

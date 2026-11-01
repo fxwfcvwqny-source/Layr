@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-rlzTqBQDrgQvUPdbE3MUHO87akRw9CJFTwHE290BbpA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jyEdD74U+8b+sNLOF8NnEfnwRbHecc2MjHaIHXkzuYg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5258,7 +5258,7 @@ async function openPdf(bytes,name,opt={}){
       pdfClose(doc);doc=d2;bytes=ob;imgsLoad(data.imgs);opt={...opt,form:data.form&&typeof data.form==='object'?data.form:null,objs:sanPages(data.objs,d2.numPages),notes:typeof data.notes==='string'?data.notes.slice(0,5e6):'',tasks:tasksCap(data.tasks),cards:lkSan(data.cards)};fromLayr=true;dbg('Layr-Anhang geladen: '+opt.objs.reduce((n,p)=>n+p.length,0)+' Objekte')}}
   catch(e){dbg('Anhang nicht lesbar: '+e)}}
   const fp=await docFp(bytes);
-  if(S.doc)pdfClose(S.doc);renderGen++;S.doc=doc;S.bytes=bytes;S.fp=fp;S.crypt=crypt;crBadge();if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}updUndo();
+  if(S.doc)pdfClose(S.doc);renderGen++;S.doc=doc;S.bytes=bytes;S.fp=fp;S.crypt=crypt;crBadge();if(opt.isNew&&/^(Neues Blatt|New sheet)\.pdf$/.test(name))name=docBase()+'.pdf';S.name=name;S.sample=!!opt.sample;S.isNew=!!opt.isNew;S.bg=opt.bg||'blank';S.paper=opt.paper||'white';S.sel=null;S.draft=null;S.num=1;if(!opt.keepHist){H.u=[];H.r=[];S.savedName=null}S.roTold=0;updUndo();
   S.cards=opt.cards!==undefined?(opt.cards?lkSan(opt.cards):null):(opt.keepHist?S.cards:null);
   S.pages=[];for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});S.pages.push({w:vp.width,h:vp.height,objs:[]})}
   if(opt.keep)opt.keep.forEach((k,i)=>k&&S.pages[i]&&(S.pages[i].keep=k));
@@ -5430,6 +5430,7 @@ async function autoSaveNow(){
   if(editorEl||autoBusy||ovBusyPtr()||DRAG){scheduleAutoSave();return false}
   autoBusy=true;setSaveState('Speichert …');
   try{const rev=S.rev,cr=S.crypt,out=await crSeal(await buildOutput(),cr),r=await werkbank.autoSave(outName(),out,S.isNew);
+    if(r&&r.ro){if(!S.roTold){S.roTold=1;toast(`„${r.ro}“ ist schreibgeschützt und wurde nicht überschrieben. Mit „Speichern unter“ sicherst du eine Kopie.`,1)}setSaveState();return false}
     if(r){S.savedName=r;if(S.rev===rev)S.dirty=false;rdPurge()}setSaveState();return!!r}
   catch(e){console.error(e);setSaveState('Automatisches Speichern fehlgeschlagen.');return false}
   finally{autoBusy=false}
