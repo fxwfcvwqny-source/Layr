@@ -2402,6 +2402,16 @@ else {
     ok('T3-01: Layr-Datei: neuerer Wiederherstellungsstand wird geladen, gleicher nicht doppelt', Array.isArray(r) && r[0] === 1 && r[1] === 2, r);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // Bug round 4 (T3-02): merge keeps docked arrows on duplicated pages
+  {
+    const r = await ev(`(async()=>{const W=ms=>new Promise(r=>setTimeout(r,ms));const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'t302.pdf');await W(400);
+      const mk=()=>[{type:'rect',x:100,y:100,w:80,h:50,color:'#000000',lw:1,oid:'oa'},{type:'sym',sym:'router',x:300,y:300,w:48,h:32,label:'R',color:'#000000',lw:1,fill:'white',fs:10,oid:'ob'},{type:'line',x1:180,y1:125,x2:300,y2:316,color:'#000000',lw:1,start:'none',end:'arrow',link:{a:'oa',b:'ob',ta:'auto',tb:'auto'}}];
+      S.pages[0].objs=mk();S.pages[1].objs=mk();
+      const f=new File([await d.save()],'other.pdf',{type:'application/pdf'});openMerge();await addMergeFiles([f]);await $('#mOk').onclick();await W(1500);
+      return S.pages.map(p=>p.objs.map(o=>o.type).join(','))})()`, 30000);
+    ok('T3-02: Zusammenführen behält Pfeile auf duplizierten Seiten', Array.isArray(r) && r.length === 4 && r[0] === 'rect,sym,line' && r[1] === 'rect,sym,line', r);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
