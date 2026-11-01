@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-a42akz1OuJJ9TdQN8Yl38nW0bFF00Rk1pUufEBSIrWA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-c5I4oNaxMaQDWAyWarPeH1o6ME58XeTxHkV77kL9D+I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4840,8 +4840,11 @@ function textEngine(host,initial,opt){
   const typeChar=t=>{if(lo()===hi()){const r=acRule(st.v.slice(0,st.c),t);if(r){put(t);const pv=st.v,pc=st.c;rec();st.v=st.v.slice(0,st.c-t.length-r[0])+r[1]+st.v.slice(st.c);st.c=st.a=st.c-t.length-r[0]+r[1].length;acSnap={v:st.v,c:st.c,pv,pc};upd();return}}
     const u=lo()===hi()?capOf(t):null;if(!u||!needCap(st.v.slice(0,st.c))){put(t);return}
     put(t);rec();st.v=st.v.slice(0,st.c-1)+u+st.v.slice(st.c);upd()};
+  // one step = one code point, so Backspace/arrows never split a surrogate pair (emoji)
+  const cpL=i=>i>1&&/[\udc00-\udfff]/.test(st.v[i-1])&&/[\ud800-\udbff]/.test(st.v[i-2])?i-2:Math.max(0,i-1);
+  const cpR=i=>/[\ud800-\udbff]/.test(st.v[i]||'')&&/[\udc00-\udfff]/.test(st.v[i+1]||'')?i+2:Math.min(st.v.length,i+1);
   const del=(dir,word)=>{if(lo()!==hi())return put('');let a=st.c,b=st.c;
-    if(dir<0)a=word?wordL(st.c):Math.max(0,st.c-1);else b=word?wordR(st.c):Math.min(st.v.length,st.c+1);if(a===b)return;st.c=a;st.a=b;put('')};
+    if(dir<0)a=word?wordL(st.c):cpL(st.c);else b=word?wordR(st.c):cpR(st.c);if(a===b)return;st.c=a;st.a=b;put('')};
   const move=(i,ext)=>{st.c=clamp(i,0,st.v.length);if(!ext)st.a=st.c;upd()};
   // Zeilenweise Bewegung ohne Geometrie (für Beschriftungen): nach Zeilenumbrüchen
   const edge=(i,d)=>d<0?(i?st.v.lastIndexOf('\n',i-1)+1:0):(st.v.indexOf('\n',i)<0?st.v.length:st.v.indexOf('\n',i));
@@ -4903,8 +4906,8 @@ function textEngine(host,initial,opt){
     if(k==='Backspace'&&ac&&ac.v===st.v&&ac.c===st.c&&lo()===hi()&&!mod){rec();st.v=ac.pv;st.c=st.a=ac.pc;upd()}
     else if(k==='Backspace'){if(!(opt.lists&&!mod&&listBack()))del(-1,mod)}else if(k==='Delete')del(1,mod);
     else if(k==='Enter'&&!mod&&!e.altKey&&!opt.single){dbg('enter: start');if(!(opt.lists&&!sh&&listEnter()))put('\n');dbg('enter: fertig, Zeilen='+st.v.split('\n').length)}
-    else if(k==='ArrowLeft')move(!sh&&lo()!==hi()?lo():mod?wordL(st.c):st.c-1,sh);
-    else if(k==='ArrowRight')move(!sh&&lo()!==hi()?hi():mod?wordR(st.c):st.c+1,sh);
+    else if(k==='ArrowLeft')move(!sh&&lo()!==hi()?lo():mod?wordL(st.c):cpL(st.c),sh);
+    else if(k==='ArrowRight')move(!sh&&lo()!==hi()?hi():mod?wordR(st.c):cpR(st.c),sh);
     else if(k==='ArrowUp'||k==='ArrowDown'){const d=k==='ArrowUp'?-1:1;move((opt.vert||vert)(st.c,d),sh)}
     else if(k==='Home'){let t=mod?0:(opt.edge||edge)(st.c,-1);if(opt.lists&&!mod){const[a]=lineRange(st.c),I=info(a);if(I&&t<=a+I.pre&&st.c>a+I.pre)t=a+I.pre}move(t,sh)}
     else if(k==='End')move(mod?st.v.length:(opt.edge||edge)(st.c,1),sh);
@@ -6636,7 +6639,7 @@ const STY_W=new WeakMap();
 function wrapRichC(o){const f=tfont(o),c=STY_W.get(o.sty);if(c&&c.t===o.text&&c.w===o.wrapW&&c.f===f)return c.l;const l=wrapRich(o,o.wrapW);STY_W.set(o.sty,{t:o.text,w:o.wrapW,f,l});return l}
 // same line breaking as wrapLines, but on text indexes with per-run widths
 function wrapRich(o,maxW){const T=String(o.text),W=(a,b)=>wSty(o,a,b),out=[];out.soft=new Set();let off=0;
-  const cut=(a,b)=>{let i=a;while(b-i>1&&W(i,b)>maxW){let k=i+1;while(k<b&&W(i,k+1)<=maxW)k++;out.soft.add(out.length);out.push(T.slice(i,k));i=k}return i};
+  const cut=(a,b)=>{let i=a;while(b-i>1&&W(i,b)>maxW){let k=i+1;while(k<b&&W(i,k+1)<=maxW)k++;if(/[\ud800-\udbff]/.test(T[k-1])&&/[\udc00-\udfff]/.test(T[k]||''))k=k-1>i?k-1:k+1;out.soft.add(out.length);out.push(T.slice(i,k));i=k}return i};
   for(const para of T.split('\n')){const end=off+para.length;let cs=off,ce=off,ws=off;
     for(;;){let we=T.indexOf(' ',ws);if(we<0||we>end)we=end;
       if(ce>cs&&W(cs,we)>maxW){cs=cut(cs,ce);if(W(cs,we)>maxW){out.push(T.slice(cs,ce));cs=ws;ce=we}else ce=we}else ce=we;

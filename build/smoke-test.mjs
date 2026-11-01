@@ -2475,6 +2475,22 @@ else {
     const qb = await ev("(()=>{const b=document.querySelector('.tbx .edbar').getBoundingClientRect(),v=document.getElementById('viewer'),r=v.getBoundingClientRect();const res=[Math.round(b.right),Math.round(r.left+v.clientWidth),v.scrollWidth>v.clientWidth];closeEditor();return res})()");
     ok('T2-14: Schnellleiste am rechten Seitenrand bleibt im Fenster, keine waagrechte Bildlaufleiste', qb[0] <= qb[1] && qb[2] === false, qb);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-12: Backspace and arrows treat an emoji (surrogate pair) as one step; rich wrapping never splits it
+    await ev("newText(0,72,100);ED.focus()");
+    await cdp('Input.insertText', { text: 'Hi \u{1F600}' });
+    await key310('ArrowLeft', 'ArrowLeft', 37);
+    const em1 = await ev('ED.eng.st.c');
+    await key310('ArrowRight', 'ArrowRight', 39);
+    await key310('Backspace', 'Backspace', 8);
+    const em2 = await ev('ED.o.text');
+    await ev("closeEditor();newText(0,72,100);ED.focus()");
+    await cdp('Input.insertText', { text: 'ab' });
+    await key310('ArrowLeft', 'ArrowLeft', 37, 8);
+    await key310('b', 'KeyB', 66, 2);
+    await key310('End', 'End', 35);
+    await cdp('Input.insertText', { text: '\u{1F600}'.repeat(300) });
+    const em3 = await ev("(()=>{const L=textBox(ED.o).lines;const r=[L.length>3,L.filter(l=>/[\\ud800-\\udbff]$|^[\\udc00-\\udfff]/.test(l)).length];closeEditor();S.pages.forEach(P=>P.objs=[]);return r})()");
+    ok('T2-12: Rücktaste und Pfeile zerteilen kein Emoji, Umbruch mit Teilformat auch nicht', em1 === 3 && em2 === 'Hi ' && em3[0] === true && em3[1] === 0, { em1, em2, em3 });
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
