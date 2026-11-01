@@ -336,6 +336,7 @@ else {
   await sleep(300);
   ok('Schalter: Beschriftung bei 1000 px ausgeblendet', await ev("getComputedStyle(document.querySelector('#autoHdr .tl')).display==='none'") === true);
   ok('Schalter in Dialogen und Bedienfeld behalten ihre Beschriftung bei 1000 px', await ev("['#exMarks','#qShape'].every(s=>getComputedStyle(document.querySelector(s).closest('.tgl').querySelector('.tl')).display!=='none')") === true);
+  ok('Textformat B/I/U: pressed state is a filled accent button (differs from unpressed)', await ev("(()=>{const b=document.querySelector('#tfmt button');const o=b.getAttribute('aria-pressed');b.setAttribute('aria-pressed','false');const a=getComputedStyle(b).backgroundColor;b.setAttribute('aria-pressed','true');const c=getComputedStyle(b),p=c.backgroundColor,sh=c.boxShadow;b.setAttribute('aria-pressed',o);return a!==p&&p===getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||(a!==p&&/inset/.test(sh))})()") === true);
   ok('Schalter: alle haben einen Namen bei 1000 px', await ev("[...document.querySelectorAll('input[role=switch]')].every(i=>(i.getAttribute('aria-label')||'').trim().length>0)") === true);
   const axNodes = (await cdp('Accessibility.getFullAXTree', {})).result.nodes;
   ok('Schalter im Barrierefreiheitsbaum bei 1000 px: „Auto“ benannt', axNodes.some(n => n.role && n.role.value === 'switch' && n.name && n.name.value === 'Auto'));
