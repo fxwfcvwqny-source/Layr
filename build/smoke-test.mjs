@@ -2416,6 +2416,15 @@ else {
     const xb = await ev("[styVal(ED.o,3,'bold'),styVal(ED.o,3,'italic'),ED.o.text]");
     ok('T2-05: keine überlappenden Runs, Kursiv entfernen macht das Zeichen nicht fett', ov === false && xb[0] === false && xb[1] === false && xb[2] === 'abcXdef', { ov, xb });
     await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-09: Ctrl+Z after a whole-field format change undoes the format, not a character
+    await ev("newText(0,300,400);ED.focus()");
+    await cdp('Input.insertText', { text: 'abc' });
+    await key310('b', 'KeyB', 66, 2);
+    const b1 = await ev("[ED.o.bold,ED.o.text]");
+    await key310('z', 'KeyZ', 90, 2);
+    const b2 = await ev("[!!ED.o.bold,ED.o.text]");
+    ok('T2-09: Strg+Z nimmt Formatierung des ganzen Feldes zurück und löscht keinen Text', b1[0] === true && b2[0] === false && b2[1] === 'abc', { b1, b2 });
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
