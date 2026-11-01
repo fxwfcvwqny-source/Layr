@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-s+y7j8M3IAA6Rhz16rMknflBYw85sdRD2beG+Wrmjp8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HD6/nJR2mlx7Wbfcj9xBuxTexHXHwITPI3Ixw2RAzgA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2557,7 +2557,7 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 'Fotos und Scans in der PDF werden verkleinert, z. B. für E-Mail oder Upload. Deine Datei bleibt, wie sie ist; die Kopie bekommt einen eigenen Namen.':'Photos and scans in the PDF are made smaller, e.g. for email or upload. Your file stays as it is; the copy gets its own name.',
 'Stufe':'Level','Leicht':'Light','Stark':'Strong','In Layr bearbeitbar lassen (größer)':'Keep editable in Layr (larger)','Bild ':'Image ','Speichert':'Saving',
 'Die Datei lässt sich kaum verkleinern (':'The file can hardly be made smaller (','Von ':'From ',' auf ':' to ',' verkleinert.':'.','Verkleinern hat nicht geklappt: ':'Making it smaller failed: ',
-'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
+'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Der Text ist auf 1 Million Zeichen begrenzt und wurde gekürzt.':'The text is limited to 1 million characters and was shortened.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
 'Schwärzen':'Redact','Inhalt dauerhaft unkenntlich machen':'Remove content permanently','Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.':'Drag areas that should be made unreadable. Then “Apply redaction”: the content there is removed from the PDF for good.',
 'Verwerfen':'Discard','Schwärzen anwenden':'Apply redaction','1 Bereich zum Schwärzen markiert':'1 area marked for redaction',' Bereiche zum Schwärzen markiert':' areas marked for redaction',
 'Endgültig schwärzen?':'Redact permanently?','Alles in den markierten Bereichen wird schwarz und aus der Datei entfernt – auch aus der versteckten Originalfassung, die Layr in der PDF mitspeichert.':'Everything in the marked areas turns black and is removed from the file – also from the hidden original that Layr keeps inside the PDF.',
@@ -4822,7 +4822,7 @@ function textEngine(host,initial,opt){
   const sync=()=>{if(comp)return;ms=lo()?st.v.lastIndexOf('\n',lo()-1)+1:0;const e=st.v.indexOf('\n',hi());me=e<0?st.v.length:e;
     const seg=st.v.slice(ms,me);if(sink.value!==seg)sink.value=seg;
     try{sink.setSelectionRange(lo()-ms,hi()-ms,st.c<st.a?'backward':'forward')}catch(e){}};
-  const upd=()=>{sync();try{opt.onChange(st)}catch(err){dbg('FEHLER beim Zeichnen: '+(err&&err.stack||err))}};
+  const upd=()=>{if(opt.max&&st.v.length>opt.max){st.v=st.v.slice(0,opt.max);st.c=Math.min(st.c,opt.max);st.a=Math.min(st.a,opt.max);if(opt.onMax)opt.onMax()}sync();try{opt.onChange(st)}catch(err){dbg('FEHLER beim Zeichnen: '+(err&&err.stack||err))}};
   const snap=()=>opt.snap?opt.snap():null,rec=()=>{hist.push([st.v,st.c,st.a,snap()]);if(hist.length>400)hist.shift();fut.length=0};
   const put=t=>{t=norm(t);if(!t&&lo()===hi())return;rec();const l=lo();st.v=st.v.slice(0,l)+t+st.v.slice(hi());st.c=st.a=l+t.length;upd()};
   // Was das Textfeld selbst geändert hat (Tippen, Einfügen, Ausschneiden, Eingabesystem) übernehmen
@@ -5076,7 +5076,7 @@ function openTextEditor(i,o,isNew,at){
     keepCtr(o,()=>{for(const k of['fs','color','bold','orient','underline','italic','hbg','font'])if(k in props)o[k]=k==='fs'?clamp(+props.fs||o.fs,4,200):props[k];if(!o.hbg)delete o.hbg});
     if('font' in props){if(!o.font)delete o.font;S.font=o.font||'';saveFontPref();setFontUI(S.font);ensureFont(o.font)}
     if('fs' in props){S.fs=o.fs;setRange('fs',o.fs,v=>v+' pt')}for(const k of['bold','underline','italic','hbg'])if(k in props)S[k]=k==='hbg'?(o.hbg||''):!!o[k];syncFmt(o);if('color' in props)setColor(o.color,true);textClamp(o,P,true);refresh();redraw(i)};
-  eng=textEngine(area,o.text,{lists:true,snap:()=>[o.sty?JSON.stringify(o.sty):'',o.spans?JSON.stringify(o.spans):'',JSON.stringify(BOXK.map(k=>o[k]))],restore:(q,v)=>{o.text=v;if(q[0])o.sty=JSON.parse(q[0]);else delete o.sty;if(q[1])o.spans=JSON.parse(q[1]);else delete o.spans;if(q[2]){const b=JSON.parse(q[2]);keepCtr(o,()=>BOXK.forEach((k,j)=>{if(b[j]==null)delete o[k];else o[k]=b[j]}));syncFmt(o)}},onChange:st=>{keepCtr(o,()=>{shiftSpans(o,o.text,st.v);o.text=st.v});textClamp(o,P,true);refresh();redraw(i)},
+  eng=textEngine(area,o.text,{lists:true,max:TXT_MAX,onMax:()=>toast('Der Text ist auf 1 Million Zeichen begrenzt und wurde gekürzt.'),snap:()=>[o.sty?JSON.stringify(o.sty):'',o.spans?JSON.stringify(o.spans):'',JSON.stringify(BOXK.map(k=>o[k]))],restore:(q,v)=>{o.text=v;if(q[0])o.sty=JSON.parse(q[0]);else delete o.sty;if(q[1])o.spans=JSON.parse(q[1]);else delete o.spans;if(q[2]){const b=JSON.parse(q[2]);keepCtr(o,()=>BOXK.forEach((k,j)=>{if(b[j]==null)delete o[k];else o[k]=b[j]}));syncFmt(o)}},onChange:st=>{keepCtr(o,()=>{shiftSpans(o,o.text,st.v);o.text=st.v});textClamp(o,P,true);refresh();redraw(i)},
     vert:(idx,d)=>{const p=idxPos(o,g,idx),li=p.li+d;if(li<0)return 0;if(li>=g.b.lines.length)return o.text.length;return posIdx(o,g,p.x,(li+.5)*g.b.lh)},
     edge:(idx,d)=>{const p=idxPos(o,g,idx);return g.starts[p.li]+(d<0?0:g.b.lines[p.li].length)},
     onEmptyUndo:()=>{if(o.text===startText&&JSON.stringify({...o,text:startText})===origJson){closeEditor();undo()}}});
@@ -6526,9 +6526,11 @@ const isNum=v=>typeof v==='number'&&Number.isFinite(v);
 const COL_RX=/^(#[0-9a-f]{3,8}|rgba?\(\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*(,\s*[\d.]+\s*)?\)|[a-z]{3,20})$/i;
 const RES_IDS=new Set(['__proto__','constructor','prototype','toString','valueOf','hasOwnProperty',...Object.getOwnPropertyNames(Object.prototype)]);
 function sanId(v){if(typeof v!=='string')return null;v=v.replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);return v&&!RES_IDS.has(v)?v:null}
+const TXT_MAX=1e6; // text field limit; the editor cuts at the same length and says so
 function sanObj(o){
   if(!o||typeof o!=='object'||Array.isArray(o)||!OBJ_TYPES.has(o.type))return null;
   const r=sanVal(o,0);if(!r||typeof r!=='object')return null;
+  if(o.type==='text'&&typeof o.text==='string')r.text=o.text.slice(0,TXT_MAX);
   if(typeof r.color!=='string'||!COL_RX.test(r.color))r.color='#1b1f24';
   if(r.lw!=null&&!(isNum(r.lw)&&r.lw>=0&&r.lw<=200))r.lw=1;if(r.lw==null)r.lw=r.type==='text'||r.type==='image'?0:1;
   if(r.alpha!=null&&!(isNum(r.alpha)&&r.alpha>0&&r.alpha<=1))delete r.alpha;

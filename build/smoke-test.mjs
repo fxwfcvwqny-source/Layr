@@ -2451,6 +2451,12 @@ else {
       await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
     }
     ok('T2-08: Enter nach "v. Chr." und "a)" auf Ebene 0 lässt den Text, "1." zählt weiter', JSON.stringify(ent) === JSON.stringify(['v. Chr. geboren\nx', 'a) eins\nzwei', '1. eins\n2. zwei']), ent);
+    // T2-02: text fields keep more than 200000 characters through save/open; beyond the editor limit the text is cut with a notice
+    const big = await ev("(async()=>{newText(0,72,100);ED.eng.put('x'.repeat(210000));const n0=ED.o.text.length;closeEditor();await openPdf(await buildOutput(),'big.pdf');await new Promise(r=>setTimeout(r,500));return [n0,S.pages[0].objs[0].text.length]})()", 60000);
+    ok('T2-02: Textfeld mit 210000 Zeichen bleibt beim Speichern und Öffnen vollständig', Array.isArray(big) && big[0] === 210000 && big[1] === 210000, big);
+    const cut = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);newText(0,72,100);ED.eng.put('x'.repeat(1000050));const n=ED.o.text.length;closeEditor();return [n,document.querySelector('.toast')?.textContent||'']})()", 60000);
+    ok('T2-02: über 1 Million Zeichen wird mit Hinweis gekürzt', Array.isArray(cut) && cut[0] === 1000000 && /begrenzt|limited/.test(cut[1]), cut);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
