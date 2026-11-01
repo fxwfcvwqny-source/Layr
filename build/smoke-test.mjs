@@ -2087,7 +2087,7 @@ else {
     await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ac2.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');S.pages.forEach(P=>P.objs=[]);setSel(null);S.autoChar=true;S.autoCap=false;zoomTo(1);await new Promise(r=>setTimeout(r,300));S.pages[0].el.scrollIntoView({block:'start'});const o={type:'text',x:72,y:200,text:'',fs:16,color:'#1b1f24',orient:'h',lw:0};S.pages[0].objs.push(o);redraw(0);openTextEditor(0,o,false);window.a4K=k=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));window.a4=s=>{const st=ED.eng.st;st.v='';st.c=st.a=0;for(const ch of s)a4K(ch);return ED.eng.st.v};return 1})()");
     await sleep(300);
     const same = ['git push --force', 'x<-1', 'f(c)', '(a) (b) (c)', '<=>', '+---+', 'i++--', 'http://a.b/c--d', 'user@mail--x', '1--2', 'a<->b', '"zitat" und \'x\'', 'a-b', 'wait.. ok', 'x --y', '1+-'];
-    const conv = [['a -- b', 'a – b'], ['-- x', '– x'], ['a <- b', 'a ← b'], ['x <-> y', 'x ↔ y'], ['+-5', '±5'], ['Copyright (c) 2026', 'Copyright © 2026'], ['a->b', 'a→b'], ['wait...', 'wait…'], ['a != b', 'a ≠ b'], ['a => b', 'a ⇒ b'], ['x (tm)', 'x ™'], ['(R) y', '® y']];
+    const conv = [['a -- b', 'a – b'], ['-- x', '– x'], ['a <- b', 'a ← b'], ['x <-> y', 'x ↔ y'], ['+-5', '±5'], ['Copyright (c) 2026', 'Copyright © 2026'], ['a -> b', 'a → b'], ['wait...', 'wait…'], ['a != b', 'a ≠ b'], ['a => b', 'a ⇒ b'], ['x (tm)', 'x ™'], ['(R) y', '® y']];
     const bad = [], badc = [];
     for (const i of same) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== i) bad.push([i, r]); }
     for (const [i, e] of conv) { const r = await ev(`a4(${JSON.stringify(i)})`); if (r !== e) badc.push([i, r, e]); }
@@ -2247,8 +2247,8 @@ else {
   }
   // Review fix 5
   {
-    const ac = await ev("(()=>{S.autoChar=true;const L='x'.repeat(5000),r=[acRule(L+' -','>'),acRule(L+' <-',' '),acRule(L+' ..','.'),acRule(L+' (c',')'),acRule(L+'a-','>'),acRule(L+' +-','5'),acRule(L+'!','='),acRule(L+'<=','>')];return JSON.stringify(r)})()").then(JSON.parse);
-    ok('Review: Autokorrektur nutzt nur das Textende (gleiches Ergebnis wie vorher)', JSON.stringify(ac) === JSON.stringify([[1, '→'], [2, '← '], [2, '…'], [2, '©'], [1, '→'], [2, '±5'], [1, '≠'], null]), ac);
+    const ac = await ev("(()=>{S.autoChar=true;const L='x'.repeat(5000),r=[acRule(L+' -','>'),acRule(L+' <-',' '),acRule(L+' ..','.'),acRule(L+' (c',')'),acRule(L+'a-','>'),acRule(L+' +-','5'),acRule(L+' !','='),acRule(L+'<=','>')];return JSON.stringify(r)})()").then(JSON.parse);
+    ok('Review: Autokorrektur nutzt nur das Textende (gleiches Ergebnis wie vorher)', JSON.stringify(ac) === JSON.stringify([[1, '→'], [2, '← '], [2, '…'], [2, '©'], null, [2, '±5'], [1, '≠'], null]), ac);
   }
   // Merge A+C: select tool strand (A) with the menu/sidebar/symbol strand (C)
   {
@@ -2432,6 +2432,13 @@ else {
     await ev("[...document.querySelectorAll('#tfpw .edsw')].find(x=>x.dataset.c).click()");
     const hb = await ev("[S.hbg,(ED.o.sty||[]).length>0,!ED.o.hbg]");
     ok('T2-10: Hintergrund für markierte Wörter ändert den Standard nicht', hb[0] === '' && hb[1] === true && hb[2] === true, hb);
+    await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-07: autocorrect not inside identifiers, operators, URLs, enumerations
+    await ev("S.autoChar=true;newText(0,300,400);ED.focus();window.t2K=k=>ED.eng.sink.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));window.t2T=s=>{const st=ED.eng.st;st.v='';st.c=st.a=0;for(const ch of s)t2K(ch);return st.v}");
+    const ac7 = {};
+    for (const i of ['p->next', 'http://a.de/x->y', 'f=(x)=>x', '==>', 'if(a!=b)']) ac7[i] = await ev(`t2T(${JSON.stringify(i)})`);
+    const enumv = await ev("(()=>{const st=ED.eng.st;st.v='(a) x\\n(b) y\\n';st.c=st.a=st.v.length;for(const ch of '(c)')t2K(ch);return st.v})()");
+    ok('T2-07: Autokorrektur lässt p->next, URLs, =>/!= in Code und (c) in Aufzählungen stehen', Object.entries(ac7).every(([k, v]) => v === k) && enumv === '(a) x\n(b) y\n(c)', { ac7, enumv });
     await ev("closeEditor();S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
