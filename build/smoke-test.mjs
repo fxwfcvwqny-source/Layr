@@ -2457,6 +2457,12 @@ else {
     const cut = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);newText(0,72,100);ED.eng.put('x'.repeat(1000050));const n=ED.o.text.length;closeEditor();return [n,document.querySelector('.toast')?.textContent||'']})()", 60000);
     ok('T2-02: über 1 Million Zeichen wird mit Hinweis gekürzt', Array.isArray(cut) && cut[0] === 1000000 && /begrenzt|limited/.test(cut[1]), cut);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+    // T2-03: a table cell cuts at 20000 characters while editing, with a notice (instead of silently on open)
+    await ev("(()=>{S.pages.forEach(P=>P.objs=[]);const o=newTable(60,100,2,2);S.pages[0].objs.push(o);redraw(0);editCell(0,o,0,0)})()");
+    await cdp('Input.insertText', { text: 'y'.repeat(20500) });
+    const cl2 = await ev("(()=>{const t=document.querySelector('.toast')?.textContent||'';closeEditor();return [S.pages[0].objs[0].cells[0][0].length,t]})()");
+    ok('T2-03: Tabellenzelle kürzt bei 20000 Zeichen mit Hinweis', cl2[0] === 20000 && /20 000|20,000/.test(cl2[1]), cl2);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

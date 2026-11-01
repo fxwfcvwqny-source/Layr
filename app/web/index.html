@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HD6/nJR2mlx7Wbfcj9xBuxTexHXHwITPI3Ixw2RAzgA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-0sPxAwDInQ5dkfNtwh8Fq3T1g4bf+Tf1dPQBjyRZ6GQ=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2557,7 +2557,7 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 'Fotos und Scans in der PDF werden verkleinert, z. B. für E-Mail oder Upload. Deine Datei bleibt, wie sie ist; die Kopie bekommt einen eigenen Namen.':'Photos and scans in the PDF are made smaller, e.g. for email or upload. Your file stays as it is; the copy gets its own name.',
 'Stufe':'Level','Leicht':'Light','Stark':'Strong','In Layr bearbeitbar lassen (größer)':'Keep editable in Layr (larger)','Bild ':'Image ','Speichert':'Saving',
 'Die Datei lässt sich kaum verkleinern (':'The file can hardly be made smaller (','Von ':'From ',' auf ':' to ',' verkleinert.':'.','Verkleinern hat nicht geklappt: ':'Making it smaller failed: ',
-'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Der Text ist auf 1 Million Zeichen begrenzt und wurde gekürzt.':'The text is limited to 1 million characters and was shortened.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
+'Textmarker an Text ausrichten':'Snap highlighter to text','Tabelle wächst mit dem Text':'Table grows with the text','Zeilen wachsen nach unten, wenn ein Zellentext mehr Platz braucht':'Rows grow downwards when a cell text needs more room','Die Tabelle ragt über die Seite hinaus.':'The table extends beyond the page.','Eine Zelle fasst höchstens 20 000 Zeichen, der Rest wurde gekürzt.':'A cell holds at most 20,000 characters, the rest was cut.','Der Text ist auf 1 Million Zeichen begrenzt und wurde gekürzt.':'The text is limited to 1 million characters and was shortened.','Textmarker: Striche über dem Text der PDF werden zu sauberen Markierungen genau über den Zeichen':'Highlighter: strokes over the PDF text become clean highlights exactly over the characters',
 'Schwärzen':'Redact','Inhalt dauerhaft unkenntlich machen':'Remove content permanently','Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.':'Drag areas that should be made unreadable. Then “Apply redaction”: the content there is removed from the PDF for good.',
 'Verwerfen':'Discard','Schwärzen anwenden':'Apply redaction','1 Bereich zum Schwärzen markiert':'1 area marked for redaction',' Bereiche zum Schwärzen markiert':' areas marked for redaction',
 'Endgültig schwärzen?':'Redact permanently?','Alles in den markierten Bereichen wird schwarz und aus der Datei entfernt – auch aus der versteckten Originalfassung, die Layr in der PDF mitspeichert.':'Everything in the marked areas turns black and is removed from the file – also from the hidden original that Layr keeps inside the PDF.',
@@ -3343,7 +3343,7 @@ function editCell(i,o,r,k){const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.2
   mctx.font=`${o.head&&r===0?(o.font?'700 ':'600 '):''}${fs}px ${fam}`;
   const y0=cellY0(Y[r],ch,lh,wrapLines(mctx,txt,Math.max(10,cw-8)).length);
   // editor border 1.5px and padding 2px sit outside the text: shift box so the text lands where drawTable draws it
-  const box=makeEditor(i,X[k]+4-3.5/S.zoom,y0-lh/2-1.5/S.zoom,fs,o.color,txt,{w:cw-8,bold:o.head&&r===0});
+  const box=makeEditor(i,X[k]+4-3.5/S.zoom,y0-lh/2-1.5/S.zoom,fs,o.color,txt,{w:cw-8,bold:o.head&&r===0,max:20000,onMax:()=>toast('Eine Zelle fasst höchstens 20 000 Zeichen, der Rest wurde gekürzt.')});
   box.style.width=(cw-8)*S.zoom+7+'px';box.style.lineHeight='1.22';box.style.whiteSpace='pre-wrap';box.style.overflowWrap='anywhere';box.style.fontFamily=fam;
   editorDone=v=>{delete o.__ec;if(v!==((o.cells[r]&&o.cells[r][k])||'')){pushHist();o.cells[r][k]=v;markDirty()}redraw(i)};
   box.addEventListener('keydown',e=>{if(e.key!=='Tab')return;e.preventDefault();e.stopImmediatePropagation();let n=r*o.cols+k+(e.shiftKey?-1:1);n=(n+o.rows*o.cols)%(o.rows*o.cols);closeEditor();editCell(i,o,Math.floor(n/o.cols),n%o.cols)},true)}
@@ -4937,7 +4937,7 @@ function makeEditor(i,x,y,fs,color,value,opt={}){
   const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   const render=st=>{const l=Math.min(st.c,st.a),h=Math.max(st.c,st.a);
     disp.innerHTML=esc(st.v.slice(0,l))+(l===h?'<i class="crt2"></i>':'<mark>'+esc(st.v.slice(l,h))+'</mark>')+esc(st.v.slice(h))+'​'};
-  const eng=textEngine(box,value,{onChange:render});render(eng.st);
+  const eng=textEngine(box,value,{onChange:render,max:opt.max,onMax:opt.onMax});render(eng.st);
   box.addEventListener('keydown',e=>{e.stopPropagation();if(e.defaultPrevented)return;if(e.key==='Escape'||(e.key==='Enter'&&(e.ctrlKey||e.metaKey))){e.preventDefault();closeEditor()}});
   const at=(cx,cy)=>{let idx=eng.st.v.length;
     const r=document.caretRangeFromPoint&&document.caretRangeFromPoint(cx,cy);
