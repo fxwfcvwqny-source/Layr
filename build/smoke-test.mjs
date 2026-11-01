@@ -737,8 +737,8 @@ else {
   ok('Transparent window icon: files exist, png corners alpha 0, ico 16..256, BrowserWindow + win.icon wired, installer/Store/linux package icons untouched',
     icoOk && fs.existsSync('app/icon-transparent.png') && JSON.stringify(pngCorners('build/icon-transparent.png')) === '[0,0]' && JSON.stringify(pngCorners('app/icon-transparent.png')) === '[0,0]' && winIcon
     && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico' && [pj.win.icon, pj.nsis.installerIcon, pj.nsis.uninstallerIcon, pj.linux.icon].every(f => fs.existsSync(f)) && fs.existsSync('build/appx/Square44x44Logo.png'));
-  // PDF file association uses the same icon as the launcher
-  ok('PDF file association icon is the launcher icon (build/icon-transparent.ico), same as win.icon', (pj.fileAssociations.find(f => f.ext === 'pdf') || {}).icon === 'build/icon-transparent.ico' && pj.win.icon === 'build/icon-transparent.ico');
+  // PDF file association uses the original logo with black tile
+  ok('PDF file association icon is the original logo with black tile (build/icon.ico), same as the installer', (pj.fileAssociations.find(f => f.ext === 'pdf') || {}).icon === 'build/icon.ico' && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico');
   // Ruler rotates around its centre: the angle field and the handle (Shift = 15 degree steps) keep the centre fixed
   const rz = await ev("(()=>{toggleRuler(true);R.x=300;R.y=250;R.a=0;drawRuler();const c=()=>{const r=ruler.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]},c0=c(),inp=$('#rulerAngIn');inp.value='30';inp.dispatchEvent(new Event('input'));const c1=c(),a1=R.a,sec=!$('#rulerSec').hidden;const h=$('#rulerRot').getBoundingClientRect();return JSON.stringify({c0,c1,a1,sec,hx:h.left+h.width/2,hy:h.top+h.height/2})})()");
   const rzj = JSON.parse(rz || '{}');
