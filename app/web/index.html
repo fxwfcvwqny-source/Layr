@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ogoR0hqoZt6lhHjKYSewQilSOP73ttBSe6B+8I0MyHg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WboRn+W4eufriCbB6OX8lHnEJ0crBgVg6Q3ITMWfbJA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5526,7 +5526,7 @@ const ACCENTS=[['petrol','Petrol','#0b6570'],['blue','Blau','#2457c5'],['indigo'
 const DKEYS=[['dTheme','theme'],['dToolbar','toolbar'],['dDensity','density'],['dCorners','corners'],['dDesk','desk'],['dDeskC','deskc'],['dSheet','sheet'],['dShadow','shadow'],['dMotion','motion'],['dLight','light'],['dDark','dark'],['dBars','bars'],['dTbStyle','tbstyle'],['dToast','toast'],['dToastPos','toastPos'],['dToastDur','toastDur'],['dQbar','qbar'],['dQbStyle','qbarStyle'],['dSaveStyle','saveStyle'],['dHints','hints'],['dPager','pager'],['dPagerPos','pagerPos']];
 let design={...DDEF};try{Object.assign(design,JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}'));if(design.desk==='dots')design.desk='plain'}catch(e){}design=dSan(qbSan(design));
 // Night mode state lives here (not at nightSet) because applyDesign reads it; see the matrix above nightSet.
-let NIGHT=false,NIGHT_PREV='system';try{NIGHT=localStorage.getItem('pdfwerkbank:night')==='1';NIGHT_PREV=localStorage.getItem('pdfwerkbank:night-prev')||'system'}catch(e){}
+let NIGHT=false,NIGHT_PREV='system';try{NIGHT=localStorage.getItem('pdfwerkbank:night')==='1';NIGHT_PREV=localStorage.getItem('pdfwerkbank:night-prev')||(design.theme==='dark'?'dark':'system')}catch(e){}
 if(NIGHT&&design.theme!=='dark'){NIGHT_PREV=design.theme;design.theme='dark'} // saved by an older version: Night used to be independent of the theme
 const mixHex=(h,t)=>{const n=parseInt(h.slice(1),16),c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,'0'));return'#'+c.join('')};
 let designTheme=null; // theme of the last applyDesign call; only a real switch suspends transitions
