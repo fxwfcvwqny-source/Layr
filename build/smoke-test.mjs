@@ -580,11 +580,11 @@ else {
       }
     }
     // page night mode on: sheet "Nacht" must stay dark (was inverted twice = light)
-    await ev("(document.documentElement.classList.add('night'),1)"); await sleep(300);
+    await ev("(nightSet(true),1)"); await sleep(300);
     await ev("document.querySelector('#dSheet [data-v=night]').click()"); await sleep(400);
     const npx = await sheetPx();
     ok('Sheet colour "night" stays dark with page night mode on', lum(npx) < 60, npx);
-    await ev("(document.documentElement.classList.remove('night'),1)");
+    await ev("(nightSet(false),1)");
     // persistence after reload (startup path)
     await ev("document.querySelector('#dSheet [data-v=paper]').click()");
     await ev('location.reload()'); await sleep(2500);
@@ -592,6 +592,40 @@ else {
     await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'sheet.pdf');return 1})()"); await sleep(1200);
     const rpx = await sheetPx();
     ok('Sheet colour persists after reload', want.paper(rpx) && await ev("document.querySelector('#dSheet [aria-pressed=true]').dataset.v==='paper'") === true, rpx);
+  }
+  // Night mode = base mode Dark + dark pages: migration of old settings, restore of the previous mode, interplay with Light/System
+  {
+    const J = e => ev(`JSON.stringify(${e})`).then(JSON.parse);
+    const st = "({theme:design.theme,night:NIGHT,cls:document.documentElement.classList.contains('night'),prev:NIGHT_PREV,sTheme:JSON.parse(localStorage.getItem('pdfwerkbank:design')).theme,sNight:localStorage.getItem('pdfwerkbank:night')})";
+    const reload = async () => {
+      await ev('location.reload()'); await sleep(2500);
+      for (let i = 0; i < 30; i++) { if (await ev("typeof design==='object'&&typeof nightSet==='function'") === true) break; await sleep(500); }
+    };
+    const seed = (theme, prev) => ev(`(()=>{const d=JSON.parse(localStorage.getItem('pdfwerkbank:design')||'{}');d.theme='${theme}';localStorage.setItem('pdfwerkbank:design',JSON.stringify(d));localStorage.setItem('pdfwerkbank:night','1');${prev ? `localStorage.setItem('pdfwerkbank:night-prev','${prev}')` : "localStorage.removeItem('pdfwerkbank:night-prev')"};return 1})()`);
+    // old setting: night on + theme light => dark at start, previous mode remembered, night off restores light
+    await seed('light', null); await reload();
+    const m1 = await J(st);
+    ok('Night migration: night=1 + theme light starts dark with the previous mode remembered', m1.theme === 'dark' && m1.night && m1.cls && m1.prev === 'light', m1);
+    await ev("(nightSet(false),1)"); const m1b = await J(st);
+    ok('Night migration: night off returns to light and persists it', m1b.theme === 'light' && !m1b.night && !m1b.cls && m1b.sTheme === 'light' && m1b.sNight === '0', m1b);
+    // old setting: night on + deliberate Dark, no night-prev => night off stays dark
+    await seed('dark', null); await reload();
+    await ev("(nightSet(false),1)"); const m2 = await J(st);
+    ok('Night migration: night=1 + theme dark without night-prev keeps Dark after night off', m2.theme === 'dark' && !m2.night && !m2.cls && m2.sTheme === 'dark', m2);
+    // night on remembers the previous mode, night off restores it
+    await ev("document.querySelector('#dTheme [data-v=light]').click()");
+    await ev("(nightSet(true),1)"); const n1 = await J(st);
+    ok('nightSet(true) sets the design to Dark and remembers the previous mode', n1.theme === 'dark' && n1.night && n1.cls && n1.prev === 'light' && n1.sTheme === 'dark', n1);
+    await ev("(nightSet(false),1)"); const n2 = await J(st);
+    ok('nightSet(false) restores the previous mode and persists it', n2.theme === 'light' && !n2.night && !n2.cls && n2.sTheme === 'light' && n2.sNight === '0', n2);
+    // choosing Light while night is on turns night off
+    await ev("(nightSet(true),1)");
+    await ev("document.querySelector('#dTheme [data-v=light]').click()"); const n3 = await J(st);
+    ok('Choosing base mode Light while night is on turns night off', n3.theme === 'light' && !n3.night && !n3.cls, n3);
+    // choosing Dark alone does not darken the pages
+    await ev("document.querySelector('#dTheme [data-v=dark]').click()"); const n4 = await J(st);
+    ok('Choosing Dark alone does not turn the pages dark', n4.theme === 'dark' && !n4.night && !n4.cls, n4);
+    await ev("document.querySelector('#dTheme [data-v=system]').click()");
   }
   // Text box typing must not move the sheet: with the page height just under the viewer height, the editor frame/toolbar overflow
   // adds a horizontal bar, which then adds a vertical bar and shifted the centred sheet sideways (scrollbar-gutter:stable on #viewer)
