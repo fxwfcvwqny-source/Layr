@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WboRn+W4eufriCbB6OX8lHnEJ0crBgVg6Q3ITMWfbJA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8VrPWCzPwve3h4wY3ZSah1CS85A22jqv535YDaziuoA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7057,7 +7057,7 @@ S.autoChar=true;try{S.autoChar=localStorage.getItem('pdfwerkbank:autochar')!=='0
 function acRule(before,t){if(!S.autoChar||[...t].length!==1)return null;const full=before;before=before.slice(-8); // only the tail matters: keeps the regexes cheap on huge texts
   // conservative: dashes and arrows need a word boundary (start or whitespace) in front, so URLs, options (--force), operators (i++--, x<-1) and ASCII art stay as typed
   if(t===' '){if(/(^|\s)--$/.test(before))return[2,'– '];if(/(^|\s)<-$/.test(before))return[2,'← ']}
-  else if(t==='>'){if(/(^|\s)<-$/.test(before))return[2,'↔'];if(/(^|\s)-$/.test(before))return[1,'→'];if(/(^|\s)=$/.test(before))return[1,'⇒']}
+  else if(t==='>'){if(/(^|\s)<-$/.test(before))return[2,'↔'];if(/(^|\s)-$/.test(before))return[1,'→'];if(/(^|\s)=$/.test(before))return[1,'⇒'];if(/(^|\s)≤$/.test(before))return[1,'⇔']}
   else if(/\d/.test(t)){if(/(^|\s)\+-$/.test(before))return[2,'±'+t]}
   else if(t==='.'){if(before.endsWith('..')&&!before.endsWith('…'))return[2,'…']}
   else if(t==='='){const m=/(^|\s)([!<>])$/.exec(before);if(m)return[1,{'!':'≠','<':'≤','>':'≥'}[m[2]]]}
