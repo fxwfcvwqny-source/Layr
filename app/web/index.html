@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8VrPWCzPwve3h4wY3ZSah1CS85A22jqv535YDaziuoA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-IJrQ+GdjUkM11xDjRe68/YJt3KmS1VkTw8cubd/uzVU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1890,7 +1890,7 @@ header,.file{min-width:0}
 <div class="modal" id="symDlg" hidden role="dialog" aria-modal="true" aria-labelledby="symT">
   <div class="card ipcard tbcard">
     <div class="ip-h"><h2 id="symT">Symbole anpassen</h2><button class="ib" id="symX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
-    <p class="hint">Wähle, welche Symbole in der Symbol-Palette erscheinen. Bereits gesetzte Symbole in Dateien bleiben unverändert.</p>
+    <p class="hint">Wähle, welche Symbole in der Symbol-Palette erscheinen. Bereits gesetzte Symbole in Dateien bleiben unverändert. Wer eine ganze Gruppe ausblendet, blendet auch deren Vorlagen aus.</p>
     <div class="tb-list" id="symList"></div>
     <p class="hint" id="symInfo" aria-live="polite"></p>
     <div class="ab-btns asr-btns"><button class="btn" id="symAll" type="button">Alle zeigen</button><button class="btn primary" id="symDone" type="button">Schließen</button></div>
@@ -5254,7 +5254,7 @@ function symClose(){animHide($('#symDlg'))}
 {const d=$('#symDlg');$('#symX').onclick=symClose;$('#symDone').onclick=symClose;
   $('#symAll').onclick=()=>{SYM_HID.clear();symHidSave();buildCats();symRender();toast(tr('Alle Symbole werden angezeigt.'))};
   d.addEventListener('pointerdown',e=>{if(e.target===d)symClose()});d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();symClose()}})}
-Object.assign(I18N_EN,{'Symbole anpassen':'Customize symbols','Wähle, welche Symbole in der Symbol-Palette erscheinen. Bereits gesetzte Symbole in Dateien bleiben unverändert.':'Choose which symbols appear in the symbol palette. Symbols already placed in files stay unchanged.','Alle zeigen':'Show all','Alle Symbole werden angezeigt.':'All symbols are shown.',' Symbole ausgeblendet.':' symbols hidden.','Einzelne Symbole zeigen':'Show single symbols','Alle Symbole ausgeblendet. Einstellungen > Symbole anpassen':'All symbols hidden. Settings > Customize symbols','Festlegen, welche Symbole in der Palette stehen':'Choose which symbols the palette shows'});
+Object.assign(I18N_EN,{'Symbole anpassen':'Customize symbols','Wähle, welche Symbole in der Symbol-Palette erscheinen. Bereits gesetzte Symbole in Dateien bleiben unverändert. Wer eine ganze Gruppe ausblendet, blendet auch deren Vorlagen aus.':'Choose which symbols appear in the symbol palette. Symbols already placed in files stay unchanged. Hiding a whole group also hides its templates.','Alle zeigen':'Show all','Alle Symbole werden angezeigt.':'All symbols are shown.',' Symbole ausgeblendet.':' symbols hidden.','Einzelne Symbole zeigen':'Show single symbols','Alle Symbole ausgeblendet. Einstellungen > Symbole anpassen':'All symbols hidden. Settings > Customize symbols','Festlegen, welche Symbole in der Palette stehen':'Choose which symbols the palette shows'});
 let symPop=null,symPopBtn=null;
 function tplTile(e,k,after){
   if(e.detail===0){if(ARM&&ARM.k===k){armOff();insertOrgTemplate(k);after&&after()}else armOn(k);return} // keyboard: Enter arms, Enter again places at the centre as before

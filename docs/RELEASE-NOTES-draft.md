@@ -106,6 +106,7 @@ Release notes for version 3.10.0.
 - Header menus File, View and Settings are grouped under section headings, capped in height (they scroll) and every entry has its own icon.
 - Removed from the drafts: the topology templates and the "editable topology nodes" setting (the topology tiles place the old single symbols again).
 - Guides (existing switch, default on) now also work while resizing corners and snap to the 36 pt margins; the switch is now also in the Settings menu.
+- Night mode now switches the whole design to Dark; picking Light or System turns it off. An old Night setting is migrated (the previous mode is remembered).
 
 ## Known limits
 
