@@ -68,6 +68,7 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Rechte Seitenleiste, Textabschnitt: Fett, Kursiv, Unterstrichen, Hintergrund → Knöpfe zeigen den Zustand, lassen sich auch AUSschalten, wirken auf die Auswahl.
 - [ ] Neues Textfeld nach gesetztem Kursiv/Hintergrund → übernimmt beides.
 - [ ] Schnellleiste im Textfeld, Farbeimer (Texthintergrund): Palette bleibt nach einem Klick offen, mehrere Farben nacheinander wählen (Auswahl färbt sofort, gewählte Farbe ist markiert); schließt bei Klick daneben/in den Text, Esc oder erneutem Klick auf den Eimer. Mit Tastatur: Enter auf Farbfeld, Fokus bleibt dort. Seitenleiste (Textformat) schließt weiter nach der Wahl.
+- [ ] Schnellleiste, Texthintergrund-Palette bei Textfeld ganz oben/links (Leiste klappt unter das Feld): Palette ist komplett sichtbar (nicht oben abgeschnitten), auch bei 800 px Fensterbreite, 200 % Zoom und großer Schnellleiste; am linken/rechten Rand schiebt sie sich in den Sichtbereich. Eimer-Knopf in der Seitenleiste: Hover/Fokus/Offen folgt der runden Form (auch bei Ecken „Pille“).
 - [ ] Tippen von `->` `<-` `<->` `=>` `...` `(c)` `(tm)` `+-` `!=` mit Leerzeichen → werden ersetzt; Rückschritt direkt danach bringt die Zeichen zurück.
 - [ ] `--` zwischen Leerzeichen → Gedankenstrich. In URL, Optionen (`--help`) und Aufzählung → keine Ersetzung.
 - [ ] Autokorrektur auch in Tabellenzellen, Beschriftungen und Notizen → funktioniert; in Notizen nach Rückschritt kein Rest-Auswahlbereich.

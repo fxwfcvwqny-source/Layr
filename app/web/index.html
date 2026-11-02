@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-0aKCviyt5b0WKqNvIiDmg+gYIPDsST2F8h7Eu9UrSzI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6fCbkMl9It0+jKrPV0B6qbscsgv3bHnHNGRpNOtJDfc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -320,7 +320,6 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .edcol{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0 7px}
 .edcol .ca{font-weight:700;font-size:13px;line-height:1}.edcol .cbar{width:15px;height:3px;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
 .edpal{position:absolute;left:0;top:calc(100% + 6px);z-index:8;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:8px;display:flex;flex-direction:column;gap:8px;cursor:default}
-.tbx.flip .edpal{top:auto;bottom:calc(100% + 6px)}
 .edsws{display:grid;grid-template-columns:repeat(4,22px);gap:6px}
 .edbar .edsw{width:22px;height:22px;min-width:0;padding:0;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
 .edbar .edsw:hover{background:inherit}
@@ -5154,9 +5153,10 @@ function openTextEditor(i,o,isNew,at){
   bI.onclick=()=>{set({italic:!o.italic});eng.focus()};
   bLb.onclick=()=>{eng.list('b');eng.focus()};bLn.onclick=()=>{eng.list('n');eng.focus()};
   root.querySelector('[data-a=in]').onclick=()=>{eng.indent(1);eng.focus()};root.querySelector('[data-a=out]').onclick=()=>{eng.indent(-1);eng.focus()};
-  const palOpen=v=>{if(v&&!palB.hidden)palOpenB(false);if(v)showEl(pal);else animHide(pal);bC.setAttribute('aria-expanded',v)};
+  const palFit=p=>{const bar=root.querySelector('.edbar'),vw=$('#viewer');p.style.left='';if(!bar||!vw)return;const k=bar.getBoundingClientRect().width/bar.offsetWidth||1,v=vw.getBoundingClientRect(),r=p.getBoundingClientRect(),sh=Math.min(0,v.left+vw.clientWidth-4-r.right)+Math.max(0,v.left+4-r.left);if(sh)p.style.left=sh/k+'px'}; // keep the palette inside the viewer (left and right edge)
+  const palOpen=v=>{if(v&&!palB.hidden)palOpenB(false);if(v)(showEl(pal),palFit(pal));else animHide(pal);bC.setAttribute('aria-expanded',v)};
   bC.onclick=()=>{const open=!pal.hidden&&!pal._ah;palOpen(!open);if(open)eng.focus()};
-  const palOpenB=v=>{if(v&&!pal.hidden)palOpen(false);if(v)showEl(palB);else animHide(palB);bBg.setAttribute('aria-expanded',v)};
+  const palOpenB=v=>{if(v&&!pal.hidden)palOpen(false);if(v)(showEl(palB),palFit(palB));else animHide(palB);bBg.setAttribute('aria-expanded',v)};
   bBg.onclick=()=>{const open=!palB.hidden&&!palB._ah;palOpenB(!open);if(open)eng.focus()};
   palB.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=e=>{set({hbg:b.dataset.c});if(!e.detail)b.focus();else eng.focus()}}); // stays open for several picks (closes on outside click, Esc or the button); keyboard focus stays on the swatch
   {const live=rafLast(c=>set({hbg:c}));edcinB.addEventListener('input',()=>live(edcinB.value))}
