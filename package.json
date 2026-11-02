@@ -152,6 +152,7 @@
     },
     "npmRebuild": false,
     "asarUnpack": [
+      "app/icon-transparent.ico",
       "node_modules/sherpa-onnx-linux-x64/**",
       "node_modules/sherpa-onnx-win-x64/**"
     ]
