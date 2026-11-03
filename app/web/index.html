@@ -327,7 +327,7 @@ header{grid-area:top;display:flex;align-items:center;gap:10px;padding-block:8px;
 .edbgp .edsws{grid-template-columns:repeat(5,22px)}
 .edbar .edsw-none{background:linear-gradient(135deg,var(--panel) 44%,var(--ink) 44%,var(--ink) 56%,var(--panel) 56%)}
 .edbar button[aria-pressed=mixed],#tfmt button[aria-pressed=mixed]{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent);border-style:dashed}
-.tfmt{gap:8px}.tfmt .seg{flex:1}.tfmt .seg svg{width:16px;height:16px}.tfbg{position:relative;flex:none;left:auto;bottom:auto;z-index:auto;background:var(--fill);border:1px solid transparent;border-radius:var(--r);box-shadow:none;padding:0}.tfbg .edcol{height:30px;min-width:34px}.tfpw{position:static;border:0;box-shadow:none;background:none;padding:0;display:block}.tfpw .edpal{position:static;box-shadow:none;border:0;padding:0;background:none}.tfbg button[aria-expanded="true"],.tfbg button.on{background:var(--accent-soft);color:var(--accent)}
+.tfmt{gap:8px}.tfmt .seg{flex:1}.tfmt .seg svg{width:16px;height:16px}.tfbg{position:relative;flex:none;left:auto;bottom:auto;z-index:auto;background:var(--fill);border:1px solid transparent;border-radius:var(--r);box-shadow:none;padding:0}.tfbg .edcol{height:30px;min-width:34px}.tfpw{position:static;border:0;box-shadow:none;background:none;padding:0;display:grid;grid-template-rows:1fr;overflow:clip;overflow-clip-margin:4px}.tfpw .edpal{position:static;box-shadow:none;border:0;padding:0;background:none;min-height:0;align-self:start}.tfbg button[aria-expanded="true"],.tfbg button.on{background:var(--accent-soft);color:var(--accent)}
 .tfbg .edcol{border-radius:calc(var(--r) - 1px)}.tfbg .edcol:focus-visible{outline-offset:-2px} /* follow the rounded (or pill) wrapper like the segmented buttons next to it */
 .edcust{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer}
 .edcust input{width:26px;height:22px;padding:0;border:1px solid var(--line);border-radius:5px;background:var(--panel)}
@@ -654,6 +654,8 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 @keyframes lyr-unfold{from{opacity:0;clip-path:inset(0 0 100% 0 round 12px);transform:translateY(-4px)}to{opacity:1;clip-path:inset(0 0 0 0 round 12px);transform:none}}
 @keyframes lyr-unfold-up{from{opacity:0;clip-path:inset(100% 0 0 0 round 12px);transform:translateY(4px)}to{opacity:1;clip-path:inset(0 0 0 0 round 12px);transform:none}}
 @keyframes lyr-fold{from{opacity:1;clip-path:inset(0 0 0 0 round 12px)}to{opacity:0;clip-path:inset(0 0 100% 0 round 12px);transform:translateY(-3px)}}
+@keyframes lyr-rows-in{from{opacity:0;grid-template-rows:0fr;transform:translateY(-4px)}to{opacity:1;grid-template-rows:1fr;transform:none}}
+@keyframes lyr-rows-out{from{opacity:1;grid-template-rows:1fr}to{opacity:0;grid-template-rows:0fr;transform:translateY(-3px)}}
 @keyframes lyr-pal-in{from{opacity:0;transform:translateY(-6px) scale(.96)}to{opacity:1;transform:none}}
 @keyframes lyr-pal-out{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-4px) scale(.97)}}
 @keyframes lyr-pal-in-up{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
@@ -738,6 +740,9 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .symPop.closing,.edpal.closing,.tfpw.closing,.ctx.closing{animation:lyr-fold .16s ease-in forwards}
 .tbx .edpal:not([hidden]){animation:lyr-pal-in .2s cubic-bezier(.2,.85,.25,1);transform-origin:top left}
 .tbx.flip .edpal:not([hidden]){animation-name:lyr-pal-in-up;transform-origin:bottom left}
+.tfpw:not([hidden]){animation:lyr-rows-in .24s cubic-bezier(.2,.85,.25,1);transform-origin:top left}
+.tfpw.closing{animation:lyr-rows-out .16s ease-in forwards}
+.tfpw .edpal:not([hidden]){animation:none}
 .tbx .edpal.closing{animation:lyr-pal-out .14s ease-in forwards}
 .tbx.flip .edpal.closing{animation-name:lyr-pal-out-up}
 .toast.closing{animation:lyr-toast-out .22s ease-in forwards}
