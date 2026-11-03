@@ -173,6 +173,7 @@ Release notes for version 3.9.0.
 - Special characters such as arrows and maths symbols come from a fallback system font if the chosen font lacks them.
 - Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).
 - The text layer is not available in split view and presentation mode.
+- With the "Night mode for pages" switch on, the sheet option "White" is shown dark (the switch inverts all pages). A clearer behaviour is planned.
 
 # Earlier: Layr 3.8.8
 
