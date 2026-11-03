@@ -2710,6 +2710,10 @@ else {
     await sleep(300);
     const qb = await ev("(()=>{const b=document.querySelector('.tbx .edbar').getBoundingClientRect(),v=document.getElementById('viewer'),r=v.getBoundingClientRect();const res=[Math.round(b.right),Math.round(r.left+v.clientWidth),v.scrollWidth>v.clientWidth];closeEditor();return res})()");
     ok('T2-14: Schnellleiste am rechten Seitenrand bleibt im Fenster, keine waagrechte Bildlaufleiste', qb[0] <= qb[1] && qb[2] === false, qb);
+    // Palette unfold is never clipped: sample the quick bar palette mid-animation (motion on), it lies in the viewer and has no clip-path
+    await ev("design.motion='on';applyDesign(true);newText(0,300,100);ED.eng.put('Hallo')"); await sleep(300);
+    const pm = await ev("(()=>{const bar=document.querySelector('.tbx .edbar'),p=bar.querySelector('.edbgp');bar.querySelector('[data-a=bg]').click();document.getAnimations().forEach(a=>{a.pause();a.currentTime=60});const r=p.getBoundingClientRect(),v=document.getElementById('viewer').getBoundingClientRect(),cp=getComputedStyle(p).clipPath,anim=document.getAnimations().length;document.getAnimations().forEach(a=>{try{a.finish()}catch(e){}});closeEditor();design.motion='off';applyDesign(true);return [r.left>=v.left,r.right<=v.right,r.bottom<=v.bottom,cp,anim]})()");
+    ok('Palette: mitten im Aufklappen im Sichtbereich, ohne Beschnitt', pm[0] && pm[1] && pm[2] && pm[3] === 'none' && pm[4] > 0, pm);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
     // T2-12: Backspace and arrows treat an emoji (surrogate pair) as one step; rich wrapping never splits it
     await ev("newText(0,72,100);ED.focus()");
