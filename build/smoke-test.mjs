@@ -1377,7 +1377,8 @@ else {
     // label texts and overlay pixel while dragging; export bytes with and without the overlay
     const probe = () => ev(`(async()=>{const T=[],f=CanvasRenderingContext2D.prototype.fillText;CanvasRenderingContext2D.prototype.fillText=function(t){T.push(t);return f.apply(this,arguments)};redraw(0);CanvasRenderingContext2D.prototype.fillText=f;
       const P=S.pages[0],g=S.guides.gaps[0],k=P.ink.width/P.w,px=P.ictx.getImageData(Math.round((g.a+g.b)/2*k),Math.round((g.c-6.5)*k),1,1).data;
-      const h=async()=>{const b=new Uint8Array(await buildOutput());return b.length};
+      // pdf-lib stamps ModDate (new Date()) into a compressed object stream: its size varies by a byte or two with the second, so pin the clock for both builds
+      const RD=Date,t0=RD.now(),h=async()=>{globalThis.Date=class extends RD{constructor(...a){a.length?super(...a):super(t0)}static now(){return t0}};try{return new Uint8Array(await buildOutput()).length}finally{globalThis.Date=RD}};
       const e1=await h();const sg=S.guides;S.guides=null;const e0=await h();S.guides=sg;return JSON.stringify({T:T.filter(t=>/ mm$/.test(t)),px:[px[0],px[1],px[2]],same:e0===e1})})()`, 20000).then(JSON.parse);
     // move: third box next to two boxes with a 60 pt gap -> snaps to the exact equal gap, markers + labels + overlay only
     let r = await dragP([430, 350], [373, 350], 0, probe);
