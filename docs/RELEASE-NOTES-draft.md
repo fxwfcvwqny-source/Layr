@@ -119,7 +119,6 @@ Release notes for version 3.10.0.
 - Bookmarks (outlines) are lost when pages are rebuilt or reordered (pdf-lib has no API for them); Layr warns once per move when the document has some.
 - The text layer is not available in split view and presentation mode.
 - Alt+click / Alt+drag may be taken by the window manager on some Linux desktops (KDE, Xfce); the same actions are available without Alt where possible.
-- With the "Night mode for pages" switch on, the sheet option "White" is shown dark.
 - Under Wayland/GNOME the window icon comes from the .desktop file and stays black.
 - New symbols (groups "Storage & backup" and "Math & logic") are unknown to older versions: they are not shown there and are removed when the file is saved again in an older version.
 - Older versions keep at most 5000 to-dos.
@@ -174,7 +173,6 @@ Release notes for version 3.9.0.
 - Special characters such as arrows and maths symbols come from a fallback system font if the chosen font lacks them.
 - Bookmarks (outlines) are lost when pages are rebuilt (pdf-lib has no API for them).
 - The text layer is not available in split view and presentation mode.
-- With the "Night mode for pages" switch on, the sheet option "White" is shown dark (the switch inverts all pages). A clearer behaviour is planned.
 
 # Earlier: Layr 3.8.8
 
