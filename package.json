@@ -1,6 +1,6 @@
 {
   "name": "layr",
-  "version": "3.9.0",
+  "version": "3.10.0",
   "description": "Layr – annotate, draw and take notes on PDFs",
   "main": "app/main.js",
   "author": {
@@ -47,7 +47,8 @@
         "ext": "pdf",
         "name": "PDF-Dokument",
         "description": "PDF-Dokument",
-        "role": "Editor"
+        "role": "Editor",
+        "icon": "build/icon.ico"
       }
     ],
     "win": {
@@ -59,7 +60,7 @@
           ]
         }
       ],
-      "icon": "build/icon.ico",
+      "icon": "build/icon-transparent.ico",
       "executableName": "Layr",
       "artifactName": "Layr-Setup-${version}.${ext}"
     },
@@ -151,6 +152,7 @@
     },
     "npmRebuild": false,
     "asarUnpack": [
+      "app/icon-transparent.ico",
       "node_modules/sherpa-onnx-linux-x64/**",
       "node_modules/sherpa-onnx-win-x64/**"
     ]

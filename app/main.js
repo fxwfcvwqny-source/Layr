@@ -173,7 +173,7 @@ else {
     win = new BrowserWindow({
       width: 1400, height: 900, minWidth: 420, minHeight: 400,
       title: 'Layr', backgroundColor: '#e6eaee',
-      icon: path.join(__dirname, 'icon.png'),
+      icon: path.join(__dirname, process.platform === 'win32' ? 'icon-transparent.ico' : 'icon-transparent.png').replace('app.asar' + path.sep, 'app.asar.unpacked' + path.sep), // .ico lets Windows pick the hand-tuned 16/20/24 px entries; the native window icon loader cannot read inside app.asar
       webPreferences: { preload: path.join(__dirname, 'preload.js'), spellcheck: false, contextIsolation: true, nodeIntegration: false, sandbox: true,
         webSecurity: true, navigateOnDragDrop: false, safeDialogs: true, devTools: process.env.LAYR_DEBUG === '1' },
     });
@@ -236,7 +236,10 @@ handle('tab-claim', (_e, t) => {
 handle('save', async (_e, name, data, saveAs) => {
   if (!isPdfBytes(data)) return null;
   const known = savedPath || currentFile, base = safeBase(name);
-  if (!saveAs && known) { writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known); }
+  if (!saveAs && known) {
+    if (isReadOnly(known)) return { ro: path.basename(known) };   // the page shows a hint; "Speichern unter" still overwrites on purpose
+    writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known);
+  }
   // neues Dokument oder „Speichern unter“: der Ort kommt immer aus dem Dialog des Systems
   const r = await dialog.showSaveDialog(win, { title: T('Speichern unter'), defaultPath: path.join(known ? path.dirname(known) : lastDir, base), filters: [{ name: 'PDF', extensions: ['pdf'] }] });
   if (r.canceled || !r.filePath) return null;
@@ -276,7 +279,13 @@ handle('export', async (_e, name, data) => {
 // Speichern aktualisiert die geöffnete Datei selbst (wie bei Word). Die unbeschriftete Fassung steckt als
 // Anhang in der PDF, Layr kann beim nächsten Öffnen also alles weiter bearbeiten oder wieder entfernen.
 // Erst in eine zufällig benannte, exklusiv angelegte Hilfsdatei schreiben (folgt keinem Symlink), dann ersetzen.
+// Existing file without write permission (mode bits also catch root and the Windows read-only flag)
+function isReadOnly(p) {
+  try { if (!(fs.statSync(p).mode & 0o200)) return true; fs.accessSync(p, fs.constants.W_OK); return false; }
+  catch (e) { return e.code === 'EACCES' || e.code === 'EPERM' || e.code === 'EROFS'; }
+}
 function writeSafe(t, data, noReplace) {
+  if (!noReplace) { try { t = fs.realpathSync(t); } catch (e) {} }   // save through a symlink: replace the target, keep the link
   const dir = path.dirname(t), tmp = path.join(dir, `.${path.basename(t)}.${crypto.randomBytes(8).toString('hex')}.layr-tmp`);
   const fd = fs.openSync(tmp, 'wx', 0o600);
   try { let off = 0; while (off < data.length) off += fs.writeSync(fd, data, off, data.length - off); fs.fsyncSync(fd); }
@@ -298,7 +307,7 @@ listen('new-doc', () => { savedPath = null; currentFile = null; });
 handle('autosave', (_e, name, data) => {
   if (!isPdfBytes(data)) return null;
   const known = savedPath || currentFile;
-  if (known) { writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known); }
+  if (known) { if (isReadOnly(known)) return { ro: path.basename(known) }; writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known); }
   // neues Blatt: im zuletzt benutzten Ordner unter einem freien Namen anlegen, nie eine vorhandene Datei ersetzen
   const dir = path.resolve(lastDir), b = safeBase(name).replace(/\.pdf$/i, '');
   for (let n = 1; n < 1000; n++) {

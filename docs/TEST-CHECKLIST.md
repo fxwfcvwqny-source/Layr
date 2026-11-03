@@ -1,43 +1,153 @@
-# Layr 3.9.0: Testliste für Windows
+# Layr 3.10.0: Testliste für Windows und Linux
 
-Installiere `Layr-Setup-3.9.0.exe` (Entwurf `v3.9.0`). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
-Notiere vorab: Windows-Skalierung (Einstellungen, Anzeige) und Fenstergröße. Ideal: alles bei 100 %, 125 % und 150 % prüfen (Abmelden nach Änderung nicht nötig, Layr neu starten).
+Installiere den Entwurf 3.10.0 (Windows: `Layr-Setup-3.10.0.exe`, Linux: `.deb`/AppImage). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
+Format je Zeile: Was tun, dann "→" was du sehen sollst. [Linux] / [Windows] = nur dort prüfen. Alle Schalter stehen im Menü Einstellungen (Zahnrad) bzw. unter "Design anpassen" / "Schreiben & Rechtschreibung".
+Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 100 %, 125 % und 150 % prüfen (Layr danach neu starten). Schwerpunkt dort: scharfe Symbole, Icons, Speicheranzeige, Zahlen unten, Objektleiste.
 
-## 1. Textauswahl
-- [ ] Auf einer Seite mit viel Text von einer Seite über die Seitengrenze auf die nächste ziehen: nur der überstrichene Text wird markiert, nicht die ganze nächste Seite.
-- [ ] Nach dem Loslassen Strg+C und in Notepad einfügen: Text passt zur Markierung.
-- [ ] Nach der Markierung erscheint eine eigene Auswahlleiste mit "Kopieren": Klick kopiert den Text.
-- [ ] "Markieren" in der Leiste: Ein Klick auf eine Farbe markiert den gewählten Text sofort in dieser Farbe. Der Knopf "Markieren" nutzt danach die zuletzt gewählte Farbe. Eigene Farbe: nach Bestätigung im Farbdialog wird der Text markiert, auch wenn die Auswahl dabei verschwindet.
-- [ ] Gedrehter Text: Hervorhebung ist ein achsenparalleles Kästchen (bekannte Grenze, kein Fehler).
+## 1. Installation und Update von 3.9.0
+- [ ] Über eine vorhandene 3.9.0 installieren → Einstellungen (Design, Leiste, Tastenkürzel) wie vorher.
+- [ ] Datei öffnen, die in 3.9.0 ungespeichert bearbeitet und nicht gespeichert wurde → Wiederherstellung bietet die Anmerkungen weiter an.
+- [ ] Alte, in 3.9.0 gespeicherte PDF öffnen → sieht unverändert aus, Objekte bearbeitbar.
+- [ ] [Windows] Fenster-, Taskleisten- und Exe-Symbol → transparenter Hintergrund, kein schwarzes Quadrat (Installer darf es haben).
+- [ ] [Linux] Fenstersymbol unter GNOME/Wayland bleibt schwarz → bekannte Grenze.
 
-## 2. Text-Schnellleiste
-- [ ] Textfeld anlegen: Kursiv-Knopf ist da (nicht hinter "Löschen"). Strg+I schaltet Kursiv um.
-- [ ] Texthintergrund-Farbe wählen: Hintergrund erscheint hinter dem Text. Bei gestapeltem Text fehlt er (bekannte Grenze).
-- [ ] Neues Textfeld übernimmt Kursiv/Hintergrund aus der Seitenleiste nicht (bekannte Grenze).
+## 2. Vorlagen und Symbole
+- [ ] Vorlage (z. B. Organigramm) wählen, aufs Blatt klicken → sie erscheint dort, vorher folgt ihr eine Vorschau.
+- [ ] Beim Klicken ziehen → Vorlage wird auf die Ziehgröße skaliert.
+- [ ] Esc oder Rechtsklick vor dem Platzieren → Vorschau verschwindet, nichts wird gesetzt.
+- [ ] Umschalt gedrückt platzieren → Vorlage bleibt bereit, mehrfach setzbar.
+- [ ] [Linux] Vorlage platzieren und sofort anklicken → bleibt sichtbar, Zeiger bleibt sichtbar, Auswahl möglich.
+- [ ] Platzierte Vorlage anklicken → ganze Vorlage ausgewählt; verschieben, skalieren, kopieren (Strg+C/V) → bleibt zusammen.
+- [ ] Alt+Klick oder Doppelklick auf ein Teil → nur dieses Teil gewählt und bearbeitbar. [Linux] Alt kann vom Fenstermanager belegt sein.
+- [ ] Symbolgruppe "Speicher & Backup": RAID 0/1/5/6/10, NAS, Backupserver, Band, Cloud-Backup, Snapshot, Replikation, externe Platte, SAN-Switch → alle sichtbar, RAID-Buchstaben gleich groß.
+- [ ] Dunkles Design → dunkle Symbole bleiben sichtbar.
+- [ ] «include» / «extend» ohne gewählte Linie klicken → Pfeilwerkzeug mit gestricheltem offenem Pfeil und Beschriftung; Esc bricht ab.
+- [ ] «include» / «extend» mit gewählter Linie → Linie bekommt die Beschriftung.
+- [ ] Symbolgruppe "Mathe & Logik": 12 Symbole (≥ ≤ ≠ ≈ ± × ÷ → ⇒ ∞ √ ∑) per Klick setzen, Größe ziehen, Linien andocken.
+- [ ] RAID-Symbol setzen, Doppelklick → Stufe im Symbol bearbeiten; speichern, neu öffnen → Beschriftung bleibt.
+- [ ] RAID-Zylinder: Doppelklick auf einen Zylinder → die Buchstaben darin bearbeiten; Doppelklick auf den Streifen → Beschriftung; speichern, neu öffnen → beides bleibt.
+- [ ] Notizen: langer Aufgabentext (auch ohne Leerzeichen) bricht um und die Zeile wächst mit; auch nach Öffnen des Panels und nach Zusammenführen.
+- [ ] Include/Extend-Knopf scharf geschaltet → deutlich gedrückt (Akzentfarbe); nach dem Pfeil oder Esc wieder normal.
+- [ ] Vorlage setzen, schnell kopieren/einfügen und verschieben → nichts verschwindet.
 
-## 3. Werkzeugleiste
-- [ ] "Mehr": Knopf sieht im Ruhezustand nicht aktiv aus; nach Öffnen und Schließen des Menüs wieder normal.
-- [ ] Schwebende Leiste, Ausrichtung links: Leiste sitzt links.
-- [ ] Feste Leiste, Fenster mind. 1200 px breit: Leiste ist mittig über dem Blatt. Schmaler ziehen: Layout fällt zurück.
-- [ ] Dichte "Groß": ab 1360 px Fensterbreite wirksam, darunter alte Anordnung.
+## 3. Auswahlwerkzeug
+- [ ] Umschalt+Klick auf mehrere Objekte, auch eine Vorlage → Gruppe zählt als ein Objekt; Statuszeile "N Objekte gewählt".
+- [ ] Strg+G mit mehreren Objekten → gemeinsam verschiebbar (Benutzergruppe). Strg+Umschalt+G → wieder einzeln.
+- [ ] Rechtsklick-Menü → Einträge Gruppieren / Gruppierung aufheben / Ausrichten / Reihenfolge vorhanden.
+- [ ] Objekte ausrichten und gleichmäßig verteilen → Kanten exakt, angedockte Linien folgen, Strg+Z macht es in einem Schritt rückgängig.
+- [ ] Objekt verschieben → Hilfslinien an Kanten und Mitten, Einrasten an den Seitenrändern; Alt kurz → keine Hilfslinien.
+- [ ] Ecke skalieren → Hilfslinien auch hier.
+- [ ] Schalter "Hilfslinien (beim Verschieben und Größe ändern)" (Standard AN) AUS → keine Linien, kein Einrasten.
+- [ ] Drei Objekte nebeneinander (zwei mit Lücke), das dritte in ähnlichem Abstand heranziehen → rastet auf gleichen Abstand ein, rote Maßlinien mit "x,x mm" in beiden Lücken; auch senkrecht und beim Skalieren einer Ecke. Alt kurz bzw. Schalter AUS → kein Einrasten, keine Maßlinien. Im gespeicherten/gedruckten PDF sind keine Maßlinien.
+- [ ] Waagerecht/Senkrecht verteilen → Hinweis "Abstände gleich: x,x mm". Seitenleiste Auswahl → Feld "Abstand (mm)" (ab 2 Objekten): Wert eingeben, Knopf waagerecht/senkrecht (oder Enter) → genau dieser Abstand, erstes Objekt bleibt, Strg+Z in einem Schritt.
+- [ ] Feld "Abstand (mm)": "12,5" und "12.5" ergeben beide 12,5 mm (auch bei englischem System); sehr großer Wert → Hinweis "Passt nicht auf die Seite", nichts bewegt sich, kein Rückgängig-Schritt; negativ, leer oder Text → Feld rot markiert (aria-invalid) mit kurzem Hinweis.
+- [ ] Objekt wählen → kleine Objektleiste darüber (Duplizieren, Löschen, Sperren, Farbe, Reihenfolge, Ausrichten); jeder Knopf wirkt.
+- [ ] F6 → Fokus springt in die Objektleiste, Pfeile/Tab/Enter bedienen sie, Esc zurück.
+- [ ] Schalter "Objektleiste am gewählten Objekt" (Standard AN) AUS → keine Leiste.
+- [ ] Objekt gewählt, Dialog öffnen (z. B. Drucken) → Objektleiste nicht über dem Dialog.
+- [ ] Alt auf einer Eckgriff-Skalierung → Größe ändert sich von der Mitte aus. [Linux] kann vom Fenstermanager abgefangen werden.
+- [ ] Strg+] / Strg+[ → Objekt eine Ebene nach vorn/hinten; Strg+Umschalt+] / [ → ganz nach vorn/hinten.
+- [ ] Deutsche Tastatur, Alternativen: Strg+Umschalt+Hoch/Runter (eine Ebene), Strg+Alt+Umschalt+Hoch/Runter (ganz) → gleiche Wirkung.
+- [ ] Gruppe in der Reihenfolge verschieben → springt als Block. Speichern, neu öffnen → Reihenfolge bleibt.
+- [ ] Tab / Umschalt+Tab mit Auswahlwerkzeug → nächstes/voriges Objekt der Seite, Gruppen als ein Halt, Ansage durch Screenreader.
+- [ ] Esc nach Tab → normales Tab durch die Oberfläche wieder möglich.
+- [ ] Schalter "Tab wechselt zwischen Objekten" (Standard AN) AUS → Tab läuft nur durch die Oberfläche.
+- [ ] Doppelklick auf Gerät mit durchlaufender Linie → Gerät wird bearbeitet, nicht die Linie.
+- [ ] Umschalt-/Strg-Klick auf ein Objekt in jedem Werkzeug (auch Stift, Linie, Symbol, Text) → Auswahl wird umgeschaltet, nichts wird gezeichnet; Umschalt+Ziehen zeichnet normal (Winkel 15°).
+- [ ] Alt+Klick auf übereinanderliegende Objekte → wählt reihum das nächste.
+- [ ] Linien-/Pfeilwerkzeug: auf eine vorhandene Linie ziehen → Linie wird verschoben (Zeiger "verschieben"); Alt+Ziehen zeichnet eine neue.
+- [ ] Linie gewählt: Felder Länge (mm) und Winkel (0° = rechts, gegen den Uhrzeigersinn) ändern per Eingabe und Pfeiltasten, Rückgängig stellt zurück; bei angedockter Linie gesperrt.
+- [ ] Bild gewählt → Zuschneiden-Knopf in der Objektleiste startet den Zuschnitt; bei anderen Objekten fehlt er.
+- [ ] Farbe im Objekt-Menü setzen → die Objektleiste behält ihre Größe.
+- [ ] Rechte Seitenleiste: Textformat (Fett, Kursiv, Unterstrichen, Hintergrund) ganz oben, schaltet an und wieder aus, Zustand sichtbar; Füllung neben der Farbe; Farbeimer-Symbol beim Textfeld-Hintergrund.
 
-## 4. Symbole und Topologien
-- [ ] Symbolkacheln rechts: nur eine Beschriftung, alle gleich groß, Bilder werden in schmalen Kacheln kleiner statt abgeschnitten.
-- [ ] Kachel "Tabelle" erscheint nur unter "Formen".
-- [ ] Topologien: Stern, Ring, Bus, Baum, Masche einfügen. Alle Geräte lassen sich beschriften und verschieben, Linien bleiben angedockt.
-- [ ] Bus hat eine gemeinsame Leitung (Backbone).
-- [ ] Doppelklick auf ein Gerät oder dessen Beschriftung, durch das eine Linie läuft: Gerät wird bearbeitet, nicht die Linie.
-- [ ] Doppelklick auf eine freie Linie bearbeitet die Linie wie bisher.
-- [ ] Alte einzelne Topologie-Symbole: nicht in den Knoten bearbeitbar (bekannte Grenze).
-- [ ] Dunkles Design: dunkle Symbole bleiben sichtbar.
+## 4. Text
+- [ ] Wörter im Textfeld markieren, Fett/Kursiv/Unterstrichen/Hervorgehoben → nur die Wörter ändern sich; Mischzustand in den Knöpfen sichtbar.
+- [ ] Strg+Z / Strg+Y im Textfeld → Formatierung wird mit dem Text zurückgesetzt/wiederholt.
+- [ ] Sehr langer Text (viele tausend Zeichen) mit Formatierung → Tippen bleibt flüssig, Umbrüche springen nicht.
+- [ ] Rechte Seitenleiste, Textabschnitt: Fett, Kursiv, Unterstrichen, Hintergrund → Knöpfe zeigen den Zustand, lassen sich auch AUSschalten, wirken auf die Auswahl.
+- [ ] Neues Textfeld nach gesetztem Kursiv/Hintergrund → übernimmt beides.
+- [ ] Schnellleiste im Textfeld, Farbeimer (Texthintergrund): Palette bleibt nach einem Klick offen, mehrere Farben nacheinander wählen (Auswahl färbt sofort, gewählte Farbe ist markiert); schließt bei Klick daneben/in den Text, Esc oder erneutem Klick auf den Eimer. Mit Tastatur: Enter auf Farbfeld, Fokus bleibt dort. Seitenleiste (Textformat) schließt weiter nach der Wahl.
+- [ ] Schnellleiste, Texthintergrund-Palette bei Textfeld ganz oben/links (Leiste klappt unter das Feld): Palette ist komplett sichtbar (nicht oben abgeschnitten), auch bei 800 px Fensterbreite, 200 % Zoom und großer Schnellleiste; am linken/rechten Rand schiebt sie sich in den Sichtbereich. Eimer-Knopf in der Seitenleiste: Hover/Fokus/Offen folgt der runden Form (auch bei Ecken „Pille“). Beim Aufklappen (Bewegung an) nirgends abgeschnitten (Ecke, Schatten), Seitenleisten-Palette wächst weich und schiebt die Felder darunter mit, ohne Sprung beim Schließen; mit „Bewegung aus“ oder reduzierter Bewegung sofort.
+- [ ] Tippen von `->` `<-` `<->` `=>` `...` `(c)` `(tm)` `+-` `!=` mit Leerzeichen → werden ersetzt; Rückschritt direkt danach bringt die Zeichen zurück.
+- [ ] `--` zwischen Leerzeichen → Gedankenstrich. In URL, Optionen (`--help`) und Aufzählung → keine Ersetzung.
+- [ ] Autokorrektur auch in Tabellenzellen, Beschriftungen und Notizen → funktioniert; in Notizen nach Rückschritt kein Rest-Auswahlbereich.
+- [ ] In einem Textfeld " <=" und " >=" tippen → ≤ bzw. ≥; Rückschritt bringt die getippten Zeichen zurück; x<=y und a>=b ohne Leerzeichen davor bleiben unverändert.
+- [ ] Einstellung "Autokorrektur für Zeichen (→, –, …)" (Standard: "Zeichen ersetzen") auf "Aus" → nichts wird ersetzt.
+- [ ] Strg+Umschalt+K → Sonderzeichen-Auswahl (Aufzählungszeichen, Pfeile); Zeichen einfügen. Auch über den Knopf in der Schnellleiste.
+- [ ] Tastenkürzel-Liste (auch ohne gewähltes Objekt) → "Sonderzeichen-Auswahl", Gruppieren und die Reihenfolge-Einträge sind dort, umbelegbar, Konflikte werden gemeldet.
+- [ ] Lineal: drehen, Winkel im Feld eintippen, Umschalt rastet in 15° → Drehung um die Mitte.
+- [ ] Tabelle mit viel Zellentext → Zeile wächst nach unten, Tabelle bleibt auf der Seite; Schriftgröße/Spalte ändern → passt neu.
+- [ ] Großes Textfeld, viel tippen → Blatt wackelt nicht seitwärts. [Windows] besonders prüfen.
+- [ ] Lange Notizen speichern, schließen, öffnen → nichts abgeschnitten.
 
-## 5. Regression
-- [ ] PDF öffnen, zeichnen (Stift, Pfeil, Textfeld), speichern, schließen, wieder öffnen: alles noch da.
-- [ ] Diktat: Mikrofon-Knopf, Windows fragt, Text erscheint im Textfeld.
-- [ ] Geteilte Ansicht: zwei Spalten, gleiche Höhe, Mitscrollen geht (Textauswahl hier nicht verfügbar, bekannte Grenze).
-- [ ] Hell/Dunkel umschalten: kein Ruckeln, Schrift lesbar.
-- [ ] "Jetzt nach Updates suchen": keine Fehlermeldung.
-- [ ] Neustart: Einstellungen (Design, Leiste) wie vorher.
+## 5. Bilder
+- [ ] Bild wählen, mittlerer Seitengriff ziehen → nur Breite oder Höhe ändert sich (verzerrt).
+- [ ] Doppelklick auf einen Seitengriff → Seitenverhältnis wieder wie Original.
+- [ ] Eckgriff → bleibt proportional; Umschalt/Alt wie in der Seitenleisten-Info beschrieben.
+- [ ] Zuschneiden-Knopf, Doppelklick oder Umschalt+C → Zuschneidemodus; Rand ziehen, Maße in mm sichtbar.
+- [ ] Zuschneidemodus per Tastatur: Tab wählt die Kante, Pfeile bewegen, Umschalt = 10 pt → Ansage.
+- [ ] Zuschneiden speichern, neu öffnen → bleibt, Zuschnitt änderbar; einmaliger Hinweis, dass das ganze Bild in der Datei bleibt.
+- [ ] Dokument wechseln im Zuschneidemodus → Modus endet, Abbruch macht nur den eigenen Schritt rückgängig.
+
+## 6. Seiten und Navigation
+- [ ] Seitenvorschau: "+" und Einfügeleisten zwischen den Miniaturen → neue Seite an der Stelle.
+- [ ] Miniatur ziehen → Reihenfolge ändert sich; Lesezeichen-Warnung erscheint, wenn das Dokument welche hat (bekannte Grenze).
+- [ ] Keine Verschiebe-Pfeile an den Miniaturen; Ziehen, Alt+Hoch/Runter und Rechtsklick-Menü verschieben Seiten.
+- [ ] Topologie-Kacheln (Stern, Ring, Bus, Linie, Mesh, Teilvermascht, Baum, Erweiterter Stern) setzen wie in 3.9 ein einzelnes Symbol; keine Topologie-Vorlagen.
+- [ ] Kopfmenüs Datei, Ansicht, Einstellungen: Abschnittsüberschriften, höchstens ca. 560 px hoch (sonst Scrollen), Pfeiltasten, Pos1/Ende, Esc gibt den Fokus an den Knopf zurück; jeder Eintrag hat ein eigenes Symbol.
+- [ ] Viele Seiten: Miniaturen laden beim Scrollen, kein Ruckeln.
+- [ ] Feld "Seite 3 / 12": Zahl tippen, Enter → Sprung; zu große Zahl wird begrenzt; Esc stellt zurück.
+- [ ] Strg+Alt+G → Fokus im Seitenfeld, auch wenn es transparent war.
+- [ ] Design "Seitenwahl": Unten schwebend (Standard) / In der Seitenvorschau / Aus → entsprechend; bei "Aus" nur Anzeige unten links.
+- [ ] Zeichenwerkzeug oder bereitgehaltene Vorlage aktiv → schwebende Seitenwahl bleibt voll bedienbar (Klick, Ctrl+Alt+G), zeichnet/platziert nichts.
+- [ ] Design "Position der Seitenwahl" Links (Standard) / Mitte / Rechts → nur bei "Unten schwebend"; auch in geteilter Ansicht; Objektleiste verdeckt sie nicht.
+- [ ] Präsentation und schmale geteilte Ansicht → Seitenwahl ausgeblendet.
+- [ ] Zwei PDFs zusammenführen (eine mit Layr-Textfeldern) → Textfelder bleiben bearbeitbar, Notizen und Aufgaben beider werden zusammengeführt.
+- [ ] Zusammenführen mit ausgefülltem Formular → eingetragene Werte bleiben (ggf. mit Hinweis).
+
+## 7. Einstellungen und Design
+- [ ] Speicheranzeige oben links: gespeichert / ungespeichert (ROT) / speichert (Kreisel) / Fehler → Zustände unterscheidbar, auch in Hell, Dunkel, kontrastreich.
+- [ ] Design "Speicheranzeige" Symbol (Standard) / Text → beide Varianten.
+- [ ] Rechte Seitenleiste: Regler oder Schalter fokussieren/benutzen → Hinweis erscheint daneben, Seitenleiste springt nicht.
+- [ ] Design "Tipps in der Seitenleiste" (Standard AN) AUS → keine Hinweise mehr.
+- [ ] Seitenzahl, Zoom, Wertangaben im Panel, Zähler → Oberflächenschrift mit gleich breiten Ziffern, die "1" ist normal.
+- [ ] Hell, Dunkel, kontrastreiche Farben → neue Schalter und Hinweise lesbar.
+- [ ] Neustart → alle Schalter behalten ihren Zustand.
+
+## 8. Tastenkürzel (Kurzübersicht)
+- [ ] Strg+G / Strg+Umschalt+G → gruppieren / lösen.
+- [ ] Strg+] / Strg+[ und mit Umschalt → Reihenfolge; Alternativen Strg+Umschalt+Hoch/Runter, Strg+Alt+Umschalt+Hoch/Runter.
+- [ ] Strg+Alt+G → Seitenfeld. Strg+Umschalt+K → Sonderzeichen.
+- [ ] Umschalt+C → Zuschneiden (Bild gewählt). Tab / Umschalt+Tab → Objekte. F6 → Objektleiste. Strg+I → Kursiv.
+- [ ] Einstellungen > Symbole anpassen: Gruppe abwählen → fehlt in der Symbol-Palette; bereits gesetzte Symbole davon bleiben sichtbar, auch nach Speichern/Wiederöffnen. "Alle zeigen" bringt alles zurück. Alles abwählen → Hinweis statt leerer Palette. Tastatur und Screenreader-Namen am Dialog prüfen.
+
+## 9. Barrierefreiheit
+- [ ] Alles mit der Tastatur erreichbar: Schalter, Objektleiste, Zuschneiden, Seitenwahl; sichtbarer Fokus.
+- [ ] Screenreader/Live-Ansagen: Auswahlzahl, Tab-Halt, Zuschneidekante, bereitgehaltene Vorlage.
+- [ ] Kontrast der neuen Elemente in Hell/Dunkel lesbar (mind. 4,5:1).
+
+## 10. Regression
+- [ ] PDF öffnen, zeichnen (Stift, Pfeil, Textfeld, Symbol), speichern, schließen, wieder öffnen → alles noch da, bearbeitbar.
+- [ ] Zusammenführen und Exportieren (PDF, Bild) → Ergebnis öffnet, Anmerkungen vorhanden.
+- [ ] Diktat: Mikrofon-Knopf, System fragt, Text erscheint im Textfeld.
+- [ ] "Jetzt nach Updates suchen" → keine Fehlermeldung.
+- [ ] Hell/Dunkel/System umschalten → kein Ruckeln, Schrift lesbar.
+- [ ] Geteilte Ansicht → zwei Spalten, Mitscrollen.
+- [ ] Rückgängig/Wiederholen über mehrere Schritte (Vorlage, Gruppe, Formatierung, Zuschnitt).
+
+## Bekannte Grenzen (bitte nicht melden)
+- Gedrehter Text hat achsenparallele Hervorhebung; Texthintergrund und Wortformatierung fehlen bei gestapeltem Text.
+- Zuschneiden blendet nur aus, das ganze Bild bleibt in der Datei (Schwärzen entfernt endgültig).
+- Lesezeichen gehen beim Neuaufbau und Umsortieren der Seiten verloren (Warnung erscheint).
+- Textebene fehlt in geteilter Ansicht und Präsentation.
+- Alt+Klick/Alt+Ziehen kann unter KDE/Xfce vom Fenstermanager belegt sein.
+- Mit "Nachtmodus" wird die Blattfarbe "Weiß" dunkel gezeigt.
+- Nachtmodus an/aus mit Hell/Dunkel und Blattfarbe Weiß/Grau/Nacht prüfen → Nacht an setzt das Design auf Dunkel und zeigt Seiten dunkel (Blattfarbe Nacht bleibt dunkel, nicht weiß); Nacht aus stellt den vorherigen Grundmodus wieder her; Grundmodus Hell bei Nacht an schaltet Nacht aus; Dunkel allein macht Seiten nicht dunkel; Speichern/Drucken bleiben hell.
+- Nachtmodus-Migration prüfen: alte Einstellung (Nacht an, Design Hell) starten → Design Dunkel, Seiten dunkel; Nacht aus → wieder Hell. Mit Design Dunkel und Nacht an startet, Nacht aus → bleibt Dunkel.
+- Neue Speicher-&-Backup-Symbole fehlen in älteren Versionen und gehen verloren, wenn die Datei dort erneut gespeichert wird.
+- Ältere Layr-Versionen ignorieren Wortformatierung, Zuschnitt und Gruppen; Teile einer Vorlage, die in älteren Versionen dupliziert wurden, bilden in 3.10 mit dem Original eine Gruppe.
+- [Linux] Fenstersymbol unter GNOME/Wayland bleibt schwarz.
 
 ## Meldung an mich
-Schicke mir pro Fehler: Punkt aus der Liste, was du gesehen hast, Screenshot, Windows-Skalierung.
+Pro Fehler: Punkt aus der Liste, was du gesehen hast, Screenshot, Betriebssystem, Windows-Skalierung.
