@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6fCbkMl9It0+jKrPV0B6qbscsgv3bHnHNGRpNOtJDfc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-26simOUtpDjotdYhDdmqoRL5EbN+w6ebCK32COJxDCk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -654,6 +654,10 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 @keyframes lyr-unfold{from{opacity:0;clip-path:inset(0 0 100% 0 round 12px);transform:translateY(-4px)}to{opacity:1;clip-path:inset(0 0 0 0 round 12px);transform:none}}
 @keyframes lyr-unfold-up{from{opacity:0;clip-path:inset(100% 0 0 0 round 12px);transform:translateY(4px)}to{opacity:1;clip-path:inset(0 0 0 0 round 12px);transform:none}}
 @keyframes lyr-fold{from{opacity:1;clip-path:inset(0 0 0 0 round 12px)}to{opacity:0;clip-path:inset(0 0 100% 0 round 12px);transform:translateY(-3px)}}
+@keyframes lyr-pal-in{from{opacity:0;transform:translateY(-6px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes lyr-pal-out{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-4px) scale(.97)}}
+@keyframes lyr-pal-in-up{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes lyr-pal-out-up{from{opacity:1;transform:none}to{opacity:0;transform:translateY(4px) scale(.97)}}
 @keyframes lyr-fade-out{from{opacity:1}to{opacity:0}}
 @keyframes lyr-out{from{opacity:1;transform:none}to{opacity:0;transform:translateY(6px) scale(.975)}}
 @keyframes lyr-slide-out{from{opacity:1;transform:none}to{opacity:.3;transform:translateX(48px)}}
@@ -732,6 +736,10 @@ header .pill{transition:background .2s,color .2s,border-color .2s}
 .studio.closing{animation:lyr-slide-out .22s ease-in forwards}
 .drawer-bg.closing{animation:lyr-fade-out .22s ease-in forwards}
 .symPop.closing,.edpal.closing,.tfpw.closing,.ctx.closing{animation:lyr-fold .16s ease-in forwards}
+.tbx .edpal:not([hidden]){animation:lyr-pal-in .2s cubic-bezier(.2,.85,.25,1);transform-origin:top left}
+.tbx.flip .edpal:not([hidden]){animation-name:lyr-pal-in-up;transform-origin:bottom left}
+.tbx .edpal.closing{animation:lyr-pal-out .14s ease-in forwards}
+.tbx.flip .edpal.closing{animation-name:lyr-pal-out-up}
 .toast.closing{animation:lyr-toast-out .22s ease-in forwards}
 /* Aufklappbare Abschnitte im Seitenbereich */
 .panel .sec{overflow:hidden;transition:height .32s cubic-bezier(.3,.9,.3,1),padding .32s}
@@ -5153,7 +5161,7 @@ function openTextEditor(i,o,isNew,at){
   bI.onclick=()=>{set({italic:!o.italic});eng.focus()};
   bLb.onclick=()=>{eng.list('b');eng.focus()};bLn.onclick=()=>{eng.list('n');eng.focus()};
   root.querySelector('[data-a=in]').onclick=()=>{eng.indent(1);eng.focus()};root.querySelector('[data-a=out]').onclick=()=>{eng.indent(-1);eng.focus()};
-  const palFit=p=>{const bar=root.querySelector('.edbar'),vw=$('#viewer');p.style.left='';if(!bar||!vw)return;const k=bar.getBoundingClientRect().width/bar.offsetWidth||1,v=vw.getBoundingClientRect(),r=p.getBoundingClientRect(),sh=Math.min(0,v.left+vw.clientWidth-4-r.right)+Math.max(0,v.left+4-r.left);if(sh)p.style.left=sh/k+'px'}; // keep the palette inside the viewer (left and right edge)
+  const palFit=p=>{const bar=root.querySelector('.edbar'),vw=$('#viewer');p.style.left='';if(!bar||!vw)return;const k=bar.getBoundingClientRect().width/bar.offsetWidth||1,v=vw.getBoundingClientRect(),r=p.getBoundingClientRect(),sh=Math.min(0,v.left+vw.clientWidth-4-(r.left+p.offsetWidth*k))+Math.max(0,v.left+4-r.left);if(sh)p.style.left=sh/k+'px'}; // keep the palette inside the viewer (left and right edge)
   const palOpen=v=>{if(v&&!palB.hidden)palOpenB(false);if(v)(showEl(pal),palFit(pal));else animHide(pal);bC.setAttribute('aria-expanded',v)};
   bC.onclick=()=>{const open=!pal.hidden&&!pal._ah;palOpen(!open);if(open)eng.focus()};
   const palOpenB=v=>{if(v&&!pal.hidden)palOpen(false);if(v)(showEl(palB),palFit(palB));else animHide(palB);bBg.setAttribute('aria-expanded',v)};
