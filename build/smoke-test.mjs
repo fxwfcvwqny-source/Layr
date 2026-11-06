@@ -801,6 +801,13 @@ else {
   const rkj = JSON.parse(rk || '{}');
   ok('Recovery store: same name and size but different content do not share annotations; old-key data is adopted and the old key removed; no errors',
     rkj.sameSize && rkj.differ && rkj.nA === 1 && rkj.nB === 0 && rkj.old && rkj.old.n === 1 && rkj.old.moved && rkj.old.note && rkj.old.noteMoved && rkj.old.key && rkj.errs.length === 0, rkj);
+  // H3-01: a successful save clears the recovery snapshot (edits made during the save keep theirs); unsaved edits stay recoverable
+  const rs = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),LS=localStorage;const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);await openPdf(await d.save(),'recsaved.pdf');await w(300);"
+    + "S.pages[0].objs.push({type:'text',x:40,y:40,text:'Rec',fs:20,color:'#000000',lw:0,orient:'h'});markDirty();await w(700);const k=storeKey(),dirtyKept=LS.getItem(k)!=null;"
+    + "const rev=S.rev;markDirty();await w(700);recSaved(rev);const raced=LS.getItem(k)!=null;recSaved(S.rev);const cleared=LS.getItem(k)==null;"
+    + "markDirty();recSaved(S.rev);await w(700);const noLate=LS.getItem(k)==null;return JSON.stringify({dirtyKept,raced,cleared,noLate})})()", 30000);
+  const rsj = JSON.parse(rs || '{}');
+  ok('Recovery store: unsaved edits are kept, a successful save clears the snapshot (also no late write), edits made during the save keep it', rsj.dirtyKept && rsj.raced && rsj.cleared && rsj.noLate, rsj);
   // Sidebar text format toggles (A8)
   const tf = await ev("(()=>{const q=k=>document.querySelector('#tfmt [data-k='+k+']'),pr=k=>q(k).getAttribute('aria-pressed'),r={};setSel(null);S.bold=S.italic=S.underline=false;S.hbg='';S.orient='h';syncFmt();"
     + "q('bold').click();r.on=S.bold===true&&pr('bold')==='true';q('bold').click();r.off=S.bold===false&&pr('bold')==='false';"
