@@ -801,6 +801,17 @@ else {
   const rkj = JSON.parse(rk || '{}');
   ok('Recovery store: same name and size but different content do not share annotations; old-key data is adopted and the old key removed; no errors',
     rkj.sameSize && rkj.differ && rkj.nA === 1 && rkj.nB === 0 && rkj.old && rkj.old.n === 1 && rkj.old.moved && rkj.old.note && rkj.old.noteMoved && rkj.old.key && rkj.errs.length === 0, rkj);
+  // H3-04: after Save As the document, file name field, tab label and recovery keys follow the saved file
+  const sas = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),LS=localStorage;const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);await openPdf(await d.save(),'before-sa.pdf');await w(300);"
+    + "S.pages[0].objs.push({type:'text',x:40,y:40,text:'Rec',fs:20,color:'#000000',lw:0,orient:'h'});markDirty();await w(700);const ko=storeKey();LS.setItem(ko+':notes','sa note');"
+    + "recSaved(S.rev,'after-sa.pdf');await w(100);const kn=storeKey();const clean={name:S.name,fname:$('#fname').textContent,title:$('#fname').title.startsWith('after-sa.pdf'),tab:tabCapture().name,tabEl:(document.querySelector('.tab.on .tn')||{textContent:'-'}).textContent,"
+    + "key:ko!==kn&&kn.includes('after-sa.pdf'),oldGone:LS.getItem(ko)==null&&LS.getItem(ko+':notes')==null,snapGone:LS.getItem(kn)==null,note:LS.getItem(kn+':notes')==='sa note'};"
+    + "const rev=S.rev;markDirty();await w(700);const kb=storeKey();recSaved(rev,'after-sa2.pdf');const kc=storeKey();const race={name:S.name,moved:LS.getItem(kb)==null&&LS.getItem(kc)!=null};"
+    + "recSaved(S.rev,S.name);const same=S.name==='after-sa2.pdf';return JSON.stringify({clean,race,same})})()", 30000);
+  const sasj = JSON.parse(sas || '{}');
+  ok('Save As: name, file name field, tab label and recovery keys follow the saved file; edits made during the save move with it',
+    sasj.clean && sasj.clean.name === 'after-sa.pdf' && sasj.clean.fname === 'after-sa.pdf' && sasj.clean.title && sasj.clean.tab === 'after-sa.pdf' && sasj.clean.tabEl === 'after-sa' && sasj.clean.key && sasj.clean.oldGone && sasj.clean.snapGone && sasj.clean.note
+    && sasj.race && sasj.race.name === 'after-sa2.pdf' && sasj.race.moved && sasj.same, sasj);
   // H3-03: split-out with "without annotations" + "remove from this file" warns (de + en, live) and the button says so; defaults stay
   const sxw = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),q=s=>document.querySelector(s);const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);d.addPage([300,300]);d.addPage([300,300]);await openPdf(await d.save(),'sxwarn.pdf');await w(300);"
     + "SX.mode='sel';SX.marks=true;SX.del=false;q('#sxRange').value='2';sxOpen();await w(100);const st=()=>({hid:q('#sxWarn').hidden,txt:q('#sxWarn').textContent,go:q('#sxGo').textContent});"

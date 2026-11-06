@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Tn98QH2+AjDozqIjCodg1mcu3ucj9haI5DFVEsEC1jk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-N4b65vtDfJeUNt1aCzKUZMOHQ1KoXfLGPACXu8OC/2Y=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4345,7 +4345,10 @@ let saveT=0;
 function markDirty(){try{spvDocChanged()}catch(e){}try{rdBar()}catch(e){}try{if(FD.open&&FD.q)findSoon(true)}catch(e){}S.dirty=true;S.rev=(S.rev||0)+1;refreshThumbs();scheduleAutoSave();setSaveState();clearTimeout(saveT);saveT=setTimeout(()=>{if(S.sample||crNoStore())return;try{localStorage.setItem(storeKey(),snapshot())}catch(e){}},400)}
 
 // A successful save makes the local recovery snapshot obsolete (it may belong to a file that was saved elsewhere); edits made during the save keep theirs
-function recSaved(rev){if(S.rev!==rev)return;clearTimeout(saveT);try{localStorage.removeItem(storeKey())}catch(e){}}
+// With a name (Save As): the document now is that file, so name, file name field/tab and the key of notes and pending edits follow it
+function recSaved(rev,name){if(name&&name!==S.name){const ok=storeKey();S.name=name;const f=$('#fname');f.textContent=name;f.title=name+' · '+tr('Klicken zum Umbenennen (F2)');
+    try{const nk=storeKey();for(const suf of['',':notes',':tasks']){const v=localStorage.getItem(ok+suf);if(v!=null){localStorage.setItem(nk+suf,v);localStorage.removeItem(ok+suf)}}}catch(e){}}
+  if(S.rev!==rev)return;clearTimeout(saveT);try{localStorage.removeItem(storeKey())}catch(e){}}
 /* ---------- Auswahl ---------- */
 let selAnim=null;
 function setSel(sel){const prev=S.sel;S.sel=sel;if(sel&&inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(prev)redraw(prev.p);
@@ -5471,7 +5474,7 @@ async function save(saveAs){
       try{await dl.save({filename:name,data:new Blob([out],{type:'application/pdf'})});clean();toast(`„${name}“ gespeichert. Das Original ist unverändert.`);return true}
       catch(e){if(e&&e.code!=='declined')toast('Speichern ging hier nicht. Öffne die HTML-Datei direkt im Browser, dort klappt es immer.',1);return false}
     }
-    if(window.werkbank){const r=await werkbank.save(name,out,saveAs||(S.isNew&&!S.savedName));if(r&&r.ro){toast(`„${r.ro}“ ist schreibgeschützt und wurde nicht überschrieben. Mit „Speichern unter“ sicherst du eine Kopie.`,1);return false}if(r){clean();recSaved(rev);S.savedName=r;setSaveState();toast(`Gespeichert in „${r}“.`)}return!!r}
+    if(window.werkbank){const r=await werkbank.save(name,out,saveAs||(S.isNew&&!S.savedName));if(r&&r.ro){toast(`„${r.ro}“ ist schreibgeschützt und wurde nicht überschrieben. Mit „Speichern unter“ sicherst du eine Kopie.`,1);return false}if(r){clean();recSaved(rev,r);S.savedName=r;setSaveState();toast(`Gespeichert in „${r}“.`)}return!!r}
     if(window.showSaveFilePicker&&window.self===window.top){
       try{const h=await showSaveFilePicker({suggestedName:name,types:[{description:'PDF',accept:{'application/pdf':['.pdf']}}]});const w=await h.createWritable();await w.write(out);await w.close();clean();toast(`Gespeichert als „${h.name}“. Das Original ist unverändert.`);return true}
       catch(e){if(e.name==='AbortError')return false}
