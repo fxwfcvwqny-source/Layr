@@ -1472,7 +1472,7 @@ else {
     // hidden while dragging, back afterwards at the new place
     { const c = await pt310([250, 330]); await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 6; i++) await dragTo(c[0] + 10 * i, c[1] + 6 * i); await sleep(100); var during = await bar(); await releaseAt(c[0] + 60, c[1] + 36); await sleep(250); }
     b = await bar(); sb = await selBox();
-    ok('Objektleiste: beim Ziehen versteckt, danach wieder über dem Objekt an der neuen Stelle', during.hidden === true && !b.hidden && b.b <= sb.t && Math.abs((b.l + b.r) / 2 - (sb.l + sb.r) / 2) < 3, { during: during.hidden, b, sb });
+    ok('Objektleiste: beim Ziehen versteckt, danach wieder über (oder, wenn dort ein anderes Objekt liegt, unter) dem Objekt an der neuen Stelle', during.hidden === true && !b.hidden && (b.b <= sb.t || b.t >= sb.b) && Math.abs((b.l + b.r) / 2 - (sb.l + sb.r) / 2) < 3, { during: during.hidden, b, sb });
     // buttons
     const n0 = await ev('S.pages[0].objs.length'), h0 = await ev('H.u.length');
     await clickEl('#obDup');
@@ -2803,6 +2803,43 @@ else {
     for (const v of ['{bad', '"x"', '123', '[1,null,"nosuch","router"]', 'null']) bad.push(await ev(`(()=>{localStorage.setItem('pdfwerkbank:symhide',${JSON.stringify(v)});return JSON.stringify([...symHidLoad()])})()`));
     ok('Symbole anpassen: kaputter oder unbekannter Speicherwert wird ignoriert', JSON.stringify(bad) === JSON.stringify(['[]', '[]', '[]', '["router"]', '[]']), bad);
     await ev("localStorage.removeItem('pdfwerkbank:symhide');SYM_HID=new Set();S.pages[0].objs=[];buildCats()");
+  }
+  // H2-01: pageKeep keeps every member of a group / multi-selection reachable (20 pt of each), also when pasted
+  {
+    const pk = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'pk.pdf');await new Promise(r=>setTimeout(r,500));const P=S.pages[0],mk=(x,y,w,h)=>({type:'rect',x,y,w,h,color:'#000000',lw:1,fill:'none'});const a=mk(575,300,64,56),b=mk(635,300,30,30);const g={type:'group',items:[a,b],lw:0,color:'#000000'};pageKeep([g],P);const r1=[a.x,b.x];const c=mk(-100,300,64,56),e=mk(-300,300,30,30);pageKeep([{type:'group',items:[c,e],lw:0,color:'#000000'}],P);const r2=[c.x,e.x];P.objs=[mk(560,100,30,30),mk(900,100,30,30)];selectItems(0,P.objs);copySel();P.objs=[];CLIP.n=60;pasteClip();return [r1,r2,P.objs.map(o=>o.x)]})()");
+    ok('H2-01: Gruppe am rechten Seitenrand: jedes Mitglied bleibt mit 20 pt auf der Seite', pk[0][0] <= 575 && pk[0][1] <= 575 && pk[0][1] - pk[0][0] === 60, pk);
+    ok('H2-01: Gruppe am linken Seitenrand: jedes Mitglied bleibt erreichbar', pk[1][0] + 64 >= 20 && pk[1][1] + 30 >= 20, pk);
+    ok('H2-01: Einfügen mehrerer Objekte am Rand lässt keines ganz außerhalb', pk[2].length === 2 && pk[2].every(x => x <= 575 && x + 30 >= 20), pk);
+  }
+  // H2-02: page rotation keeps edge objects on the page (20 pt rule), also after repeated turns
+  {
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'rk.pdf');await new Promise(r=>setTimeout(r,500));S.pages[0].objs.push({type:'rect',x:575,y:300,w:64,h:56,color:'#000000',lw:1,fill:'none'},{type:'rect',x:560,y:830,w:30,h:30,color:'#000000',lw:1,fill:'none'});redraw(0)})()");
+    const bad = [];
+    for (let k = 0; k < 4; k++) {
+      await ev('rotatePages([0],90)'); await sleep(900);
+      bad.push(await ev("(()=>{const P=S.pages[0];return P.objs.map(o=>{const b=bbox(o);return b.x<=P.w-Math.min(20,b.w)+.01&&b.x+b.w>=Math.min(20,b.w)-.01&&b.y<=P.h-Math.min(20,b.h)+.01&&b.y+b.h>=Math.min(20,b.h)-.01})})()"));
+    }
+    ok('H2-02: Seitendrehung lässt Objekte am Rand erreichbar (4 Drehungen)', JSON.stringify(bad) === JSON.stringify(Array(4).fill([true, true])), bad);
+  }
+  // H2-03: the object bar avoids other objects, so a click on one of them selects it instead of hitting a bar button
+  {
+    const ob = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ob.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');const P=S.pages[0],mk=(x,y)=>({type:'rect',x,y,w:100,h:60,color:'#000000',lw:1,fill:'none',oid:'ob'+x});const A=mk(100,100),B=mk(137,136);P.objs.push(A,B);redraw(0);setSel({p:0,o:B});obUpdate();await new Promise(r=>setTimeout(r,300));obUpdate();const r=P.ink.getBoundingClientRect(),z=S.zoom,q=document.getElementById('obBar').getBoundingClientRect(),hit=[A,B].map(o=>q.left<r.left+(o.x+o.w)*z&&q.right>r.left+o.x*z&&q.top<r.top+(o.y+o.h)*z&&q.bottom>r.top+o.y*z);return [!document.getElementById('obBar').hidden,hit]})()");
+    ok('H2-03: Objektleiste deckt andere Objekte nicht ab', ob[0] === true && ob[1][0] === false, ob);
+  }
+  // H1-03: the pager survives rebuilding the thumbnails (design.pager "side") and returns when they close
+  {
+    const pg = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'pg.pdf');await new Promise(r=>setTimeout(r,500));const old=design.pager,o=[];design.pager='side';toggleThumbs(false);toggleThumbs(true);await new Promise(r=>setTimeout(r,600));const inTh=()=>{const p=document.getElementById('pager');return !!p&&p.parentNode===document.getElementById('thumbs')};o.push(inTh());await buildThumbs();await new Promise(r=>setTimeout(r,300));o.push(inTh());toggleThumbs(false);o.push(!!document.getElementById('pager')&&!inTh());toggleThumbs(true);await new Promise(r=>setTimeout(r,600));o.push(inTh());design.pager='float';placePager();o.push(!!document.getElementById('pgNum')&&!inTh());design.pager=old;placePager();toggleThumbs(false);return o})()");
+    ok('H1-03: Seitenwahl bleibt beim Neuaufbau der Seitenvorschau erhalten', JSON.stringify(pg) === '[true,true,true,true,true]', pg);
+  }
+  // H1-05: the quick bar text colour palette closes on a pointerdown inside the text box
+  {
+    const qp = await ev("(async()=>{design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar'),btn=bar.querySelector('[data-a=col]'),pc=btn.parentNode.querySelector('.edpal');btn.click();const a=!pc.hidden;document.querySelector('.tbx-in').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));await new Promise(r=>setTimeout(r,400));const b=pc.hidden;ED.esc();return [a,b]})()");
+    ok('H1-05: Palette der Schriftfarbe schließt bei Klick in den Textkasten', qp[0] === true && qp[1] === true, qp);
+  }
+  // T1-09: a free resize handle dragged past the opposite corner flips the box instead of clamping
+  {
+    const fl = await ev("(()=>{const o={type:'rect',x:200,y:200,w:6,h:6,color:'#000000',lw:1,fill:'none'};const st={orig:{w:6,h:6},ob:{x:200,y:200,w:6,h:6},mode:'br'};resizeTo(o,st,180,170,false,false);const a=[o.x,o.y,o.w,o.h];const q={type:'rect',x:200,y:200,w:60,h:40,color:'#000000',lw:1,fill:'none'};resizeTo(q,{orig:{w:60,h:40},ob:{x:200,y:200,w:60,h:40},mode:'br'},260,240,false,false);return [a,[q.x,q.y,q.w,q.h]]})()");
+    ok('T1-09: Ziehpunkt über die Gegenecke klappt das Objekt um', JSON.stringify(fl) === '[[180,170,20,30],[200,200,60,40]]', fl);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

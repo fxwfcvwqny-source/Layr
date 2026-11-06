@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-N4b65vtDfJeUNt1aCzKUZMOHQ1KoXfLGPACXu8OC/2Y=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3onl5WL+CyNkQ+dXtthMkCo8UQLIXTEkbjfAjKc0WS0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4112,9 +4112,13 @@ function moveObj(o,dx,dy,all){
   else if(o.type==='line'||o.type==='measure'){o.x1+=dx;o.y1+=dy;o.x2+=dx;o.y2+=dy}
   else{o.x+=dx;o.y+=dy}
 }
-// Keep at least 20 pt (or the whole extent if smaller) of the objects' common box on the page, so they stay visible and grabbable
-function pageKeep(list,P){if(!P)return;let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const o of list){if(o.type==='text')continue;let q;try{q=bbox(o)}catch(e){continue}a=Math.min(a,q.x);b=Math.min(b,q.y);c=Math.max(c,q.x+q.w);d=Math.max(d,q.y+q.h)}
-  if(!isFinite(a+b+c+d)||a>c)return;const mx=Math.min(20,c-a),my=Math.min(20,d-b),dx=a>P.w-mx?P.w-mx-a:c<mx?mx-c:0,dy=b>P.h-my?P.h-my-b:d<my?my-d:0;if(dx||dy)for(const o of list)moveObj(o,dx,dy)}
+// Keep each object (groups: each member) at least 20 pt (or its whole extent if smaller) on the page, so it stays visible and grabbable; the list moves rigidly by the largest needed pull-in, then members still outside are pulled in one by one
+function pageKeep(list,P){if(!P)return;const L=[],add=o=>o.type==='group'?o.items.forEach(add):o.type==='text'||L.push(o);list.forEach(add);
+  const need=o=>{let q;try{q=bbox(o)}catch(e){return[0,0]}if(!isFinite(q.x+q.y+q.w+q.h))return[0,0];const mx=Math.min(20,q.w),my=Math.min(20,q.h);
+    return[q.x>P.w-mx?P.w-mx-q.x:q.x+q.w<mx?mx-q.x-q.w:0,q.y>P.h-my?P.h-my-q.y:q.y+q.h<my?my-q.y-q.h:0]};
+  const pick=(N,k)=>{const v=N.map(n=>n[k]).filter(Boolean);return v.length?v.some(n=>n<0)?Math.min(...v):Math.max(...v):0};
+  const N=L.map(need),dx=pick(N,0),dy=pick(N,1);if(dx||dy)for(const o of list)moveObj(o,dx,dy);
+  for(const o of L){if(o.locked)continue;const[x,y]=need(o);if(x||y)moveObj(o,x,y)}}
 function norm(o){if(o.w<0){o.x+=o.w;o.w=-o.w}if(o.h<0){o.y+=o.h;o.h=-o.h}return o}
 function handles(o){
   if(o.locked)return[];
@@ -4160,8 +4164,9 @@ function resizeTo(o,st,x,y,shift,alt){
     o.fs=clamp(Math.round(g.fs*s*2)/2,4,200);if(g.wrapW)o.wrapW=g.wrapW*o.fs/g.fs;if(g.minH)o.minH=g.minH*o.fs/g.fs;
     const nb=textBox(o);o.x=alt?ax-nb.w/2:left?ax-nb.w:ax;o.y=alt?ay-nb.h/2:top?ay-nb.h:ay;return}
   let w=Math.max(4,Math.abs(x-ax)*m),h=Math.max(4,Math.abs(y-ay)*m);
-  if((o.type==='image'?!shift:shift)||(o.type==='sym'&&SYM[o.sym].fixed))h=w*g.h/g.w;
-  o.w=w;o.h=h;o.x=alt?ax-w/2:left?ax-w:ax;o.y=alt?ay-h/2:top?ay-h:ay;
+  const lock=(o.type==='image'?!shift:shift)||(o.type==='sym'&&SYM[o.sym].fixed);if(lock)h=w*g.h/g.w;
+  const fl=lock?left:x<ax,ft=lock?top:y<ay; // free resize: dragging past the opposite corner flips the box to the pointer side
+  o.w=w;o.h=h;o.x=alt?ax-w/2:fl?ax-w:ax;o.y=alt?ay-h/2:ft?ay-h:ay;
 }
 function drawSel(c,o){
   let k=1;if(selAnim&&selAnim.o===o){const t=Math.min(1,(performance.now()-selAnim.t0)/300);k=t}
@@ -4439,6 +4444,10 @@ function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
   const tbe=sel.o.type==='table'?document.getElementById('tblBar'):null,tb=tbe&&!tbe.hidden?tbe.getBoundingClientRect():null;
   if(tb&&x<tb.right+4&&x+w>tb.left-4&&y<tb.bottom+4&&y+h>tb.top-4){
     const ok=v=>v>=vr.top+4&&v+h<=vb-4&&(v+h<=tb.top-4||v>=tb.bottom+4),c=[top-h-gap,bot+14,tb.top-h-6,tb.bottom+6].find(ok);if(c!==undefined)y=c}
+  // keep the bar off other objects so a click on one selects it instead of hitting a bar button: try above, then below
+  const oth=P.objs.filter(o=>!T.includes(o)&&o.type!=='deco').map(o=>{const q=bbox(o);return{l:r.left+q.x*z,t:r.top+q.y*z,r:r.left+(q.x+q.w)*z,b:r.top+(q.y+q.h)*z}}),
+    hits=v=>oth.some(q=>x<q.r&&x+w>q.l&&v<q.b&&v+h>q.t);
+  if(hits(Math.max(vr.top+4,Math.min(vb-h-4,y)))){const c=[top-h-gap,bot+14].find(v=>v>=vr.top+4&&v+h<=vb-4&&!hits(v)&&!(tb&&x<tb.right+4&&x+w>tb.left-4&&v<tb.bottom+4&&v+h>tb.top-4));if(c!==undefined)y=c}
   obBar.style.left=x+'px';
   obBar.style.top=Math.round(Math.max(vr.top+4,Math.min(vb-h-4,y)))+'px'}
 viewer.addEventListener('scroll',obSoon);addEventListener('resize',obSoon);
@@ -5184,6 +5193,7 @@ function openTextEditor(i,o,isNew,at){
   palB.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=e=>{set({hbg:b.dataset.c});if(!e.detail)b.focus();else eng.focus()}}); // stays open for several picks (closes on outside click, Esc or the button); keyboard focus stays on the swatch
   {const live=rafLast(c=>set({hbg:c}));edcinB.addEventListener('input',()=>live(edcinB.value))}
   root.addEventListener('pointerdown',e=>{if(!palB.hidden&&!palB.contains(e.target)&&!bBg.contains(e.target))palOpenB(false)},true);
+  root.addEventListener('pointerdown',e=>{if(!pal.hidden&&!pal.contains(e.target)&&!bC.contains(e.target))palOpen(false)},true);
   pal.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=()=>{set({color:b.dataset.c});palOpen(false);eng.focus()}});
   {const live=rafLast(c=>set({color:c}));edcin.addEventListener('input',()=>live(edcin.value))}edcin.addEventListener('change',()=>{palOpen(false);eng.focus()});
   root.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pal.hidden){e.preventDefault();e.stopImmediatePropagation();palOpen(false);eng.focus()}else if(e.key==='Escape'&&!palB.hidden){e.preventDefault();e.stopImmediatePropagation();palOpenB(false);eng.focus()}},true);
@@ -6049,6 +6059,7 @@ function rotObjs(objs,W,H,rot){const r=((rot%360)+360)%360;if(!r)return objs;
     if(o.type==='rect'||o.type==='ellipse'||o.type==='redact'||o.type==='hl'){const ox=o.x,oy=o.y,a=rotPt(o.x,o.y,W,H,r),b=rotPt(o.x+o.w,o.y+o.h,W,H,r);o.x=Math.min(a[0],b[0]);o.y=Math.min(a[1],b[1]);o.w=Math.abs(a[0]-b[0]);o.h=Math.abs(a[1]-b[1]);
       if(o.type==='hl'&&Array.isArray(o.q))o.q=o.q.map(qd=>qd.map(pt=>{const c=rotPt(ox+pt[0],oy+pt[1],W,H,r);return[+(c[0]-o.x).toFixed(2),+(c[1]-o.y).toFixed(2)]}));continue} // hl quads are relative to x/y
     let b;try{b=bbox(o)}catch(e){continue}const c=rotPt(b.x+b.w/2,b.y+b.h/2,W,H,r);moveObj(o,c[0]-(b.x+b.w/2),c[1]-(b.y+b.h/2),true)}
+  const P=r===180?{w:W,h:H}:{w:H,h:W};for(const o of objs)pageKeep([o],P); // centre mapping can push edge objects out
   return objs}
 function rotatePages(list,d){const n=S.pages.length,set=new Set(list);if(!set.size)return;
   const msg=set.size===n&&n>1?tr(d>0?'Alle Seiten nach rechts gedreht. Rückgängig mit Strg+Z.':'Alle Seiten nach links gedreht. Rückgängig mit Strg+Z.')
@@ -7475,7 +7486,7 @@ function toggleThumbs(on){const was=thumbsOn;thumbsOn=on==null?!thumbsOn:on;if(w
 $('#bThumbs').onclick=()=>toggleThumbs();
 async function buildThumbs(){
   TM.order=null;TM.sel=null;
-  const el=$('#thumbs');if(!thumbsOn||!S.doc){S.pages.forEach(P=>delete P.keep);return}const g=++thumbGen;el.innerHTML='';
+  const el=$('#thumbs');if(!thumbsOn||!S.doc){S.pages.forEach(P=>delete P.keep);return}const g=++thumbGen,pg=document.getElementById('pager'),pin=pg&&pg.parentNode===el;el.innerHTML='';if(pin)el.prepend(pg); // the moved pager must survive the rebuild
   placePager();if(thIO)thIO.disconnect();
   const ins=document.createElement('div');ins.className='th-ins';ins.hidden=true;ins.innerHTML=`<button type="button" aria-label="${tr('Leere Seite hier einfügen')}" title="${tr('Leere Seite hier einfügen')}">${PH('plus')}</button>`;ins.firstChild.onclick=()=>thInsert(+ins.dataset.at);el.appendChild(ins);
   S.pages.forEach((P,i)=>{
