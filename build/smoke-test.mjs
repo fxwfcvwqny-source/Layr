@@ -1926,6 +1926,11 @@ else {
     await ev("acSet();acType('1 <=');acKey('Backspace')"); const bs4 = await ev('acV()');
     await ev("acSet();acType('1 >=');acKey('z',{ctrlKey:true})"); const uz2 = await ev('acV()');
     ok('Autokorrektur: Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück', bs === '->' && uz === '...' && bs2 === '->' && bs3 === '' && bs4 === '1 <=' && uz2 === '1 >=', { bs, uz, bs2, bs3, bs4, uz2 });
+    await ev("acSet();acType('1 <=>');acKey('Backspace')"); const lg1 = await ev('acV()');
+    await ev("acSet();acType('1 <=>');acKey('z',{ctrlKey:true})"); const lg2 = await ev('acV()');
+    await ev("acSet();acType('a<=>b')"); const lg3 = await ev('acV()');
+    await ev("acSet();acType('1 <=>')"); const lg4 = await ev('acV()');
+    ok('Autokorrektur: <=> wird zu ⇔, Rückschritt/Strg+Z bringt <=> zurück, a<=>b bleibt', lg1 === '1 <=>' && lg2 === '1 <=>' && lg3 === 'A<=>b' && lg4 === '1 ⇔', { lg1, lg2, lg3, lg4 });
     await ev("S.autoChar=false;acSet();acType('-> => (c)')");
     const off = await ev('acV()'); await ev('S.autoChar=true');
     ok('Autokorrektur: ausgeschaltet bleibt der Text wie getippt', off === '-> => (c)', off);
@@ -1962,6 +1967,12 @@ else {
       for (const ch of '1 -> 2') await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, text: ch, unmodifiedText: ch });
       const n1 = await ev("document.getElementById('ntText').value");
       ok('Autokorrektur: Notizen ersetzen -> beim Tippen', n1 === '1 → 2', n1);
+      await ev("document.getElementById('ntText').value='';document.getElementById('ntText').focus()");
+      for (const ch of '1 <=>') await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, text: ch, unmodifiedText: ch });
+      const n2 = await ev("document.getElementById('ntText').value");
+      await key('Backspace', 'Backspace', 8);
+      const n3 = await ev("document.getElementById('ntText').value");
+      ok('Autokorrektur: Notizen <=> wird zu ⇔, Rückschritt bringt <=> zurück', n2 === '1 ⇔' && n3 === '1 <=>', { n2, n3 });
     } else ok('Autokorrektur: Notizenfeld nicht fokussierbar (Prüfung übersprungen)', true);
     await ev("document.getElementById('ntText').value='';notesOpen(false);S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
