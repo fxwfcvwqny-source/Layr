@@ -1435,7 +1435,7 @@ else {
     // hidden while dragging, back afterwards at the new place
     { const c = await pt310([250, 330]); await mv(c[0], c[1]); await pressAt(c[0], c[1]); for (let i = 1; i <= 6; i++) await dragTo(c[0] + 10 * i, c[1] + 6 * i); await sleep(100); var during = await bar(); await releaseAt(c[0] + 60, c[1] + 36); await sleep(250); }
     b = await bar(); sb = await selBox();
-    ok('Objektleiste: beim Ziehen versteckt, danach wieder über dem Objekt an der neuen Stelle', during.hidden === true && !b.hidden && b.b <= sb.t && Math.abs((b.l + b.r) / 2 - (sb.l + sb.r) / 2) < 3, { during: during.hidden, b, sb });
+    ok('Objektleiste: beim Ziehen versteckt, danach wieder über (oder, wenn dort ein anderes Objekt liegt, unter) dem Objekt an der neuen Stelle', during.hidden === true && !b.hidden && (b.b <= sb.t || b.t >= sb.b) && Math.abs((b.l + b.r) / 2 - (sb.l + sb.r) / 2) < 3, { during: during.hidden, b, sb });
     // buttons
     const n0 = await ev('S.pages[0].objs.length'), h0 = await ev('H.u.length');
     await clickEl('#obDup');
@@ -2783,6 +2783,11 @@ else {
       bad.push(await ev("(()=>{const P=S.pages[0];return P.objs.map(o=>{const b=bbox(o);return b.x<=P.w-Math.min(20,b.w)+.01&&b.x+b.w>=Math.min(20,b.w)-.01&&b.y<=P.h-Math.min(20,b.h)+.01&&b.y+b.h>=Math.min(20,b.h)-.01})})()"));
     }
     ok('H2-02: Seitendrehung lässt Objekte am Rand erreichbar (4 Drehungen)', JSON.stringify(bad) === JSON.stringify(Array(4).fill([true, true])), bad);
+  }
+  // H2-03: the object bar avoids other objects, so a click on one of them selects it instead of hitting a bar button
+  {
+    const ob = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ob.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');const P=S.pages[0],mk=(x,y)=>({type:'rect',x,y,w:100,h:60,color:'#000000',lw:1,fill:'none',oid:'ob'+x});const A=mk(100,100),B=mk(137,136);P.objs.push(A,B);redraw(0);setSel({p:0,o:B});obUpdate();await new Promise(r=>setTimeout(r,300));obUpdate();const r=P.ink.getBoundingClientRect(),z=S.zoom,q=document.getElementById('obBar').getBoundingClientRect(),hit=[A,B].map(o=>q.left<r.left+(o.x+o.w)*z&&q.right>r.left+o.x*z&&q.top<r.top+(o.y+o.h)*z&&q.bottom>r.top+o.y*z);return [!document.getElementById('obBar').hidden,hit]})()");
+    ok('H2-03: Objektleiste deckt andere Objekte nicht ab', ob[0] === true && ob[1][0] === false, ob);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();

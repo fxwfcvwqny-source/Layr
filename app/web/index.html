@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-UlQKevCC8BZNIM2aHGhDwZ4i7b11Fo5QjoCVSYKcBNc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b3CHg/JLWip3Xu4T9abwELP8Yz+keEEZKf8nqmwBNUU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4433,6 +4433,10 @@ function obUpdate(){const sel=S.sel,P=sel&&S.pages[sel.p];
   const tbe=sel.o.type==='table'?document.getElementById('tblBar'):null,tb=tbe&&!tbe.hidden?tbe.getBoundingClientRect():null;
   if(tb&&x<tb.right+4&&x+w>tb.left-4&&y<tb.bottom+4&&y+h>tb.top-4){
     const ok=v=>v>=vr.top+4&&v+h<=vb-4&&(v+h<=tb.top-4||v>=tb.bottom+4),c=[top-h-gap,bot+14,tb.top-h-6,tb.bottom+6].find(ok);if(c!==undefined)y=c}
+  // keep the bar off other objects so a click on one selects it instead of hitting a bar button: try above, then below
+  const oth=P.objs.filter(o=>!T.includes(o)&&o.type!=='deco').map(o=>{const q=bbox(o);return{l:r.left+q.x*z,t:r.top+q.y*z,r:r.left+(q.x+q.w)*z,b:r.top+(q.y+q.h)*z}}),
+    hits=v=>oth.some(q=>x<q.r&&x+w>q.l&&v<q.b&&v+h>q.t);
+  if(hits(Math.max(vr.top+4,Math.min(vb-h-4,y)))){const c=[top-h-gap,bot+14].find(v=>v>=vr.top+4&&v+h<=vb-4&&!hits(v)&&!(tb&&x<tb.right+4&&x+w>tb.left-4&&v<tb.bottom+4&&v+h>tb.top-4));if(c!==undefined)y=c}
   obBar.style.left=x+'px';
   obBar.style.top=Math.round(Math.max(vr.top+4,Math.min(vb-h-4,y)))+'px'}
 viewer.addEventListener('scroll',obSoon);addEventListener('resize',obSoon);
