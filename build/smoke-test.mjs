@@ -801,6 +801,17 @@ else {
   const rkj = JSON.parse(rk || '{}');
   ok('Recovery store: same name and size but different content do not share annotations; old-key data is adopted and the old key removed; no errors',
     rkj.sameSize && rkj.differ && rkj.nA === 1 && rkj.nB === 0 && rkj.old && rkj.old.n === 1 && rkj.old.moved && rkj.old.note && rkj.old.noteMoved && rkj.old.key && rkj.errs.length === 0, rkj);
+  // H3-02: files that differ only in the middle (same name, size, first/last 4 KB) get separate keys; keys with the old ends-only fingerprint are adopted only if the page count fits, and only once
+  const mdf = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),LS=localStorage,n=()=>S.pages[0].objs.length;const mk=async c=>{const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);const u=new Uint8Array(60000).fill(32);u.fill(c,20000,40000);d.catalog.set(PDFLib.PDFName.of('Pad'),d.context.register(d.context.stream(u)));return await d.save({useObjectStreams:false})};"
+    + "const obj=()=>({type:'text',x:40,y:40,text:'Rec',fs:20,color:'#000000',lw:0,orient:'h'});const A=await mk(65),B=await mk(66),sameSize=A.length===B.length,ends=A.slice(0,4096).join()===B.slice(0,4096).join()&&A.slice(-4096).join()===B.slice(-4096).join();"
+    + "await openPdf(A.slice(),'mid.pdf');await w(300);S.pages[0].objs.push(obj());markDirty();await w(700);const kA=storeKey();await openPdf(B.slice(),'mid.pdf');await w(300);const nB=n(),kB=storeKey();await openPdf(A.slice(),'mid.pdf');await w(300);const nA=n();"
+    + "const C=await mk(67);await openPdf(C.slice(),'oldfp.pdf');await w(300);const kn=storeKey(),ko=storeKeyOld()+':'+S.fpOld,snap='[[{\"type\":\"text\",\"x\":40,\"y\":40,\"text\":\"Old\",\"fs\":20,\"color\":\"#000000\",\"lw\":0,\"orient\":\"h\"}]]';"
+    + "LS.removeItem(kn);LS.setItem(ko,'[[],[]]');await openPdf(C.slice(),'oldfp.pdf');await w(300);const miss={n:n(),kept:LS.getItem(ko)==='[[],[]]',none:LS.getItem(kn)==null};"
+    + "LS.setItem(ko,snap);LS.setItem(ko+':notes','fp note');await openPdf(C.slice(),'oldfp.pdf');await w(300);const hit={n:n(),moved:LS.getItem(ko)==null&&LS.getItem(kn)===snap,note:S.notes==='fp note'&&LS.getItem(ko+':notes')==null};"
+    + "return JSON.stringify({sameSize,ends,diffKey:kA!==kB,nA,nB,miss,hit,fp:/:[0-9a-f]{20}$/.test(kA)&&S.fpOld!==S.fp})})()", 60000);
+  const mdj = JSON.parse(mdf || '{}');
+  ok('Recovery store: files that differ only in the middle do not share a snapshot; old ends-only keys are adopted only with a matching page count and then moved',
+    mdj.sameSize && mdj.ends && mdj.diffKey && mdj.nA === 1 && mdj.nB === 0 && mdj.miss && mdj.miss.n === 0 && mdj.miss.kept && mdj.miss.none && mdj.hit && mdj.hit.n === 1 && mdj.hit.moved && mdj.hit.note && mdj.fp, mdj);
   // H3-01: a successful save clears the recovery snapshot (edits made during the save keep theirs); unsaved edits stay recoverable
   const rs = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),LS=localStorage;const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);await openPdf(await d.save(),'recsaved.pdf');await w(300);"
     + "S.pages[0].objs.push({type:'text',x:40,y:40,text:'Rec',fs:20,color:'#000000',lw:0,orient:'h'});markDirty();await w(700);const k=storeKey(),dirtyKept=LS.getItem(k)!=null;"
