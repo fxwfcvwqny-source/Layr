@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WGPHRyyu24UzkPefOhqzdVjm0zdEueUmeRMn3sXSd14=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lJ/gnm0LBo9tlPvvn4ZRb8rnfwPI8Mya7oVkQIi8Uys=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -5182,6 +5182,7 @@ function openTextEditor(i,o,isNew,at){
   palB.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=e=>{set({hbg:b.dataset.c});if(!e.detail)b.focus();else eng.focus()}}); // stays open for several picks (closes on outside click, Esc or the button); keyboard focus stays on the swatch
   {const live=rafLast(c=>set({hbg:c}));edcinB.addEventListener('input',()=>live(edcinB.value))}
   root.addEventListener('pointerdown',e=>{if(!palB.hidden&&!palB.contains(e.target)&&!bBg.contains(e.target))palOpenB(false)},true);
+  root.addEventListener('pointerdown',e=>{if(!pal.hidden&&!pal.contains(e.target)&&!bC.contains(e.target))palOpen(false)},true);
   pal.querySelectorAll('.edsw').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});b.onclick=()=>{set({color:b.dataset.c});palOpen(false);eng.focus()}});
   {const live=rafLast(c=>set({color:c}));edcin.addEventListener('input',()=>live(edcin.value))}edcin.addEventListener('change',()=>{palOpen(false);eng.focus()});
   root.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pal.hidden){e.preventDefault();e.stopImmediatePropagation();palOpen(false);eng.focus()}else if(e.key==='Escape'&&!palB.hidden){e.preventDefault();e.stopImmediatePropagation();palOpenB(false);eng.focus()}},true);

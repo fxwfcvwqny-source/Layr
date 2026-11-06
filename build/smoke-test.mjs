@@ -2794,6 +2794,11 @@ else {
     const pg = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'pg.pdf');await new Promise(r=>setTimeout(r,500));const old=design.pager,o=[];design.pager='side';toggleThumbs(false);toggleThumbs(true);await new Promise(r=>setTimeout(r,600));const inTh=()=>{const p=document.getElementById('pager');return !!p&&p.parentNode===document.getElementById('thumbs')};o.push(inTh());await buildThumbs();await new Promise(r=>setTimeout(r,300));o.push(inTh());toggleThumbs(false);o.push(!!document.getElementById('pager')&&!inTh());toggleThumbs(true);await new Promise(r=>setTimeout(r,600));o.push(inTh());design.pager='float';placePager();o.push(!!document.getElementById('pgNum')&&!inTh());design.pager=old;placePager();toggleThumbs(false);return o})()");
     ok('H1-03: Seitenwahl bleibt beim Neuaufbau der Seitenvorschau erhalten', JSON.stringify(pg) === '[true,true,true,true,true]', pg);
   }
+  // H1-05: the quick bar text colour palette closes on a pointerdown inside the text box
+  {
+    const qp = await ev("(async()=>{design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar'),btn=bar.querySelector('[data-a=col]'),pc=btn.parentNode.querySelector('.edpal');btn.click();const a=!pc.hidden;document.querySelector('.tbx-in').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));await new Promise(r=>setTimeout(r,400));const b=pc.hidden;ED.esc();return [a,b]})()");
+    ok('H1-05: Palette der Schriftfarbe schließt bei Klick in den Textkasten', qp[0] === true && qp[1] === true, qp);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
