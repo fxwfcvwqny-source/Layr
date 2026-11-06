@@ -2799,6 +2799,11 @@ else {
     const qp = await ev("(async()=>{design.qbarHide=[];newText(0,120,200);ED.eng.put('Hallo');const bar=document.querySelector('.edbar'),btn=bar.querySelector('[data-a=col]'),pc=btn.parentNode.querySelector('.edpal');btn.click();const a=!pc.hidden;document.querySelector('.tbx-in').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));await new Promise(r=>setTimeout(r,400));const b=pc.hidden;ED.esc();return [a,b]})()");
     ok('H1-05: Palette der Schriftfarbe schließt bei Klick in den Textkasten', qp[0] === true && qp[1] === true, qp);
   }
+  // T1-09: a free resize handle dragged past the opposite corner flips the box instead of clamping
+  {
+    const fl = await ev("(()=>{const o={type:'rect',x:200,y:200,w:6,h:6,color:'#000000',lw:1,fill:'none'};const st={orig:{w:6,h:6},ob:{x:200,y:200,w:6,h:6},mode:'br'};resizeTo(o,st,180,170,false,false);const a=[o.x,o.y,o.w,o.h];const q={type:'rect',x:200,y:200,w:60,h:40,color:'#000000',lw:1,fill:'none'};resizeTo(q,{orig:{w:60,h:40},ob:{x:200,y:200,w:60,h:40},mode:'br'},260,240,false,false);return [a,[q.x,q.y,q.w,q.h]]})()");
+    ok('T1-09: Ziehpunkt über die Gegenecke klappt das Objekt um', JSON.stringify(fl) === '[[180,170,20,30],[200,200,60,40]]', fl);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

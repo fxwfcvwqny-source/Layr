@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lJ/gnm0LBo9tlPvvn4ZRb8rnfwPI8Mya7oVkQIi8Uys=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-l3IpoalsNlh8+I3zFPkIWsxWJa9QvxM4HdYPZHYTybA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4163,8 +4163,9 @@ function resizeTo(o,st,x,y,shift,alt){
     o.fs=clamp(Math.round(g.fs*s*2)/2,4,200);if(g.wrapW)o.wrapW=g.wrapW*o.fs/g.fs;if(g.minH)o.minH=g.minH*o.fs/g.fs;
     const nb=textBox(o);o.x=alt?ax-nb.w/2:left?ax-nb.w:ax;o.y=alt?ay-nb.h/2:top?ay-nb.h:ay;return}
   let w=Math.max(4,Math.abs(x-ax)*m),h=Math.max(4,Math.abs(y-ay)*m);
-  if((o.type==='image'?!shift:shift)||(o.type==='sym'&&SYM[o.sym].fixed))h=w*g.h/g.w;
-  o.w=w;o.h=h;o.x=alt?ax-w/2:left?ax-w:ax;o.y=alt?ay-h/2:top?ay-h:ay;
+  const lock=(o.type==='image'?!shift:shift)||(o.type==='sym'&&SYM[o.sym].fixed);if(lock)h=w*g.h/g.w;
+  const fl=lock?left:x<ax,ft=lock?top:y<ay; // free resize: dragging past the opposite corner flips the box to the pointer side
+  o.w=w;o.h=h;o.x=alt?ax-w/2:fl?ax-w:ax;o.y=alt?ay-h/2:ft?ay-h:ay;
 }
 function drawSel(c,o){
   let k=1;if(selAnim&&selAnim.o===o){const t=Math.min(1,(performance.now()-selAnim.t0)/300);k=t}
