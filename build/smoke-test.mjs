@@ -2789,6 +2789,11 @@ else {
     const ob = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'ob.pdf');await new Promise(r=>setTimeout(r,500));setTool('select');const P=S.pages[0],mk=(x,y)=>({type:'rect',x,y,w:100,h:60,color:'#000000',lw:1,fill:'none',oid:'ob'+x});const A=mk(100,100),B=mk(137,136);P.objs.push(A,B);redraw(0);setSel({p:0,o:B});obUpdate();await new Promise(r=>setTimeout(r,300));obUpdate();const r=P.ink.getBoundingClientRect(),z=S.zoom,q=document.getElementById('obBar').getBoundingClientRect(),hit=[A,B].map(o=>q.left<r.left+(o.x+o.w)*z&&q.right>r.left+o.x*z&&q.top<r.top+(o.y+o.h)*z&&q.bottom>r.top+o.y*z);return [!document.getElementById('obBar').hidden,hit]})()");
     ok('H2-03: Objektleiste deckt andere Objekte nicht ab', ob[0] === true && ob[1][0] === false, ob);
   }
+  // H1-03: the pager survives rebuilding the thumbnails (design.pager "side") and returns when they close
+  {
+    const pg = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);d.addPage([595,842]);await openPdf(await d.save(),'pg.pdf');await new Promise(r=>setTimeout(r,500));const old=design.pager,o=[];design.pager='side';toggleThumbs(false);toggleThumbs(true);await new Promise(r=>setTimeout(r,600));const inTh=()=>{const p=document.getElementById('pager');return !!p&&p.parentNode===document.getElementById('thumbs')};o.push(inTh());await buildThumbs();await new Promise(r=>setTimeout(r,300));o.push(inTh());toggleThumbs(false);o.push(!!document.getElementById('pager')&&!inTh());toggleThumbs(true);await new Promise(r=>setTimeout(r,600));o.push(inTh());design.pager='float';placePager();o.push(!!document.getElementById('pgNum')&&!inTh());design.pager=old;placePager();toggleThumbs(false);return o})()");
+    ok('H1-03: Seitenwahl bleibt beim Neuaufbau der Seitenvorschau erhalten', JSON.stringify(pg) === '[true,true,true,true,true]', pg);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

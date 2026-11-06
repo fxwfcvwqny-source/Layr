@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b3CHg/JLWip3Xu4T9abwELP8Yz+keEEZKf8nqmwBNUU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WGPHRyyu24UzkPefOhqzdVjm0zdEueUmeRMn3sXSd14=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7474,7 +7474,7 @@ function toggleThumbs(on){const was=thumbsOn;thumbsOn=on==null?!thumbsOn:on;if(w
 $('#bThumbs').onclick=()=>toggleThumbs();
 async function buildThumbs(){
   TM.order=null;TM.sel=null;
-  const el=$('#thumbs');if(!thumbsOn||!S.doc){S.pages.forEach(P=>delete P.keep);return}const g=++thumbGen;el.innerHTML='';
+  const el=$('#thumbs');if(!thumbsOn||!S.doc){S.pages.forEach(P=>delete P.keep);return}const g=++thumbGen,pg=document.getElementById('pager'),pin=pg&&pg.parentNode===el;el.innerHTML='';if(pin)el.prepend(pg); // the moved pager must survive the rebuild
   placePager();if(thIO)thIO.disconnect();
   const ins=document.createElement('div');ins.className='th-ins';ins.hidden=true;ins.innerHTML=`<button type="button" aria-label="${tr('Leere Seite hier einfügen')}" title="${tr('Leere Seite hier einfügen')}">${PH('plus')}</button>`;ins.firstChild.onclick=()=>thInsert(+ins.dataset.at);el.appendChild(ins);
   S.pages.forEach((P,i)=>{
