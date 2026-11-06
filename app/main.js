@@ -173,7 +173,7 @@ else {
     win = new BrowserWindow({
       width: 1400, height: 900, minWidth: 420, minHeight: 400,
       title: 'Layr', backgroundColor: '#e6eaee',
-      icon: path.join(__dirname, process.platform === 'win32' ? 'icon-transparent.ico' : 'icon-transparent.png').replace('app.asar' + path.sep, 'app.asar.unpacked' + path.sep), // .ico lets Windows pick the hand-tuned 16/20/24 px entries; the native window icon loader cannot read inside app.asar
+      icon: process.platform === 'win32' ? path.join(__dirname, 'icon-transparent.ico').replace('app.asar' + path.sep, 'app.asar.unpacked' + path.sep) : path.join(__dirname, 'icon-transparent.png'), // .ico lets Windows pick the hand-tuned 16/20/24 px entries; the native window icon loader cannot read inside app.asar, so only the (asarUnpack'd) .ico is redirected; the Linux PNG stays in app.asar
       webPreferences: { preload: path.join(__dirname, 'preload.js'), spellcheck: false, contextIsolation: true, nodeIntegration: false, sandbox: true,
         webSecurity: true, navigateOnDragDrop: false, safeDialogs: true, devTools: process.env.LAYR_DEBUG === '1' },
     });
