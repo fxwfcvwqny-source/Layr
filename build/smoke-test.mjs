@@ -2767,6 +2767,13 @@ else {
     ok('Symbole anpassen: kaputter oder unbekannter Speicherwert wird ignoriert', JSON.stringify(bad) === JSON.stringify(['[]', '[]', '[]', '["router"]', '[]']), bad);
     await ev("localStorage.removeItem('pdfwerkbank:symhide');SYM_HID=new Set();S.pages[0].objs=[];buildCats()");
   }
+  // H2-01: pageKeep keeps every member of a group / multi-selection reachable (20 pt of each), also when pasted
+  {
+    const pk = await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'pk.pdf');await new Promise(r=>setTimeout(r,500));const P=S.pages[0],mk=(x,y,w,h)=>({type:'rect',x,y,w,h,color:'#000000',lw:1,fill:'none'});const a=mk(575,300,64,56),b=mk(635,300,30,30);const g={type:'group',items:[a,b],lw:0,color:'#000000'};pageKeep([g],P);const r1=[a.x,b.x];const c=mk(-100,300,64,56),e=mk(-300,300,30,30);pageKeep([{type:'group',items:[c,e],lw:0,color:'#000000'}],P);const r2=[c.x,e.x];P.objs=[mk(560,100,30,30),mk(900,100,30,30)];selectItems(0,P.objs);copySel();P.objs=[];CLIP.n=60;pasteClip();return [r1,r2,P.objs.map(o=>o.x)]})()");
+    ok('H2-01: Gruppe am rechten Seitenrand: jedes Mitglied bleibt mit 20 pt auf der Seite', pk[0][0] <= 575 && pk[0][1] <= 575 && pk[0][1] - pk[0][0] === 60, pk);
+    ok('H2-01: Gruppe am linken Seitenrand: jedes Mitglied bleibt erreichbar', pk[1][0] + 64 >= 20 && pk[1][1] + 30 >= 20, pk);
+    ok('H2-01: Einfügen mehrerer Objekte am Rand lässt keines ganz außerhalb', pk[2].length === 2 && pk[2].every(x => x <= 575 && x + 30 >= 20), pk);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
