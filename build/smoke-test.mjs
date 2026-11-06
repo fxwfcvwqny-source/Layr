@@ -2767,6 +2767,15 @@ else {
     ok('Symbole anpassen: kaputter oder unbekannter Speicherwert wird ignoriert', JSON.stringify(bad) === JSON.stringify(['[]', '[]', '[]', '["router"]', '[]']), bad);
     await ev("localStorage.removeItem('pdfwerkbank:symhide');SYM_HID=new Set();S.pages[0].objs=[];buildCats()");
   }
+  // Forced colors: the hidden editor textarea must stay invisible (no second copy of the text)
+  {
+    await cdp('Emulation.setEmulatedMedia', { features: [{ name: 'forced-colors', value: 'active' }] });
+    await ev("(()=>{newText(0,200,200);ED.eng.put('Hallo Welt');return 1})()"); await sleep(300);
+    const fc = await ev("(()=>{const cs=getComputedStyle(document.querySelector('.sink'));return cs.color+'|'+cs.webkitTextFillColor})()");
+    await cdp('Emulation.setEmulatedMedia', { features: [] });
+    await ev("closeEditor()");
+    ok('Forced colors: the hidden text box input layer stays transparent', fc === 'rgba(0, 0, 0, 0)|rgba(0, 0, 0, 0)', fc);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
