@@ -801,6 +801,14 @@ else {
   const rkj = JSON.parse(rk || '{}');
   ok('Recovery store: same name and size but different content do not share annotations; old-key data is adopted and the old key removed; no errors',
     rkj.sameSize && rkj.differ && rkj.nA === 1 && rkj.nB === 0 && rkj.old && rkj.old.n === 1 && rkj.old.moved && rkj.old.note && rkj.old.noteMoved && rkj.old.key && rkj.errs.length === 0, rkj);
+  // H3-03: split-out with "without annotations" + "remove from this file" warns (de + en, live) and the button says so; defaults stay
+  const sxw = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),q=s=>document.querySelector(s);const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);d.addPage([300,300]);d.addPage([300,300]);await openPdf(await d.save(),'sxwarn.pdf');await w(300);"
+    + "SX.mode='sel';SX.marks=true;SX.del=false;q('#sxRange').value='2';sxOpen();await w(100);const st=()=>({hid:q('#sxWarn').hidden,txt:q('#sxWarn').textContent,go:q('#sxGo').textContent});"
+    + "const def=st();q('#sxDel').click();const delOnly=st();q('#sxMarks').click();const both=st();setLang('en');sxUI();const en=st();setLang('de');q('#sxMarks').click();const back=st();q('#sxDel').click();const off=st();sxClose();await w(300);SX.marks=true;SX.del=false;"
+    + "return JSON.stringify({def,delOnly,both,en,back,off})})()", 30000);
+  const sxwj = JSON.parse(sxw || '{}');
+  ok('Split-out: marks off + remove from file shows a live warning and a button that names the removal (de + en); defaults and other combinations show none',
+    sxwj.def && sxwj.def.hid && sxwj.delOnly.hid && !sxwj.both.hid && /Beschriftungen dieser Seiten werden entfernt/.test(sxwj.both.txt) && /Beschriftungen entfernen/.test(sxwj.both.go) && !sxwj.en.hid && /annotations of these pages are removed/.test(sxwj.en.txt) && /remove annotations/.test(sxwj.en.go) && sxwj.back.hid && sxwj.off.hid && sxwj.off.go === 'In neuem Tab öffnen', sxwj);
   // H3-02: files that differ only in the middle (same name, size, first/last 4 KB) get separate keys; keys with the old ends-only fingerprint are adopted only if the page count fits, and only once
   const mdf = await ev("(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),LS=localStorage,n=()=>S.pages[0].objs.length;const mk=async c=>{const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);const u=new Uint8Array(60000).fill(32);u.fill(c,20000,40000);d.catalog.set(PDFLib.PDFName.of('Pad'),d.context.register(d.context.stream(u)));return await d.save({useObjectStreams:false})};"
     + "const obj=()=>({type:'text',x:40,y:40,text:'Rec',fs:20,color:'#000000',lw:0,orient:'h'});const A=await mk(65),B=await mk(66),sameSize=A.length===B.length,ends=A.slice(0,4096).join()===B.slice(0,4096).join()&&A.slice(-4096).join()===B.slice(-4096).join();"

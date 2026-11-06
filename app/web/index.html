@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Y4C2M5XvGLl6waiUnkelXz8qpvHy7dUa+2wy2Fh3Lg8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Tn98QH2+AjDozqIjCodg1mcu3ucj9haI5DFVEsEC1jk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2058,6 +2058,7 @@ header,.file{min-width:0}
     <label class="tgl"><input type="checkbox" id="sxMarks" role="switch" aria-label="Mit Beschriftungen, Formularen und Unterschriften" checked><span class="knob"></span><span class="tl">Mit Beschriftungen, Formularen und Unterschriften</span></label>
     <label class="tgl sp-sel"><input type="checkbox" id="sxDel" role="switch" aria-label="Aus dieser Datei entfernen"><span class="knob"></span><span class="tl">Aus dieser Datei entfernen</span></label>
     <p class="hint" id="sxInfo"></p>
+    <p class="dg-warn" id="sxWarn" role="status" hidden></p>
     <div class="ab-btns asr-btns"><button class="btn" id="sxNo" type="button">Abbrechen</button><button class="btn" id="sxSave" type="button">Speichern</button><button class="btn primary" id="sxGo" type="button">In neuem Tab öffnen</button></div>
   </div>
 </div>
@@ -2659,7 +2660,7 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 'Aus dieser Datei entfernen':'Remove from this file','In neuem Tab öffnen':'Open in new tab','Als ZIP speichern':'Save as ZIP','Herauslösen':'Extract','Auswahl als neue PDF':'Selection as a new PDF',
 'Bereiche mit Semikolon trennen, z. B. 1-3; 4-10; 11-':'Separate ranges with semicolons, e.g. 1-3; 4-10; 11-','Bitte Seiten angeben, z. B. 1-3, 5':'Please enter pages, e.g. 1-3, 5',
 ' Seite wird zu einer neuen PDF.':' page becomes a new PDF.',' Seiten werden zu einer neuen PDF.':' pages become a new PDF.','Eine Datei.':'One file.',' Dateien, zusammen in einer ZIP-Datei.':' files, together in one ZIP file.',
-'Mindestens eine Seite muss in der Datei bleiben.':'At least one page must stay in the file.','Teile':'Parts','Erst Seiten auswählen.':'Select pages first.','Die Seiten werden noch umgebaut. Bitte noch einmal versuchen.':'The pages are still being rebuilt. Please try again.','Das Dokument wurde währenddessen geändert. Die Änderung wurde nicht angewendet.':'The document changed in the meantime. The change was not applied.','Die Seiten konnten nicht neu aufgebaut werden.':'The pages could not be rebuilt.','Bitte kurz warten, es läuft noch eine Seitenänderung.':'Please wait a moment, a page change is still running.',
+'Mindestens eine Seite muss in der Datei bleiben.':'At least one page must stay in the file.','Teile':'Parts','Achtung: Die Beschriftungen dieser Seiten werden entfernt. Sie kommen weder in die neue PDF noch bleiben sie in dieser Datei.':'Warning: the annotations of these pages are removed. They go neither into the new PDF nor stay in this file.','Öffnen, Beschriftungen entfernen':'Open, remove annotations','“ ist herausgelöst und in einem neuen Tab offen. Die Beschriftungen dieser Seiten wurden aus der Datei entfernt. In der Datei rückgängig mit Strg+Z.':'” was split out and opened in a new tab. The annotations of these pages were removed from the file. Undo in the file with Ctrl+Z.','Erst Seiten auswählen.':'Select pages first.','Die Seiten werden noch umgebaut. Bitte noch einmal versuchen.':'The pages are still being rebuilt. Please try again.','Das Dokument wurde währenddessen geändert. Die Änderung wurde nicht angewendet.':'The document changed in the meantime. The change was not applied.','Die Seiten konnten nicht neu aufgebaut werden.':'The pages could not be rebuilt.','Bitte kurz warten, es läuft noch eine Seitenänderung.':'Please wait a moment, a page change is still running.',
 '“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'” is extracted and open in a new tab. Undo in the file with Ctrl+Z.','“ ist in einem neuen Tab offen.':'” is open in a new tab.','“ ist in einem neuen Tab offen. Aus der Originaldatei wurde nichts entfernt.':'” is open in a new tab. Nothing was removed from the original file.',
 'Herauslösen hat nicht geklappt: ':'Extracting failed: ',
 'Bilder zu PDF':'Images to PDF','Fotos von Blättern als PDF, gerade und klar':'Photos of sheets as a PDF, straight and clear','Scan verbessern':'Improve scan',
@@ -8614,8 +8615,9 @@ function sxUI(){segSet('sxMode',SX.mode);$('#sxDlg').dataset.mode=SX.mode;$('#sx
   if(!p)info.textContent=tr(SX.mode==='groups'?'Bereiche mit Semikolon trennen, z. B. 1-3; 4-10; 11-':'Bitte Seiten angeben, z. B. 1-3, 5');
   else if(SX.mode==='sel')info.textContent=p[0].length+tr(p[0].length===1?' Seite wird zu einer neuen PDF.':' Seiten werden zu einer neuen PDF.');
   else info.textContent=p.length===1?tr('Eine Datei.'):p.length+tr(' Dateien, zusammen in einer ZIP-Datei.');
+  const warn=!!p&&SX.mode==='sel'&&SX.del&&!SX.marks;$('#sxWarn').hidden=!warn;$('#sxWarn').textContent=warn?tr('Achtung: Die Beschriftungen dieser Seiten werden entfernt. Sie kommen weder in die neue PDF noch bleiben sie in dieser Datei.'):'';
   const bad=!p||(SX.mode==='sel'&&SX.del&&p[0].length>=n);if(p&&SX.mode==='sel'&&SX.del&&p[0].length>=n)info.textContent=tr('Mindestens eine Seite muss in der Datei bleiben.');
-  $('#sxGo').disabled=bad;$('#sxSave').disabled=bad;$('#sxGo').textContent=tr(SX.mode==='sel'?'In neuem Tab öffnen':p&&p.length===1?'Speichern':'Als ZIP speichern');$('#sxSave').hidden=SX.mode!=='sel'}
+  $('#sxGo').disabled=bad;$('#sxSave').disabled=bad;$('#sxGo').textContent=tr(SX.mode==='sel'?warn?'Öffnen, Beschriftungen entfernen':'In neuem Tab öffnen':p&&p.length===1?'Speichern':'Als ZIP speichern');$('#sxSave').hidden=SX.mode!=='sel'}
 function sxOpen(list){if(!S.doc||!S.pages.length){toast(tr('Erst eine PDF öffnen.'));return}closeMenu&&closeMenu();closeEditor();
   if(list&&list.length){SX.mode='sel';$('#sxRange').value=sxLabel(list)}else if(!$('#sxRange').value||!prParse($('#sxRange').value,S.pages.length))$('#sxRange').value=String(curPage()+1);
   $('#sxN').value=SX.n;$('#sxN').max=S.pages.length;sxUI();showEl($('#sxDlg'));setTimeout(()=>{const f=SX.mode==='sel'?$('#sxRange'):SX.mode==='every'?$('#sxN'):$('#sxGroups');f.focus();f.select&&f.select()},40)}
@@ -8630,11 +8632,11 @@ async function sxRun(asFile){const p=sxPlan();if(!p)return;const go=$('#sxGo'),s
   try{const cr=S.crypt;
     if(SX.mode==='sel'&&!asFile){const l=p[0];
       const bytes=await sxSubset(S.bytes,l),objs=l.map(i=>SX.marks?JSON.parse(JSON.stringify(S.pages[i].objs,(k,v)=>k==='_editing'?undefined:v)):[]);
-      const name=sxName(l),form=SX.marks&&S.form?Object.assign(Object.create(null),S.form):null,del=SX.del,n=S.pages.length,srcTab=TAB,srcBytes=S.bytes;sxClose();
+      const name=sxName(l),form=SX.marks&&S.form?Object.assign(Object.create(null),S.form):null,del=SX.del,noMarks=!SX.marks,n=S.pages.length,srcTab=TAB,srcBytes=S.bytes;sxClose();
       const ok_=await tabGate(()=>tabOpenWith(async()=>{window.werkbank&&werkbank.newDoc&&werkbank.newDoc();const r=await tabLoad(bytes,name,{isNew:true,objs,form,crypt:cr||null});if(r)markDirty();return r},true));
       // Aus der Originaldatei erst entfernen, wenn der neue Tab steht; sonst gehen die Seiten bei einem Fehler verloren
       let cut=false;if(ok_&&del&&srcTab!==TAB&&TABS.includes(srcTab)){const nt=TAB;await tabSwitch(srcTab);if(TAB===srcTab&&S.bytes===srcBytes)cut=await rebuildPages(idx(n).filter(i=>!l.includes(i)).map(i=>({i})),null,Math.max(0,Math.min(l[0],n-l.length-1)));await tabSwitch(nt)}
-      if(ok_)toast(tr('„')+name+tr(!del?'“ ist in einem neuen Tab offen.':cut?'“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'“ ist in einem neuen Tab offen. Aus der Originaldatei wurde nichts entfernt.'));return}
+      if(ok_)toast(tr('„')+name+tr(!del?'“ ist in einem neuen Tab offen.':cut?noMarks?'“ ist herausgelöst und in einem neuen Tab offen. Die Beschriftungen dieser Seiten wurden aus der Datei entfernt. In der Datei rückgängig mit Strg+Z.':'“ ist herausgelöst und in einem neuen Tab offen. In der Datei rückgängig mit Strg+Z.':'“ ist in einem neuen Tab offen. Aus der Originaldatei wurde nichts entfernt.'));return}
     const base=SX.marks?await buildOutput():S.bytes;const files=[];
     for(let k=0;k<p.length;k++){go.textContent=tr('Speichert')+(p.length>1?` ${k+1}/${p.length}`:'');files.push({name:sxName(p[k]),data:await crSeal(await sxSubset(base,p[k]),cr)});await new Promise(r=>setTimeout(r,0))}
     sxClose();if(files.length===1)await exBytes(files[0].name,files[0].data,'application/pdf');else await exBytes(`${exBase()}-${tr('Teile')}.zip`,zipStore(files),'application/zip')}
@@ -8642,7 +8644,7 @@ async function sxRun(asFile){const p=sxPlan();if(!p)return;const go=$('#sxGo'),s
   finally{go.textContent=t0;sxUI()}}
 {const d=$('#sxDlg');segBind('sxMode',v=>{SX.mode=v;sxUI();setTimeout(()=>{const f=v==='sel'?$('#sxRange'):v==='every'?$('#sxN'):$('#sxGroups');f.focus()},0)});
   for(const id of['#sxRange','#sxN','#sxGroups'])$(id).addEventListener('input',sxUI);
-  $('#sxMarks').onchange=e=>{SX.marks=e.target.checked};$('#sxDel').onchange=e=>{SX.del=e.target.checked;sxUI()};
+  $('#sxMarks').onchange=e=>{SX.marks=e.target.checked;sxUI()};$('#sxDel').onchange=e=>{SX.del=e.target.checked;sxUI()};
   $('#sxX').onclick=$('#sxNo').onclick=sxClose;$('#sxGo').onclick=()=>sxRun(SX.mode!=='sel');$('#sxSave').onclick=()=>sxRun(true);
   d.addEventListener('pointerdown',e=>{if(e.target===d)sxClose()});
   d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();sxClose()}else if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='checkbox'){e.preventDefault();$('#sxGo').click()}})}
