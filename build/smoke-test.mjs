@@ -767,7 +767,7 @@ else {
   const icoOk = (() => { try { const b = fs.readFileSync('build/icon-transparent.ico'), n = b.readUInt16LE(4), s = []; for (let i = 0; i < n; i++) s.push(b[6 + 16 * i] || 256); if (![16, 20, 24, 32, 48, 64, 128, 256].every(x => s.includes(x))) return false; const o = b.readUInt32LE(6 + 12), z = b.readUInt32LE(6 + 8), im = fs.readFileSync('build/icon-transparent.ico').subarray(o, o + z); return pngBarRows(im) >= 2; } catch (e) { return false; } })();
   const pngCorners = f => { try { const b = fs.readFileSync(f); let o = 8, w = 0, d = []; while (o < b.length) { const n = b.readUInt32BE(o), t = b.toString('latin1', o + 4, o + 8); if (t === 'IHDR') { w = b.readUInt32BE(o + 8); if (b[o + 17] !== 6) return null; } if (t === 'IDAT') d.push(b.subarray(o + 8, o + 8 + n)); o += 12 + n; } const r = zlib.inflateSync(Buffer.concat(d)), row = Buffer.alloc(w * 4); for (let i = 0; i < w * 4; i++) { const a = i >= 4 ? row[i - 4] : 0, f = r[0]; row[i] = (r[1 + i] + (f === 1 || f === 4 ? a : f === 3 ? a >> 1 : 0)) & 255; } return [row[3], row[w * 4 - 1]]; } catch (e) { return null; } };
   const pj = JSON.parse(fs.readFileSync('package.json', 'utf8')).build, mainJs = fs.readFileSync('app/main.js', 'utf8');
-  const winIcon = /new BrowserWindow\(\{[^]*?icon:\s*path\.join\(__dirname,[^\n]*'icon-transparent\.ico'[^\n]*'icon-transparent\.png'\)/.test(mainJs) && fs.existsSync('app/icon-transparent.ico') && fs.readFileSync('app/icon-transparent.ico').equals(fs.readFileSync('build/icon-transparent.ico'));
+  const winIcon = /new BrowserWindow\(\{[^]*?icon:\s*process\.platform === 'win32' \? path\.join\(__dirname, 'icon-transparent\.ico'\)\.replace\('app\.asar'[^\n]*?app\.asar\.unpacked'[^\n]*?: path\.join\(__dirname, 'icon-transparent\.png'\),/.test(mainJs) && fs.existsSync('app/icon-transparent.ico') && fs.readFileSync('app/icon-transparent.ico').equals(fs.readFileSync('build/icon-transparent.ico'));
   ok('Transparent window icon: files exist, png corners alpha 0, ico 16..256, BrowserWindow + win.icon wired, installer/Store/linux package icons untouched',
     icoOk && fs.existsSync('app/icon-transparent.png') && JSON.stringify(pngCorners('build/icon-transparent.png')) === '[0,0]' && JSON.stringify(pngCorners('app/icon-transparent.png')) === '[0,0]' && winIcon
     && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico' && [pj.win.icon, pj.nsis.installerIcon, pj.nsis.uninstallerIcon, pj.linux.icon].every(f => fs.existsSync(f)) && fs.existsSync('build/appx/Square44x44Logo.png'));
@@ -1963,6 +1963,11 @@ else {
     await ev("acSet();acType('1 <=');acKey('Backspace')"); const bs4 = await ev('acV()');
     await ev("acSet();acType('1 >=');acKey('z',{ctrlKey:true})"); const uz2 = await ev('acV()');
     ok('Autokorrektur: Rückschritt oder Strg+Z direkt danach bringt die getippten Zeichen zurück', bs === '->' && uz === '...' && bs2 === '->' && bs3 === '' && bs4 === '1 <=' && uz2 === '1 >=', { bs, uz, bs2, bs3, bs4, uz2 });
+    await ev("acSet();acType('1 <=>');acKey('Backspace')"); const lg1 = await ev('acV()');
+    await ev("acSet();acType('1 <=>');acKey('z',{ctrlKey:true})"); const lg2 = await ev('acV()');
+    await ev("acSet();acType('a<=>b')"); const lg3 = await ev('acV()');
+    await ev("acSet();acType('1 <=>')"); const lg4 = await ev('acV()');
+    ok('Autokorrektur: <=> wird zu ⇔, Rückschritt/Strg+Z bringt <=> zurück, a<=>b bleibt', lg1 === '1 <=>' && lg2 === '1 <=>' && lg3 === 'A<=>b' && lg4 === '1 ⇔', { lg1, lg2, lg3, lg4 });
     await ev("S.autoChar=false;acSet();acType('-> => (c)')");
     const off = await ev('acV()'); await ev('S.autoChar=true');
     ok('Autokorrektur: ausgeschaltet bleibt der Text wie getippt', off === '-> => (c)', off);
@@ -1999,6 +2004,12 @@ else {
       for (const ch of '1 -> 2') await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, text: ch, unmodifiedText: ch });
       const n1 = await ev("document.getElementById('ntText').value");
       ok('Autokorrektur: Notizen ersetzen -> beim Tippen', n1 === '1 → 2', n1);
+      await ev("document.getElementById('ntText').value='';document.getElementById('ntText').focus()");
+      for (const ch of '1 <=>') await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: ch, text: ch, unmodifiedText: ch });
+      const n2 = await ev("document.getElementById('ntText').value");
+      await key('Backspace', 'Backspace', 8);
+      const n3 = await ev("document.getElementById('ntText').value");
+      ok('Autokorrektur: Notizen <=> wird zu ⇔, Rückschritt bringt <=> zurück', n2 === '1 ⇔' && n3 === '1 <=>', { n2, n3 });
     } else ok('Autokorrektur: Notizenfeld nicht fokussierbar (Prüfung übersprungen)', true);
     await ev("document.getElementById('ntText').value='';notesOpen(false);S.pages.forEach(P=>P.objs=[]);setSel(null);redrawAll()");
   }
@@ -2840,6 +2851,15 @@ else {
   {
     const fl = await ev("(()=>{const o={type:'rect',x:200,y:200,w:6,h:6,color:'#000000',lw:1,fill:'none'};const st={orig:{w:6,h:6},ob:{x:200,y:200,w:6,h:6},mode:'br'};resizeTo(o,st,180,170,false,false);const a=[o.x,o.y,o.w,o.h];const q={type:'rect',x:200,y:200,w:60,h:40,color:'#000000',lw:1,fill:'none'};resizeTo(q,{orig:{w:60,h:40},ob:{x:200,y:200,w:60,h:40},mode:'br'},260,240,false,false);return [a,[q.x,q.y,q.w,q.h]]})()");
     ok('T1-09: Ziehpunkt über die Gegenecke klappt das Objekt um', JSON.stringify(fl) === '[[180,170,20,30],[200,200,60,40]]', fl);
+  }
+  // Forced colors: the hidden editor textarea must stay invisible (no second copy of the text)
+  {
+    await cdp('Emulation.setEmulatedMedia', { features: [{ name: 'forced-colors', value: 'active' }] });
+    await ev("(()=>{newText(0,200,200);ED.eng.put('Hallo Welt');return 1})()"); await sleep(300);
+    const fc = await ev("(()=>{const cs=getComputedStyle(document.querySelector('.sink'));return cs.color+'|'+cs.webkitTextFillColor})()");
+    await cdp('Emulation.setEmulatedMedia', { features: [] });
+    await ev("closeEditor()");
+    ok('Forced colors: the hidden text box input layer stays transparent', fc === 'rgba(0, 0, 0, 0)|rgba(0, 0, 0, 0)', fc);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
