@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-crb9W/re5X1M/c6Cl5DaH1R/M2hiWFeuzUgqQ21cHh8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pqLPRvxSQimyvNc8sa+tJkKrMG6EfR76e7iw8FKRDoc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4352,7 +4352,7 @@ function markDirty(){try{spvDocChanged()}catch(e){}try{rdBar()}catch(e){}try{if(
 // A successful save makes the local recovery snapshot obsolete (it may belong to a file that was saved elsewhere); edits made during the save keep theirs
 // With a name (Save As): the document now is that file, so name, file name field/tab and the key of notes and pending edits follow it
 function recSaved(rev,name){if(name&&name!==S.name){const ok=storeKey();S.name=name;const f=$('#fname');f.textContent=name;f.title=name+' · '+tr('Klicken zum Umbenennen (F2)');
-    try{const nk=storeKey();for(const suf of['',':notes',':tasks']){const v=localStorage.getItem(ok+suf);if(v!=null){localStorage.setItem(nk+suf,v);localStorage.removeItem(ok+suf)}}}catch(e){}}
+    try{const nk=storeKey();for(const suf of['',':notes',':tasks']){const v=localStorage.getItem(ok+suf);if(v!=null&&localStorage.getItem(nk+suf)==null){localStorage.setItem(nk+suf,v);localStorage.removeItem(ok+suf)}}}catch(e){}}
   if(S.rev!==rev)return;clearTimeout(saveT);try{localStorage.removeItem(storeKey())}catch(e){}}
 /* ---------- Auswahl ---------- */
 let selAnim=null;
