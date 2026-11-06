@@ -1,4 +1,27 @@
-# Layr 3.10.0
+# Layr 3.10.1
+
+Release notes for version 3.10.1 (fixes on top of 3.10.0).
+
+## Fixes
+
+- Recovery no longer restores unsaved changes into the original file after a Save As.
+- Stronger file fingerprint for the recovery store: files with the same name and size but different content no longer share annotations.
+- Split-out dialog: the warning about removed annotations now names the button "Open, remove annotations"; "Save" leaves the file unchanged.
+- The tab and the file name field follow a Save As.
+- Groups stay reachable when dragged, pasted, nudged or rotated.
+- The object bar avoids covering other objects.
+- The page selector survives opening the preview.
+- The text colour palette closes on a click outside.
+- Handles flip when dragged past the opposite corner.
+- Linux: window icon.
+- Forced-colors mode: text no longer appears twice.
+- Undo of the <=> symbol.
+
+## Known limits
+
+- Layr files that were already saved once still do not restore unsaved changes after a crash.
+
+# Earlier: Layr 3.10.0
 
 Release notes for version 3.10.0.
 

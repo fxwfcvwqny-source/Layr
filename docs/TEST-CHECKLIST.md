@@ -1,6 +1,6 @@
-# Layr 3.10.0: Testliste für Windows und Linux
+# Layr 3.10.1: Testliste für Windows und Linux
 
-Installiere den Entwurf 3.10.0 (Windows: `Layr-Setup-3.10.0.exe`, Linux: `.deb`/AppImage). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
+Installiere den Entwurf 3.10.1 (Windows: `Layr-Setup-3.10.1.exe`, Linux: `.deb`/AppImage). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
 Format je Zeile: Was tun, dann "→" was du sehen sollst. [Linux] / [Windows] = nur dort prüfen. Alle Schalter stehen im Menü Einstellungen (Zahnrad) bzw. unter "Design anpassen" / "Schreiben & Rechtschreibung".
 Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 100 %, 125 % und 150 % prüfen (Layr danach neu starten). Schwerpunkt dort: scharfe Symbole, Icons, Speicheranzeige, Zahlen unten, Objektleiste.
 
@@ -135,6 +135,14 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Hell/Dunkel/System umschalten → kein Ruckeln, Schrift lesbar.
 - [ ] Geteilte Ansicht → zwei Spalten, Mitscrollen.
 - [ ] Rückgängig/Wiederholen über mehrere Schritte (Vorlage, Gruppe, Formatierung, Zuschnitt).
+
+## 11. Korrekturen 3.10.1
+- [ ] Datei ändern, "Speichern unter" mit neuem Namen → Tab und Dateiname zeigen den neuen Namen; nach Neustart bietet die Originaldatei keine Wiederherstellung dieser Änderungen an.
+- [ ] Seiten herauslösen, "Mit Beschriftungen" aus, "Aus dieser Datei entfernen" an → Warnung nennt "Öffnen, Beschriftungen entfernen"; "Speichern" ändert die Datei nicht.
+- [ ] Gruppe ziehen, einfügen, mit Pfeiltasten schieben, drehen → bleibt auswählbar und bearbeitbar.
+- [ ] Vorschau öffnen und schließen → die Seitenwahl bleibt erhalten.
+- [ ] Griff über die Gegenecke ziehen → Objekt spiegelt sich, Griffe wechseln mit.
+- [ ] Symbol <=> setzen, Strg+Z → verschwindet in einem Schritt.
 
 ## Bekannte Grenzen (bitte nicht melden)
 - Gedrehter Text hat achsenparallele Hervorhebung; Texthintergrund und Wortformatierung fehlen bei gestapeltem Text.
