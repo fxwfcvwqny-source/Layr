@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-LOU3LfJmqfUPkN0uImv8kUc//Dc/yK51MTDgG3OBV+I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-UlQKevCC8BZNIM2aHGhDwZ4i7b11Fo5QjoCVSYKcBNc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6043,6 +6043,7 @@ function rotObjs(objs,W,H,rot){const r=((rot%360)+360)%360;if(!r)return objs;
     if(o.type==='rect'||o.type==='ellipse'||o.type==='redact'||o.type==='hl'){const ox=o.x,oy=o.y,a=rotPt(o.x,o.y,W,H,r),b=rotPt(o.x+o.w,o.y+o.h,W,H,r);o.x=Math.min(a[0],b[0]);o.y=Math.min(a[1],b[1]);o.w=Math.abs(a[0]-b[0]);o.h=Math.abs(a[1]-b[1]);
       if(o.type==='hl'&&Array.isArray(o.q))o.q=o.q.map(qd=>qd.map(pt=>{const c=rotPt(ox+pt[0],oy+pt[1],W,H,r);return[+(c[0]-o.x).toFixed(2),+(c[1]-o.y).toFixed(2)]}));continue} // hl quads are relative to x/y
     let b;try{b=bbox(o)}catch(e){continue}const c=rotPt(b.x+b.w/2,b.y+b.h/2,W,H,r);moveObj(o,c[0]-(b.x+b.w/2),c[1]-(b.y+b.h/2),true)}
+  const P=r===180?{w:W,h:H}:{w:H,h:W};for(const o of objs)pageKeep([o],P); // centre mapping can push edge objects out
   return objs}
 function rotatePages(list,d){const n=S.pages.length,set=new Set(list);if(!set.size)return;
   const msg=set.size===n&&n>1?tr(d>0?'Alle Seiten nach rechts gedreht. Rückgängig mit Strg+Z.':'Alle Seiten nach links gedreht. Rückgängig mit Strg+Z.')

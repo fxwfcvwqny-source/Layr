@@ -2774,6 +2774,16 @@ else {
     ok('H2-01: Gruppe am linken Seitenrand: jedes Mitglied bleibt erreichbar', pk[1][0] + 64 >= 20 && pk[1][1] + 30 >= 20, pk);
     ok('H2-01: Einfügen mehrerer Objekte am Rand lässt keines ganz außerhalb', pk[2].length === 2 && pk[2].every(x => x <= 575 && x + 30 >= 20), pk);
   }
+  // H2-02: page rotation keeps edge objects on the page (20 pt rule), also after repeated turns
+  {
+    await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'rk.pdf');await new Promise(r=>setTimeout(r,500));S.pages[0].objs.push({type:'rect',x:575,y:300,w:64,h:56,color:'#000000',lw:1,fill:'none'},{type:'rect',x:560,y:830,w:30,h:30,color:'#000000',lw:1,fill:'none'});redraw(0)})()");
+    const bad = [];
+    for (let k = 0; k < 4; k++) {
+      await ev('rotatePages([0],90)'); await sleep(900);
+      bad.push(await ev("(()=>{const P=S.pages[0];return P.objs.map(o=>{const b=bbox(o);return b.x<=P.w-Math.min(20,b.w)+.01&&b.x+b.w>=Math.min(20,b.w)-.01&&b.y<=P.h-Math.min(20,b.h)+.01&&b.y+b.h>=Math.min(20,b.h)-.01})})()"));
+    }
+    ok('H2-02: Seitendrehung lässt Objekte am Rand erreichbar (4 Drehungen)', JSON.stringify(bad) === JSON.stringify(Array(4).fill([true, true])), bad);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
