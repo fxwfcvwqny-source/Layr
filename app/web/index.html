@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pqLPRvxSQimyvNc8sa+tJkKrMG6EfR76e7iw8FKRDoc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-MpCnO3ucJE7EdA7QDC4GpNJleyti214rz3eBOUVJIf8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3392,11 +3392,14 @@ function editCell(i,o,r,k){const X=tblCols(o),Y=tblRows(o),fs=o.fs||11,lh=fs*1.2
 function tblTarget(){if(!S.sel)return null;const o=S.sel.o;return o.type==='table'?o:null}
 function updTblUI(){try{updImgUI()}catch(e){}const sec=document.getElementById('tblSec');if(!sec)return;const t=tblTarget();sec.hidden=!(S.tool==='table'||t);
   $('#tRv').textContent=t?t.rows:(S.tblR||3);$('#tCv').textContent=t?t.cols:(S.tblC||3);$('#tHead').checked=t?!!t.head:S.tblHead!==false;$('#tEven').disabled=!t;const tc=document.getElementById('tChart');if(tc){tc.disabled=!t;tc.onclick=()=>{const tt=tblTarget();if(tt)dgOpen({p:S.sel?S.sel.p:curPage(),o:tt},'chart')}}}
+// after a row/column was added the table stays on the page: columns shrink proportionally when wider than the page, otherwise it moves in
+function tblKeep(o){const P=S.pages.find(P=>P.objs.includes(o));if(!P)return;if(o.w>P.w)o.w=P.w;o.x=clamp(o.x,0,Math.max(0,P.w-o.w));if(o.h<=P.h)o.y=clamp(o.y,0,P.h-o.h);tblFit(o)}
 function tblResize(o,dr,dc){
   if(dr)delete o.__rh0;if(dr>0){const hOld=o.h,hNew=hOld+hOld/o.rows;o.rh=[...o.rh.map(f=>f*hOld/hNew),(hNew-hOld)/hNew];o.h=hNew;o.rows++;o.cells.push(Array(o.cols).fill(''))}
   if(dr<0&&o.rows>1){const last=o.rh[o.rh.length-1],hNew=o.h*(1-last);o.rh=o.rh.slice(0,-1).map(f=>f/(1-last));o.h=hNew;o.rows--;o.cells.pop()}
   if(dc>0){const wOld=o.w,wNew=wOld+wOld/o.cols;o.cw=[...o.cw.map(f=>f*wOld/wNew),(wNew-wOld)/wNew];o.w=wNew;o.cols++;o.cells.forEach(r=>r.push(''))}
-  if(dc<0&&o.cols>1){const last=o.cw[o.cw.length-1],wNew=o.w*(1-last);o.cw=o.cw.slice(0,-1).map(f=>f/(1-last));o.w=wNew;o.cols--;o.cells.forEach(r=>r.pop())}}
+  if(dc<0&&o.cols>1){const last=o.cw[o.cw.length-1],wNew=o.w*(1-last);o.cw=o.cw.slice(0,-1).map(f=>f/(1-last));o.w=wNew;o.cols--;o.cells.forEach(r=>r.pop())}
+  tblKeep(o)}
 
 function orgThumb(t){const cv=document.createElement('canvas'),k=Math.ceil(DPR()*2),W=60,H=40;cv.width=W*k;cv.height=H*k;const c=cv.getContext('2d');
   const objs=t.b();orgRelink({objs});const bb=orgBBox(objs),sc=Math.min((W-6)/bb.w,(H-6)/bb.h);
@@ -6978,7 +6981,7 @@ function selModeToggle(){S.selMode=S.selMode==='rect'?'free':'rect';try{localSto
 // Tabelle: Zeile/Spalte an beliebiger Stelle einfügen oder löschen (Höhen/Breiten bleiben stimmig)
 function tblInsert(o,dim,at){const R=dim==='r',n=R?o.rows:o.cols;if(n>=(R?200:60))return;at=clamp(at,0,n);
   const fr=R?o.rh:o.cw,len=R?o.h:o.w,add=len/n,nl=len+add;const f=fr.map(v=>v*len/nl);f.splice(at,0,add/nl);
-  if(R){delete o.__rh0;o.rh=f;o.h=nl;o.rows++;o.cells.splice(at,0,Array(o.cols).fill(''))}else{o.cw=f;o.w=nl;o.cols++;o.cells.forEach(r=>r.splice(at,0,''))}}
+  if(R){delete o.__rh0;o.rh=f;o.h=nl;o.rows++;o.cells.splice(at,0,Array(o.cols).fill(''))}else{o.cw=f;o.w=nl;o.cols++;o.cells.forEach(r=>r.splice(at,0,''))}tblKeep(o)}
 function tblDelete(o,dim,at){const R=dim==='r',n=R?o.rows:o.cols;if(n<=1)return;const fr=R?o.rh:o.cw,len=R?o.h:o.w,g=fr[at],nl=len*(1-g);
   const f=fr.filter((_,k)=>k!==at).map(v=>v/(1-g));if(R){delete o.__rh0;o.rh=f;o.h=nl;o.rows--;o.cells.splice(at,1)}else{o.cw=f;o.w=nl;o.cols--;o.cells.forEach(r=>r.splice(at,1))}}
 function tblMenu(i,o,r,c,x,y){ctx.innerHTML='';const add=(t,f,dis)=>{const b=document.createElement('button');b.setAttribute('role','menuitem');b.textContent=tr(t);b.disabled=!!dis;b.onclick=()=>{closeMenu();pushHist();f();redraw(i);markDirty();updTblUI()};ctx.appendChild(b)};

@@ -2756,6 +2756,9 @@ else {
     // Table row heights the user changed (insert/delete/drag) are not shrunk back by the remember-height logic
     const tb2 = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);const o=newTable(60,100,3,3);o.w=300;o.h=60;S.pages[0].objs.push(o);redraw(0);o.cells[0][0]='word '.repeat(60);tblFit(o);const h1=o.h;tblInsert(o,'r',3);const h2=o.h;o.cells[0][0]='';tblFit(o);const r=[h1,h2,o.h];S.pages.forEach(P=>P.objs=[]);return r})()");
     ok('Tabelle: nach Zeile einfügen schrumpft die vergrößerte Zeile nicht zurück', tb2[2] >= tb2[1] - .5, tb2);
+    // W-01: adding columns/rows keeps the table on the page (columns shrink proportionally, table moves in)
+    const tb3 = await ev("(()=>{S.pages.forEach(P=>P.objs=[]);const P=S.pages[0],o=newTable(480,700,3,3);o.w=264;o.h=66;P.objs.push(o);redraw(0);for(let i=0;i<10;i++){tblResize(o,1,1);tblInsert(o,'c',1)}const r=[o.x>=0,o.x+o.w<=P.w+.01,o.y+o.h<=P.h+.01,Math.abs(o.cw.reduce((a,b)=>a+b,0)-1)<1e-6,o.cols];S.pages.forEach(P=>P.objs=[]);return r})()");
+    ok('Tabelle: Spalten/Zeilen hinzufügen lässt die Tabelle nicht über die Seite hinausragen', tb3[0] && tb3[1] && tb3[2] && tb3[3] && tb3[4] === 23, tb3);
     // T2-14: the quick bar of a text field at the right page edge stays inside the viewer
     await ev("(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([420,500]);await openPdf(await d.save(),'narrow.pdf');await new Promise(r=>setTimeout(r,900));newText(0,300,100);ED.eng.put('Hallo');return 1})()", 30000);
     await sleep(300);
