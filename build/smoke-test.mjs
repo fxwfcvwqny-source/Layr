@@ -2954,12 +2954,14 @@ else {
       P.objs.push(sanObj({type:'sym',sym:'attr',x:50,y:150,w:60,h:30,color:'#000000',lw:1,fill:'none',fs:11,label:''}));
       P.objs.push(sanObj({type:'rect',x:200,y:80,w:60,h:40,color:'#ff0000',lw:10,fill:'none'}));
       const real=SYM.attr.draw;SYM.attr.draw=()=>{throw new Error('boom')};
-      redraw(0);const later=px();let built=false;try{const o=await buildOutput();built=!!o&&o.length>100}catch(e){}
+      OVC.clear();redraw(0);const later=px();let built=false;try{const o=await buildOutput();built=!!o&&o.length>100}catch(e){}
+      const cnt=S.drawErr,pend=S.drawErrOut,cached=OV_OK?OVC.size:0;drawErrNotify();const tt=document.querySelector('.toast'),toasted=!!tt&&/Objekt|object/.test(tt.textContent)&&S.drawErrToast===1;tt&&(tt.textContent='');S.drawErrOut=true;drawErrNotify();const again=!/Objekt|object/.test((document.querySelector('.toast')||{textContent:''}).textContent);
       SYM.attr.draw=real;
       const cv=document.createElement('canvas');cv.width=cv.height=300;const c=cv.getContext('2d'),bad=[];
       for(const k of Object.keys(SYM))for(const w of [.5,1,4,6,-4,-.5])for(const h of [.5,1,4,6,-4,-.5]){try{c.save();SYM[k].draw(c,sanObj({type:'sym',sym:k,x:100,y:100,w,h,color:'#000000',lw:1,fill:'#ff0000',fs:11,label:'x'}),100,100,w,h);c.restore()}catch(e){c.restore();bad.push(k+' '+w+'x'+h)}}
-      return JSON.stringify({later,built,bad:bad.slice(0,5),n:Object.keys(SYM).length})})()`, 60000).then(x => typeof x === 'string' ? JSON.parse(x) : x);
+      return JSON.stringify({later,built,cnt,pend,cached,toasted,again,bad:bad.slice(0,5),n:Object.keys(SYM).length})})()`, 60000).then(x => typeof x === 'string' ? JSON.parse(x) : x);
     ok('D2-07: ein Symbol, das beim Zeichnen wirft, stoppt weder die folgenden Objekte noch das Speichern', !!r && r.later === true && r.built === true, r);
+    ok('S2: ein nicht zeichenbares Objekt wird gezaehlt, beim Speichern genau einmal gemeldet und nicht als fertig zwischengespeichert', !!r && r.cnt > 0 && r.pend === true && r.cached === 0 && r.toasted === true && r.again === true, r);
     ok('D2-07: alle Symbole zeichnen bei 0,5 bis 6 pt und negativer Groesse ohne Fehler', !!r && r.n > 150 && r.bad.length === 0, r);
   }
   // D2-01: a tool key or a right-click in the middle of a move drag cancels the drag (geometry restored, history and dirty flag consistent, no exception, E leaves the object alone)
