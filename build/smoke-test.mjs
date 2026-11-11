@@ -2897,6 +2897,14 @@ else {
     ok('S5-01: Schwaerzen: Datei und versteckte Kopie (layr-original) enthalten die Originalseite nicht mehr', !!L && L.rd.pages === 3 && L.rd.secret === 0 && !!L.att && L.att.pages === 3 && L.att.secret === 0 && L.out.secret === 0, L || r);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // S5-02: an annotation that only partly overlaps a redaction box is removed too (it would draw over the black area again)
+  {
+    const r = await ev(`(async()=>{const W=ms=>new Promise(r=>setTimeout(r,ms));const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);await openPdf(await d.save(),'s502.pdf');await W(500);
+      S.pages[0].objs=[{type:'redact',x:100,y:100,w:100,h:50,color:'#000000',lw:0},{type:'rect',x:150,y:120,w:100,h:30,color:'#000000',lw:1},{type:'rect',x:10,y:10,w:20,h:20,color:'#000000',lw:1}];
+      await rdApply();await W(500);return [S.pages[0].objs.map(o=>[o.type,o.x]),/berührte|touching/.test(document.querySelector('.toast').textContent)]})()`, 60000);
+    ok('S5-02: Schwaerzen entfernt auch Beschriftungen, die den Bereich nur teilweise ueberdecken (mit Hinweis)', !!r && JSON.stringify(r[0]) === '[["rect",10]]' && r[1] === true, r);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

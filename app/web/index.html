@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KdDqDEIChTqBrwJwimCR9x6z7zBZX42iQV/pkDX9xXg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uiAbhNF405l7ze9xQnDkqSeQmaZYBcHWcdRcRFECYzk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2600,9 +2600,9 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 'Verwerfen':'Discard','Schwärzen anwenden':'Apply redaction','1 Bereich zum Schwärzen markiert':'1 area marked for redaction',' Bereiche zum Schwärzen markiert':' areas marked for redaction',
 'Endgültig schwärzen?':'Redact permanently?','Alles in den markierten Bereichen wird schwarz und aus der Datei entfernt – auch aus der versteckten Originalfassung, die Layr in der PDF mitspeichert.':'Everything in the marked areas turns black and is removed from the file – also from the hidden original that Layr keeps inside the PDF.',
 'Bis zum Speichern kannst du es mit Strg+Z rückgängig machen.':'Until you save, you can undo it with Ctrl+Z.','Endgültig schwärzen':'Redact permanently','1 Seite':'1 page',
-' wird neu als Bild gespeichert. Text auf dieser Seite lässt sich danach nicht mehr markieren oder durchsuchen, Formularfelder dort werden fest eingetragen.':' will be stored as an image. Text on it can no longer be selected or searched afterwards, form fields there are flattened.',
+' wird neu als Bild gespeichert. Text auf dieser Seite lässt sich danach nicht mehr markieren oder durchsuchen, Formularfelder dort werden fest eingetragen.':' will be stored as an image. Text on it can no longer be selected or searched afterwards, form fields there are flattened.',' Beschriftungen, die einen markierten Bereich auch nur berühren, werden mit entfernt.':' Annotations that even touch a marked area are removed too.',
 'Schwärzt':'Redacting','Geschwärzt. Beim nächsten Speichern ist der Inhalt dauerhaft entfernt.':'Redacted. The content is removed for good the next time you save.',
-'1 Beschriftung im Bereich wurde mit entfernt.':'1 annotation in the area was removed too.',' Beschriftungen im Bereich wurden mit entfernt.':' annotations in the area were removed too.','Schwärzen hat nicht geklappt: ':'Redaction failed: ',
+'1 Beschriftung, die den Bereich berührte, wurde mit entfernt.':'1 annotation touching the area was removed too.',' Beschriftungen, die den Bereich berührten, wurden mit entfernt.':' annotations touching the area were removed too.','Schwärzen hat nicht geklappt: ':'Redaction failed: ',
 'Text erkennen':'Recognize text','Gescannte Seiten durchsuchbar machen':'Make scanned pages searchable',
 'Macht gescannte Seiten durchsuchbar: Der erkannte Text liegt unsichtbar über dem Bild, so funktionieren Suche, Textmarker und Kopieren. Alles läuft auf deinem Gerät, nichts wird hochgeladen.':'Makes scanned pages searchable: the recognized text lies invisibly over the image, so search, highlighter and copying work. Everything runs on your device, nothing is uploaded.',
 'Alle ohne Text':'All without text','Sprache':'Language','Deutsch':'German','Englisch':'English','Beide':'Both','Erkennen':'Recognize','Schließen':'Close',
@@ -3876,14 +3876,14 @@ function rdBar(){let b=document.getElementById('rdBar');const n=S.pages&&S.pages
     $('#rdGo').onclick=()=>rdAsk();$('#rdDrop').onclick=()=>{pushHist();for(const P of S.pages)P.objs=P.objs.filter(o=>o.type!=='redact');setSel(null);redrawAll();markDirty();rdBar()}}
   b.querySelector('.rd-n').textContent=n===1?tr('1 Bereich zum Schwärzen markiert'):n+tr(' Bereiche zum Schwärzen markiert');if(b.hidden)showEl(b)}
 function rdAsk(){const n=rdCount();if(!n)return;const pages=S.pages.filter(P=>P.objs.some(o=>o.type==='redact')).length;
-  $('#rdInfo').textContent=(pages===1?tr('1 Seite'):pages+tr(' Seiten'))+tr(' wird neu als Bild gespeichert. Text auf dieser Seite lässt sich danach nicht mehr markieren oder durchsuchen, Formularfelder dort werden fest eingetragen.');
+  $('#rdInfo').textContent=(pages===1?tr('1 Seite'):pages+tr(' Seiten'))+tr(' wird neu als Bild gespeichert. Text auf dieser Seite lässt sich danach nicht mehr markieren oder durchsuchen, Formularfelder dort werden fest eingetragen.')+tr(' Beschriftungen, die einen markierten Bereich auch nur berühren, werden mit entfernt.');
   showEl($('#rdDlg'));setTimeout(()=>$('#rdNo').focus(),0)}
 async function rdApply(){const rd=S.pages.map(P=>P.objs.filter(o=>o.type==='redact'));if(!rd.some(a=>a.length))return;closeEditor();setSel(null);
   const go=$('#rdOk');go.disabled=true;go.textContent=tr('Schwärzt');
   try{const src=await PDFLib.PDFDocument.load(S.bytes.slice(),{ignoreEncryption:true}),out=await PDFLib.PDFDocument.create(),objs=[];let removed=0;
     for(let i=0;i<S.pages.length;i++){const P=S.pages[i],R=rd[i].map(o=>({x:Math.min(o.x,o.x+o.w),y:Math.min(o.y,o.y+o.h),w:Math.abs(o.w),h:Math.abs(o.h)}));
       const keep=P.objs.filter(o=>{if(o.type==='redact')return false;if(!R.length||o.type==='deco')return true;let b;try{b=bbox(o)}catch(e){return true}
-        const inside=R.some(r=>b.x>=r.x-1&&b.y>=r.y-1&&b.x+b.w<=r.x+r.w+1&&b.y+b.h<=r.y+r.h+1);if(inside)removed++;return!inside});
+        const inside=R.some(r=>b.x<r.x+r.w+1&&b.y<r.y+r.h+1&&b.x+b.w>r.x-1&&b.y+b.h>r.y-1);if(inside)removed++;return!inside}); // S5-02: touching a box is enough, a partly covered annotation would draw over the black area again
       objs.push(JSON.parse(JSON.stringify(keep,(k,v)=>k==='_editing'?undefined:v)));
       if(!R.length){const[cp]=await out.copyPages(src,[i]);out.addPage(cp);continue}
       go.textContent=tr('Seite ')+(i+1);await ovYield();
@@ -3897,7 +3897,7 @@ async function rdApply(){const rd=S.pages.map(P=>P.objs.filter(o=>o.type==='reda
     animHide($('#rdDlg'));
     await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
     updUndo();markDirty();rdBar();
-    toast(tr('Geschwärzt. Beim nächsten Speichern ist der Inhalt dauerhaft entfernt.')+(removed?' '+(removed===1?tr('1 Beschriftung im Bereich wurde mit entfernt.'):removed+tr(' Beschriftungen im Bereich wurden mit entfernt.')):''))}
+    toast(tr('Geschwärzt. Beim nächsten Speichern ist der Inhalt dauerhaft entfernt.')+(removed?' '+(removed===1?tr('1 Beschriftung, die den Bereich berührte, wurde mit entfernt.'):removed+tr(' Beschriftungen, die den Bereich berührten, wurden mit entfernt.')):''))}
   catch(e){console.error(e);toast(tr('Schwärzen hat nicht geklappt: ')+(e&&e.message||e))}
   finally{go.disabled=false;go.textContent=tr('Endgültig schwärzen')}}
 {const d=$('#rdDlg');const cl=()=>animHide(d);$('#rdX').onclick=cl;$('#rdNo').onclick=cl;$('#rdOk').onclick=()=>rdApply();
