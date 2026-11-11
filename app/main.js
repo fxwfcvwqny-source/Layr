@@ -72,7 +72,9 @@ const pdfArg = argv => argv.slice(1).find(a => !a.startsWith('-') && isPdfPath(p
 // Tabs: Speicherort je Tab (Schlüssel = zufällige Tab-Kennung aus der Oberfläche). Die Oberfläche bekommt nie Pfade.
 const DOCS = new Map(); let activeTab = null; const TICKETS = new Map();
 const TAB_RX = /^[a-z0-9]{1,24}$/;
-const samePath = (a, b) => { if (!a || !b) return false; const x = path.resolve(a), y = path.resolve(b); return process.platform === 'win32' ? x.toLowerCase() === y.toLowerCase() : x === y; };
+const realOf = p => { try { return fs.realpathSync(p); } catch (e) { try { return path.join(fs.realpathSync(path.dirname(p)), path.basename(p)); } catch (e2) { return null; } } };
+const samePath = (a, b) => { if (!a || !b) return false; const win32 = process.platform === 'win32', eq = (x, y) => win32 ? x.toLowerCase() === y.toLowerCase() : x === y;
+  const x = path.resolve(a), y = path.resolve(b); if (eq(x, y)) return true; const rx = realOf(x), ry = realOf(y); return !!rx && !!ry && eq(rx, ry); };
 function dupOf(p) { for (const [id, d] of DOCS) if (id !== activeTab && (samePath(d.s, p) || (!d.s && samePath(d.c, p)))) return id; return null; }
 const readPdf = f => { if (fs.statSync(f).size > 2e9) throw new Error('size'); savedPath = null; currentFile = path.resolve(f); lastDir = path.dirname(currentFile); const data = fs.readFileSync(f); addRecent(currentFile); return { name: path.basename(f), data }; };
 
