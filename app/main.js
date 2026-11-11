@@ -694,7 +694,8 @@ const asrSend = (...a) => { try { if (win && !win.isDestroyed()) win.webContents
 function asrInstalled() {
   // models installed before 2026-11-07 (verified by hash when they were installed) keep working: accept their file sizes too
   const OLD = { 'encoder.int8.onnx': 652184281, 'decoder.int8.onnx': 11845275 };
-  try { return Object.entries(ASR_PKG.files).every(([f, [size]]) => { const n = fs.statSync(path.join(ASR_DIR(), f)).size; return n === size || n === OLD[f]; }); } catch (e) { return false; }
+  // all files new, or all files old together: never a mix
+  try { const sz = Object.entries(ASR_PKG.files).map(([f, [size]]) => [fs.statSync(path.join(ASR_DIR(), f)).size, size, OLD[f]]); return sz.every(([n, size]) => n === size) || sz.every(([n, , old]) => n === old); } catch (e) { return false; }
 }
 const sha256File = f => new Promise((res, rej) => { const h = crypto.createHash('sha256'); fs.createReadStream(f).on('data', d => h.update(d)).on('error', rej).on('end', () => res(h.digest('hex'))); });
 function tarPath() {
