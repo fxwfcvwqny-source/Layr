@@ -2937,6 +2937,13 @@ else {
     ok('S4-09: Schwaerzen loescht den alten Wiederherstellungsstand des Dokuments', !!r && r.snapGone === true, r);
     ok('S4-09: nicht mehr verwendete Bilder im lokalen Zwischenspeicher werden entfernt, benutzte bleiben', !!r && JSON.stringify(r.left) === '[false,true,true]' && JSON.stringify(r.idx) === '["imKEEP","imSNAP"]', r);
   }
+  // S5-03: two invisible text layers on one page (e.g. OCR run twice) must not decode each other's glyphs wrongly
+  {
+    const r = await ev(`(async()=>{let d=await PDFLib.PDFDocument.create();d.addPage([300,300]);let b=await d.save();
+      const run=async(bytes,txt)=>{const x=await PDFLib.PDFDocument.load(bytes),L=txtLayerBegin(x,'LayrOCR');txtLayerPage(L,x.getPages()[0],[{t:txt,x:20,y:50,w:100,fs:12,m:[1,0,0,1,0,0]}],{rot:0,x:0,y:0,h:300});txtLayerEnd(L);return x.save()};
+      b=await run(b,'AAA BBB');b=await run(b,'XYZ QRS');const pd=await pdfOpen(b.slice());return (await (await pd.getPage(1)).getTextContent()).items.map(x=>x.str).join('')})()`, 60000);
+    ok('S5-03: zweimal Texterkennung auf einer Seite: beide Textebenen bleiben lesbar', typeof r === 'string' && r.includes('AAA BBB') && r.includes('XYZ QRS') && r.length === 14, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

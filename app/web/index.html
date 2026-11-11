@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jgjyatITTuNSWBdCGeH8tmEsi7DDKbIedshdmk9Mh0w=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8dG+6BaKPMCBjFj80pGpE0czP/bvOMod/mjot33syxg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6853,7 +6853,8 @@ function txtCapture(c,sc){const runs=[],orig=c.fillText;
   return{runs,stop(){c.fillText=orig}}}
 function mmul(A,B){return[A[0]*B[0]+A[2]*B[1],A[1]*B[0]+A[3]*B[1],A[0]*B[2]+A[2]*B[3],A[1]*B[2]+A[3]*B[3],A[0]*B[4]+A[2]*B[5]+A[4],A[1]*B[4]+A[3]*B[5]+A[5]]}
 function pnum(v){v=Math.round(v*1e4)/1e4;return Object.is(v,-0)?'0':String(v)}
-function txtLayerBegin(pdf,nm){return{pdf,nm:nm||'LayrT',map:new Map(),ref:pdf.context.nextRef(),used:false}}
+// S5-03: unique resource name per layer; two layers named alike on one page would decode the older text with the newer glyph map
+function txtLayerBegin(pdf,nm){return{pdf,nm:(nm||'LayrT')+Math.random().toString(36).slice(2,8),map:new Map(),ref:pdf.context.nextRef(),used:false}}
 // runs einer Seite als unsichtbaren Text in die PDF-Seite schreiben; place = wie das Bild auf der Seite liegt
 function txtLayerPage(L,pg,runs,place){if(!runs.length)return;const{PDFName}=PDFLib;
   const r=(place.rot||0)*Math.PI/180,co=Math.round(Math.cos(r)),si=Math.round(Math.sin(r)),Ph=place.h;
