@@ -61,7 +61,7 @@ const DLG_EN = { 'Ohne Speichern schließen': 'Close without saving', 'Abbrechen
   'Sie bleiben im Zwischenspeicher und kommen beim nächsten Öffnen derselben Datei wieder.': 'They stay in the cache and come back the next time you open the same file.',
   'Speichern unter': 'Save as', 'Speichern': 'Save', 'Nicht speichern': "Don't save", 'Änderungen speichern?': 'Save changes?',
   'Deine Beschriftungen sind noch nicht in der PDF gespeichert.': 'Your annotations are not saved in the PDF yet.',
-  'Überschreiben': 'Overwrite', 'Die Datei existiert bereits. Überschreiben?': 'The file already exists. Overwrite it?',
+  'Diese Datei ist in einem anderen Tab geöffnet. Bitte einen anderen Namen wählen.': 'This file is open in another tab. Please choose a different name.', 'Überschreiben': 'Overwrite', 'Die Datei existiert bereits. Überschreiben?': 'The file already exists. Overwrite it?',
   'Exportieren': 'Export', 'PNG-Bild': 'PNG image', 'JPEG-Bild': 'JPEG image', 'ZIP-Archiv': 'ZIP archive', 'CSV-Tabelle': 'CSV table', 'Markdown-Text': 'Markdown text' };
 const installLang = () => { try { const v = fs.readFileSync(path.join(process.resourcesPath, 'install-language.txt'), 'utf8').replace(/\0/g, '').trim(); return v === '1031' ? 'de' : v === '1033' ? 'en' : null; } catch (e) { return null; } };
 let uiLang = null;
@@ -245,8 +245,10 @@ handle('save', async (_e, name, data, saveAs) => {
   const r = await dialog.showSaveDialog(win, { title: T('Speichern unter'), defaultPath: path.join(known ? path.dirname(known) : lastDir, base), filters: [{ name: 'PDF', extensions: ['pdf'] }], properties: ['showOverwriteConfirmation', 'createDirectory'] });
   if (r.canceled || !r.filePath) return null;
   let target = path.resolve(r.filePath);
-  if (!/\.pdf$/i.test(target)) {
-    target += '.pdf';
+  const appended = !/\.pdf$/i.test(target); if (appended) target += '.pdf';
+  // never overwrite the file of another open tab (it would later be saved over by that tab; same rule as the export)
+  if (dupOf(target)) { await dialog.showMessageBox(win, { type: 'warning', buttons: ['OK'], message: T('Diese Datei ist in einem anderen Tab geöffnet. Bitte einen anderen Namen wählen.') }); return null; }
+  if (appended) {
     // the system dialog only asks for the name as typed, so confirm an overwrite of the appended .pdf here
     if (fs.existsSync(target) && (await dialog.showMessageBox(win, { type: 'warning', buttons: [T('Überschreiben'), T('Abbrechen')], defaultId: 1, cancelId: 1, message: T('Die Datei existiert bereits. Überschreiben?') })).response !== 0) return null;
   }

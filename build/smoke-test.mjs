@@ -2986,6 +2986,11 @@ else {
       if (how !== 'right') ok(`D2-01: Taste "${how}" waehlt trotzdem das Werkzeug`, r.tool === tool, r);
     }
   }
+  // D3-01: Save As onto the file of another open tab is refused (and does not write); the system overwrite confirmation stays
+  {
+    const mj = fs.readFileSync('app/main.js', 'utf8'), sv = mj.slice(mj.indexOf("handle('save'"), mj.indexOf("handle('export'"));
+    ok('D3-01: Speichern unter lehnt den Pfad eines anderen offenen Tabs ab (dupOf vor writeSafe, de+en Text)', /if \(dupOf\(target\)\) \{[^\n]*showMessageBox[^\n]*return null; \}/.test(sv) && sv.indexOf('dupOf(target)') < sv.indexOf('writeSafe(target') && /'Diese Datei ist in einem anderen Tab geöffnet[^']*': 'This file is open in another tab/.test(mj) && /showOverwriteConfirmation/.test(sv) && /existiert bereits/.test(sv));
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
