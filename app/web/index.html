@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-WMB49jr8cePwzCXOUmrAAneBZwgXE4fPpwF8w1u7pGA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-N0BEklQchk/1mjY1MrtCnnTsHnj9MrvuLAQQzR7NdvU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4222,7 +4222,10 @@ function drawLockMark(c,o){const b=bbox(o),u=1/S.zoom,x=b.x+b.w,y=b.y,r=5*u;
   c.strokeStyle='#fff';c.lineWidth=1.2*u;c.beginPath();c.arc(x,y-u,2*u,Math.PI,0);c.stroke();
   c.fillStyle='#fff';c.fillRect(x-2.6*u,y-.5*u,5.2*u,3.6*u);c.restore()}
 // one broken object must never stop the rest of the page (or Save) from being drawn
-function drawSafe(c,o,out){const t=c.getTransform();try{drawObj(c,o)}catch(e){c.setTransform(t);S.drawErr=(S.drawErr||0)+1;if(out)S.drawErrOut=true;dbg('Zeichenfehler '+(o&&(o.sym||o.type))+': '+(e&&e.message||e))}}
+// save()/restore() depth per context, so an object that threw after its own save() cannot leak clip, alpha, dash or fill into the next one
+const DSD=new WeakMap();
+function drawSafe(c,o,out){let m=DSD.get(c);if(!m){m={d:0};DSD.set(c,m);const sv=c.save,rs=c.restore;c.save=function(){m.d++;return sv.call(this)};c.restore=function(){if(m.d>0)m.d--;return rs.call(this)}}
+  const d0=m.d;c.save();try{drawObj(c,o)}catch(e){S.drawErr=(S.drawErr||0)+1;if(out)S.drawErrOut=true;dbg('Zeichenfehler '+(o&&(o.sym||o.type))+': '+(e&&e.message||e))}finally{while(m.d>d0)c.restore()}}
 // after a save: tell the user once per document when an object could not be drawn into the file
 function drawErrNotify(){if(S.drawErrOut&&!S.drawErrToast){S.drawErrToast=1;toast(tr('Ein Objekt konnte nicht gezeichnet werden und fehlt eventuell in der Datei.'),1)}S.drawErrOut=false}
 function redraw(i){

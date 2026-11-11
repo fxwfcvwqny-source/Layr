@@ -2964,6 +2964,18 @@ else {
     ok('S2: ein nicht zeichenbares Objekt wird gezaehlt, beim Speichern genau einmal gemeldet und nicht als fertig zwischengespeichert', !!r && r.cnt > 0 && r.pend === true && r.cached === 0 && r.toasted === true && r.again === true, r);
     ok('D2-07: alle Symbole zeichnen bei 0,5 bis 6 pt und negativer Groesse ohne Fehler', !!r && r.n > 150 && r.bad.length === 0, r);
   }
+  // S3: an object that throws after save()+clip()+globalAlpha+lineDash+fillStyle must not leak that state into the next object
+  {
+    const r = await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);await openPdf(await d.save(),'s3.pdf');await new Promise(r=>setTimeout(r,500));
+      const P=S.pages[0];P.objs.length=0;P.objs.push(sanObj({type:'rect',x:200,y:80,w:60,h:40,color:'#ff0000',lw:10,fill:'none'}));
+      P.objs.push(sanObj({type:'sym',sym:'attr',x:50,y:150,w:60,h:30,color:'#000000',lw:1,fill:'none',fs:11,label:''}));
+      const real=SYM.attr.draw;SYM.attr.draw=(c)=>{c.save();c.beginPath();c.rect(0,0,5,5);c.clip();c.globalAlpha=.3;c.setLineDash([2,2]);c.fillStyle='#00ff00';throw new Error('boom')};
+      redraw(0);SYM.attr.draw=real;const c=P.ictx,k=P.ink.width/P.w;
+      const v=c.getImageData(Math.round(202*k),Math.round(100*k),1,1).data;
+      const st={a:c.globalAlpha,d:c.getLineDash().length,f:c.fillStyle};
+      return JSON.stringify({px:v[0]>200&&v[1]<60&&v[3]>200,st})})()`, 60000).then(x => typeof x === 'string' ? JSON.parse(x) : x);
+    ok('S3: ein Objekt, das nach clip()/globalAlpha wirft, beeinflusst das naechste nicht', !!r && r.px === true && r.st.a === 1 && r.st.d === 0 && r.st.f !== '#00ff00', r);
+  }
   // D2-01: a tool key or a right-click in the middle of a move drag cancels the drag (geometry restored, history and dirty flag consistent, no exception, E leaves the object alone)
   {
     await ev(`(async()=>{const d=await PDFLib.PDFDocument.create();d.addPage([595,842]);await openPdf(await d.save(),'d201.pdf');await new Promise(r=>setTimeout(r,600));window.__e=[];addEventListener('error',e=>window.__e.push(String(e.message)));return 1})()`, 60000);
