@@ -773,6 +773,8 @@ else {
     && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico' && [pj.win.icon, pj.nsis.installerIcon, pj.nsis.uninstallerIcon, pj.linux.icon].every(f => fs.existsSync(f)) && fs.existsSync('build/appx/Square44x44Logo.png'));
   // PDF file association uses the original logo with black tile
   ok('PDF file association icon is the original logo with black tile (build/icon.ico), same as the installer', (pj.fileAssociations.find(f => f.ext === 'pdf') || {}).icon === 'build/icon.ico' && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico');
+  // Save As: the system dialog asks for overwrite, and an appended .pdf that already exists is confirmed in main.js (S9-01)
+  ok('Save As: overwrite confirmation on the system dialog, appended .pdf existence check before writing', /showSaveDialog\(win, \{ title: T\('Speichern unter'\)[^\n]*properties: \['showOverwriteConfirmation', 'createDirectory'\]/.test(mainJs) && /target \+= '\.pdf';[\s\S]*?if \(fs\.existsSync\(target\) && \(await dialog\.showMessageBox\(win, \{ type: 'warning'[^\n]*\.response !== 0\) return null;/.test(mainJs));
   // Ruler rotates around its centre: the angle field and the handle (Shift = 15 degree steps) keep the centre fixed
   const rz = await ev("(()=>{toggleRuler(true);R.x=300;R.y=250;R.a=0;drawRuler();const c=()=>{const r=ruler.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]},c0=c(),inp=$('#rulerAngIn');inp.value='30';inp.dispatchEvent(new Event('input'));const c1=c(),a1=R.a,sec=!$('#rulerSec').hidden;const h=$('#rulerRot').getBoundingClientRect();return JSON.stringify({c0,c1,a1,sec,hx:h.left+h.width/2,hy:h.top+h.height/2})})()");
   const rzj = JSON.parse(rz || '{}');

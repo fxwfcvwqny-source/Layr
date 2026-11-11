@@ -61,6 +61,7 @@ const DLG_EN = { 'Ohne Speichern schließen': 'Close without saving', 'Abbrechen
   'Sie bleiben im Zwischenspeicher und kommen beim nächsten Öffnen derselben Datei wieder.': 'They stay in the cache and come back the next time you open the same file.',
   'Speichern unter': 'Save as', 'Speichern': 'Save', 'Nicht speichern': "Don't save", 'Änderungen speichern?': 'Save changes?',
   'Deine Beschriftungen sind noch nicht in der PDF gespeichert.': 'Your annotations are not saved in the PDF yet.',
+  'Überschreiben': 'Overwrite', 'Die Datei existiert bereits. Überschreiben?': 'The file already exists. Overwrite it?',
   'Exportieren': 'Export', 'PNG-Bild': 'PNG image', 'JPEG-Bild': 'JPEG image', 'ZIP-Archiv': 'ZIP archive', 'CSV-Tabelle': 'CSV table', 'Markdown-Text': 'Markdown text' };
 const installLang = () => { try { const v = fs.readFileSync(path.join(process.resourcesPath, 'install-language.txt'), 'utf8').replace(/\0/g, '').trim(); return v === '1031' ? 'de' : v === '1033' ? 'en' : null; } catch (e) { return null; } };
 let uiLang = null;
@@ -241,9 +242,14 @@ handle('save', async (_e, name, data, saveAs) => {
     writeSafe(known, data); savedPath = known; addRecent(known); return path.basename(known);
   }
   // neues Dokument oder „Speichern unter“: der Ort kommt immer aus dem Dialog des Systems
-  const r = await dialog.showSaveDialog(win, { title: T('Speichern unter'), defaultPath: path.join(known ? path.dirname(known) : lastDir, base), filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+  const r = await dialog.showSaveDialog(win, { title: T('Speichern unter'), defaultPath: path.join(known ? path.dirname(known) : lastDir, base), filters: [{ name: 'PDF', extensions: ['pdf'] }], properties: ['showOverwriteConfirmation', 'createDirectory'] });
   if (r.canceled || !r.filePath) return null;
-  let target = path.resolve(r.filePath); if (!/\.pdf$/i.test(target)) target += '.pdf';
+  let target = path.resolve(r.filePath);
+  if (!/\.pdf$/i.test(target)) {
+    target += '.pdf';
+    // the system dialog only asks for the name as typed, so confirm an overwrite of the appended .pdf here
+    if (fs.existsSync(target) && (await dialog.showMessageBox(win, { type: 'warning', buttons: [T('Überschreiben'), T('Abbrechen')], defaultId: 1, cancelId: 1, message: T('Die Datei existiert bereits. Überschreiben?') })).response !== 0) return null;
+  }
   writeSafe(target, data); lastDir = path.dirname(target); savedPath = target; addRecent(savedPath);
   return path.basename(target);
 });
