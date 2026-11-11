@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8dG+6BaKPMCBjFj80pGpE0czP/bvOMod/mjot33syxg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ckHwNaCJelsb3hFN2w4MkLaIK/W5TGZecVXvg/aLB/c=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3134,7 +3134,9 @@ function arrowHead(c,x1,y1,x2,y2,L){const a=Math.atan2(y2-y1,x2-x1);seg(c,x1,y1,
 
 /* ---------- Symbolbibliothek ---------- */
 const SYM={},CATS=[];
-function def(id,cat,name,w,h,lab,draw,opt={}){SYM[id]={id,cat,name,w,h,label:lab,draw,...opt};if(!CATS.includes(cat))CATS.push(cat)}
+// Canvas arc/ellipse/arcTo throw IndexSizeError on a negative radius; symbols below ~6 pt or with a negative (draft) size hit that. Clamp to 0 instead.
+for(const[n,ri]of[['arc',2],['arcTo',4],['ellipse',2]]){const f=CanvasRenderingContext2D.prototype[n];CanvasRenderingContext2D.prototype[n]=function(...a){a[ri]=Math.max(0,a[ri]);if(n==='ellipse')a[3]=Math.max(0,a[3]);return f.apply(this,a)}}
+function def(id,cat,name,w,h,lab,drw,opt={}){const draw=(c,o,x,y,w,h)=>{if(w<0){x+=w;w=-w}if(h<0){y+=h;h=-h}drw(c,o,x,y,w,h)};SYM[id]={id,cat,name,w,h,label:lab,draw,...opt};if(!CATS.includes(cat))CATS.push(cat)}
 // Aktivitätsdiagramm (UML)
 // Allgemeine Formen
 function fitPoly(pts,x,y,w,h){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[u,v]of pts){a=Math.min(a,u);b=Math.min(b,v);c=Math.max(c,u);d=Math.max(d,v)}return pts.map(([u,v])=>[x+(u-a)/(c-a||1)*w,y+(v-b)/(d-b||1)*h])}
@@ -4219,22 +4221,24 @@ function drawLockMark(c,o){const b=bbox(o),u=1/S.zoom,x=b.x+b.w,y=b.y,r=5*u;
   c.save();c.fillStyle='#1b1f24';c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();
   c.strokeStyle='#fff';c.lineWidth=1.2*u;c.beginPath();c.arc(x,y-u,2*u,Math.PI,0);c.stroke();
   c.fillStyle='#fff';c.fillRect(x-2.6*u,y-.5*u,5.2*u,3.6*u);c.restore()}
+// one broken object must never stop the rest of the page (or Save) from being drawn
+function drawSafe(c,o){const t=c.getTransform();try{drawObj(c,o)}catch(e){c.setTransform(t);dbg('Zeichenfehler '+(o&&(o.sym||o.type))+': '+(e&&e.message||e))}}
 function redraw(i){
   const P=S.pages[i];if(!P||!P.ictx)return;orgRelink(P);if(DRAG&&redrawDrag(i))return;const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);
   const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);
-  for(const o of P.objs)drawObj(c,o);
+  for(const o of P.objs)drawSafe(c,o);
   for(const o of P.objs)if(o.locked)drawLockMark(c,o);
   try{drawSpell(c,i)}catch(e){}
   try{drawFind(c,i)}catch(e){}
   if(S.draft&&S.draft.p===i){const D=S.draft;
     if(D.ghost){const t=Math.min(1,(performance.now()-D.t0)/240),e=1-Math.pow(1-t,3),bk=1+2.4*Math.pow(t-1,3)+1.4*Math.pow(t-1,2);
-      c.save();c.globalAlpha=1-e;drawObj(c,D.ghost);c.restore();const b=bbox(D.o),cx=b.x+b.w/2,cy=b.y+b.h/2,sc=.9+.1*bk;
-      c.save();c.globalAlpha=.3+.7*e;c.translate(cx,cy);c.scale(sc,sc);c.translate(-cx,-cy);drawObj(c,D.o);c.restore();if(t>=1)D.ghost=null}
-    else drawObj(c,D.o)}
+      c.save();c.globalAlpha=1-e;drawSafe(c,D.ghost);c.restore();const b=bbox(D.o),cx=b.x+b.w/2,cy=b.y+b.h/2,sc=.9+.1*bk;
+      c.save();c.globalAlpha=.3+.7*e;c.translate(cx,cy);c.scale(sc,sc);c.translate(-cx,-cy);drawSafe(c,D.o);c.restore();if(t>=1)D.ghost=null}
+    else drawSafe(c,D.o)}
   if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o,S.dock.k);
   if(S.lasso&&S.lasso.p===i)drawLasso(c,S.lasso.pts,1,S.lasso.rect);
   if(S.lassoFade&&S.lassoFade.p===i){const F=S.lassoFade,t=(performance.now()-F.t0)/260;if(t>=1)S.lassoFade=null;else drawLasso(c,F.pts,1-t,F.rect)}
-  if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawObj(c,ED.o);
+  if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawSafe(c,ED.o);
   try{drawGuides(c,i)}catch(e){}
   if(S.sel&&S.sel.p===i&&S.sel.o!==editingObj)drawSel(c,S.sel.o);
   if(S.sel||!obBar.hidden)obSoon();
@@ -5397,7 +5401,7 @@ async function ovRender(P){
   const sc=Math.min(4,5200/Math.max(P.w,P.h)),key=P.w+'x'+P.h+'@'+sc+'|'+ovFontsVer()+'|'+JSON.stringify(P.objs)+(P.objs.some(o=>o.type==='deco')?'|'+S.pages.indexOf(P)+'/'+S.pages.length+'|'+S.name+'|'+decoToday()+'|'+LANG:'');
   const hit=OVC.get(key);if(hit){OVC.delete(key);OVC.set(key,hit);return hit}
   const cv=document.createElement('canvas');cv.width=Math.round(P.w*sc);cv.height=Math.round(P.h*sc);
-  const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);const TC=txtCapture(c,sc);for(const o of P.objs)if(!SCREEN_ONLY.has(o.type))drawObj(c,o);TC.stop();
+  const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);const TC=txtCapture(c,sc);for(const o of P.objs)if(!SCREEN_ONLY.has(o.type))drawSafe(c,o);TC.stop();
   const W=cv.width,H=cv.height;
   // grob vorab: in kleiner Auflösung zeichnen, um nur den Bereich mit Beschriftungen auslesen zu müssen
   let R=[0,0,W,H];
@@ -5464,7 +5468,7 @@ async function buildOutput(){
     else Object.assign(o,{x:cx,y:cy});
     if(OV_OK){const r=await ovRender(P);if(!r.empty)ovEmbed(pdf,pg,P,r,{x:o.x,y:o.y,rot});txtLayerPage(TL,pg,r.runs,{rot,x:o.x,y:o.y,h:P.h});continue}
     const sc=Math.min(4,5200/Math.max(P.w,P.h));const cv=document.createElement('canvas');cv.width=Math.round(P.w*sc);cv.height=Math.round(P.h*sc);
-    const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);const TC=txtCapture(c,sc);for(const o of P.objs)if(!SCREEN_ONLY.has(o.type))drawObj(c,o);TC.stop();
+    const c=cv.getContext('2d',{willReadFrequently:true});c.setTransform(sc,0,0,sc,0,0);const TC=txtCapture(c,sc);for(const o of P.objs)if(!SCREEN_ONLY.has(o.type))drawSafe(c,o);TC.stop();
     const png=await pdf.embedPng(await new Promise(r=>cv.toBlob(b=>b.arrayBuffer().then(r),'image/png')));
     pg.drawImage(png,o);txtLayerPage(TL,pg,TC.runs,{rot,x:o.x,y:o.y,h:P.h});
   }
@@ -6825,16 +6829,16 @@ function dragBegin(i,o){const P=S.pages[i];DRAG=null;if(!P||!P.ink||!o||P.objs.l
   const dyn=new Set(o.type==='group'?o.items:[o]);const ids=new Set([...dyn].map(x=>x.oid).filter(Boolean));
   if(ids.size)for(const q of P.objs)if(q.link&&(ids.has(q.link.a)||ids.has(q.link.b)))dyn.add(q);
   let first=P.objs.length;for(const x of dyn){const k=P.objs.indexOf(x);if(k>=0&&k<first)first=k}
-  const k=P.ink.width/(P.w*S.zoom)*S.zoom,mk=list=>{const cv=document.createElement('canvas');cv.width=P.ink.width;cv.height=P.ink.height;const c=cv.getContext('2d');c.setTransform(k,0,0,k,0,0);for(const q of list)drawObj(c,q);return cv};
+  const k=P.ink.width/(P.w*S.zoom)*S.zoom,mk=list=>{const cv=document.createElement('canvas');cv.width=P.ink.width;cv.height=P.ink.height;const c=cv.getContext('2d');c.setTransform(k,0,0,k,0,0);for(const q of list)drawSafe(c,q);return cv};
   const below=[],above=[];P.objs.forEach((q,j)=>{if(dyn.has(q))return;(j<first?below:above).push(q)});
   DRAG={p:i,dyn,below:mk(below),above:mk(above),w:P.ink.width,h:P.ink.height,zoom:S.zoom}}
 function dragEnd(){if(obBusy){obBusy=false;obSoon()}if(!DRAG)return;const p=DRAG.p;DRAG=null;cancelAnimationFrame(dragRaf);dragRaf=requestAnimationFrame(()=>redraw(p))}
 function redrawDrag(i){const P=S.pages[i],D=DRAG;if(!D||D.p!==i||D.w!==P.ink.width||D.h!==P.ink.height||D.zoom!==S.zoom)return false;
   const c=P.ictx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,P.ink.width,P.ink.height);c.drawImage(D.below,0,0);
-  const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)if(D.dyn.has(o))drawObj(c,o);
+  const k=P.ink.width/(P.w*S.zoom)*S.zoom;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)if(D.dyn.has(o))drawSafe(c,o);
   c.setTransform(1,0,0,1,0,0);c.drawImage(D.above,0,0);c.setTransform(k,0,0,k,0,0);
   if(S.dock&&S.dock.p===i&&S.dock.o&&P.objs.includes(S.dock.o))drawDockHint(c,S.dock.o,S.dock.k);
-  if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawObj(c,ED.o);
+  if(ED&&ED.o&&ED.p===i&&!P.objs.includes(ED.o))drawSafe(c,ED.o);
   try{drawGuides(c,i)}catch(e){}if(S.sel&&S.sel.p===i&&S.sel.o!==editingObj)drawSel(c,S.sel.o);return true}
 addEventListener('pointerup',dragEnd,true);addEventListener('pointercancel',dragEnd,true);
 
@@ -7578,7 +7582,7 @@ async function thCommit(){const o=TM.order;TM.order=null;if(!o||TM.b0!==S.bytes)
 async function thFlush(){if(TM.order){clearTimeout(TM.t);await thCommit()}}
 // stopPropagation: sonst bewegt der globale Pfeiltasten-Handler die markierten Objekte
 $('#thumbs').addEventListener('keydown',e=>{if(e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();e.stopPropagation();const th=e.target.closest&&e.target.closest('.th');if(th)TM.sel=+th.dataset.i;thMove(e.key==='ArrowUp'?-1:1)}});
-function drawThumb(i){const P=S.pages[i];if(!P||!P.thumb)return;const c=P.thumb.getContext('2d',{willReadFrequently:true});c.setTransform(1,0,0,1,0,0);c.fillStyle='#fff';c.fillRect(0,0,P.thumb.width,P.thumb.height);if(P.thumbBase)c.drawImage(P.thumbBase,0,0);const k=P.thumb.width/P.w;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)drawObj(c,o)}
+function drawThumb(i){const P=S.pages[i];if(!P||!P.thumb)return;const c=P.thumb.getContext('2d',{willReadFrequently:true});c.setTransform(1,0,0,1,0,0);c.fillStyle='#fff';c.fillRect(0,0,P.thumb.width,P.thumb.height);if(P.thumbBase)c.drawImage(P.thumbBase,0,0);const k=P.thumb.width/P.w;c.setTransform(k,0,0,k,0,0);for(const o of P.objs)drawSafe(c,o)}
 function refreshThumbs(){if(!thumbsOn)return;clearTimeout(thT);thT=setTimeout(()=>S.pages.forEach((_,i)=>drawThumb(i)),300)}
 function markThumb(){if(!thumbsOn)return;const cp=curPage();document.querySelectorAll('.th').forEach(b=>b.classList.toggle('cur',+b.dataset.i===cp))}
 function scrollToPage(i){const P=S.pages[i];if(!P||!P.el)return;const top=viewer.scrollTop+P.el.getBoundingClientRect().top-viewer.getBoundingClientRect().top-20;
@@ -8422,7 +8426,7 @@ function prsEl(){let el=document.getElementById('prsView');if(el)return el;el=do
 async function prsRender(i){const P=S.pages[i];if(!P)return null;const W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1),k=Math.min(W/P.w,H/P.h),key=i+'@'+Math.round(k*1000)+'|'+S.rev;
   if(PRS.cache.has(key))return PRS.cache.get(key);const cv=document.createElement('canvas');cv.width=Math.round(P.w*k*dpr);cv.height=Math.round(P.h*k*dpr);const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,cv.width,cv.height);
   const pg=await S.doc.getPage(i+1),v1=pg.getViewport({scale:1}),vp=pg.getViewport({scale:cv.width/v1.width});await pg.render({canvasContext:c,viewport:vp,annotationMode:pdfjsLib.AnnotationMode.ENABLE}).promise;
-  c.setTransform(cv.width/P.w,0,0,cv.height/P.h,0,0);for(const o of P.objs)if(!SCREEN_ONLY.has(o.type))drawObj(c,o);
+  c.setTransform(cv.width/P.w,0,0,cv.height/P.h,0,0);for(const o of P.objs)if(!SCREEN_ONLY.has(o.type))drawSafe(c,o);
   const r={cv,css:[P.w*k,P.h*k]};PRS.cache.set(key,r);if(PRS.cache.size>6)PRS.cache.delete(PRS.cache.keys().next().value);return r}
 async function prsShow(){const el=prsEl(),g=++PRS.gen,cvs=el.querySelector('.prs-pg');if(PRS.blank){cvs.style.opacity=0;el.style.background=PRS.blank==='w'?'#fff':'#000';return}
   el.style.background='';const r=await prsRender(PRS.i);if(g!==PRS.gen||!r)return;cvs.width=r.cv.width;cvs.height=r.cv.height;cvs.getContext('2d').drawImage(r.cv,0,0);cvs.style.width=r.css[0]+'px';cvs.style.height=r.css[1]+'px';cvs.style.opacity=1;
