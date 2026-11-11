@@ -2905,6 +2905,23 @@ else {
     ok('S5-02: Schwaerzen entfernt auch Beschriftungen, die den Bereich nur teilweise ueberdecken (mit Hinweis)', !!r && JSON.stringify(r[0]) === '[["rect",10]]' && r[1] === true, r);
     await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
   }
+  // AES-256 (R6) hash: the loop stops when E[last] <= round-31 (pdf.js/qpdf/pypdf); files written by Layr 3.9/3.10 (round-32) still open
+  {
+    const r = await ev(`(async()=>{const h6=CR.hash6,hx=x=>crHex(x),enc=new TextEncoder(),res={};
+      // known answer from an independent node reference (pw 'edge31', salt 01..08, no user data): the correct rule stops at round 68 with E[last]=37 (=68-31), the old one runs on
+      const salt=Uint8Array.from([1,2,3,4,5,6,7,8]);res.kat=[hx(await h6(enc.encode('edge31'),salt,new Uint8Array(0),6)),hx(await h6(enc.encode('edge31'),salt,new Uint8Array(0),6,true))];
+      const mkpdf=async n=>{const d=await PDFLib.PDFDocument.create();d.addPage([200,200]).drawText('hello '+n);return d.save()};
+      const run=async old=>{let diff=0,okn=0,n=0;const want=[];
+        while(okn<3&&n<300){const pw='Passwort-'+n+'-xyz',by=await mkpdf(n);let hit=false;
+          CR.hash6=async(a,b,c,d)=>{const o=await h6(a,b,c,d,old);if(hx(await h6(a,b,c,d,false))!==hx(await h6(a,b,c,d,true)))hit=true;return o};
+          let f;try{f=await pdfEncrypt(by,{pw,P:-4,owner:false})}finally{CR.hash6=h6}
+          n++;if(!hit)continue;diff++;const r=await pdfDecrypt(f,pw);let t='';if(r&&r.bytes){const d=await pdfOpen(r.bytes.slice());t=(await (await d.getPage(1)).getTextContent()).items.map(x=>x.str).join('');}
+          if(r&&/hello/.test(t))okn++;const w=await pdfDecrypt(f,pw+'x');if(w!==null)okn=-99}
+        return [diff,okn]};
+      res.newRule=await run(false);res.oldRule=await run(true);return JSON.stringify(res)})()`, 120000).then(x => typeof x === 'string' ? JSON.parse(x) : x);
+    ok('AES-256 R6: Hash-Schleife stoppt bei E[last] <= Runde-31 (bekannter Wert)', !!r && !r.error && r.kat[0] === '9445f9b16789ff8c8be505763c073e99a65664f034e099e8238bd222b94ee1bb' && r.kat[1] === '37303890194ab211eed80d26ea260837cc8f12ed1f6e5cd4fec28cb2a176957d', r);
+    ok('AES-256 R6: Dateien mit abweichender Hash-Regel (neu und Layr 3.9/3.10) lassen sich oeffnen, falsches Passwort bleibt abgelehnt', !!r && !r.error && r.newRule[1] === 3 && r.oldRule[1] === 3, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uiAbhNF405l7ze9xQnDkqSeQmaZYBcHWcdRcRFECYzk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-aq9OFyppHDcb4KUKkcHIvjd4Dmf2tWs4akQTUDePxks=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -8513,18 +8513,23 @@ CR.aesDecNoPad=async(k,iv,ct)=>{if(!ct.length)return new Uint8Array(0);const las
 const CR_PAD=Uint8Array.from([0x28,0xBF,0x4E,0x5E,0x4E,0x75,0x8A,0x41,0x64,0x00,0x4E,0x56,0xFF,0xFA,0x01,0x08,0x2E,0x2E,0x00,0xB6,0xD0,0x68,0x3E,0x80,0x2F,0x0C,0xA9,0xFE,0x64,0x53,0x69,0x7A]);
 const crPad=pw=>{const b=new Uint8Array(32);let n=0;for(const ch of String(pw)){const c=ch.charCodeAt(0);if(n>=32)break;b[n++]=c<256?c:63}b.set(CR_PAD.slice(0,32-n),n);return b};
 // Algorithmus 2.B (AES-256, Revision 6)
-CR.hash6=async(pw,salt,ud,R)=>{let K=await CR.sha('SHA-256',crCat(pw,salt,ud));if(R===5)return K;
+// old=true: the off-by-one stop rule of Layr 3.9/3.10 (round-32), only used to open files written by those versions
+CR.hash6=async(pw,salt,ud,R,old)=>{let K=await CR.sha('SHA-256',crCat(pw,salt,ud));if(R===5)return K;
   for(let round=0;;round++){const one=crCat(pw,K,ud),K1=new Uint8Array(one.length*64);for(let i=0;i<64;i++)K1.set(one,i*one.length);
     const E=await CR.aesEncNoPad(K.slice(0,16),K.slice(16,32),K1);let m=0;for(let i=0;i<16;i++)m+=E[i];m%=3;
-    K=await CR.sha(m===0?'SHA-256':m===1?'SHA-384':'SHA-512',E);if(round>=63&&E[E.length-1]<=round-32)break}
+    K=await CR.sha(m===0?'SHA-256':m===1?'SHA-384':'SHA-512',E);if(round>=63&&E[E.length-1]<=round-(old?32:31))break}
   return K.slice(0,32)};
 const crUtf=pw=>new TextEncoder().encode(String(pw).normalize('NFKC')).slice(0,127);
 // Schlüssel aus dem Encrypt-Eintrag und dem Passwort; null = falsches Passwort
 CR.key=async(E,pw)=>{const{R,O,U,P,ID,len,encMeta}=E;
   if(R>=5){const p=crUtf(pw);
-    if(crEq(await CR.hash6(p,U.slice(32,40),new Uint8Array(0),R),U,32))return{key:await CR.aesDecNoPad(await CR.hash6(p,U.slice(40,48),new Uint8Array(0),R),new Uint8Array(16),E.UE),owner:false};
-    const U48=U.slice(0,48);if(crEq(await CR.hash6(p,O.slice(32,40),U48,R),O,32))return{key:await CR.aesDecNoPad(await CR.hash6(p,O.slice(40,48),U48,R),new Uint8Array(16),E.OE),owner:true};
-    return null}
+    // correct stop rule first, then the 3.9/3.10 one; a file whose key hash differs between the rules passes the password check but fails /Perms ("adb"), so that too moves on to the next rule
+    const permsOk=async k=>{try{const x=await CR.aesDecNoPad(k,new Uint8Array(16),E.Perms);return x[9]===97&&x[10]===100&&x[11]===98}catch(e){return false}};let first=null;
+    for(const old of R===6?[false,true]:[false]){const h=(s,u)=>CR.hash6(p,s,u,R,old),U48=U.slice(0,48);let r=null;
+      if(crEq(await h(U.slice(32,40),new Uint8Array(0)),U,32))r={key:await CR.aesDecNoPad(await h(U.slice(40,48),new Uint8Array(0)),new Uint8Array(16),E.UE),owner:false};
+      else if(crEq(await h(O.slice(32,40),U48),O,32))r={key:await CR.aesDecNoPad(await h(O.slice(40,48),U48),new Uint8Array(16),E.OE),owner:true};
+      if(r){if(R<6||E.Perms.length!==16||await permsOk(r.key))return r;first=first||r}}
+    return first}
   const n=R===2?5:len/8,Pb=Uint8Array.from([P&255,(P>>>8)&255,(P>>>16)&255,(P>>>24)&255]);
   const mk=padded=>{let h=CR.md5(crCat(padded,O,Pb,ID,R>=4&&!encMeta?Uint8Array.from([255,255,255,255]):new Uint8Array(0)));if(R>=3)for(let i=0;i<50;i++)h=CR.md5(h.slice(0,n));return h.slice(0,n)};
   const check=key=>{if(R===2)return crEq(CR.rc4(key,CR_PAD),U,32);let x=CR.rc4(key,CR.md5(crCat(CR_PAD,ID)));for(let i=1;i<=19;i++)x=CR.rc4(key.map(b=>b^i),x);return crEq(x,U,16)};
@@ -8544,7 +8549,7 @@ function crInfo(doc){const{PDFName,PDFDict,PDFNumber,PDFArray,PDFBool,PDFRef}=PD
   if(V>=4){const CF=g('CF'),m=nm=>{if(!nm||nm===N('Identity'))return'None';const c=CF&&CF.lookup(nm);const x=c&&c.lookup(N('CFM'));return x===N('AESV2')?'AESV2':x===N('AESV3')?'AESV3':x===N('None')?'None':'V2'};cfm=m(g('StmF'));strCfm=m(g('StrF'))}
   const id=ti.ID instanceof PDFArray?ti.ID.lookup(0):(ti.ID&&ti.ID.lookup?ti.ID.lookup(0):null);
   const em=g('EncryptMetadata');
-  return{ref:ti.Encrypt instanceof PDFRef?ti.Encrypt:null,V,R,len:num(g('Length'),40)||40,O:bytes(g('O')),U:bytes(g('U')),OE:bytes(g('OE')),UE:bytes(g('UE')),P:num(g('P'),-4)|0,
+  return{ref:ti.Encrypt instanceof PDFRef?ti.Encrypt:null,V,R,len:num(g('Length'),40)||40,O:bytes(g('O')),U:bytes(g('U')),OE:bytes(g('OE')),UE:bytes(g('UE')),Perms:bytes(g('Perms')),P:num(g('P'),-4)|0,
     ID:id&&id.asBytes?id.asBytes():new Uint8Array(0),cfm,strCfm,encMeta:!(em instanceof PDFBool&&em.asBoolean()===false)}}
 // ein Objekt (rekursiv: Zeichenketten, Streams) mit dem Objektschlüssel entschlüsseln
 async function crDecObj(E,key,ref,o){const{PDFString,PDFHexString,PDFDict,PDFArray,PDFRawStream,PDFName}=PDFLib;const N=n=>PDFName.of(n);
