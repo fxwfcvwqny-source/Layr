@@ -1,6 +1,6 @@
-# Layr 3.10.1: Testliste für Windows und Linux
+# Layr 3.10.2: Testliste für Windows und Linux
 
-Installiere den Entwurf 3.10.1 (Windows: `Layr-Setup-3.10.1.exe`, Linux: `.deb`/AppImage). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
+Installiere den Entwurf 3.10.2 (Windows: `Layr-Setup-3.10.2.exe`, Linux: `.deb`/AppImage). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
 Format je Zeile: Was tun, dann "→" was du sehen sollst. [Linux] / [Windows] = nur dort prüfen. Alle Schalter stehen im Menü Einstellungen (Zahnrad) bzw. unter "Design anpassen" / "Schreiben & Rechtschreibung".
 Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 100 %, 125 % und 150 % prüfen (Layr danach neu starten). Schwerpunkt dort: scharfe Symbole, Icons, Speicheranzeige, Zahlen unten, Objektleiste.
 
@@ -143,6 +143,13 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Vorschau öffnen und schließen → die Seitenwahl bleibt erhalten.
 - [ ] Griff über die Gegenecke ziehen → Objekt spiegelt sich, Griffe wechseln mit.
 - [ ] Symbol <=> setzen, Strg+Z → verschwindet in einem Schritt.
+
+## 12. Korrekturen 3.10.2
+- [ ] Diktat-Modell neu laden (Einrichten) → Download läuft durch; bereits installierte Modelle funktionieren weiter.
+- [ ] PDF mit Inhaltsverzeichnis-Links: Seite löschen bzw. Schwärzen, Datei speichern und in einem anderen Programm öffnen → gelöschter Inhalt ist nicht mehr in der Datei enthalten.
+- [ ] "Speichern unter" auf eine vorhandene Datei → Rückfrage erscheint (auch ohne ".pdf" am Namen); "Nein" lässt die Datei unverändert. Ziel ist die Datei eines anderen offenen Tabs → wird verweigert.
+- [ ] ER-Symbol "Mehrwertiges Attribut" ganz klein ziehen oder skalieren → Zeichnen und Speichern funktionieren weiter.
+- [ ] Datei mit Passwortschutz (AES-256) speichern und in einem anderen Programm öffnen → Datei lässt sich öffnen.
 
 ## Bekannte Grenzen (bitte nicht melden)
 - Gedrehter Text hat achsenparallele Hervorhebung; Texthintergrund und Wortformatierung fehlen bei gestapeltem Text.

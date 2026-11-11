@@ -1,4 +1,26 @@
-# Layr 3.10.1
+# Layr 3.10.2
+
+Release notes for version 3.10.2 (fixes on top of 3.10.1).
+
+## Fixes
+
+- Dictation model download works again: the upstream package was replaced on 2026-11-07, the pinned checksums were updated. Already installed models keep working.
+- Pages that were removed, redacted, extracted or deleted no longer stay inside the saved file when another page linked to them (redaction, delete page, split/extract, images to PDF).
+- Annotations that only partly overlap a redaction area are removed too.
+- Password-protected PDFs written with AES-256 by earlier versions could fail to open in other programs in about 2 percent of cases. The hash rule is corrected; older files still open in Layr.
+- After redaction, the old recovery data and unused image copies are removed from local storage.
+- Running text recognition twice on one page no longer garbles the text layer.
+- "Save as" asks before overwriting a file (also when .pdf is appended) and refuses to overwrite the file of another open tab.
+- The ER symbol "multi-valued attribute" and 49 other symbols no longer break drawing or saving when dragged or resized very small.
+- A tool key or right click during a move/resize drag no longer leaves the document marked as saved.
+
+## Known limits
+
+- Layr files that were already saved once still do not restore unsaved changes after a crash.
+- Bookmarks and page labels are still dropped by page operations.
+- Signed PDFs lose their signature when saved.
+
+# Earlier: Layr 3.10.1
 
 Release notes for version 3.10.1 (fixes on top of 3.10.0).
 
