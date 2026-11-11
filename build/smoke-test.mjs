@@ -2922,6 +2922,21 @@ else {
     ok('AES-256 R6: Hash-Schleife stoppt bei E[last] <= Runde-31 (bekannter Wert)', !!r && !r.error && r.kat[0] === '9445f9b16789ff8c8be505763c073e99a65664f034e099e8238bd222b94ee1bb' && r.kat[1] === '37303890194ab211eed80d26ea260837cc8f12ed1f6e5cd4fec28cb2a176957d', r);
     ok('AES-256 R6: Dateien mit abweichender Hash-Regel (neu und Layr 3.9/3.10) lassen sich oeffnen, falsches Passwort bleibt abgelehnt', !!r && !r.error && r.newRule[1] === 3 && r.oldRule[1] === 3, r);
   }
+  // S4-09: redaction drops the recovery snapshot of the unredacted document; cached images nobody refers to any more are removed
+  {
+    const r = await ev(`(async()=>{const W=ms=>new Promise(r=>setTimeout(r,ms));const d=await PDFLib.PDFDocument.create();d.addPage([300,300]);await openPdf(await d.save(),'s409.pdf');await W(500);
+      const ok0=storeKey();localStorage.setItem(ok0,'[[{"type":"text","text":"PRIVATE-SNAP"}]]');
+      S.pages[0].objs=[{type:'redact',x:100,y:100,w:100,h:50,color:'#000000',lw:0}];await rdApply();await W(800);
+      const snapGone=localStorage.getItem(ok0)===null;
+      const A='data:image/png;base64,AAAA';for(const id of['imORPH','imKEEP','imSNAP'])localStorage.setItem('pdfwerkbank:img:'+id,A);
+      localStorage.setItem('pdfwerkbank:imgidx',JSON.stringify([{id:'imORPH',n:30},{id:'imKEEP',n:30},{id:'imSNAP',n:30}]));localStorage.setItem('pdfwerkbank:other.pdf:1','[[{"type":"image","img":"imSNAP"}]]');
+      S.pages[0].objs=[{type:'image',img:'imKEEP',x:0,y:0,w:10,h:10}];imgLsSweep();
+      const left=['imORPH','imKEEP','imSNAP'].map(id=>localStorage.getItem('pdfwerkbank:img:'+id)!==null),idx=JSON.parse(localStorage.getItem('pdfwerkbank:imgidx')).map(x=>x.id);
+      for(const id of['imORPH','imKEEP','imSNAP'])localStorage.removeItem('pdfwerkbank:img:'+id);localStorage.removeItem('pdfwerkbank:imgidx');localStorage.removeItem('pdfwerkbank:other.pdf:1');S.pages[0].objs=[];
+      return JSON.stringify({snapGone,left,idx})})()`, 60000).then(x => typeof x === 'string' ? JSON.parse(x) : x);
+    ok('S4-09: Schwaerzen loescht den alten Wiederherstellungsstand des Dokuments', !!r && r.snapGone === true, r);
+    ok('S4-09: nicht mehr verwendete Bilder im lokalen Zwischenspeicher werden entfernt, benutzte bleiben', !!r && JSON.stringify(r.left) === '[false,true,true]' && JSON.stringify(r.idx) === '["imKEEP","imSNAP"]', r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

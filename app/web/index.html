@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-aq9OFyppHDcb4KUKkcHIvjd4Dmf2tWs4akQTUDePxks=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jgjyatITTuNSWBdCGeH8tmEsi7DDKbIedshdmk9Mh0w=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3895,8 +3895,9 @@ async function rdApply(){const rd=S.pages.map(P=>P.objs.filter(o=>o.type==='reda
       const np=out.addPage([P.w,P.h]);np.drawImage(img,{x:0,y:0,width:P.w,height:P.h})}
     fixAcroForm(src,out);pdfPrune(out);H.u.push(docSnap());capDocHist();H.r=[];S.rdPurge=true;
     animHide($('#rdDlg'));
+    clearTimeout(saveT);try{localStorage.removeItem(storeKey());if(S.fpOld)localStorage.removeItem(storeKeyOld()+':'+S.fpOld)}catch(e){} // the snapshot of the unredacted document still holds the removed annotations
     await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
-    updUndo();markDirty();rdBar();
+    updUndo();markDirty();rdBar();imgLsSweep();
     toast(tr('Geschwärzt. Beim nächsten Speichern ist der Inhalt dauerhaft entfernt.')+(removed?' '+(removed===1?tr('1 Beschriftung, die den Bereich berührte, wurde mit entfernt.'):removed+tr(' Beschriftungen, die den Bereich berührten, wurden mit entfernt.')):''))}
   catch(e){console.error(e);toast(tr('Schwärzen hat nicht geklappt: ')+(e&&e.message||e))}
   finally{go.disabled=false;go.textContent=tr('Endgültig schwärzen')}}
@@ -4356,7 +4357,7 @@ function markDirty(){try{spvDocChanged()}catch(e){}try{rdBar()}catch(e){}try{if(
 // With a name (Save As): the document now is that file, so name, file name field/tab and the key of notes and pending edits follow it
 function recSaved(rev,name){if(name&&name!==S.name){const ok=storeKey();S.name=name;const f=$('#fname');f.textContent=name;f.title=name+' · '+tr('Klicken zum Umbenennen (F2)');
     try{const nk=storeKey();for(const suf of['',':notes',':tasks']){const v=localStorage.getItem(ok+suf);if(v!=null&&localStorage.getItem(nk+suf)==null){localStorage.setItem(nk+suf,v);localStorage.removeItem(ok+suf)}}}catch(e){}}
-  if(S.rev!==rev)return;clearTimeout(saveT);try{localStorage.removeItem(storeKey())}catch(e){}}
+  if(S.rev!==rev)return;clearTimeout(saveT);try{localStorage.removeItem(storeKey())}catch(e){}imgLsSweep()}
 /* ---------- Auswahl ---------- */
 let selAnim=null;
 function setSel(sel){const prev=S.sel;S.sel=sel;if(sel&&inTL(getSelection().anchorNode))getSelection().removeAllRanges();if(prev)redraw(prev.p);
@@ -5949,6 +5950,12 @@ function drawImg(c,o){const im=imgEl(o.img);
     if(q)c.drawImage(im,q.l*nw,q.t*nh,(1-q.l-q.r)*nw,(1-q.t-q.b)*nh,o.x,o.y,o.w,o.h);else c.drawImage(im,o.x,o.y,o.w,o.h)}
   else{c.save();c.globalAlpha*=.8;c.fillStyle='rgba(120,132,145,.14)';c.fillRect(o.x,o.y,o.w,o.h);c.strokeStyle='rgba(120,132,145,.7)';c.lineWidth=1;c.setLineDash([4,3]);c.strokeRect(o.x,o.y,o.w,o.h);
     const s=Math.min(o.w,o.h)*.28,cx=o.x+o.w/2,cy=o.y+o.h/2;c.setLineDash([]);c.beginPath();c.rect(cx-s,cy-s*.75,s*2,s*1.5);c.moveTo(cx-s,cy+s*.5);c.lineTo(cx-s*.2,cy-s*.1);c.lineTo(cx+s*.3,cy+s*.3);c.lineTo(cx+s,cy-s*.2);c.stroke();c.restore()}}
+// Removes cached images that no recovery snapshot and no object of the open document refers to any more (deleted, redacted); called after a save and after redaction
+function imgLsSweep(){try{if(crNoStore())return;let L=JSON.parse(localStorage.getItem('pdfwerkbank:imgidx')||'[]');if(!Array.isArray(L)||!L.length)return;
+  const use=new Set(),vals=[];for(const P of S.pages)for(const o of P.objs)if(o.type==='image')use.add(o.img);
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('pdfwerkbank:')&&!k.startsWith('pdfwerkbank:img'))vals.push(localStorage.getItem(k)||'')}
+  const keep=L.filter(x=>x&&(use.has(x.id)||vals.some(v=>v.includes(x.id))));
+  if(keep.length===L.length)return;for(const x of L)if(!keep.includes(x)&&x)localStorage.removeItem('pdfwerkbank:img:'+x.id);localStorage.setItem('pdfwerkbank:imgidx',JSON.stringify(keep))}catch(e){}}
 function imgsUsed(){const u={};for(const P of S.pages)for(const o of P.objs)if(o.type==='image'&&S.imgs[o.img])u[o.img]=S.imgs[o.img];return u}
 async function imgsReady(){const ids=new Set();for(const P of S.pages)for(const o of P.objs)if(o.type==='image')ids.add(o.img);
   await Promise.all([...ids].map(id=>{const im=imgEl(id);if(!im||im.complete)return null;return Promise.race([new Promise(r=>{im.addEventListener('load',r,{once:true});im.addEventListener('error',r,{once:true})}),new Promise(r=>setTimeout(r,4000))])}))}
