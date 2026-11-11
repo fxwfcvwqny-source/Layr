@@ -674,12 +674,12 @@ app.on('will-quit', () => { if (installOnQuit && pending) { asrKill(); installNo
 const ASR_TEST = !app.isPackaged && /^http:\/\/(127\.0\.0\.1|localhost):\d+\/[\w./-]+$/.test(process.env.LAYR_ASR_URL || '') ? process.env.LAYR_ASR_URL : null;
 const ASR_PKG = {
   url: ASR_TEST || 'https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2',
-  size: 487170055, sha256: '5793d0fd397c5778d2cf2126994d58e9d56b1be7c04d13c7a15bb1b4eafb16bf',
+  size: 487211443, sha256: '1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9', // upstream re-uploaded this package on 2026-11-07 (same name, new files); the previous package was 487170055 bytes, sha256 5793d0fd...16bf
   dir: 'sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8',
   files: {
-    'encoder.int8.onnx': [652184281, 'acfc2b4456377e15d04f0243af540b7fe7c992f8d898d751cf134c3a55fd2247'],
-    'decoder.int8.onnx': [11845275, '179e50c43d1a9de79c8a24149a2f9bac6eb5981823f2a2ed88d655b24248db4e'],
-    'joiner.int8.onnx': [6355277, '3164c13fc2821009440d20fcb5fdc78bff28b4db2f8d0f0b329101719c0948b3'],
+    'encoder.int8.onnx': [652282294, '1afbe69c1ffdabee94755f42e4daf1d93549131a3da11356bda84fcef0f2c479'],
+    'decoder.int8.onnx': [11845274, '0222a86147299d4dee90edf95b6d13827edb42ad8b7c9cf0b2582f030937c0b5'],
+    'joiner.int8.onnx': [6355277, 'cbd02f3696e9944970111fb439d9c3fd365a80374565f13f2b9c7007d253fc98'],
     'tokens.txt': [93939, 'd58544679ea4bc6ac563d1f545eb7d474bd6cfa467f0a6e2c1dc1c7d37e3c35d'],
   },
 };
@@ -690,7 +690,9 @@ let micArmed = false, asrJob = null, asrW = null, asrReady = null, asrIdle = 0, 
 const asrPend = new Map();
 const asrSend = (...a) => { try { if (win && !win.isDestroyed()) win.webContents.send('asr-progress', ...a); } catch (e) {} };
 function asrInstalled() {
-  try { return Object.entries(ASR_PKG.files).every(([f, [size]]) => fs.statSync(path.join(ASR_DIR(), f)).size === size); } catch (e) { return false; }
+  // models installed before 2026-11-07 (verified by hash when they were installed) keep working: accept their file sizes too
+  const OLD = { 'encoder.int8.onnx': 652184281, 'decoder.int8.onnx': 11845275 };
+  try { return Object.entries(ASR_PKG.files).every(([f, [size]]) => { const n = fs.statSync(path.join(ASR_DIR(), f)).size; return n === size || n === OLD[f]; }); } catch (e) { return false; }
 }
 const sha256File = f => new Promise((res, rej) => { const h = crypto.createHash('sha256'); fs.createReadStream(f).on('data', d => h.update(d)).on('error', rej).on('end', () => res(h.digest('hex'))); });
 function tarPath() {
