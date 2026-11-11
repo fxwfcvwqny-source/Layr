@@ -2866,6 +2866,37 @@ else {
     await ev("closeEditor()");
     ok('Forced colors: the hidden text box input layer stays transparent', fc === 'rgba(0, 0, 0, 0)|rgba(0, 0, 0, 0)', fc);
   }
+  // S5-01: pages that are not in the output (deleted, redacted, extracted) must not stay inside the file when a kept page links to them
+  {
+    const SECRET = 'SECRETXYZ', HEX = Buffer.from(SECRET).toString('hex').toUpperCase();
+    // counts /Type /Page objects (also inside object streams) and looks for the secret in raw and inflated streams, nested PDFs included
+    const leak = b64 => {
+      const walk = b => {
+        const t = b.toString('latin1'); let pages = (t.match(/\/Type\s*\/Page(?![a-zA-Z])/g) || []).length, secret = t.includes(SECRET) || t.includes(HEX) ? 1 : 0;
+        for (const m of t.matchAll(/stream\r?\n/g)) { const e = t.indexOf('endstream', m.index); if (e < 0) continue; let u = b.subarray(m.index + m[0].length, e); try { u = zlib.inflateSync(u); } catch (er) { continue; }
+          const x = u.toString('latin1'); if (x.startsWith('%PDF')) { secret += walk(u).secret; continue; } pages += (x.match(/\/Type\s*\/Page(?![a-zA-Z])/g) || []).length; if (x.includes(SECRET) || x.includes(HEX)) secret++; }
+        return { pages, secret };
+      };
+      return walk(Buffer.from(b64, 'base64'));
+    };
+    const mk = `const W=ms=>new Promise(r=>setTimeout(r,ms));const b64=u=>{let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)};
+      const mkdoc=async()=>{const d=await PDFLib.PDFDocument.create(),f=await d.embedFont(PDFLib.StandardFonts.Helvetica);const ps=[0,1,2].map(k=>{const p=d.addPage([300,300]);p.drawText(k?'page'+k:'${SECRET}',{x:10,y:200,size:12,font:f});return p});const c=d.context;
+        ps[1].node.set(PDFLib.PDFName.of('Annots'),c.obj([c.register(c.obj({Type:'Annot',Subtype:'Link',Rect:[0,0,300,50],Dest:[ps[0].ref,'Fit']})),c.register(c.obj({Type:'Annot',Subtype:'Link',Rect:[0,0,30,50],A:{S:'GoTo',D:[ps[0].ref,'Fit']}}))]));return d.save()};`;
+    const r = await ev(`(async()=>{${mk}
+      const src=await mkdoc(),res={};
+      res.sx=b64(await sxSubset(src,[1,2]));
+      await openPdf(src.slice(),'prune1.pdf');await W(500);
+      await rebuildPages([{i:1},{i:2}],'x');await W(300);res.rb=b64(S.bytes);
+      await openPdf(src.slice(),'prune2.pdf');await W(500);
+      S.pages[0].objs=[{type:'redact',x:0,y:150,w:300,h:100,color:'#000000',lw:0}];await rdApply();await W(500);res.rd=b64(S.bytes);res.rdPages=S.pages.length;
+      S.pages[1].objs.push({type:'rect',x:100,y:100,w:50,h:40,color:'#000000',lw:1});
+      const out=await buildOutput(),d2=await pdfOpen(out.slice()),at=await pdfAttachment(d2,LAYR_ORIG);res.att=at?b64(at):null;res.out=b64(out);
+      return JSON.stringify(res)})()`, 120000).then(x => typeof x === 'string' ? JSON.parse(x) : x);
+    const L = r && !r.error ? { sx: leak(r.sx), rb: leak(r.rb), rd: leak(r.rd), att: r.att ? leak(r.att) : null, out: leak(r.out) } : null;
+    ok('S5-01: Extrahieren/Seiten loeschen: keine verwaiste Seite und kein Text der entfernten Seite in der Datei', !!L && L.sx.pages === 2 && L.sx.secret === 0 && L.rb.pages === 2 && L.rb.secret === 0, L || r);
+    ok('S5-01: Schwaerzen: Datei und versteckte Kopie (layr-original) enthalten die Originalseite nicht mehr', !!L && L.rd.pages === 3 && L.rd.secret === 0 && !!L.att && L.att.pages === 3 && L.att.secret === 0 && L.out.secret === 0, L || r);
+    await ev("S.pages.forEach(P=>P.objs=[]);setSel(null)");
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-MpCnO3ucJE7EdA7QDC4GpNJleyti214rz3eBOUVJIf8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KdDqDEIChTqBrwJwimCR9x6z7zBZX42iQV/pkDX9xXg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3893,7 +3893,7 @@ async function rdApply(){const rd=S.pages.map(P=>P.objs.filter(o=>o.type==='reda
       const kx=cv.width/P.w,ky=cv.height/P.h;c.fillStyle='#000';for(const r of R)c.fillRect(Math.floor(r.x*kx)-1,Math.floor(r.y*ky)-1,Math.ceil(r.w*kx)+2,Math.ceil(r.h*ky)+2);
       const bl=await new Promise(r=>cv.toBlob(r,'image/jpeg',.9));cv.width=cv.height=0;const img=await out.embedJpg(new Uint8Array(await bl.arrayBuffer()));
       const np=out.addPage([P.w,P.h]);np.drawImage(img,{x:0,y:0,width:P.w,height:P.h})}
-    fixAcroForm(src,out);H.u.push(docSnap());capDocHist();H.r=[];S.rdPurge=true;
+    fixAcroForm(src,out);pdfPrune(out);H.u.push(docSnap());capDocHist();H.r=[];S.rdPurge=true;
     animHide($('#rdDlg'));
     await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});
     updUndo();markDirty();rdBar();
@@ -6411,6 +6411,26 @@ function fixAcroForm(src,out){try{const{PDFName,PDFDict,PDFRef}=PDFLib;const N=n
       if(ref instanceof PDFRef&&!seen.has(ref.toString())){seen.add(ref.toString());fields.push(ref)}}}
   if(!fields.length)return;const af=out.context.obj({});af.set(N('Fields'),out.context.obj(fields));const da=af0.get(N('DA'));if(da&&!(da instanceof PDFRef))af.set(N('DA'),da);
   out.catalog.set(N('AcroForm'),out.context.register(af))}catch(e){console.warn('Formular',e)}}
+/* S5-01: copyPages follows links (/Dest, GoTo, /P, beads) and drags pages that are not in the output into the file as orphans, with all their
+   content. Cut every reference to a page outside the page list, then delete every object that is no longer reachable from the catalog/info.
+   Call on the finished output document, before save(). Returns the number of deleted objects. */
+function pdfPrune(doc){const{PDFName,PDFDict,PDFArray,PDFRef,PDFNull,PDFStream}=PDFLib,N=n=>PDFName.of(n),cx=doc.context,T=N('Type'),PG=N('Page'),pages=new Set(doc.getPages().map(p=>p.ref.toString()));
+  const stray=v=>{if(!(v instanceof PDFRef)||pages.has(v.toString()))return false;const t=cx.lookup(v);return t instanceof PDFDict&&t.get(T)===PG};
+  const badDest=a=>a instanceof PDFArray&&a.size()>0&&stray(a.get(0));
+  for(const pg of doc.getPages()){const an=pg.node.lookup(N('Annots'));if(!(an instanceof PDFArray))continue;
+    for(let k=0;k<an.size();k++){let d=cx.lookup(an.get(k));
+      for(let n=0;n<16&&d instanceof PDFDict;n++){if(badDest(d.lookup(N('Dest'))))d.delete(N('Dest'));
+        let h=d,key=N('A');for(let m=0;m<8;m++){const a=h.lookup(key);if(!(a instanceof PDFDict))break;const s=a.get(N('S'));
+          if((s===N('GoTo')||s===N('GoToR'))&&badDest(a.lookup(N('D')))){h.delete(key);break}h=a;key=N('Next')}
+        d=cx.lookup(d.get(N('Parent')))}}}
+  const seen=new Set(),st=[];
+  const add=(c,v,set)=>{if(v instanceof PDFRef){if(stray(v)){set(PDFNull);return}const k=v.toString();if(!seen.has(k)){seen.add(k);const o=cx.lookup(v);if(o)st.push(o)}}else if(v instanceof PDFDict||v instanceof PDFArray||v instanceof PDFStream)st.push(v)};
+  for(const r of[cx.trailerInfo.Root,cx.trailerInfo.Info,cx.trailerInfo.Encrypt])if(r instanceof PDFRef){seen.add(r.toString());const o=cx.lookup(r);if(o)st.push(o)}
+  while(st.length){const c=st.pop();
+    if(c instanceof PDFArray){for(let i=0;i<c.size();i++)add(c,c.get(i),x=>c.set(i,x))}
+    else{const d=c instanceof PDFStream?c.dict:c;if(d instanceof PDFDict)for(const[k,v]of d.entries())add(d,v,x=>d.set(k,x))}}
+  const dead=[];for(const[r]of cx.enumerateIndirectObjects())if(!seen.has(r.toString()))dead.push(r);
+  for(const r of dead)cx.delete(r);return dead.length}
 /* Esc schließt das offene Fenster auch dann, wenn der Fokus gerade nicht darin liegt */
 addEventListener('keydown',e=>{if(e.key!=='Escape')return;const m=[...document.querySelectorAll('.modal'),document.getElementById('studio')].find(m=>m&&!m.hidden&&!m._ah);if(!m||m.contains(document.activeElement))return;
   const x=m.querySelector('.ip-h .ib:last-child,#nCancel,#mCancel,#stClose');if(x){e.preventDefault();e.stopImmediatePropagation();x.click()}},true);
@@ -7466,7 +7486,7 @@ async function rebuildPages(entries,msg,focus){
     if(en.blank){const ref=srcPages[en.like];let dims=[595.28,841.89];if(en.fmt&&FMT[en.fmt])dims=FMT[en.fmt];else if(ref){const sz=ref.getSize(),r=((ref.getRotation().angle%360)+360)%360;dims=r%180?[sz.height,sz.width]:[sz.width,sz.height]}paintBg(out.addPage(dims),en.bg!=null?en.bg:(S.isNew?S.bg:'blank'),en.paper!=null?en.paper:(S.isNew?S.paper:'white'))}
     else{const[cp]=await out.copyPages(src,[en.i]);if(en.rot)cp.setRotation(PDFLib.degrees((((cp.getRotation().angle+en.rot)%360)+360)%360));out.addPage(cp)}
   }
-  fixAcroForm(src,out);
+  fixAcroForm(src,out);pdfPrune(out);
   const bytes=await out.save();
   if(TAB!==t0||S.bytes!==b0){toast(tr('Das Dokument wurde währenddessen geändert. Die Änderung wurde nicht angewendet.'));return false}
   // Striche erst nach dem Speichern aus dem Seitenstand holen, sonst gehen Striche verloren, die während des Speicherns gezeichnet wurden
@@ -8641,7 +8661,7 @@ function sxOpen(list){if(!S.doc||!S.pages.length){toast(tr('Erst eine PDF öffne
 function sxClose(){animHide($('#sxDlg'))}
 // Teil-PDF aus Bytes (Seitenliste 0-basiert)
 async function sxSubset(bytes,list){const src=await PDFLib.PDFDocument.load(bytes.slice(),{ignoreEncryption:true}),out=await PDFLib.PDFDocument.create();
-  const pages=await out.copyPages(src,list);pages.forEach(p=>out.addPage(p));fixAcroForm(src,out);try{const t=src.getTitle();if(t)out.setTitle(t)}catch(e){}return out.save()}
+  const pages=await out.copyPages(src,list);pages.forEach(p=>out.addPage(p));fixAcroForm(src,out);pdfPrune(out);try{const t=src.getTitle();if(t)out.setTitle(t)}catch(e){}return out.save()}
 const sxName=(l,k)=>`${exBase()} (${tr(l.length===1?'Seite':'Seiten')} ${sxLabel(l)}).pdf`;
 async function sxRun(asFile){const p=sxPlan();if(!p)return;const go=$('#sxGo'),sv=$('#sxSave');if(go.disabled)return;
   SX.n=clamp(parseInt($('#sxN').value)||1,1,999);try{localStorage.setItem('pdfwerkbank:split',JSON.stringify({mode:SX.mode,n:SX.n,marks:SX.marks}))}catch(e){}
@@ -8770,7 +8790,7 @@ async function imPagesRun(o){const list=prParse($('#imRange').value,S.pages.leng
   for(let i=0;i<S.pages.length;i++){if(!set.has(i)){const[cp]=await out.copyPages(src,[i]);out.addPage(cp);continue}
     go.textContent=tr('Bereitet vor')+` ${++k}/${list.length}`;await new Promise(r=>setTimeout(r,0));const P=S.pages[i],c=imProcess(await imPage(i,2.5),0,o,imMAX),im=await imEmbed(out,c,o.fx),pg=out.addPage([P.w,P.h]);
     pg.drawImage(im,{x:0,y:0,width:P.w,height:P.h})}
-  fixAcroForm(src,out);const objs=S.pages.map(P=>JSON.parse(JSON.stringify(P.objs,(k,v)=>k==='_editing'?undefined:v)));
+  fixAcroForm(src,out);pdfPrune(out);const objs=S.pages.map(P=>JSON.parse(JSON.stringify(P.objs,(k,v)=>k==='_editing'?undefined:v)));
   H.u.push(docSnap());capDocHist();H.r=[];IM.busy=false;imClose();await openPdf(await out.save(),S.name,{isNew:S.isNew,bg:S.bg,paper:S.paper,sample:S.sample,objs,keepHist:true});updUndo();markDirty();
   toast(list.length+tr(list.length===1?' Seite verbessert. Rückgängig mit Strg+Z.':' Seiten verbessert. Rückgängig mit Strg+Z.'))}
 {const d=$('#imDlg'),grid=$('#imGrid');
