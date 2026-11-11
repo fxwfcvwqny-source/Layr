@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-N0BEklQchk/1mjY1MrtCnnTsHnj9MrvuLAQQzR7NdvU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xbpjRBBm5OnIIfitc1aMDO/QPWiQQhPJktsofZtBI0I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -4713,6 +4713,7 @@ function attachInk(P,i){
   // Shift/Ctrl/Cmd click: put an object (or its group) into the selection or take it out
   const selToggle=(o,e)=>{const mem=grpOf(P,o,e.altKey);if(S.sel&&S.sel.p===i){const cur=selItems().slice();if(mem.every(m=>cur.includes(m)))mem.forEach(m=>cur.splice(cur.indexOf(m),1));else mem.forEach(m=>{if(!cur.includes(m))cur.push(m)});selectItems(i,cur)}else selectItems(i,mem)};
   ink.addEventListener('pointerdown',e=>{
+    if(e.button===2&&st){abortDrag();return} // Windows fires contextmenu only after pointerup
     if(GD.pen&&e.pointerType==='touch')return;
     if(e.pointerType==='pen'&&(e.buttons&32)&&S.tool!=='eraser'&&penErase===null){penErase=S.tool;S.tool='eraser'}
     if(e.button!==0&&e.button!==5&&e.pointerType==='mouse')return;
@@ -4780,6 +4781,7 @@ function attachInk(P,i){
     }
   });
   ink.addEventListener('pointermove',e=>{
+    if(st&&e.pointerType==='mouse'&&(e.buttons&2)){abortDrag();return} // a second button pressed during a drag arrives as pointermove
     if(st&&!e.buttons&&e.pointerType==='mouse'&&e.isPrimary){end(e);st=null;dragEnd();return}
     if(!st){
       let cur='';if(S.sel&&S.sel.p===i&&['symbol','rect','ellipse'].includes(S.tool)){const[x,y]=toPt(e.clientX,e.clientY),k=handleAt(S.sel.o,x,y,6/S.zoom);if(k)cur=CURS[k];else if(S.tool==='symbol'&&S.sel.o.type==='sym'&&hit(S.sel.o,x,y,6/S.zoom))cur='move'}
@@ -4797,7 +4799,7 @@ function attachInk(P,i){
     const d=S.draft&&S.draft.o;
     switch(st.selDrag?'select':S.tool){
       case'select':case'text':{
-        if(!st.mode||!st.moved||(st.o&&st.o.locked)||(st.o&&st.o.type==='group'&&st.o.items.every(t=>t.locked)))return;if(!st.hist){const cr=CRP&&CRP.o===st.o&&st.mode!=='move';if(!(cr&&CRP.hist))pushHist();if(cr){CRP.hist=true;CRP.hu=H.u.length}st.hist=true;st.hn=H.n;dragBegin(i,st.o);obBusy=true;obHide()}const o=st.o;
+        if(!st.mode||!st.moved||(st.o&&st.o.locked)||(st.o&&st.o.type==='group'&&st.o.items.every(t=>t.locked)))return;if(!st.hist){const cr=CRP&&CRP.o===st.o&&st.mode!=='move';if(!(cr&&CRP.hist)){st.hr=H.r;pushHist()}if(cr){CRP.hist=true;CRP.hu=H.u.length}st.hist=true;st.hn=H.n;dragBegin(i,st.o);obBusy=true;obHide()}const o=st.o;
         if(st.mode==='move'){const g=guideSnap(i,o,x,y,st,e);moveObj(o,g[0]-st.lx,g[1]-st.ly);pageKeep([o],P);st.lx=g[0];st.ly=g[1]}
         else if(st.mode==='p1'||st.mode==='p2'){const one=st.mode==='p1';if(o.type==='line')tmpProp(o,'__drag',one?'a':'b');
           const oid2=o.link?(one?o.link.b:o.link.a):null,other=oid2?P.objs.find(q=>q.oid===oid2):null;
@@ -4860,7 +4862,7 @@ function attachInk(P,i){
   // A key or right-click mid-drag cancels it like Esc: geometry goes back to the start (the history step pushed by the first move is dropped again)
   const abortDrag=()=>{const s=st;if(!s)return false;st=null;clearTimeout(s.qsT);if(s.qs)qsTagHide();
     if(s.o&&s.o.__drag)delete s.o.__drag;
-    if(s.hist){if(H.n===s.hn&&H.u.length&&!(CRP&&CRP.o===s.o)){const was=S.dirty;restoreSnap(H.u.pop());S.dirty=was;setSaveState();updUndo()}else markDirty()}
+    if(s.hist){if(H.n===s.hn&&H.u.length&&!(CRP&&CRP.o===s.o)){const was=S.dirty;restoreSnap(H.u.pop());if(s.hr)H.r=s.hr;S.dirty=was;setSaveState();updUndo()}else markDirty()}
     S.draft=null;S.dock=null;S.lasso=null;S.tblHint=S.imgHint=S.rotHint=null;if(obBusy){obBusy=false;obSoon()}dragEnd();redraw(i);return true};
   ink.addEventListener('contextmenu',e=>{e.preventDefault();abortDrag();
     {const[x,y]=toPt(e.clientX,e.clientY),o=!st&&!S.draft&&[...P.objs].reverse().find(o=>o.type==='table'&&hit(o,x,y,6/S.zoom)),rc=o&&tblCell(o,x,y);

@@ -2982,7 +2982,7 @@ else {
     const mouse = (type, p, button = 'left', buttons = 1) => cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: type === 'mouseMoved' && !buttons ? 'none' : button, buttons, clickCount: 1 });
     const pk = async k => { await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: k, code: 'Key' + k.toUpperCase(), windowsVirtualKeyCode: k.toUpperCase().charCodeAt(0), text: k }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: k, code: 'Key' + k.toUpperCase(), windowsVirtualKeyCode: k.toUpperCase().charCodeAt(0) }); };
     const run = async how => {
-      await ev(`(()=>{const P=S.pages[0];P.objs=[sanObj({type:'rect',x:100,y:100,w:120,h:80,color:'#000000',lw:2,fill:'none'}),sanObj({type:'ellipse',x:300,y:400,w:80,h:60,color:'#d62828',lw:2,fill:'white'})];setTool('select');setSel(null);H.u=[];H.r=[];S.dirty=false;setSaveState();redrawAll();P.el.scrollIntoView({block:'start',behavior:'instant'});window.__e=[]})()`);
+      await ev(`(()=>{const P=S.pages[0];P.objs=[sanObj({type:'rect',x:100,y:100,w:120,h:80,color:'#000000',lw:2,fill:'none'}),sanObj({type:'ellipse',x:300,y:400,w:80,h:60,color:'#d62828',lw:2,fill:'white'})];setTool('select');setSel(null);H.u=[];H.r=['keep'];S.dirty=false;setSaveState();redrawAll();P.el.scrollIntoView({block:'start',behavior:'instant'});window.__e=[]})()`);
       await sleep(300);
       const at = (x, y) => ev(`(()=>{const r=S.pages[0].ink.getBoundingClientRect();return [r.left+${x}*S.zoom,r.top+${y}*S.zoom]})()`);
       const a = await at(160, 100), b = await at(300, 250), c = await at(340, 300);
@@ -2991,12 +2991,12 @@ else {
       if (how === 'right') { await mouse('mousePressed', b, 'right', 3); await sleep(40); await mouse('mouseReleased', b, 'right', 1); }
       else await pk(how);
       await sleep(80); await mouse('mouseMoved', c); await sleep(40); await mouse('mouseMoved', [c[0] + 10, c[1] + 10]); await sleep(40); await mouse('mouseReleased', [c[0] + 10, c[1] + 10], 'left', 0); await sleep(300);
-      return ev(`JSON.stringify({o:S.pages[0].objs.map(o=>[o.type,Math.round(o.x),Math.round(o.y)]),dirty:S.dirty,hist:H.u.length,tool:S.tool,errs:window.__e})`).then(JSON.parse);
+      return ev(`JSON.stringify({o:S.pages[0].objs.map(o=>[o.type,Math.round(o.x),Math.round(o.y)]),dirty:S.dirty,hist:H.u.length,redo:H.r.length,tool:S.tool,errs:window.__e})`).then(JSON.parse);
     };
     const want = [['rect', 100, 100], ['ellipse', 300, 400]];
     for (const [how, tool] of [['r', 'rect'], ['l', 'line'], ['s', 'symbol'], ['e', 'eraser'], ['right', 'select']]) {
       const r = await run(how);
-      ok(`D2-01: Taste/Rechtsklick "${how}" mitten im Verschieben: Lage zurueck, nichts geaendert, kein Fehler`, JSON.stringify(r.o) === JSON.stringify(want) && r.dirty === false && r.hist === 0 && r.errs.length === 0, r);
+      ok(`D2-01: Taste/Rechtsklick "${how}" mitten im Verschieben: Lage zurueck, nichts geaendert, kein Fehler`, JSON.stringify(r.o) === JSON.stringify(want) && r.dirty === false && r.hist === 0 && r.redo === 1 && r.errs.length === 0, r);
       if (how !== 'right') ok(`D2-01: Taste "${how}" waehlt trotzdem das Werkzeug`, r.tool === tool, r);
     }
   }
