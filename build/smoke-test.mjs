@@ -3381,6 +3381,29 @@ else {
     ok('GT-14: Objektleistenknopf "Als Gantt-Diagramm" bei Netzplan, Dialog mit 8 Zeilen, Einheit aus dem Netzplan-Dialog (Wochen), Puffer+kritisch an, ein Verlaufsschritt', r.btn === true && r.open === true && r.rowsD === 8 && r.unit === 'w' && r.r4 === 'EB, C|A' && r.opts === true && r.res === 'Projektdauer 17 Wochen · Kritischer Pfad: A → B → D → G → H' && r.btnTxt === 'Aufs Blatt' && r.np === true && r.placed === true, r);
     ok('GT-14: "Aus Netzplan laden": keiner = Hinweis ohne Aenderung, einer = laden, mehrere = Auswahlliste', r.none === true && r.one === true && r.two === true && r.pick === true, r);
   }
+  // Gantt 3.11 step 7: units/dates/options polish (legend only for used kinds, cut-off line, hints for portrait pages and many rows)
+  {
+    const r = await ev(`(async()=>{const P=S.pages[0],q=s=>document.querySelector(s),wait=ms=>new Promise(r=>setTimeout(r,ms)),o={};
+      const leg=(rows,opt)=>{const b=ganttBuild(ganttCalc(rows),{w:842,h:595,top:40},opt),ly=Math.max(...b.objs.filter(x=>x.type==='table').map(t=>t.y+t.h));return b.objs.filter(x=>x.type==='text'&&x.y>ly).map(x=>x.text).join('|')};
+      const base=[{n:'A',name:'a',d:3},{n:'B',name:'b',d:2,p:['A']}];
+      o.l0=leg(base,{o:{}});o.l1=leg(base,{o:{crit:true,float:true,prog:true}});
+      o.l2=leg([{n:'A',name:'a',d:3,pr:40},{n:'B',name:'b',d:2,p:['A']},{n:'C',name:'c',d:1},{n:'M',d:0,ms:true,p:['B']}],{o:{crit:true,prog:true,float:true}});
+      o.l3=leg(base,{o:{legend:false}});
+      const b=ganttBuild(ganttCalc(base),{w:842,h:595,top:40},{u:'w',sd:'2026-12-28',st:1.5,o:{}}),grid=b.objs.find(x=>x.type==='table'&&!x.gt),ln=b.objs.find(x=>x.type==='line'&&!x.link),hd=b.objs.find(x=>x.type==='text'&&x.text==='Heute'),ax=ganttAxis(5,1.5,'w','2026-12-28');
+      o.kw=ax.labels.slice(0,2).join(',');o.st=Math.abs(ln.x1-(grid.x+1.5*grid.w/(ax.n*ax.step)))<1e-6&&ln.y2>ln.y1&&!!hd&&Math.abs(hd.x+textBox(hd).w/2-ln.x1)<1e-6;
+      const mo=ganttAxis(5,null,'m','2026-01-15').labels.join(',');o.mo=mo;
+      const w0=P.w,h0=P.h,hint=()=>q('#gtHint').hidden?'':q('#gtHint').textContent;
+      const d0=v=>{const d=q('#gtBody input[data-r="0"][data-k="d"]');d.value=v;d.dispatchEvent(new Event('input',{bubbles:true}))};
+      P.w=842;P.h=595;gtdOpen();await wait(100);q('#gtEx').click();d0('30');o.landHint=hint();
+      P.w=595;P.h=842;q('#gtEx').click();o.portrait0=hint();d0('30');o.portrait=hint();
+      P.w=842;P.h=595;q('#gtEx').click();for(let i=0;i<20;i++)q('#gtAdd').click();for(let i=6;i<26;i++){const d=q('#gtBody input[data-r="'+i+'"][data-k="d"]');d.value='1';d.dispatchEvent(new Event('input',{bubbles:true}))}
+      o.many=hint();o.rows=q('#gtBody').rows.length;
+      P.w=w0;P.h=h0;gtdClose();await wait(400);try{localStorage.removeItem('pdfwerkbank:gantt')}catch(e){}
+      return JSON.stringify(o)})()`, 60000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
+    ok('GT-15: Legende nur fuer vorkommende Arten (ohne Optionen nur Vorgang; kritisch/Puffer/Fortschritt/Meilenstein nur wenn vorhanden; aus = leer)', r.l0 === 'Vorgang' && r.l1 === 'Vorgang|Kritischer Vorgang' && r.l2 === 'Vorgang|Kritischer Vorgang|Fortschritt|Freier Puffer|Meilenstein' && r.l3 === '', r);
+    ok('GT-15: Wochen mit Startdatum KW (ISO, 28.12.2026 = KW 53), Monate Kurzname, Stichtag-Linie bei 1,5 Perioden mit "Heute" mittig darunter', r.kw === 'KW 53,KW 1' && /^Jan,/.test(r.mo) && r.st === true, r);
+    ok('GT-15: Hinweise im Dialog: Querformat (30 Perioden) keiner, Hochformat nur bei breitem Diagramm Hinweis zum Drehen, 26 Zeilen Hinweis "Mehr als 25"', !/Hochformat|Mehr als/.test(r.landHint) && !/Hochformat/.test(r.portrait0) && /Hochformat/.test(r.portrait) && /Mehr als 25 Vorgänge/.test(r.many) && r.rows === 26, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
