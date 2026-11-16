@@ -1,3 +1,18 @@
+# Layr 3.11.0 (unreleased)
+
+## New
+
+- Network plan (tool "Netzplan"): enter activities with duration and predecessors, Layr calculates earliest/latest start and end, total and free float and the critical path (IHK notation) and places the plan as nodes with arrows on the sheet. Editable again via "Edit network plan" (object bar or context menu); the table can be pasted from or copied as CSV.
+- Gantt chart (tool "Gantt-Diagramm", next to "Netzplan"): enter tasks with duration, predecessors, earliest start, lag, milestones, progress and responsible person. Layr calculates the schedule and places bars on a time axis (periods, days, weeks with ISO week numbers, or months, optional start date). Options: critical path in red, free float (dashed), progress, dependency arrows, grid, legend, title and a cut-off date line with "Today".
+- A Gantt chart can be edited again ("Edit Gantt chart" in the object bar or context menu). Applying replaces the whole chart in one undo step; manual moves are lost.
+- A Gantt chart can be created from a network plan ("As Gantt chart" in the object bar, or "Load from network plan" in the Gantt dialog). The network plan stays unchanged.
+- New fill "solid" for rectangles and symbols (used by the Gantt bars). Older Layr versions draw such shapes as an outline only.
+
+## Known limits
+
+- Gantt: no weekends or holidays (periods are equal), only end-to-start dependencies with optional lag, no automatic rotation on portrait pages (a hint is shown), at most 60 tasks.
+- Gantt and network plan data is kept inside the saved PDF; older Layr versions show the objects but cannot edit them again.
+
 # Layr 3.10.2
 
 Release notes for version 3.10.2 (fixes on top of 3.10.1).

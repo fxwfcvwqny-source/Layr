@@ -151,6 +151,22 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] ER-Symbol "Mehrwertiges Attribut" ganz klein ziehen oder skalieren → Zeichnen und Speichern funktionieren weiter.
 - [ ] Datei mit Passwortschutz (AES-256) speichern und in einem anderen Programm öffnen → Datei lässt sich öffnen.
 
+## 13. Netzplan und Gantt-Diagramm (3.11)
+- [ ] Werkzeugliste → "Netzplan" und "Gantt-Diagramm" sind vorhanden; in der Suche findet "gantt", "balkenplan", "zeitplan", "projektplan", "meilenstein" das Gantt-Diagramm, "pert" oder "kritischer pfad" den Netzplan.
+- [ ] Netzplan: "Beispiel laden" → Projektdauer und kritischer Pfad stehen im Ergebnis; "Aufs Blatt" setzt Knoten mit Pfeilen; Strg+Z entfernt alles in einem Schritt.
+- [ ] Netzplan: falsche Eingaben (Zyklus, unbekannter Vorgänger, Dauer "abc") zeigen eine Fehlermeldung, rot markiertes Feld, "Aufs Blatt" ist gesperrt.
+- [ ] Netzplan wählen → Knopf "Netzplan bearbeiten" (auch Rechtsklick) → Dauer ändern → "Übernehmen" → Plan wird an derselben Stelle ersetzt; Strg+Z stellt den alten Plan her. Gesperrter Plan: Hinweis statt Dialog.
+- [ ] Netzplan: Tabelle aus Excel/CSV einfügen (Strg+V in der Tabelle) und "Als CSV kopieren" funktionieren.
+- [ ] Gantt: "Beispiel laden" → "Aufs Blatt" → Balken mit Titel, Legende, Meilenstein-Raute, Fortschrittstext "50 %", gestrichelter freier Puffer, rote kritische Balken, Pfeile; alles auf dem Blatt (nichts am Rand abgeschnitten).
+- [ ] Gantt: Zeiteinheit Tage/Wochen/Monate mit Startdatum → Achse zeigt Datum, Kalenderwoche bzw. Monat; "Heute" setzt den Stichtag, die orange Linie "Heute" erscheint.
+- [ ] Gantt: Fehler (Start "x", Fortschritt 101, Stichtag "q") → Meldung, rotes Feld, Button gesperrt. Dezimalkomma (3,5) wird verstanden.
+- [ ] Gantt: Hochformat-Seite mit breitem Diagramm (30 Tage) → Hinweis im Dialog; mehr als 25 Vorgänge → Hinweis.
+- [ ] Gantt wählen → "Gantt bearbeiten" (Knopf und Rechtsklick) → Dialog ist gefüllt → ändern → "Übernehmen" ersetzt das Diagramm an gleicher Stelle, Strg+Z stellt es wieder her. Strg+D kopiert das Diagramm; Bearbeiten der Kopie ändert das Original nicht.
+- [ ] Gantt speichern, Datei schließen, wieder öffnen → "Gantt bearbeiten" zeigt dieselben Zeilen.
+- [ ] Netzplan wählen → Knopf "Als Gantt-Diagramm" → Dialog mit denselben Vorgängen (Puffer und kritisch an) → Balkenenden entsprechen FEZ des Netzplans, A-B-D-G-H (Beispiel) rot; der Netzplan bleibt unverändert. Im Gantt-Dialog "Aus Netzplan laden" mit mehreren Netzplänen zeigt eine Auswahl.
+- [ ] Hell, Dunkel, Kontrast-/Forced-Colors und Englisch: beide Dialoge gut lesbar, Fokus sichtbar, Tab bleibt im Dialog, Esc schließt und gibt den Fokus zurück.
+- [ ] Gantt-Balken sind in einer älteren Layr-Version nur Umrisse (bekannte Grenze).
+
 ## Bekannte Grenzen (bitte nicht melden)
 - Gedrehter Text hat achsenparallele Hervorhebung; Texthintergrund und Wortformatierung fehlen bei gestapeltem Text.
 - Zuschneiden blendet nur aus, das ganze Bild bleibt in der Datei (Schwärzen entfernt endgültig).
