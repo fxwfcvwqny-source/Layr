@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/89voSZgXB/5KWx8ZEcXl6FZhhNGmuKe05aQJmvQyIk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-EYVEponr6qHfmfQLkFlJZh9x2YBI4Xbj12zjL8ZTr1I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6962,7 +6962,7 @@ function calcNum(){const raw=String(cval('nIn')).trim().replace(/[\s_']/g,'');le
       while(x>0n){const r=x%BigInt(b),n2=x/BigInt(b);st.push('  '+x+' ÷ '+b+' = '+n2+' '+tr('Rest')+' '+(b===16?r.toString(16).toUpperCase():r));res.unshift(b===16?r.toString(16).toUpperCase():r.toString());x=n2}
       st.push('  '+tr('Reste von unten nach oben lesen:')+' '+res.join(''))};
     if(B===10){div(a,2,'Binär');div(a,16,'Hexadezimal')}
-    else if(B===2&&a>0n){const h=a.toString(2).padStart(Math.ceil(a.toString(2).length/4)*4,'0');st.push(tr('Binär → Hex: in Vierergruppen teilen:')+' '+cGrp(h,4)+' → '+cGrp(h,4).split(' ').map(g=>parseInt(g,2).toString(16).toUpperCase()).join(' '))}
+    else if(B===2&&mag>0n){const h=mag.toString(2).padStart(Math.ceil(mag.toString(2).length/4)*4,'0');st.push(tr('Binär → Hex: in Vierergruppen teilen:')+' '+cGrp(h,4)+' → '+cGrp(h,4).split(' ').map(g=>parseInt(g,2).toString(16).toUpperCase()).join(' '))}
     else if(B===16){st.push(tr('Hex → Binär: jede Stelle wird zu 4 Bit:')+' '+[...t.toUpperCase()].map(c=>c+'='+parseInt(c,16).toString(2).padStart(4,'0')).join('  '))}}
   if(v<0n){const pb=(-v).toString(2).padStart(bits,'0'),inv=[...pb].map(c=>c==='0'?'1':'0').join('');
     st.push(tr('Zweierkomplement:')+' |'+v+'| = '+cGrp(pb,4)+' → '+tr('alle Bits umkehren:')+' '+cGrp(inv,4)+' → '+tr('plus 1:')+' '+cGrp(bin,4))}
