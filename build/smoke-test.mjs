@@ -771,6 +771,12 @@ else {
   ok('Transparent window icon: files exist, png corners alpha 0, ico 16..256, BrowserWindow + win.icon wired, installer/Store/linux package icons untouched',
     icoOk && fs.existsSync('app/icon-transparent.png') && JSON.stringify(pngCorners('build/icon-transparent.png')) === '[0,0]' && JSON.stringify(pngCorners('app/icon-transparent.png')) === '[0,0]' && winIcon
     && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico' && [pj.win.icon, pj.nsis.installerIcon, pj.nsis.uninstallerIcon, pj.linux.icon].every(f => fs.existsSync(f)) && fs.existsSync('build/appx/Square44x44Logo.png'));
+  // Linux: Chromium picks the Ozone platform before main.js runs, so X11 must come from the launch arguments (deb/AppImage .desktop Exec) plus a one-time relaunch in main.js
+  ok('Linux forces X11 via executableArgs (linux, AppImage) and a guarded one-time relaunch in main.js (opt-out LAYR_WAYLAND)',
+    (pj.linux.executableArgs || []).includes('--ozone-platform=x11') && pj.appImage.executableArgs.includes('--ozone-platform=x11') && pj.appImage.executableArgs.includes('--no-sandbox')
+    && /const needX11 = process\.platform === 'linux' && !!process\.env\.WAYLAND_DISPLAY && !process\.env\.LAYR_WAYLAND\b[^;]*layr-x11-forced[^;]*;/.test(mainJs)
+    && /app\.relaunch\(needX11 \? \{ args: \[\.\.\.process\.argv\.slice\(1\), '--ozone-platform=x11', '--layr-x11-forced'\] \} : undefined\)/.test(mainJs)
+    && !/commandLine\.appendSwitch\('ozone-platform'/.test(mainJs));
   // PDF file association uses the original logo with black tile
   ok('PDF file association icon is the original logo with black tile (build/icon.ico), same as the installer', (pj.fileAssociations.find(f => f.ext === 'pdf') || {}).icon === 'build/icon.ico' && pj.win.icon === 'build/icon-transparent.ico' && pj.nsis.installerIcon === 'build/icon.ico');
   // Save As: the system dialog asks for overwrite, and an appended .pdf that already exists is confirmed in main.js (S9-01)
