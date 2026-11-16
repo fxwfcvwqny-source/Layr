@@ -3013,7 +3013,7 @@ else {
         await new Promise(r=>setTimeout(r,250));const m=document.getElementById(id),c=m&&m.querySelector('.card');if(!m||m.hidden||!c){bad.push(id+': not open');continue}
         const r=c.getBoundingClientRect(),inView=q=>q.top>=-e&&q.bottom<=vh+e&&q.left>=-e&&q.right<=vw+e;
         if(!inView(r))bad.push(id+': card outside viewport');if(c.scrollWidth>c.clientWidth+1)bad.push(id+': horizontal overflow');if(m.scrollHeight>m.clientHeight+1)bad.push(id+': backdrop scrolls');
-        for(const b of c.querySelectorAll('.ip-h button,.ip-btns button,.ab-btns button,.row.end button')){const q=b.getBoundingClientRect();if(q.width&&!inView(q)&&!b.closest('[hidden]'))bad.push(id+': '+(b.id||b.textContent.trim())+' out of view')}}
+        for(const b of c.querySelectorAll(':scope>.ip-h button,:scope>.ip-btns button,:scope>.ab-btns button,:scope>.row.end button')){const q=b.getBoundingClientRect();if(q.width&&!inView(q)&&!b.closest('[hidden]'))bad.push(id+': '+(b.id||b.textContent.trim())+' out of view')}}
       document.querySelectorAll('.modal').forEach(m=>{m.hidden=true;m._ah=null});return bad})()`);
     ok('Dialogs fit a 683x400 viewport (1024x600 at 150 %): card, close and buttons in view, no sideways overflow', Array.isArray(bad) && bad.length === 0, bad);
   }
