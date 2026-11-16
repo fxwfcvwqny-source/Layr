@@ -3005,6 +3005,18 @@ else {
     const mj = fs.readFileSync('app/main.js', 'utf8'), sv = mj.slice(mj.indexOf("handle('save'"), mj.indexOf("handle('export'"));
     ok('D3-01: Speichern unter lehnt den Pfad eines anderen offenen Tabs ab (dupOf vor writeSafe, de+en Text)', /if \(dupOf\(target\)\) \{[^\n]*showMessageBox[^\n]*return null; \}/.test(sv) && sv.indexOf('dupOf(target)') < sv.indexOf('writeSafe(target') && /'Diese Datei ist in einem anderen Tab geöffnet[^']*': 'This file is open in another tab/.test(mj) && /showOverwriteConfirmation/.test(sv) && /existiert bereits/.test(sv));
   }
+  // 3.10.3: dialogs fit small windows (1024x600 at 150 percent scaling = 683x400 CSS px): card inside the viewport, no sideways overflow, header close and button row reachable, backdrop does not scroll
+  {
+    await cdp('Emulation.setDeviceMetricsOverride', { width: 683, height: 400, deviceScaleFactor: 1.5, mobile: false });
+    const bad = await ev(`(async()=>{const O={ipDlg:()=>openIpDlg(),pgDlg:()=>openPgDlg(0),sigDlg:()=>openSigDlg(),calcDlg:()=>openCalcDlg('num'),abDlg:()=>abOpen(true),wrDlg:()=>wrOpen(true),kbDlg:()=>kbOpen(true),tbDlg:()=>tbOpen(),symDlg:()=>symOpen(),decoDlg:()=>decoOpen(),exDlg:()=>exOpen(),shDlg:()=>shOpen(),prDlg:()=>prOpen(),newDlg:()=>openNewDlg(),cmpDlg:()=>cmpOpen(),sxDlg:()=>sxOpen(),imDlg:()=>imOpen('files'),dgDlg:()=>dgOpen(undefined,'chart'),rkDlg:()=>rkOpen(),cdDlg:()=>cdOpen()},bad=[],e=.6,vw=innerWidth,vh=innerHeight;
+      for(const id in O){document.querySelectorAll('.modal').forEach(m=>{m.hidden=true;m._ah=null});try{O[id]()}catch(x){}
+        await new Promise(r=>setTimeout(r,250));const m=document.getElementById(id),c=m&&m.querySelector('.card');if(!m||m.hidden||!c){bad.push(id+': not open');continue}
+        const r=c.getBoundingClientRect(),inView=q=>q.top>=-e&&q.bottom<=vh+e&&q.left>=-e&&q.right<=vw+e;
+        if(!inView(r))bad.push(id+': card outside viewport');if(c.scrollWidth>c.clientWidth+1)bad.push(id+': horizontal overflow');if(m.scrollHeight>m.clientHeight+1)bad.push(id+': backdrop scrolls');
+        for(const b of c.querySelectorAll('.ip-h button,.ip-btns button,.ab-btns button,.row.end button')){const q=b.getBoundingClientRect();if(q.width&&!inView(q)&&!b.closest('[hidden]'))bad.push(id+': '+(b.id||b.textContent.trim())+' out of view')}}
+      document.querySelectorAll('.modal').forEach(m=>{m.hidden=true;m._ah=null});return bad})()`);
+    ok('Dialogs fit a 683x400 viewport (1024x600 at 150 %): card, close and buttons in view, no sideways overflow', Array.isArray(bad) && bad.length === 0, bad);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

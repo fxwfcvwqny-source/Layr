@@ -151,6 +151,9 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] ER-Symbol "Mehrwertiges Attribut" ganz klein ziehen oder skalieren → Zeichnen und Speichern funktionieren weiter.
 - [ ] Datei mit Passwortschutz (AES-256) speichern und in einem anderen Programm öffnen → Datei lässt sich öffnen.
 
+## 13. Korrekturen 3.10.3
+- [ ] Kleine Fenster und hohe Windows-/Linux-Skalierung (z. B. 1024×600 bei 150 %, Fenster auf Mindestgröße ziehen): Alle Dialoge (Einstellungen, Design, Schreiben & Rechtschreibung, Tastenkürzel, Symbole anpassen, Neues Blatt, Rechner, Diagramm, Rack-Planer, Bilder zu PDF, Notizen) passen ins Fenster, scrollen innen, Titelzeile mit Schließen-Knopf und die Knopfreihe unten bleiben sichtbar, kein Querscroll, am Rand des Hintergrunds keine leere Scrollleiste. Bei 1440×900 sieht alles unverändert aus.
+
 ## Bekannte Grenzen (bitte nicht melden)
 - Gedrehter Text hat achsenparallele Hervorhebung; Texthintergrund und Wortformatierung fehlen bei gestapeltem Text.
 - Zuschneiden blendet nur aus, das ganze Bild bleibt in der Datei (Schwärzen entfernt endgültig).
