@@ -3125,6 +3125,45 @@ else {
     ok('NP-09: Eintrag Netzplan nach IT-Rechner, ohne Kuerzel, Symbol im Sprite, in Mehr/Werkzeugleiste anpassen', r.after === 'calc' && r.noKey === true && r.icon === true && r.known === true && r.row === true, r);
     ok('NP-09: Suche (Werkzeug-/Befehlssuche) findet Netzplan per Name und Stichwort, oeffnet den Dialog', ['netzplan', 'kritischer pfad', 'pert', 'cpm', 'projekt', 'vorgang'].every(q => r['f_' + q] === true) && r.open === true && r.open2 === true, r);
   }
+  // Netzplan 3.11 step 6: edit again (object bar button, context menu, replace group in one undo step, duplicate keeps np)
+  {
+    const r = await ev(`(async()=>{const P=S.pages[0],q=s=>document.querySelector(s),wait=ms=>new Promise(r=>setTimeout(r,ms)),o={};
+      const canon=v=>JSON.stringify(v,(k,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.fromEntries(Object.entries(x).sort()):x);
+      const setv=(el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}))},f=(r,k)=>q('#npBody input[data-r="'+r+'"][data-k="'+k+'"]');
+      P.objs=[];H.u=[];H.r=[];S.tool='select';try{localStorage.removeItem('pdfwerkbank:netzplan')}catch(e){}
+      const R=[['A','Anforderungen',3,''],['B','Konzept',4,'A'],['C','Hardware',2,'A'],['D','Server',5,'B'],['E','Netz',3,'B,C'],['F','Lizenzen',4,'C'],['G','Test',2,'D,E'],['H','Uebergabe',3,'F,G']].map(([n,name,d,p])=>({n,name,d,p:p?p.split(','):[]}));
+      const rect={type:'rect',x:420,y:520,w:60,h:40,color:'#1b2a3a',lw:1};P.objs.push(rect);npPlace(R);const rect2={type:'rect',x:300,y:600,w:30,h:30,color:'#1b2a3a',lw:1};P.objs.push(rect2);
+      const grp=P.objs.filter(x=>x.gid);o.n=grp.length;const gid=grp[0].gid;
+      selectItems(0,[rect]);obUpdate();o.btnRect=q('#obNp').hidden;
+      selectItems(0,grp);obUpdate();o.btn=q('#obNp').hidden===false&&q('#obBar').hidden===false;
+      const node=P.objs.find(x=>x.np&&x.np.n==='D');objMenu(0,node,200,200);o.ctx=[...document.querySelectorAll('#ctx button')].some(b=>b.textContent==='Netzplan bearbeiten');closeMenu();
+      const before=canon(P.objs),others=[P.objs[0],rect2],bb=bbox(grp[0]),minOf=L=>[Math.min(...L.map(x=>bbox(x).x)),Math.min(...L.map(x=>bbox(x).y))];const tl0=minOf(P.objs.filter(x=>x.gid));
+      selectItems(0,grp);obUpdate();q('#obNp').click();await wait(200);
+      o.open=!q('#npDlg').hidden;o.rows=q('#npBody').rows.length;o.r3=[f(3,'n').value,f(3,'name').value,f(3,'d').value,f(3,'p').value].join('|');o.r4=f(4,'p').value;o.ok=q('#npOk').textContent;o.note=/von Hand/.test(q('#npNote').textContent)&&!/gelöscht/.test(q('#npNote').textContent);
+      o.res0=q('#npRes').textContent;o.ls=localStorage.getItem('pdfwerkbank:netzplan');
+      setv(f(3,'d'),'7');o.res1=q('#npRes').textContent;
+      H.u=[];q('#npOk').click();await wait(500);
+      const Hc=P.objs.find(x=>x.np&&x.np.n==='H');o.hcell=Hc.cells[1][1];o.cnt=P.objs.length;o.hist=H.u.length;o.sameOthers=P.objs[0]===rect&&P.objs.includes(rect2)&&rect.x===420&&rect2.y===600;
+      const tl1=minOf(P.objs.filter(x=>x.gid));o.anchor=Math.abs(tl0[0]-tl1[0])<.01&&Math.abs(tl0[1]-tl1[1])<.01;o.newGid=P.objs.find(x=>x.np).gid!==gid&&new Set(P.objs.filter(x=>x.np).map(x=>x.gid)).size===1;
+      o.at=P.objs.indexOf(rect)===0&&P.objs.indexOf(rect2)===P.objs.length-1;o.sel=selItems().length===18;o.dis=q('#npDlg').hidden;
+      undo();o.undo=canon(P.objs)===before;redo();o.redoHc=P.objs.find(x=>x.np&&x.np.n==='H').cells[1][1];undo();
+      // duplicate: the copy is its own plan; editing it leaves the original untouched
+      const g0=P.objs.filter(x=>x.gid===gid);selectItems(0,g0);dupSel();const copy=selItems(),cg=copy[0].gid;
+      o.dup=cg&&cg!==gid&&copy.length===18&&copy.every(x=>x.gid===cg)&&copy.filter(x=>x.np).length===8&&copy.filter(x=>x.link).every(l=>copy.some(x=>x.oid===l.link.a)&&copy.some(x=>x.oid===l.link.b));
+      const orig=canon(P.objs.filter(x=>x.gid===gid));selectItems(0,copy);obUpdate();o.btnCopy=q('#obNp').hidden===false;q('#obNp').click();await wait(200);setv(f(0,'d'),'10');q('#npOk').click();await wait(400);
+      o.origSame=canon(P.objs.filter(x=>x.gid===gid))===orig;o.copyNew=P.objs.filter(x=>x.np&&x.gid!==gid).find(x=>x.np.n==='A').np.d===10&&P.objs.filter(x=>x.gid===gid).find(x=>x.np&&x.np.n==='A').np.d===3;
+      // deleted node: dialog shows the remaining ones and says so
+      const g1=P.objs.filter(x=>x.gid===gid);P.objs=P.objs.filter(x=>!(x.gid!==gid&&x.np));const nd=P.objs.find(x=>x.gid===gid&&x.np&&x.np.n==='D');P.objs=P.objs.filter(x=>x!==nd&&!(x.link&&(x.link.a===nd.oid||x.link.b===nd.oid)));
+      selectItems(0,P.objs.filter(x=>x.gid===gid));npdEdit(0,gid);await wait(200);o.lostRows=q('#npBody').rows.length;o.lostNote=/gelöscht/.test(q('#npNote').textContent);o.lostP=[...document.querySelectorAll('#npBody tr')].map(t=>t.cells[3].firstChild.value).join(';');
+      o.lostOk=q('#npOk').disabled===false;npdClose();await wait(300);
+      return JSON.stringify(o)})()`, 60000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
+    ok('NP-10: Knopf "Netzplan bearbeiten" in der Objektleiste nur bei einem Netzplan, auch im Kontextmenue', r.n === 18 && r.btnRect === true && r.btn === true && r.ctx === true, r);
+    ok('NP-10: Dialog gefuellt aus np + Zellentext (Nr, Name, Dauer, Vorgaenger), Hinweis zu verschobenen Knoten, nichts im Speicher abgelegt', r.open === true && r.rows === 8 && r.r3 === 'D|Server|5|B' && r.r4 === 'B, C' && r.ok === 'Übernehmen' && r.note === true && r.res0 === 'Projektdauer 17 Tage · Kritischer Pfad: A → B → D → G → H' && r.ls === null, r);
+    ok('NP-10: Uebernehmen: Zahlen aktualisiert, 18 Objekte an gleicher Stelle in P.objs, andere Objekte unberuehrt, links oben verankert, eine Gruppe, ein Verlaufsschritt', r.res1 === 'Projektdauer 19 Tage · Kritischer Pfad: A → B → D → G → H' && r.hcell === '19' && r.cnt === 20 && r.hist === 1 && r.sameOthers === true && r.anchor === true && r.newGid === true && r.at === true && r.sel === true && r.dis === true, r);
+    ok('NP-10: Undo stellt alle Objekte exakt wieder her, Redo wieder die neuen Zahlen', r.undo === true && r.redoHc === '19', r);
+    ok('NP-10: Strg+D: Kopie hat eigene gid/oid, np und Links; Bearbeiten der Kopie laesst das Original unveraendert', r.dup === true && r.btnCopy === true && r.origSame === true && r.copyNew === true, r);
+    ok('NP-10: geloeschter Knoten: Dialog zeigt die uebrigen (Vorgaenger bereinigt) und sagt es', r.lostRows === 7 && r.lostNote === true && !/D/.test(r.lostP.split(';')[6] || '') && r.lostOk === true, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
