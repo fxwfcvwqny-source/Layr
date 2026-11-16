@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xEhBaoeNjeH8KS/vN6/QoStZojhE0TOqJU8vZSQ05eg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-fOXJB2j2MJialW6ET4AatrDKOqmpoiKg3zo/ufl5eCU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1847,7 +1847,7 @@ header,.file{min-width:0}
     <div class="ip-h"><h2 id="npT">Netzplan</h2><button class="ib" id="npX" title="Schließen (Esc)"><svg class="ph" aria-hidden="true"><use href="#ph-x"/></svg></button></div>
     <p class="hint" id="npNote">Vorgänge mit Dauer und Vorgängern eintragen. Der Plan wird nach IHK-Schreibweise berechnet und als Knoten mit Pfeilen aufs Blatt gesetzt.</p>
     <div class="np-bar">
-      <button class="btn" id="npAdd" type="button">Zeile +</button><button class="btn" id="npDel" type="button">Zeile −</button><button class="btn" id="npEx" type="button">Beispiel laden</button>
+      <button class="btn" id="npAdd" type="button">Zeile +</button><button class="btn" id="npDel" type="button">Zeile −</button><button class="btn" id="npEx" type="button">Beispiel laden</button><button class="btn" id="npPaste" type="button" title="Tabelle aus der Zwischenablage einfügen (Strg+V in der Tabelle geht auch)">Einfügen</button><button class="btn" id="npCsv" type="button">Als CSV kopieren</button>
       <span></span><label class="np-u">Zeiteinheit<input id="npUnit" type="text" maxlength="20" spellcheck="false" autocomplete="off"></label>
     </div>
     <div class="np-tw"><table class="np-t"><thead><tr><th>Nr.</th><th>Bezeichnung</th><th>Dauer</th><th>Vorgänger</th></tr></thead><tbody id="npBody"></tbody></table></div>
@@ -7117,7 +7117,7 @@ const npUnit=()=>{const v=$('#npUnit').value.trim();return!v||v==='Tage'||v==='d
 const npErrTr=e=>{const m=/^Zeile (\d+): (.*)$/.exec(e);return m?(LANG==='en'?'Row ':'Zeile ')+m[1]+': '+tr(m[2]):tr(e)};
 Object.assign(I18N_EN,{'Netzplan':'Network plan','Projektplan mit kritischem Pfad':'Project plan with critical path','Projekt-Netzplan nach IHK-Schreibweise: Vorgänge mit Dauer und Vorgängern eintragen, FAZ, FEZ, SAZ, SEZ, Puffer und kritischen Pfad berechnen und als Knoten aufs Blatt setzen. Danach über „Netzplan bearbeiten“ wieder änderbar.':'Project network plan in IHK notation: enter activities with duration and predecessors, calculate earliest/latest start and end, floats and the critical path, and place them as nodes on the sheet. Editable again via "Edit network plan".','Vorgänge mit Dauer und Vorgängern eintragen. Der Plan wird nach IHK-Schreibweise berechnet und als Knoten mit Pfeilen aufs Blatt gesetzt.':'Enter the activities with duration and predecessors. The plan is calculated in the IHK notation and placed on the sheet as nodes with arrows.',
   'Zeile +':'Add row','Zeile −':'Remove row','Beispiel laden':'Load example','Zeiteinheit':'Time unit','Bezeichnung':'Name','Vorgänger':'Predecessors','Tage':'days','Projektdauer':'Project duration','Kritischer Pfad':'Critical path',
-  'Trage die Vorgänge mit Dauer und Vorgängern ein.':'Enter the activities with duration and predecessors.','Mehr als 25 Vorgänge: Der Plan wird auf dem Blatt sehr klein.':'More than 25 activities: the plan becomes very small on the sheet.','Netzplan eingefügt.':'Network plan inserted.','Netzplan aktualisiert.':'Network plan updated.','Netzplan bearbeiten':'Edit network plan','Der Netzplan ist gesperrt. Zuerst entsperren.':'The network plan is locked. Unlock it first.','Beim Übernehmen wird der Plan neu angeordnet: von Hand verschobene Knoten gehen dabei verloren.':'Applying re-arranges the plan: nodes you moved by hand are reset.',' Einzelne Vorgänge wurden gelöscht oder fehlen, angezeigt werden die vorhandenen.':' Some activities were deleted or are missing; the remaining ones are shown.',
+  'Trage die Vorgänge mit Dauer und Vorgängern ein.':'Enter the activities with duration and predecessors.','Mehr als 25 Vorgänge: Der Plan wird auf dem Blatt sehr klein.':'More than 25 activities: the plan becomes very small on the sheet.','Netzplan eingefügt.':'Network plan inserted.','Netzplan aktualisiert.':'Network plan updated.','Zeilen eingefügt.':'rows inserted.','Einfügen':'Paste','Als CSV kopieren':'Copy as CSV','Tabelle aus der Zwischenablage einfügen (Strg+V in der Tabelle geht auch)':'Paste a table from the clipboard (Ctrl+V in the table works too)','Die Zwischenablage ist leer oder nicht lesbar. Mit Strg+V in die Tabelle einfügen.':'The clipboard is empty or not readable. Paste into the table with Ctrl+V.','Tabelle als CSV kopiert.':'Table copied as CSV.','Kopieren nicht möglich.':'Copying is not possible.','Jede Zeile braucht mindestens Nr, Bezeichnung und Dauer.':'Each row needs at least No., name and duration.','Netzplan bearbeiten':'Edit network plan','Der Netzplan ist gesperrt. Zuerst entsperren.':'The network plan is locked. Unlock it first.','Beim Übernehmen wird der Plan neu angeordnet: von Hand verschobene Knoten gehen dabei verloren.':'Applying re-arranges the plan: nodes you moved by hand are reset.',' Einzelne Vorgänge wurden gelöscht oder fehlen, angezeigt werden die vorhandenen.':' Some activities were deleted or are missing; the remaining ones are shown.',
   'Keine Vorgänge.':'No activities.','Nr fehlt.':'No. is missing.','Nr ist zu lang (höchstens 12 Zeichen).':'No. is too long (at most 12 characters).','Dauer ist keine Zahl.':'Duration is not a number.','Dauer ist negativ.':'Duration is negative.','Dauer ist zu groß.':'Duration is too large.','Zu viele Vorgänger.':'Too many predecessors.',
   'Anforderungen klären':'Clarify requirements','Konzept erstellen':'Create concept','Hardware bestellen':'Order hardware','Server einrichten':'Set up server','Netzwerk verkabeln':'Cable network','Lizenzen beschaffen':'Obtain licences','Systemtest':'System test','Übergabe':'Handover',...I18N_EN});
 I18N_RX.push([/^Höchstens (\d+) Vorgänge\.$/,'At most $1 activities.'],[/^Nr "(.+)" kommt doppelt vor\.$/,'No. "$1" appears twice.'],[/^Vorgänger "(.+)" gibt es nicht\.$/,'Predecessor "$1" does not exist.'],
@@ -7170,11 +7170,35 @@ function npdApply(){const ed=NPD.edit,P=ed.P;if(S.pages[ed.p]!==P||!ed.E.every(o
   npdClose();setTool('select');selectItems(ed.p,b.objs);redraw(ed.p);markDirty();toast(tr('Netzplan aktualisiert.')+(b.hint?' '+tr('Mehr als 25 Vorgänge: Der Plan wird auf dem Blatt sehr klein.'):''))}
 function npdPlace(){if(!NPD.res||NPD.res.err)return;if(NPD.edit){npdApply();return}const r=npPlace(npRowsCalc());if(r.err){npdRun();return}
   npSave();npdClose();toast(tr('Netzplan eingefügt.')+(r.hint?' '+tr('Mehr als 25 Vorgänge: Der Plan wird auf dem Blatt sehr klein.'):''))}
+/* CSV/Zwischenablage: Tabulator, Semikolon oder Komma; Anführungszeichen, Leerzeilen, Kopfzeile (Nr/Vorgang/Dauer/Vorgänger) */
+function npSplitLine(line,d){const out=[];let cur='',q=false;
+  for(let i=0;i<line.length;i++){const c=line[i];
+    if(q){if(c==='"'){if(line[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}
+    else if(c==='"'&&!cur.trim()){q=true;cur=''}else if(c===d){out.push(cur);cur=''}else cur+=c}
+  out.push(cur);return out.map(x=>x.trim())}
+const NP_HEAD=/^(nr\.?|nummer|vorgang|bezeichnung|name|dauer|duration|vorg(ä|ae)nger|predecessors?|no\.?)$/i;
+/* Rückgabe {rows:[{n,name,d,p}]} oder {err} (Fehlertext deutsch, über npErrTr übersetzbar) */
+function npParseTable(text){const lines=String(text==null?'':text).replace(/^﻿/,'').split(/\r\n|\r|\n/).filter(l=>l.trim());
+  if(!lines.length)return{err:'Keine Vorgänge.'};
+  const d=lines.some(l=>l.includes('\t'))?'\t':lines.some(l=>l.includes(';'))?';':',';
+  let rows=lines.map(l=>npSplitLine(l,d));
+  if(rows[0].some(c=>NP_HEAD.test(c)))rows=rows.slice(1);
+  if(!rows.length)return{err:'Keine Vorgänge.'};
+  if(rows.length>NP_MAX)return{err:'Höchstens '+NP_MAX+' Vorgänge.'};
+  if(rows.some(r=>r.length<3))return{err:'Jede Zeile braucht mindestens Nr, Bezeichnung und Dauer.'};
+  return{rows:rows.map(r=>({n:npS(r[0],12),name:npS(r[1],NP_NAME),d:npS(r[2],20),p:npS((r[3]||'').replace(/\s*;\s*/g,', '),120)}))}}
+const npQuote=v=>/[;"\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;
+function npFormatCsv(rows){return['Nr;Bezeichnung;Dauer;Vorgänger',...rows.map(r=>[r.n,r.name,r.d,r.p].map(x=>npQuote(String(x==null?'':x))).join(';'))].join('\n')}
+function npdTake(text){const r=npParseTable(text);if(r.err){toast(npErrTr(r.err),true);return false}
+  NPD.rows=r.rows;npdRender();npSave();npdFocus(0,'name');toast(r.rows.length+' '+tr('Zeilen eingefügt.'));return true}
 {const d=$('#npDlg'),add=()=>{if(NPD.rows.length>NP_MAX)return false;NPD.rows.push({n:npNext(),name:'',d:'',p:''});npdRender();npSave();return true};
   $('#npX').onclick=$('#npNo').onclick=npdClose;$('#npOk').onclick=npdPlace;
   $('#npAdd').onclick=()=>{if(add())npdFocus(NPD.rows.length-1,'name')};
   $('#npDel').onclick=()=>{if(NPD.rows.length<2)return;const a=document.activeElement,i=a&&a.dataset&&a.dataset.r!==undefined&&d.contains(a)?+a.dataset.r:NPD.rows.length-1;
     NPD.rows.splice(i,1);npdRender();npSave();npdFocus(Math.min(i,NPD.rows.length-1),'name')};
+  $('#npPaste').onclick=async()=>{let t='';try{t=await navigator.clipboard.readText()}catch(e){}if(!t.trim()){toast(tr('Die Zwischenablage ist leer oder nicht lesbar. Mit Strg+V in die Tabelle einfügen.'),true);return}npdTake(t)};
+  $('#npCsv').onclick=async()=>{try{await navigator.clipboard.writeText(npFormatCsv(NPD.rows));toast(tr('Tabelle als CSV kopiert.'))}catch(e){toast(tr('Kopieren nicht möglich.'),true)}};
+  d.addEventListener('paste',e=>{if(!e.target.matches||!e.target.matches('#npBody input'))return;const t=(e.clipboardData&&e.clipboardData.getData('text/plain'))||'';if(/[\t\r\n]/.test(t.trim())){e.preventDefault();npdTake(t)}});
   $('#npEx').onclick=()=>{NPD.rows=NP_EXAMPLE.map(([n,name,dd,p])=>({n,name:tr(name),d:String(dd),p}));npdRender();npSave();npdFocus(0,'name')};
   $('#npUnit').addEventListener('input',()=>{const v=$('#npUnit').value.trim();NPD.unit=v===npDefUnit()||v==='Tage'||v==='days'?'':v;npdRun();npSave()});
   d.addEventListener('pointerdown',e=>{if(e.target===d&&!NPD.edit&&npBlank())npdClose()});

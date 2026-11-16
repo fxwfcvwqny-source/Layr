@@ -3164,6 +3164,34 @@ else {
     ok('NP-10: Strg+D: Kopie hat eigene gid/oid, np und Links; Bearbeiten der Kopie laesst das Original unveraendert', r.dup === true && r.btnCopy === true && r.origSame === true && r.copyNew === true, r);
     ok('NP-10: geloeschter Knoten: Dialog zeigt die uebrigen (Vorgaenger bereinigt) und sagt es', r.lostRows === 7 && r.lostNote === true && !/D/.test(r.lostP.split(';')[6] || '') && r.lostOk === true, r);
   }
+  // Netzplan 3.11 step 7: CSV/clipboard parse and format helpers, paste into the table
+  {
+    const r = await ev(`(async()=>{const o={},j=x=>JSON.stringify(x),P1=t=>npParseTable(t),wait=ms=>new Promise(r=>setTimeout(r,ms));
+      const exp=j([{n:'A',name:'Plan',d:'3',p:''},{n:'B',name:'Bau',d:'4,5',p:'A'},{n:'C',name:'Test',d:'2',p:'A, B'}]);
+      o.semi2=j(P1('A;Plan;3;\\nB;Bau;4,5;A\\nC;Test;2;"A, B"').rows)===exp;
+      o.tab=j(P1('Nr\\tVorgang\\tDauer\\tVorgänger\\nA\\tPlan\\t3\\t\\nB\\tBau\\t4,5\\tA\\nC\\tTest\\t2\\tA, B').rows)===exp;
+      o.comma=j(P1('A,Plan,3,\\nB,Bau,"4,5",A\\nC,Test,2,"A, B"').rows)===exp;
+      o.head=P1('Nr;Bezeichnung;Dauer;Vorgänger\\nA;x;1;').rows.length===1&&P1('A;x;1;').rows.length===1;
+      o.quotes=j(P1('A;"Er sagte ""hi""; ok";3;').rows[0])===j({n:'A',name:'Er sagte "hi"; ok',d:'3',p:''});
+      o.blank=P1('\\n\\nA;x;1;\\r\\n\\r\\n   \\nB;y;2;A\\n\\n').rows.length===2&&P1('\\uFEFFA;x;1;').rows[0].n==='A';
+      o.semiP=P1('A;x;1;\\nB;y;2;"A;A"').rows[1].p==='A, A';
+      o.rows61=P1(Array.from({length:61},(_,i)=>'n'+i+';x;1;').join('\\n')).err==='Höchstens 60 Vorgänge.'&&!P1(Array.from({length:60},(_,i)=>'n'+i+';x;1;').join('\\n')).err;
+      o.errs=P1('').err==='Keine Vorgänge.'&&P1('Nr;Bezeichnung;Dauer;Vorgänger').err==='Keine Vorgänge.'&&!!P1('A;x').err;
+      o.fmt=npFormatCsv([{n:'A',name:'Er sagte "hi"; ok',d:'3,5',p:'B, C'},{n:'B',name:'x',d:'1',p:''}]);
+      o.rt=j(P1(o.fmt).rows)===j([{n:'A',name:'Er sagte "hi"; ok',d:'3,5',p:'B, C'},{n:'B',name:'x',d:'1',p:''}]);
+      // UI: paste event with several lines replaces the table; single line goes the normal way
+      try{localStorage.removeItem('pdfwerkbank:netzplan')}catch(e){}npdOpen();await wait(150);
+      const q=s=>document.querySelector(s),dt=new DataTransfer();dt.setData('text/plain','A\\tAnf\\t3\\t\\nB\\tBau\\t4\\tA\\nC\\tTest\\t2\\tA\\nD\\tEnde\\t1\\tB;C');
+      const ev1=new ClipboardEvent('paste',{clipboardData:dt,bubbles:true,cancelable:true});q('#npBody input').dispatchEvent(ev1);
+      o.pasted=ev1.defaultPrevented&&q('#npBody').rows.length===4&&q('#npRes').textContent==='Projektdauer 8 Tage · Kritischer Pfad: A → B → D';
+      const dt2=new DataTransfer();dt2.setData('text/plain','A, B');const ev2=new ClipboardEvent('paste',{clipboardData:dt2,bubbles:true,cancelable:true});q('#npBody input').dispatchEvent(ev2);o.single=ev2.defaultPrevented===false;
+      o.bad=npdTake('x')===false;o.badKeep=q('#npBody').rows.length===4;
+      o.btns=!!q('#npPaste')&&!!q('#npCsv');npdClose();try{localStorage.removeItem('pdfwerkbank:netzplan')}catch(e){}
+      return j(o)})()`, 60000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
+    ok('NP-11: Parser: Semikolon, Tabulator, Komma (Dezimalkomma in Anfuehrungszeichen), Kopfzeile, Anfuehrungszeichen mit "", Leerzeilen/BOM', r.semi2 === true && r.tab === true && r.comma === true && r.head === true && r.quotes === true && r.blank === true && r.semiP === true, r);
+    ok('NP-11: 61 Zeilen -> Fehler, 60 ok; leer / nur Kopf / zu wenig Spalten -> Fehler; CSV-Ausgabe Nr;Bezeichnung;Dauer;Vorgaenger und Rundlauf', r.rows61 === true && r.errs === true && r.fmt.split('\n')[0] === 'Nr;Bezeichnung;Dauer;Vorgänger' && r.rt === true, r);
+    ok('NP-11: Strg+V mehrzeilig ersetzt die Tabelle und rechnet; einzeiliger Text bleibt normales Einfuegen; Fehler behaelt die Tabelle; Knoepfe da', r.pasted === true && r.single === true && r.bad === true && r.badKeep === true && r.btns === true, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
