@@ -453,6 +453,12 @@ select{height:30px;border:1px solid transparent;border-radius:6px;background:var
 .modal{position:fixed;inset:0;background:rgba(10,16,22,.45);display:grid;place-items:safe center;overflow-y:auto;z-index:90;padding:16px}
 .card{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:calc(var(--r) + 2px);box-shadow:var(--shadow);width:min(420px,100%);padding:16px;display:flex;flex-direction:column;gap:14px}
 .card h2{margin:0;font-size:15px;font-weight:600}
+/* 3.10.3: a dialog never grows past the window; it scrolls inside, header and button row stay in view */
+.card{max-width:100%;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto}
+.card>.ip-h{position:sticky;top:-16px;z-index:2;background:var(--panel);margin-top:-16px;padding-top:16px}
+.card>.ip-btns,.card>.ab-btns,.card>.row.end{position:sticky;bottom:-16px;z-index:2;background:var(--panel);margin-bottom:-16px;padding-bottom:16px}
+.card>.seg{flex-shrink:0}
+.card .tgl{position:relative}/* its hidden checkbox is absolute and would otherwise escape the card clip and make the backdrop scroll */
 .card .lbl{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .card input[type=number],.card input[type=text]{height:32px;border:1px solid transparent;border-radius:6px;background:var(--fill);padding:0 8px;flex:1;min-width:0}
 .card .end{justify-content:flex-end}
