@@ -3281,6 +3281,38 @@ else {
     ok('GT-11: Fuellung solid deckend (Pixelprobe 48,104,214,255), tint blass, sanObj behaelt solid', r.solid === '48,104,214,255' && r.tint.split(',')[3] < 60 && r.keep === 'solid', r);
     ok('GT-11: Fortschritt zeigt "40 %" als Text im Balken (weiss), Meilenstein bleibt auf dem Blatt', r.t === 1 && r.tc === '#ffffff' && r.msIn === true, r);
   }
+  // Gantt 3.11 step 4: dialog, live result, errors, place + one undo step, keyboard, English UI, menu entry and search
+  {
+    const r = await ev(`(async()=>{const P=S.pages[0],q=s=>document.querySelector(s),wait=ms=>new Promise(r=>setTimeout(r,ms)),key=(el,k,o)=>el.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...(o||{})}));
+      const setv=(el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}))},f=(r,k)=>q('#gtBody input[data-r="'+r+'"][data-k="'+k+'"]'),o={};
+      P.objs=[];H.u=[];H.r=[];try{localStorage.removeItem('pdfwerkbank:gantt')}catch(e){}
+      gtdOpen();await wait(150);o.vis=!q('#gtDlg').hidden;o.rows=q('#gtBody').rows.length;o.labels=[...document.querySelectorAll('#gtBody tr:first-child input')].map(i=>i.getAttribute('aria-label')).join('|');
+      o.blank=q('#gtOk').disabled===true&&!/err/.test(q('#gtRes').className);o.live=q('#gtRes').getAttribute('aria-live');
+      q('#gtEx').click();o.n6=q('#gtBody').rows.length;o.res=q('#gtRes').textContent;o.opts=['prog','who','crit','float'].every(k=>q('[data-o='+k+']').checked);o.saved=JSON.parse(localStorage.getItem('pdfwerkbank:gantt')).rows.length;
+      f(0,'d').focus();key(f(0,'d'),'ArrowDown');o.arrow=document.activeElement===f(1,'d');key(f(0,'n'),'Enter');o.enter=document.activeElement===f(0,'name');
+      setv(f(1,'s'),'x');o.sErr=q('#gtRes').textContent;o.sInv=f(1,'s').getAttribute('aria-invalid')==='true';setv(f(1,'s'),'');
+      setv(f(1,'pr'),'101');o.prErr=q('#gtRes').textContent;o.prInv=f(1,'pr').getAttribute('aria-invalid')==='true';setv(f(1,'pr'),'50');
+      setv(q('#gtSt'),'q');o.stErr=q('#gtRes').textContent;o.stInv=q('#gtSt').getAttribute('aria-invalid')==='true';setv(q('#gtSt'),'3,5');o.stOk=q('#gtOk').disabled===false;
+      q('#gtUnit').value='n';q('#gtUnit').dispatchEvent(new Event('change'));o.startDis=q('#gtStart').disabled===true;q('#gtUnit').value='d';q('#gtUnit').dispatchEvent(new Event('change'));
+      q('#gtToday').click();o.todayNoDate=q('#gtSt').value==='3,5';
+      q('#gtStart').value='2020-01-01';q('#gtStart').dispatchEvent(new Event('change'));q('#gtToday').click();o.today=+q('#gtSt').value.replace(',','.')>2000;
+      setLang('en');await wait(100);gtdOpen();await wait(100);o.en=q('#gtRes').textContent;o.enHead=[...document.querySelectorAll('#gtDlg th')].map(t=>t.textContent).join('|');o.enUnit=q('#gtUnit').selectedOptions[0].textContent;o.enHint=q('#gtHint').textContent;
+      setv(f(1,'pr'),'x');o.enErr=q('#gtRes').textContent;setv(f(1,'pr'),'50');setLang('de');await wait(100);gtdOpen();await wait(100);
+      key(f(0,'name'),'Enter',{ctrlKey:true});await wait(500);
+      o.closed=q('#gtDlg').hidden;o.n=P.objs.length;o.hist=H.u.length;const gt=P.objs.find(x=>x.gt);o.gt=!!gt&&gt.gt.rows.length===6&&gt.gt.u==='d'&&gt.gt.sd==='2020-01-01'&&gt.gt.o.prog===true&&gt.gt.tt==='Serverumzug';undo();o.undoN=P.objs.length;
+      localStorage.removeItem('pdfwerkbank:gantt');gtdOpen();await wait(100);q('#gtDlg').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));await wait(400);o.blankClose=q('#gtDlg').hidden;
+      localStorage.setItem('pdfwerkbank:gantt','{"rows":[{"n":5,"name":{"x":1},"d":"1","p":"a","ms":"yes"},null,"x"],"u":"zz","sd":"2020-13-45","o":{"prog":"1"}}');gtdOpen();o.hostile=q('#gtBody').rows.length===1&&q('#gtUnit').value==='d'&&q('#gtStart').value===''&&q('#gtDlg').hidden===false;
+      localStorage.removeItem('pdfwerkbank:gantt');gtdClose();await wait(400);
+      const T=TOOLS.filter(t=>t!=='-'),i=T.findIndex(t=>t.id==='gantt');o.after=T[i-1]&&T[i-1].id;o.noKey=T[i].k==='';o.icon=!!document.querySelector('#ph-chart-gantt');o.known=tbIsHid('gantt')===true;
+      FN.list=null;for(const w of ['gantt','balkenplan','zeitplan','projektplan','meilenstein'])o['f_'+w]=fnFind(w).some(x=>x.t==='Gantt-Diagramm');
+      fnFind('gantt').find(x=>x.t==='Gantt-Diagramm').run();await wait(200);o.open=!q('#gtDlg').hidden;gtdClose();
+      return JSON.stringify(o)})()`, 90000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
+    ok('GT-12: Dialog offen, 3 Zeilen, aria-label je Feld, leer = Button gesperrt, Beispiel laden -> 6 Zeilen, Ergebnis (aria-live), Optionen, gespeichert', r.vis === true && r.rows === 3 && r.labels === 'Nr. 1|Vorgang 1|Start 1|Dauer 1|Vorgänger 1|Versatz 1|Meilenstein 1|% 1|Verantwortlich 1' && r.blank === true && r.live === 'polite' && r.n6 === 6 && r.res === 'Projektdauer 10 Tage · Kritischer Pfad: A → B → D → E' && r.opts === true && r.saved === 6, r);
+    ok('GT-12: Tastatur; Fehler Start / Fortschritt / Stichtag mit aria-invalid; Dezimalkomma; Startdatum nur bei Tag/Woche/Monat; Heute braucht Startdatum', r.arrow === true && r.enter === true && r.sErr === 'Zeile 2: Start ist keine Zahl.' && r.sInv === true && r.prErr === 'Zeile 2: Fortschritt ist keine Zahl von 0 bis 100.' && r.prInv === true && r.stErr === 'Stichtag ist keine Zahl.' && r.stInv === true && r.stOk === true && r.startDis === true && r.todayNoDate === true && r.today === true, r);
+    ok('GT-12: Englisch (Ergebnis, Kopf, Einheit, Hinweis freier Puffer, Fehler); danach Deutsch', r.en === 'Project duration 10 days · Critical path: A → B → D → E' && r.enHead === 'No.|Task|Start|Duration|Predecessors|Lag|Milestone|%|Responsible' && r.enUnit === 'days' && /free float/.test(r.enHint) && r.enErr === 'Row 2: Progress is not a number from 0 to 100.', r);
+    ok('GT-12: Strg+Enter legt aufs Blatt (ein Verlaufsschritt, gt mit allen Optionen), Undo entfernt alles; leerer Dialog schliesst per Hintergrund; feindlicher Speicher bereinigt', r.closed === true && r.n > 20 && r.hist === 1 && r.gt === true && r.undoN === 0 && r.blankClose === true && r.hostile === true, r);
+    ok('GT-12: Menueeintrag Gantt-Diagramm nach Netzplan, ohne Kuerzel, Symbol, Suche per Name und Stichwoertern oeffnet den Dialog', r.after === 'netzplan' && r.noKey === true && r.icon === true && r.known === true && ['gantt', 'balkenplan', 'zeitplan', 'projektplan', 'meilenstein'].every(w => r['f_' + w] === true) && r.open === true, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
