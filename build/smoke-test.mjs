@@ -3242,6 +3242,35 @@ else {
     ok('GT-06: ganttPlace ein Verlaufsschritt, Undo entfernt alles, Redo bringt zurueck, Auswahl = Gruppe', r.placeErr === null && r.hist === 1 && r.u0 === 0 && r.u1 === r.n && r.sel === r.n, r);
     ok('GT-07: Achsenbeschriftung: n Zahlen, d Tag n / dd.mm., w W n / KW (ISO, UTC), m M n / Monat; Tabellen Zeilen x Spalten', /^28\.12\.\|29\.12\.\/Tag 1\|Tag 2$/.test(r.d) && r.nn === '1|2/1|2' && /^KW 53\|KW 1\/W 1\|W 2$/.test(r.w) && r.wk === 'KW 53,KW 1,KW 2,KW 3,KW 4' && /^Dez\.?\|Jan\.?\/M 1\|M 2$/.test(r.m), r);
   }
+  // Gantt 3.11 step 3: sanObj keeps gt on tables and gb on rect/sym only when valid; hostile values; save/reopen round trip
+  {
+    const r = await ev(`(async()=>{const T=(gt,x)=>({type:'table',x:10,y:10,w:100,h:50,rows:1,cols:1,cells:[['x']],color:'#000000',lw:1,...(gt===undefined?{}:{gt}),...x});
+      const s=o=>sanObj(JSON.parse(JSON.stringify(o))),G=(x)=>({v:1,u:'d',sd:'2026-11-16',st:3.5,tt:'Titel',o:{crit:true,prog:false},rows:[{n:'A',name:'Analyse',s:1,d:3,p:[],lag:null,ms:false,pr:50,who:'Anna'},{n:'B',name:'Bau',s:null,d:0,p:['A'],lag:-1,ms:true,pr:null,who:''}],...x});
+      const ok1=s(T(G())).gt,tj=JSON.stringify(ok1);
+      const big=s(T(G({rows:Array.from({length:200000},(_,i)=>({n:'r'+i,d:1,p:Array.from({length:70},()=>'x')}))}))).gt;
+      const hostile=s(T(G({rows:[{n:'ok',d:1,name:'y'.repeat(500),who:'w'.repeat(99),p:['a','x'.repeat(13),5,null,{}],s:'x',lag:1e9,pr:101,ms:'true',extra:1},{n:'',d:1},{n:'x'.repeat(13),d:1},{n:'a',d:-1},{n:'a',d:1e7},{n:'a',d:'3'},null,7,[],{n:'__proto__',d:1}]}))).gt;
+      const proto=JSON.parse('{"type":"table","x":1,"y":1,"w":50,"h":20,"rows":1,"cols":1,"cells":[["a"]],"color":"#000000","lw":1,"gt":{"v":1,"u":"n","__proto__":{"polluted":1},"constructor":{"x":1},"rows":[{"n":"a","d":1,"__proto__":{"p2":1}}],"o":{"__proto__":{"crit":true},"constructor":true}}}');const pr=sanObj(proto).gt;
+      const gb=o=>sanObj(JSON.parse(JSON.stringify(o))).gb;const R=(gb0,t='rect')=>({type:t,sym:'f_diamond',x:1,y:1,w:10,h:10,color:'#000000',lw:1,gb:gb0});
+      return JSON.stringify({ok1:tj===JSON.stringify(G()),
+        bad:[s(T(G({v:2}))).gt,s(T(G({u:'x'}))).gt,s(T(G({rows:[]}))).gt,s(T(G({rows:'x'}))).gt,s(T('str')).gt,s(T([1])).gt,s(T(null)).gt].map(v=>v===undefined),
+        fields:{sd:s(T(G({sd:'2026-02-30'}))).gt.sd,sd2:s(T(G({sd:'nope'}))).gt.sd,st:s(T(G({st:'x'}))).gt.st,st2:s(T(G({st:1e9}))).gt.st,tt:s(T(G({tt:'t'.repeat(200)}))).gt.tt.length,tt2:s(T(G({tt:5}))).gt.tt,o:JSON.stringify(s(T(G({o:{crit:1,grid:'x',legend:false,zzz:true}}))).gt.o)},
+        bigRows:big.rows.length,bigP:big.rows[0].p.length,
+        hostile:JSON.stringify(hostile.rows),
+        proto:{rows:pr.rows.length,own:Object.keys(pr).sort().join(),o:JSON.stringify(pr.o),polluted:({}).polluted===undefined&&({}).p2===undefined&&!pr.constructor.x},
+        nonTable:['rect','sym','text','line'].map(t=>{const o=sanObj(JSON.parse(JSON.stringify({type:t,sym:'f_diamond',x:1,y:1,w:10,h:10,x1:0,y1:0,x2:5,y2:5,text:'a',fs:10,color:'#000000',lw:1,gt:G()})));return !o||o.gt===undefined}).join(),
+        gb:[JSON.stringify(gb(R({n:'A',k:'b'}))),JSON.stringify(gb(R({n:'A',k:'m'},'sym'))),gb(R({n:'A',k:'x'})),gb(R({n:'',k:'b'})),gb(R({n:'x'.repeat(13),k:'b'})),gb(R('str')),gb(R([1])),gb(R({n:5,k:'b'})),sanObj(JSON.parse(JSON.stringify({type:'table',x:1,y:1,w:5,h:5,rows:1,cols:1,cells:[['']],color:'#000000',lw:1,gb:{n:'A',k:'b'}}))).gb].map(v=>v===undefined?'-':v)})})()`, 60000).then(JSON.parse);
+    ok('GT-08: gt gueltig bleibt unveraendert (v,u,sd,st,tt,o,rows mit allen Feldern); ungueltige Huelle (v/u/rows/Typ) wird verworfen', r.ok1 === true && r.bad.every(Boolean), r);
+    ok('GT-08: sd/st/tt/o einzeln bereinigt (falsches Datum -> "", st "x"/1e9 -> null, tt <= 80, o nur Booleans, crit:1 faellt weg)', r.fields.sd === '' && r.fields.sd2 === '' && r.fields.st === null && r.fields.st2 === null && r.fields.tt === 80 && r.fields.tt2 === '' && r.fields.o === '{"legend":false}', r);
+    ok('GT-08: 200000 Zeilen -> 60, p > 60 -> 60; feindliche Zeilen: ungueltige verworfen, Felder bereinigt', r.bigRows === 60 && r.bigP === 60
+      && r.hostile === JSON.stringify([{ n: 'ok', name: 'y'.repeat(40), s: null, d: 1, p: ['a'], lag: null, ms: false, pr: null, who: 'w'.repeat(20) }, { n: '__proto__', name: '', s: null, d: 1, p: [], lag: null, ms: false, pr: null, who: '' }]) , r);
+    ok('GT-08: Prototyp-Schluessel wirkungslos (keine Verschmutzung); gt nur auf Tabellen', r.proto.polluted === true && r.proto.rows === 1 && r.proto.o === '{}' && r.nonTable === 'true,true,true,true', r);
+    ok('GT-09: gb {n<=12,k in b/f/p/m} nur auf rect/sym, sonst verworfen', r.gb[0] === '{"n":"A","k":"b"}' && r.gb[1] === '{"n":"A","k":"m"}' && r.gb.slice(2).every(v => v === '-'), r);
+    const rt = await ev(`(async()=>{const rows=[{n:'A',name:'Analyse',d:3,pr:50},{n:'B',name:'Bau',d:4,p:['A']},{n:'C',name:'Ende',d:0,ms:true,p:['B'],lag:1}];const P=S.pages[0];P.objs=[];H.u=[];H.r=[];
+      const r=ganttPlace(rows,{u:'w',sd:'2026-11-16',st:2,tt:'Plan',o:{crit:true,prog:true}});const before=JSON.stringify(P.objs.map(o=>[o.type,o.gid,o.oid||null,o.gb||null,o.gt||null,o.link?[o.link.a,o.link.b]:null]));
+      await openPdf(await buildOutput(),'gt.pdf');const Q=S.pages[0].objs,after=JSON.stringify(Q.map(o=>[o.type,o.gid,o.oid||null,o.gb||null,o.gt||null,o.link?[o.link.a,o.link.b]:null]));
+      return JSON.stringify({err:r.err||null,same:before===after,n:Q.length,gt:Q.filter(o=>o.gt).length,gb:Q.filter(o=>o.gb).length,rows:(Q.find(o=>o.gt)||{gt:{rows:[]}}).gt.rows.length})})()`, 60000).then(JSON.parse);
+    ok('GT-10: Rundlauf buildOutput + Wiederoeffnen: gt (eine Tabelle), gb, gid, oid, link unveraendert', rt.err === null && rt.same === true && rt.gt === 1 && rt.gb === 4 && rt.rows === 3, rt);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

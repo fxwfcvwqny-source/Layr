@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-YXy7dXz02it4a7Bx+YRUcIpC9dlsgzn3zxDjmdaUMUs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6yRIS4jYXWCe9c6ed+ixGHEbjY3K7cBvlmBV5u2D1vw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6746,6 +6746,13 @@ function sanObj(o){
   { // network plan source data of a node (tables only): rebuilt field by field, anything invalid is dropped
     const q=r.np;delete r.np;
     if(r.type==='table'&&q&&typeof q==='object'&&!Array.isArray(q)&&typeof q.n==='string'&&q.n&&q.n.length<=12&&isNum(q.d)&&q.d>=0&&q.d<=1e6&&Array.isArray(q.p)&&q.p.length<=60&&q.p.every(t=>typeof t==='string'&&t.length<=12))r.np={n:q.n,d:q.d,p:q.p.slice()}}
+  { // Gantt source data (label table only) and bar tags (rect/sym only): rebuilt field by field, anything invalid is dropped (gtDate is hoisted)
+    const q=r.gt,b=r.gb;delete r.gt;delete r.gb;const ob=v=>v&&typeof v==='object'&&!Array.isArray(v),str=(v,n)=>typeof v==='string'&&v.length>0&&v.length<=n,nn=v=>isNum(v)&&Math.abs(v)<=1e6?v:null;
+    const row=w=>ob(w)&&str(w.n,12)&&isNum(w.d)&&w.d>=0&&w.d<=1e6?{n:w.n,name:typeof w.name==='string'?w.name.slice(0,40):'',s:nn(w.s),d:w.d,p:Array.isArray(w.p)?w.p.slice(0,60).filter(t=>str(t,12)):[],lag:nn(w.lag),ms:w.ms===true,pr:isNum(w.pr)&&w.pr>=0&&w.pr<=100?w.pr:null,who:typeof w.who==='string'?w.who.slice(0,20):''}:null;
+    if(r.type==='table'&&ob(q)&&q.v===1&&['n','d','w','m'].includes(q.u)&&Array.isArray(q.rows)){const rows=q.rows.slice(0,60).map(row).filter(Boolean),o={};
+      if(ob(q.o))for(const k of['crit','prog','who','dur','legend','arrows','float','grid'])if(typeof q.o[k]==='boolean')o[k]=q.o[k];
+      if(rows.length)r.gt={v:1,u:q.u,sd:typeof q.sd==='string'&&gtDate(q.sd)!=null?q.sd:'',st:nn(q.st),tt:typeof q.tt==='string'?q.tt.slice(0,80):'',o,rows}}
+    if((r.type==='rect'||r.type==='sym')&&ob(b)&&str(b.n,12)&&['b','f','p','m'].includes(b.k))r.gb={n:b.n,k:b.k}}
   const box=()=>isNum(r.x)&&isNum(r.y)&&isNum(r.w)&&isNum(r.h);
   switch(r.type){
     case'pen':if(!Array.isArray(r.pts))return null;r.pts=r.pts.filter(p=>Array.isArray(p)&&isNum(p[0])&&isNum(p[1])).map(p=>[p[0],p[1]]);return r.pts.length?r:null;
@@ -7244,7 +7251,7 @@ const GT_RH=20,GT_FS=9,GT_CHAR=5.4,GT_TICKS=40,GT_BLUE='#3068d6',GT_RED='#c62828
 const GT_UNITS=['n','d','w','m'],GT_DEF={crit:false,prog:false,who:false,dur:false,legend:true,arrows:true,float:false,grid:true};
 Object.assign(I18N_EN,{'Tag':'Day','KW':'CW','Vorgang':'Task','Verantwortlich':'Responsible','Heute':'Today','Kritischer Vorgang':'Critical task','Fortschritt':'Progress','Puffer':'Float','Meilenstein':'Milestone',...I18N_EN});
 /* ISO-Datum JJJJ-MM-TT -> UTC-Millisekunden, sonst null */
-const gtDate=sd=>{const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(typeof sd==='string'?sd:'');if(!m)return null;const t=Date.UTC(+m[1],+m[2]-1,+m[3]),d=new Date(t);return d.getUTCFullYear()===+m[1]&&d.getUTCMonth()===+m[2]-1&&d.getUTCDate()===+m[3]?t:null};
+function gtDate(sd){const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(typeof sd==='string'?sd:'');if(!m)return null;const t=Date.UTC(+m[1],+m[2]-1,+m[3]),d=new Date(t);return d.getUTCFullYear()===+m[1]&&d.getUTCMonth()===+m[2]-1&&d.getUTCDate()===+m[3]?t:null}
 /* ISO-Kalenderwoche: der Donnerstag der Woche entscheidet */
 const gtKW=t=>{const d=new Date(t);d.setUTCDate(d.getUTCDate()+3-(d.getUTCDay()+6)%7);const j=Date.UTC(d.getUTCFullYear(),0,4);return 1+Math.round(((d-j)/864e5-3+(new Date(j).getUTCDay()+6)%7)/7)};
 /* Achse: Perioden bis max(T,Stichtag), Schrittweite 1,2,5,10,20,... so dass höchstens GT_TICKS Spalten entstehen; Beschriftung je Einheit n/d/w/m */
