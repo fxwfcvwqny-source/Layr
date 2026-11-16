@@ -112,6 +112,9 @@
       "icon": "build/icon.png",
       "category": "Office",
       "executableName": "layr",
+      "executableArgs": [
+        "--ozone-platform=x11"
+      ],
       "artifactName": "Layr-${version}-x86_64.${ext}",
       "synopsis": "PDFs beschriften, zeichnen, Notizen und Diagramme",
       "maintainer": "Layr <fxwfcvwqny-source@users.noreply.github.com>",
@@ -126,6 +129,12 @@
       "owner": "fxwfcvwqny-source",
       "repo": "Layr",
       "releaseType": "draft"
+    },
+    "appImage": {
+      "executableArgs": [
+        "--no-sandbox",
+        "--ozone-platform=x11"
+      ]
     },
     "deb": {
       "artifactName": "Layr-${version}-amd64.${ext}",
