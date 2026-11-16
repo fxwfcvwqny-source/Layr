@@ -1,4 +1,19 @@
-# Layr 3.10.2
+# Layr 3.10.3
+
+Release notes for version 3.10.3 (fixes on top of 3.10.2).
+
+## Fixes
+
+- Linux: on Wayland desktops Layr now starts through X11 (XWayland) as intended. Before, the setting came too late, so on some Wayland sessions the app did not open at all. Set `LAYR_WAYLAND=1` to run native Wayland. The .deb and AppImage launchers pass the flag.
+- Large dialogs and panels (New sheet, Diagram, Signature, Calculators, Card dialog, Images to PDF, Rack, Dictation setup and others) now fit small windows and screens: the card scrolls inside the window and its button row stays visible.
+- The notes panel keeps a usable text area.
+
+## Known limits
+
+- Layr files that were already saved once still do not restore unsaved changes after a crash.
+- Bookmarks and page labels are still dropped by page operations.
+
+# Earlier: Layr 3.10.2
 
 Release notes for version 3.10.2 (fixes on top of 3.10.1).
 

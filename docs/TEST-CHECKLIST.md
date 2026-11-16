@@ -1,6 +1,6 @@
-# Layr 3.10.2: Testliste für Windows und Linux
+# Layr 3.10.3: Testliste für Windows und Linux
 
-Installiere den Entwurf 3.10.2 (Windows: `Layr-Setup-3.10.2.exe`, Linux: `.deb`/AppImage). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
+Installiere den Entwurf 3.10.3 (Windows: `Layr-Setup-3.10.3.exe`, Linux: `.deb`/AppImage). Haken setzen, bei Fehlern kurz notieren und, wenn möglich, einen Screenshot in Originalgröße anhängen.
 Format je Zeile: Was tun, dann "→" was du sehen sollst. [Linux] / [Windows] = nur dort prüfen. Alle Schalter stehen im Menü Einstellungen (Zahnrad) bzw. unter "Design anpassen" / "Schreiben & Rechtschreibung".
 Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 100 %, 125 % und 150 % prüfen (Layr danach neu starten). Schwerpunkt dort: scharfe Symbole, Icons, Speicheranzeige, Zahlen unten, Objektleiste.
 
@@ -153,6 +153,11 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 
 ## 13. Korrekturen 3.10.3
 - [ ] Kleine Fenster und hohe Windows-/Linux-Skalierung (z. B. 1024×600 bei 150 %, Fenster auf Mindestgröße ziehen): Alle Dialoge (Einstellungen, Design, Schreiben & Rechtschreibung, Tastenkürzel, Symbole anpassen, Neues Blatt, Rechner, Diagramm, Rack-Planer, Bilder zu PDF, Notizen) passen ins Fenster, scrollen innen, Titelzeile mit Schließen-Knopf und die Knopfreihe unten bleiben sichtbar, kein Querscroll, am Rand des Hintergrunds keine leere Scrollleiste. Bei 1440×900 sieht alles unverändert aus.
+
+## 14. Korrekturen 3.10.3
+- [ ] Linux unter Wayland-Sitzung starten (aus dem Menü und aus dem Terminal) → Layr öffnet sich.
+- [ ] Linux mit `LAYR_WAYLAND=1` starten → Layr läuft nativ unter Wayland und öffnet sich.
+- [ ] Fenster auf 1024×600 klein ziehen: Dialoge Neues Blatt, Diagramm, Signatur, Rechner und Bilder zu PDF bleiben im Fenster, Knöpfe bleiben erreichbar (Inhalt scrollt innen).
 
 ## Bekannte Grenzen (bitte nicht melden)
 - Gedrehter Text hat achsenparallele Hervorhebung; Texthintergrund und Wortformatierung fehlen bei gestapeltem Text.
