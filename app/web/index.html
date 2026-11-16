@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-i/PhtDtrU/8fvSXu4v9lneb4SM7Fc9TBzs48QOpR5fU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-YXy7dXz02it4a7Bx+YRUcIpC9dlsgzn3zxDjmdaUMUs=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7239,6 +7239,68 @@ function ganttCalc(rows,opt){
     v.gp=npR2(v.ls-v.es);v.fp=npR2((v.sc.length?Math.min(...v.sc.map(j=>N[j].es-N[j].lag)):T)-v.ef);v.crit=Math.abs(v.gp)<NP_EPS}
   const edges=[];for(const v of N)for(const j of v.p)edges.push({a:j,b:v.i,crit:N[j].crit&&v.crit&&Math.abs(N[j].ef+v.lag-v.es)<NP_EPS});
   return{nodes:N,T,crit:ord.filter(a=>N[a].crit).map(a=>N[a].n),edges}}
+/* ---------- Gantt-Diagramm: Zeitachse, Aufbau, Platzieren ---------- */
+const GT_RH=20,GT_FS=9,GT_CHAR=5.4,GT_TICKS=40,GT_BLUE='#3068d6',GT_RED='#c62828',GT_INK='#1b2a3a',GT_GRID='#6b7380';
+const GT_UNITS=['n','d','w','m'],GT_DEF={crit:false,prog:false,who:false,dur:false,legend:true,arrows:true,float:false,grid:true};
+Object.assign(I18N_EN,{'Tag':'Day','KW':'CW','Vorgang':'Task','Verantwortlich':'Responsible','Heute':'Today','Kritischer Vorgang':'Critical task','Fortschritt':'Progress','Puffer':'Float','Meilenstein':'Milestone',...I18N_EN});
+/* ISO-Datum JJJJ-MM-TT -> UTC-Millisekunden, sonst null */
+const gtDate=sd=>{const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(typeof sd==='string'?sd:'');if(!m)return null;const t=Date.UTC(+m[1],+m[2]-1,+m[3]),d=new Date(t);return d.getUTCFullYear()===+m[1]&&d.getUTCMonth()===+m[2]-1&&d.getUTCDate()===+m[3]?t:null};
+/* ISO-Kalenderwoche: der Donnerstag der Woche entscheidet */
+const gtKW=t=>{const d=new Date(t);d.setUTCDate(d.getUTCDate()+3-(d.getUTCDay()+6)%7);const j=Date.UTC(d.getUTCFullYear(),0,4);return 1+Math.round(((d-j)/864e5-3+(new Date(j).getUTCDay()+6)%7)/7)};
+/* Achse: Perioden bis max(T,Stichtag), Schrittweite 1,2,5,10,20,... so dass höchstens GT_TICKS Spalten entstehen; Beschriftung je Einheit n/d/w/m */
+function ganttAxis(T,st,u,sd){const P=Math.max(1,Math.ceil(Math.max(T,st||0)-1e-9));let step=1;
+  find:for(let e=1;;e*=10)for(const m of[1,2,5])if(Math.ceil(P/(m*e))<=GT_TICKS){step=m*e;break find}
+  const n=Math.ceil(P/step),D=gtDate(sd),pd=v=>String(v).padStart(2,'0'),L=[];
+  for(let k=0;k<n;k++){const q=k*step,i=q+1,ok=D!=null&&q*(u==='w'?7:u==='m'?31:1)<=3e6;let s=String(i);
+    if(u==='d')s=ok?(d=>pd(d.getUTCDate())+'.'+pd(d.getUTCMonth()+1)+'.')(new Date(D+q*864e5)):tr('Tag')+' '+i;
+    else if(u==='w')s=ok?tr('KW')+' '+gtKW(D+7*q*864e5):'W '+i;
+    else if(u==='m')s=ok?(d=>new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+q,1)).toLocaleDateString(LANG==='en'?'en':'de',{month:'short',timeZone:'UTC'}))(new Date(D)):'M '+i;
+    L.push(s)}
+  return{n,step,per:n*step,labels:L}}
+/* Datenmodell gt (Wahrheit liegt hier) aus Rechenergebnis und Optionen {u,sd,st,tt,o} */
+function ganttModel(res,opt){opt=opt||{};const o={};for(const k in GT_DEF)o[k]=typeof(opt.o||{})[k]==='boolean'?opt.o[k]:GT_DEF[k];
+  return{v:1,u:GT_UNITS.includes(opt.u)?opt.u:'n',sd:gtDate(opt.sd)!=null?opt.sd:'',st:typeof opt.st==='number'&&Math.abs(opt.st)<=1e6?npR2(opt.st):null,tt:typeof opt.tt==='string'?opt.tt.slice(0,80):'',o,
+    rows:res.nodes.map(v=>({n:v.n,name:v.name.slice(0,40),s:v.s,d:v.d,p:v.p.map(j=>res.nodes[j].n),lag:v.lag||null,ms:v.ms,pr:v.pr!=null&&Number.isFinite(+v.pr)&&+v.pr>=0&&+v.pr<=100?npR2(+v.pr):null,who:v.who.slice(0,20)}))}}
+/* Objekte für das Blatt; pg={w,h,top}. Rückgabe {objs,sc,hint,gt}. Schriftgröße gibt die Zeilenhöhe nicht vor: Zeilenhöhe GT_RH*sc ist explizit gesetzt */
+function ganttBuild(res,pg,opt){
+  const gt=ganttModel(res,opt),o=gt.o,N=res.nodes,R=gt.rows,n=N.length,ax=ganttAxis(res.T,gt.st,gt.u,gt.sd),cw=a=>Math.max(...a.map(x=>String(x).length))*GT_CHAR+8,isM=v=>v.ms||v.d===0;
+  const C=[[tr('Nr.'),R.map(r=>r.n),26],[tr('Vorgang'),R.map(r=>r.name),40]];
+  if(o.dur)C.push([tr('Dauer'),R.map(r=>npFmt(r.d)),30]);if(o.who)C.push([tr('Verantwortlich'),R.map(r=>r.who),40]);
+  const wl=C.map(c=>Math.max(c[2],cw([c[0],...c[1]]))),Wl=wl.reduce((a,b)=>a+b,0),colW=Math.max(22,cw(ax.labels)),Wg=ax.n*colW;
+  const leg=[];if(o.legend){leg.push([GT_BLUE,'Vorgang','b']);if(o.crit&&N.some(v=>v.crit&&!isM(v)))leg.push([GT_RED,'Kritischer Vorgang','b']);
+    if(o.prog&&R.some(r=>r.pr>0))leg.push(['#1d3f8f','Fortschritt','b']);if(o.float&&N.some(v=>!isM(v)&&v.gp>NP_EPS))leg.push([GT_BLUE,'Puffer','f']);if(N.some(isM))leg.push(['#111111','Meilenstein','m'])}
+  const legW=leg.reduce((a,l)=>a+32+tr(l[1]).length*GT_CHAR,0),Wt=Math.max(Wl+Wg,legW),tl=gt.tt?Math.max(1,Math.ceil(gt.tt.length*7.2/Wt)):0;
+  const Ht=gt.tt?tl*15+6:0,Hb=(n+1)*GT_RH,Hs=gt.st!=null?14:0,Hl=leg.length?26:0,Hu=Ht+Hb+Hs+Hl;
+  const sc=Math.min(1.4,(pg.w-60)/Wt,(pg.h-60)/Hu),rh=GT_RH*sc,fs=Math.max(5,GT_FS*sc),bw=Wt*sc,bh=Hu*sc,x0=(pg.w-bw)/2,y0=Math.min(Math.max(30,pg.top),Math.max(30,pg.h-bh-30)),ty=y0+Ht*sc;
+  const gid=newGid(),gx=x0+Wl*sc,pw=Wg*sc/(ax.n*ax.step),X=t=>gx+t*pw,out=[];
+  const tbl=(x,rows,cols,w,cells,cwf,color)=>{const t=newTable(x,ty,rows,cols);t.cells=cells;t.w=w;t.h=rows*rh;t.cw=cwf;t.rh=Array.from({length:rows},()=>1/rows);t.fs=fs;t.head=true;t.fill='white';t.color=color;t.lw=.6;t.gid=gid;return t};
+  const gr=o.grid?n+1:1,grid=tbl(gx,gr,ax.n,Wg*sc,Array.from({length:gr},(_,r)=>r?Array(ax.n).fill(''):ax.labels.slice()),Array(ax.n).fill(1/ax.n),GT_GRID);
+  const lab=tbl(x0,n+1,C.length,Wl*sc,[C.map(c=>c[0]),...R.map((_,i)=>C.map(c=>c[1][i]))],wl.map(w=>w/Wl),GT_INK);lab.gt=JSON.parse(JSON.stringify(gt));
+  out.push(grid,lab);
+  const bars=[],mk=(k,v,x,y,w,h,col,extra)=>({type:'rect',x,y,w,h,color:col,lw:1.4,fill:'tint',dash:false,gid,gb:{n:v.n,k},...extra});
+  const fl=[],pr=[],main=N.map((v,i)=>{const ry=ty+(i+1)*rh,cr=o.crit&&v.crit,col=cr?GT_RED:GT_BLUE;
+    if(isM(v)){const s=rh*.7,m={type:'sym',sym:'f_diamond',x:X(v.es)-s/2,y:ry+(rh-s)/2,w:s,h:s,color:cr?GT_RED:'#111111',lw:1.6,fill:'tint',fs:11,label:'',dash:false,gid,gb:{n:v.n,k:'m'},oid:newOid()};bars.push(m);return m}
+    const h=rh*.6,y=ry+(rh-h)/2,b=mk('b',v,X(v.es),y,v.d*pw,h,col,{oid:newOid()});bars.push(b);
+    if(o.float&&v.gp>NP_EPS)fl.push(mk('f',v,X(v.ef),y,v.gp*pw,h,'#8aa4d6',{fill:'none',dash:true,lw:.8}));
+    if(o.prog&&R[i].pr>0)pr.push(mk('p',v,X(v.es),y,v.d*pw*R[i].pr/100,h,cr?'#7f1d1d':'#1d3f8f'));return b});
+  out.push(...fl,...bars,...pr);
+  if(o.arrows)for(const e of res.edges){const A=main[e.a],B=main[e.b],c=o.crit&&e.crit;
+    out.push({type:'line',x1:A.x+A.w,y1:A.y+A.h/2,x2:B.x,y2:B.y+B.h/2,color:c?GT_RED:GT_INK,lw:c?1.6:.8,dash:false,elbow:'h',start:'none',end:'arrow',link:{a:A.oid,b:B.oid,ta:'r',tb:'l'},gid})}
+  const tx=(x,y,text,f,extra)=>({type:'text',x,y,text,fs:f,color:GT_INK,orient:'h',bold:false,underline:false,lw:0,gid,...extra});
+  if(gt.st!=null){const sx=X(gt.st),t=tx(0,ty+Hb*sc+2*sc,tr('Heute'),fs);t.x=sx-textBox(t).w/2;
+    out.push({type:'line',x1:sx,y1:ty,x2:sx,y2:ty+Hb*sc,color:'#b45309',lw:1.2,dash:false,elbow:false,start:'none',end:'none',gid},t)}
+  if(gt.tt)out.push(tx(x0,y0,gt.tt,Math.max(6,12*sc),{bold:true,wrapW:bw}));
+  let lx=x0;const ly=ty+(Hb+Hs+8)*sc;
+  for(const[c,t,k]of leg){const sw=14*sc,sh=10*sc,y=ly+(rh-sh)/2;
+    out.push(k==='m'?{type:'sym',sym:'f_diamond',x:lx+2*sc,y:ly+(rh-sh)/2,w:sh,h:sh,color:c,lw:1.2,fill:'tint',fs:11,label:'',dash:false,gid}:{type:'rect',x:lx,y,w:sw,h:sh,color:c,lw:1.2,fill:k==='f'?'none':'tint',dash:k==='f',gid},
+      tx(lx+sw+4*sc,ly+(rh-fs*1.25)/2,tr(t),fs));lx+=(32+tr(t).length*GT_CHAR)*sc}
+  orgRelink({objs:out});
+  return{objs:out,sc,hint:sc<.5||n>40,gt}}
+/* Platziert das Gantt-Diagramm oben mittig auf der aktuellen Seite (ein Verlaufsschritt); Rückgabe {res,sc,hint} oder {err} */
+function ganttPlace(rows,opt){const res=ganttCalc(rows);if(res.err||!S.pages.length)return{err:res.err||'Keine Seite.'};
+  const i=curPage(),P=S.pages[i],vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();
+  const b=ganttBuild(res,{w:P.w,h:P.h,top:(vr.top-pr.top)/S.zoom+40},opt);
+  pushHist();P.objs.push(...b.objs);setTool('select');selectItems(i,b.objs);redraw(i);markDirty();return{res,sc:b.sc,hint:b.hint}}
 
 
 /* Layr & Updates: eigenes Fenster */

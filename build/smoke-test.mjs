@@ -3213,6 +3213,35 @@ else {
       && await err([{ n: '1', d: 1, s: 1e7 }], /Start ist zu groß/) === true && await ev(`(()=>{const r=ganttCalc([{n:'A',d:'abc',ms:true,s:'2,5'},{n:'B',d:'1,5',p:['a'],lag:''}]);const q=ganttCalc(Array.from({length:60},(_,i)=>({n:'n'+i,d:1,p:i?['N'+(i-1)]:[]})));
         return !r.err&&r.nodes[0].d===0&&r.nodes[0].es===2.5&&r.nodes[1].es===2.5&&r.T===4&&!q.err&&q.T===60})()`) === true);
   }
+  // Gantt 3.11 step 2: ganttAxis / ganttBuild geometry (relative), links, page bounds, ganttPlace undo, hostile sizes
+  {
+    const r = await ev(`(async()=>{const rows=[{n:'A',name:'Analyse',d:3},{n:'B',name:'Bau',d:4,p:['A']},{n:'C',name:'Ordern',d:2,p:['A'],lag:1},{n:'D',name:'Test',d:3,p:['B','C'],pr:50},{n:'E',name:'Ende',d:0,ms:true,p:['D']},{n:'F',name:'Doku',d:2,s:3}];
+      const opt={u:'d',sd:'2026-11-16',st:5,tt:'T',o:{crit:true,prog:true,float:true,who:true,dur:true}};
+      const res=ganttCalc(rows),b=ganttBuild(res,{w:842,h:595,top:40},opt),ax=ganttAxis(res.T,5,'d','2026-11-16'),O=b.objs,tb=O.filter(o=>o.type==='table'),grid=tb[0],lab=tb[1];
+      const pw=grid.w/(ax.n*ax.step),X=t=>grid.x+t*pw,by={};O.forEach(o=>{if(o.oid)by[o.oid]=o});const near=(a,c)=>Math.abs(a-c)<1e-6;
+      const rh=lab.h/lab.rows,N=res.nodes,get=(n,k)=>O.find(o=>o.gb&&o.gb.n===n&&o.gb.k===k);
+      let prop=true,inrow=true,crit=true,fl=true,ms=true;
+      N.forEach((v,i)=>{const m=v.ms||v.d===0,e=get(v.n,m?'m':'b');if(!e){prop=false;return}const top=lab.y+(i+1)*rh;
+        if(m){ms=ms&&near(e.x+e.w/2,X(v.es))&&e.y>=top&&e.y+e.h<=top+rh;}else{prop=prop&&near(e.x,X(v.es))&&near(e.w,v.d*pw)}
+        inrow=inrow&&e.y>=top-1e-6&&e.y+e.h<=top+rh+1e-6;crit=crit&&e.color===(v.crit?'#c62828':(m?'#111111':'#3068d6'));
+        const f=get(v.n,'f');if(v.gp>1e-9&&!m)fl=fl&&!!f&&near(f.x,X(v.ef))&&near(f.w,v.gp*pw)&&f.dash===true;else if(f)fl=false});
+      const L=O.filter(o=>o.type==='line'&&o.link),links=L.length===res.edges.length&&L.every(l=>{const A=by[l.link.a],B=by[l.link.b];return A&&B&&l.link.ta==='r'&&l.link.tb==='l'&&l.elbow==='h'&&l.end==='arrow'&&near(l.x1,A.x+A.w)&&near(l.x2,B.x)&&near(l.y1,A.y+A.h/2)&&near(l.y2,B.y+B.h/2)});
+      const inb=(o,W,H)=>o.type==='line'?Math.min(o.x1,o.x2)>=0&&Math.max(o.x1,o.x2)<=W&&Math.min(o.y1,o.y2)>=0&&Math.max(o.y1,o.y2)<=H:o.x>=-1e-6&&o.y>=-1e-6&&o.x+o.w<=W+1e-6&&o.y+o.h<=H+1e-6;
+      const dims=[[842,595],[595,842],[595,842],[842,595]].map(([W,H])=>ganttBuild(res,{w:W,h:H,top:40},opt).objs.every(o=>o.type==='text'||inb(o,W,H)));
+      const P=S.pages[0];P.objs=[];H.u=[];H.r=[];const pl=ganttPlace(rows,opt),n=P.objs.length,hist=H.u.length,sel=S.sel&&S.sel.o.type==='group'?S.sel.o.items.length:-1;undo();const u0=P.objs.length;redo();const u1=P.objs.length;
+      const big=Array.from({length:60},(_,i)=>({n:'n'+i,name:'x'.repeat(40),d:1e6,who:'y'.repeat(20),p:i?['n'+(i-1)]:[],pr:50})),rb=ganttCalc(big),bb=ganttBuild(rb,{w:595,h:842,top:40},{u:'w',sd:'2026-01-01',st:5e5,tt:'t'.repeat(80),o:{prog:true,float:true,who:true,dur:true,crit:true}});
+      const g2=bb.objs.find(o=>o.type==='table'),axb=ganttAxis(rb.T,5e5,'m','2026-01-01'),axs=['n','d','w','m'].map(u=>ganttAxis(123456789,null,u,'2026-03-30').n);
+      const lbl=u=>ganttAxis(10,null,u,'2026-12-28').labels.slice(0,2).join('|')+'/'+ganttAxis(10,null,u,'').labels.slice(0,2).join('|');
+      const wk=ganttAxis(5,null,'w','2026-12-28').labels.join(',');
+      return JSON.stringify({gids:new Set(O.map(o=>o.gid)).size,prop,inrow,crit,fl,ms,links,nL:L.length,dims,n,hist,u0,u1,sel,placeErr:pl.err||null,
+        bigIn:bb.objs.every(o=>o.type==='text'||inb(o,595,842)),bigTicks:axb.n,axs,bigHint:bb.hint,bigSc:bb.sc,d:lbl('d'),w:lbl('w'),m:lbl('m'),nn:lbl('n'),wk,
+        e:['n','d','w','m'].map(u=>ganttAxis(2.5,null,u,'').n).join(),nt:tb.map(t=>t.cells.length+'x'+t.cols).join(',')})})()`, 60000).then(JSON.parse);
+    ok('GT-05: eine gid; Balken x/Breite proportional zu ES/d; Balken in der Zeile; Meilenstein auf ES zentriert; kritisch #c62828; Puffer beginnt bei EF (gestrichelt)', r.gids === 1 && r.prop && r.inrow && r.ms && r.crit && r.fl, r);
+    ok('GT-05: Pfeile mit gueltigem Link (oid, r->l, Ellbogen h), Enden an Balkenraendern (Rechteck und Raute)', r.links === true && r.nL === 5, r);
+    ok('GT-05: alles auf dem Blatt (Quer, Hoch, 180, 270 als Seitenmasse), 60 Zeilen mit Dauer 1e6 -> <= 40 Spalten, kein Absturz, Hinweis', r.dims.every(Boolean) && r.bigIn === true && r.bigTicks <= 40 && r.axs.every(v => v <= 40) && r.bigHint === true, r);
+    ok('GT-06: ganttPlace ein Verlaufsschritt, Undo entfernt alles, Redo bringt zurueck, Auswahl = Gruppe', r.placeErr === null && r.hist === 1 && r.u0 === 0 && r.u1 === r.n && r.sel === r.n, r);
+    ok('GT-07: Achsenbeschriftung: n Zahlen, d Tag n / dd.mm., w W n / KW (ISO, UTC), m M n / Monat; Tabellen Zeilen x Spalten', /^28\.12\.\|29\.12\.\/Tag 1\|Tag 2$/.test(r.d) && r.nn === '1|2/1|2' && /^KW 53\|KW 1\/W 1\|W 2$/.test(r.w) && r.wk === 'KW 53,KW 1,KW 2,KW 3,KW 4' && /^Dez\.?\|Jan\.?\/M 1\|M 2$/.test(r.m), r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
