@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-IjnGPqfgnfqhtKw+dSnDEgj/F5YWuc0mZgHcC6PscL8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jWG3FtoSoagCd4k7TTyhwK+wD1d8RJmxCuZOd6Md3wc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7044,6 +7044,33 @@ function npCalc(rows){
     v.gp=npR2(v.saz-v.faz);v.fp=npR2((v.s.length?Math.min(...v.s.map(j=>N[j].faz)):T)-v.fez);v.crit=Math.abs(v.gp)<NP_EPS}
   const edges=[];for(const v of N)for(const j of v.p)edges.push({a:j,b:v.i,crit:N[j].crit&&v.crit&&Math.abs(N[j].fez-v.faz)<NP_EPS});
   return{nodes:N,T,crit:ord.filter(a=>N[a].crit).map(a=>N[a].n),edges}}
+/* Layout: Spalte = längster Weg, Reihenfolge je Spalte per Schwerpunkt (2 Durchgänge), Gleichstand nach Eingabe */
+const NP_W=110,NP_H=54,NP_GX=46,NP_GY=26,NP_CW=[.26,.48,.26];
+function npLayout(res){const N=res.nodes,nc=Math.max(...N.map(v=>v.depth))+1,cols=Array.from({length:nc},()=>[]);
+  for(const v of N)cols[v.depth].push(v.i);
+  const pos=new Array(N.length),setPos=()=>cols.forEach(c=>c.forEach((i,r)=>pos[i]=r));setPos();
+  const sort=(c,nb)=>{const key=new Map(c.map(i=>{const l=nb(i).map(j=>pos[j]);return[i,l.length?l.reduce((a,b)=>a+b,0)/l.length:pos[i]]}));c.sort((a,b)=>key.get(a)-key.get(b)||a-b);setPos()};
+  for(let pass=0;pass<2;pass++){for(let c=1;c<nc;c++)sort(cols[c],i=>N[i].p);for(let c=nc-2;c>=0;c--)sort(cols[c],i=>N[i].s)}
+  return{cols,nc,maxRows:Math.max(...cols.map(c=>c.length))}}
+/* Objekte für das Blatt; pg={w,h,top}. Rückgabe {objs,sc,hint} */
+function npBuild(res,pg){
+  const L=npLayout(res),N=res.nodes,Wt=L.nc*NP_W+(L.nc-1)*NP_GX,Ht=L.maxRows*NP_H+(L.maxRows-1)*NP_GY;
+  const sc=Math.min(1.4,(pg.w-60)/Wt,(pg.h-60)/Ht),W=NP_W*sc,Hn=NP_H*sc,gx=NP_GX*sc,gy=NP_GY*sc,bw=Wt*sc,bh=Ht*sc;
+  const x0=(pg.w-bw)/2,y0=Math.min(Math.max(30,pg.top),Math.max(30,pg.h-bh-30)),fs=Math.max(5,9*sc),gid=newGid(),fmt=v=>String(v).replace('.',',');
+  const nodes=N.map(v=>{const c=L.cols[v.depth],r=c.indexOf(v.i),t=newTable(x0+v.depth*(W+gx),y0+(bh-(c.length*Hn+(c.length-1)*gy))/2+r*(Hn+gy),3,3);
+    t.cells=[[v.n,v.name,fmt(v.d)],[fmt(v.faz),fmt(v.fez),fmt(v.gp)],[fmt(v.saz),fmt(v.sez),fmt(v.fp)]];
+    t.w=W;t.h=Hn;t.cw=NP_CW.slice();t.fs=fs;t.head=false;t.fill='white';t.color=v.crit?'#c62828':'#1b2a3a';t.lw=v.crit?2.2:1;t.gid=gid;t.oid=newOid();
+    t.np={n:v.n,d:v.d,p:v.p.map(j=>N[j].n)};return t});
+  const lines=res.edges.map(e=>{const A=nodes[e.a],B=nodes[e.b],col=e.crit?'#c62828':'#1b2a3a';
+    return{type:'line',x1:A.x+A.w,y1:A.y+A.h/2,x2:B.x,y2:B.y+B.h/2,color:col,lw:e.crit?2.2:1,dash:false,elbow:'h',start:'none',end:'arrow',link:{a:A.oid,b:B.oid,ta:'r',tb:'l'},gid}});
+  const objs=[...lines,...nodes];orgRelink({objs});
+  return{objs,sc,hint:N.length>25&&sc<.45}}
+/* Platziert den Netzplan oben mittig auf der aktuellen Seite (ein Verlaufsschritt); Rückgabe {res,sc,hint} oder {err} */
+function npPlace(rows){const res=npCalc(rows);if(res.err||!S.pages.length)return{err:res.err||'Keine Seite.'};
+  const i=curPage(),P=S.pages[i],vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();
+  const b=npBuild(res,{w:P.w,h:P.h,top:(vr.top-pr.top)/S.zoom+40});
+  pushHist();P.objs.push(...b.objs);setTool('select');selectItems(i,b.objs);redraw(i);markDirty();return{res,sc:b.sc,hint:b.hint}}
+
 
 /* Layr & Updates: eigenes Fenster */
 function abOpen(v){const d=$('#abDlg');if(v){if(studioIsOpen&&studioIsOpen())studioOpen(false);showEl(d);setTimeout(()=>$('#abX').focus(),0)}else animHide(d)}
