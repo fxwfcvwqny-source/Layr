@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jWG3FtoSoagCd4k7TTyhwK+wD1d8RJmxCuZOd6Md3wc=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ez+cCZXoN192M/q4FVk2rVVqiAvcGGTabW027zaECgk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6712,6 +6712,9 @@ function sanObj(o){
   if(typeof r.hbg!=='string'||!COL_RX.test(r.hbg)||(typeof CSS!=='undefined'&&CSS.supports&&!CSS.supports('color',r.hbg))||r.orient==='stack')delete r.hbg;
   if(r.font!=null&&!own(FONT_MAP,r.font))delete r.font;
   if(r.fs!=null&&!(isNum(r.fs)&&r.fs>=2&&r.fs<=400))r.fs=11;
+  { // network plan source data of a node (tables only): rebuilt field by field, anything invalid is dropped
+    const q=r.np;delete r.np;
+    if(r.type==='table'&&q&&typeof q==='object'&&!Array.isArray(q)&&typeof q.n==='string'&&q.n&&q.n.length<=12&&isNum(q.d)&&q.d>=0&&q.d<=1e6&&Array.isArray(q.p)&&q.p.length<=60&&q.p.every(t=>typeof t==='string'&&t.length<=12))r.np={n:q.n,d:q.d,p:q.p.slice()}}
   const box=()=>isNum(r.x)&&isNum(r.y)&&isNum(r.w)&&isNum(r.h);
   switch(r.type){
     case'pen':if(!Array.isArray(r.pts))return null;r.pts=r.pts.filter(p=>Array.isArray(p)&&isNum(p[0])&&isNum(p[1])).map(p=>[p[0],p[1]]);return r.pts.length?r:null;

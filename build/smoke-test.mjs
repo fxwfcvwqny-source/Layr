@@ -3053,6 +3053,28 @@ else {
     ok('NP-06: npPlace legt 18 Objekte als eine Gruppe an, ein Verlaufsschritt, Undo entfernt alle, Redo bringt sie zurueck', pl.err === null && pl.n === 18 && pl.hist === 1 && pl.sel === 18 && pl.dirty === true && pl.afterUndo === 0 && pl.afterRedo === 18, pl);
     ok('NP-06: Knoten und Linien (oid, gid, link) ueberstehen sanPages und buildOutput + Wiederoeffnen', pl.keep === true && pl.reopen === true, pl);
   }
+  // Netzplan 3.11 step 3: sanObj keeps np on tables only when valid; hostile values; full save/reopen round trip
+  {
+    const r = await ev(`(async()=>{const T=(np,extra)=>({type:'table',x:10,y:10,w:100,h:50,rows:1,cols:1,cells:[['x']],color:'#000000',lw:1,...(np===undefined?{}:{np}),...extra});
+      const s=o=>sanObj(JSON.parse(JSON.stringify(o)));
+      const good=s(T({n:'A',d:3.5,p:['B','C']})).np;
+      const bad=[[],'x',7,null,{n:'',d:1,p:[]},{n:'A'.repeat(13),d:1,p:[]},{n:'A',d:-1,p:[]},{n:'A',d:1e6+1,p:[]},{n:'A',d:'3',p:[]},{n:'A',d:1,p:'B'},{n:'A',d:1,p:[1]},{n:'A',d:1,p:['x'.repeat(13)]},{n:'A',d:1,p:Array(61).fill('b')},{n:'A',p:[]},{d:1,p:[]},{n:['A'],d:1,p:[]}].map(np=>s(T(np)).np===undefined);
+      const huge=s(T({n:'A',d:1,p:Array(200000).fill('b')})).np===undefined;
+      const proto=JSON.parse('{"type":"table","x":1,"y":1,"w":9,"h":9,"rows":1,"cols":1,"cells":[[""]],"np":{"n":"A","d":1,"p":["B"],"__proto__":{"evil":1},"constructor":{"x":1}}}');const pr=sanObj(proto);
+      const pk=JSON.parse('{"type":"table","x":1,"y":1,"w":9,"h":9,"rows":1,"cols":1,"cells":[[""]],"__proto__":{"np":{"n":"Z","d":1,"p":[]}}}');const pk2=sanObj(pk);
+      const other=sanObj({type:'rect',x:1,y:1,w:9,h:9,np:{n:'A',d:1,p:[]}});
+      const noisy=s(T({n:'A',d:0,p:[],extra:'zz'})).np;
+      // full round trip: place, save like the user does (buildOutput), reopen, np survives and links still resolve
+      const P=S.pages[0];P.objs=[];npPlace(__npR);const before=JSON.stringify(P.objs.filter(o=>o.type==='table').map(t=>[t.oid,t.np]));
+      await openPdf(await buildOutput(),'np3.pdf');const Q=S.pages[0].objs,Tb=Q.filter(o=>o.type==='table');
+      const after=JSON.stringify(Tb.map(t=>[t.oid,t.np])),by={};Tb.forEach(t=>by[t.oid]=t);
+      const rt=before===after&&Tb.length===8&&Tb.every(t=>t.np&&t.np.n===t.cells[0][0])&&Q.filter(o=>o.type==='line').every(l=>l.link&&by[l.link.a]&&by[l.link.b]&&l.gid&&l.gid===Tb[0].gid);
+      return JSON.stringify({good:JSON.stringify(good),bad,huge,protoOk:JSON.stringify(pr.np)==='{"n":"A","d":1,"p":["B"]}'&&pr.np.evil===undefined&&({}).evil===undefined,pk:pk2&&pk2.np===undefined&&({}).np===undefined,other:other&&other.np===undefined,noisy:JSON.stringify(noisy),rt,keepKeys:Object.keys(good).join()})})()`, 60000).then(JSON.parse);
+    ok('NP-07: gueltiges np (n, d, p) bleibt auf Tabellen erhalten, Fremdfelder fallen weg', r.good === '{"n":"A","d":3.5,"p":["B","C"]}' && r.noisy === '{"n":"A","d":0,"p":[]}' && r.keepKeys === 'n,d,p', r);
+    ok('NP-07: ungueltiges np (Typ, Laenge, Bereich, Array 61 / 200000 Eintraege) wird verworfen', r.bad.every(Boolean) && r.huge === true, r);
+    ok('NP-07: feindliche Schluessel (__proto__, constructor) ohne Wirkung, np nur auf Tabellen', r.protoOk === true && r.pk === true && r.other === true, r);
+    ok('NP-07: Netzplan speichern (buildOutput) und wieder oeffnen: np, oid, gid und Links bleiben', r.rt === true, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
