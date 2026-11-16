@@ -3113,6 +3113,18 @@ else {
     ok('NP-08: Aufs Blatt legt die Objekte an (ein Verlaufsschritt), Undo entfernt alle', r.n > 8 && r.hist === 1 && r.undoN === 0, r);
     ok('NP-08: 61 Zeilen -> Fehler, Einheit aus dem Speicher, feindlicher Speicher wird bereinigt', /Höchstens 60 Vorgänge/.test(r.r61) && r.unit === 'Wochen' && r.hostile === true, r);
   }
+  // Netzplan 3.11 step 5: tool entry after calc (Mehr menu, toolbar settings, command palette incl. keywords), opens the dialog
+  {
+    const r = await ev(`(async()=>{const o={},T=TOOLS.filter(t=>t!=='-'),i=T.findIndex(t=>t.id==='netzplan');o.after=T[i-1]&&T[i-1].id;o.noKey=T[i].k==='';o.known=tbIsHid('netzplan')===true;
+      o.icon=!!document.querySelector('#ph-'+T[i].i.match(/#ph-([a-z-]+)/)[1]);
+      tbRender();o.row=[...document.querySelectorAll('#tbList .tb-r b')].some(b=>b.textContent==='Netzplan');tbClose();
+      FN.list=null;for(const q of ['netzplan','kritischer pfad','pert','cpm','projekt','vorgang'])o['f_'+q]=fnFind(q).some(x=>x.t==='Netzplan');
+      const it=fnFind('netzplan').find(x=>x.t==='Netzplan');it.run();await new Promise(r=>setTimeout(r,200));o.open=!document.getElementById('npDlg').hidden;npdClose();await new Promise(r=>setTimeout(r,400));
+      tbRunTool(T[i]);await new Promise(r=>setTimeout(r,200));o.open2=!document.getElementById('npDlg').hidden;npdClose();
+      return JSON.stringify(o)})()`).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
+    ok('NP-09: Eintrag Netzplan nach IT-Rechner, ohne Kuerzel, Symbol im Sprite, in Mehr/Werkzeugleiste anpassen', r.after === 'calc' && r.noKey === true && r.icon === true && r.known === true && r.row === true, r);
+    ok('NP-09: Suche (Werkzeug-/Befehlssuche) findet Netzplan per Name und Stichwort, oeffnet den Dialog', ['netzplan', 'kritischer pfad', 'pert', 'cpm', 'projekt', 'vorgang'].every(q => r['f_' + q] === true) && r.open === true && r.open2 === true, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

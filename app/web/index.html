@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-mbLd/qiTIR9ZmEEcDpxO/StBIQibIrsaQAK4ngHtGF4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8yh+bzPS2fVyfjJ+A4cQiLrPA4osWcDpCvzWhy+83Fk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2892,6 +2892,7 @@ const TOOLS=[
   '-',
   {id:'subnet',k:'I',n:'Subnetzrechner',i:PH('network'),h:'IPv4-Netze berechnen: Netzadresse, Broadcast, Hosts, Aufteilen in Subnetze und VLSM. Ergebnis als Tabelle aufs Blatt.',action:()=>openIpDlg()},
   {id:'calc',k:'C',n:'IT-Rechner',i:PH('calculator'),h:'Zahlensysteme (binär, hexadezimal, dezimal) mit Rechenweg, Datenmengen (GB/GiB), Übertragungszeit, USV-Größe und Laufzeit, Stromkosten.',action:()=>openCalcDlg()},
+  {id:'netzplan',k:'',n:'Netzplan',bar:false,i:PH('arrows-merge'),h:'Projekt-Netzplan nach IHK-Schreibweise: Vorgänge mit Dauer und Vorgängern eintragen, FAZ, FEZ, SAZ, SEZ, Puffer und kritischen Pfad berechnen und als Knoten aufs Blatt setzen. Danach über „Netzplan bearbeiten“ wieder änderbar.',action:()=>npdOpen()},
   {id:'ruler',k:'U',n:'Lineal ein/aus',i:PH('ruler'),h:'',toggle:true},
   {id:'redact',k:'X',n:'Schwärzen',bar:false,i:PH('eye-slash'),h:'Bereiche aufziehen, die unkenntlich werden sollen. Danach „Schwärzen anwenden“: Der Inhalt dort wird dauerhaft aus der PDF entfernt.'},
   {id:'rack',k:'H',n:'Rack-Planer',bar:false,action:()=>rkOpen(),i:PH('hard-drives'),h:'19-Zoll-Schrank planen: Patchpanel, Switch, Server, USV … mit Höheneinheiten. Doppelklick auf den Schrank öffnet ihn wieder.'},
@@ -2921,7 +2922,7 @@ function tipFor(b,t){
 addEventListener('scroll',tipHide,true);addEventListener('keydown',e=>{if(e.key==='Escape')tipHide()},true);
 for(const t of TOOLS){
   if(t==='-'){const hr=document.createElement('hr');hr.style.setProperty('--i',toolN++);tb.appendChild(hr);continue}
-  const b=document.createElement('button');b.className='tool';b.dataset.t=t.id;b.setAttribute('aria-label',t.n+' ('+t.k+')');tipFor(b,t);
+  const b=document.createElement('button');b.className='tool';b.dataset.t=t.id;b.setAttribute('aria-label',t.k?t.n+' ('+t.k+')':t.n);tipFor(b,t);
   b.innerHTML=t.i+`<span class="k">${t.k}</span>`+(t.id==='symbol'?'<svg class="dd ph" aria-hidden="true"><use href="#ph-caret-down"/></svg>':'');b.setAttribute('aria-pressed','false');
   if(t.id==='symbol'){b.setAttribute('aria-haspopup','true');b.setAttribute('aria-expanded','false')}
   b.style.setProperty('--i',toolN++);b.onclick=()=>{if(t.action)return t.action();if(t.toggle)return toggleRuler();if(t.id==='symbol'){const open=symPop&&!symPop.hidden&&!symPop._ah;setTool('symbol');if(open)closeSymPop();else openSymPop(b)}else{closeSymPop();setTool(t.id)}};tb.appendChild(b);
@@ -2938,7 +2939,7 @@ var TB_KEY='pdfwerkbank:toolbar',TB_HID=new Set(),TB_KNOWN=new Set(),tbMore=null
 var TB_DESC={select:'Markieren, verschieben, Größe ändern',pen:'Freihand zeichnen',marker:'Durchsichtig hervorheben',eraser:'Beschriftungen wegwischen',
   text:'Klicken und tippen',line:'Gerade Linien, docken an Symbolen an',arrow:'Pfeile, auch für UML',rect:'Rechtecke und Quadrate',ellipse:'Ellipsen und Kreise',
   table:'Tabelle aufziehen',symbol:'UML, Netzwerk, Flussdiagramme',image:'PNG, JPG oder SVG einfügen',sign:'Zeichnen, tippen oder als Bild',
-  subnet:'IPv4-Netze berechnen',calc:'Zahlensysteme, Datenmengen, USV',ruler:'Lineal am Rand ein/aus'};
+  subnet:'IPv4-Netze berechnen',calc:'Zahlensysteme, Datenmengen, USV',netzplan:'Projektplan mit kritischem Pfad',ruler:'Lineal am Rand ein/aus'};
 var TB_GRP=['Auswählen','Zeichnen & Schreiben','Formen & Einfügen','Messen & IT'];
 var TB_HDR=[
   {id:'hdr:undo',n:'Rückgängig & Wiederholen',d:'Pfeile oben links',els:['bUndo','bRedo'],ic:'arrow-u-up-left'},
@@ -7078,7 +7079,7 @@ function npCalc(rows){
   const edges=[];for(const v of N)for(const j of v.p)edges.push({a:j,b:v.i,crit:N[j].crit&&v.crit&&Math.abs(N[j].fez-v.faz)<NP_EPS});
   return{nodes:N,T,crit:ord.filter(a=>N[a].crit).map(a=>N[a].n),edges}}
 /* Layout: Spalte = längster Weg, Reihenfolge je Spalte per Schwerpunkt (2 Durchgänge), Gleichstand nach Eingabe */
-const NP_W=110,NP_H=54,NP_GX=46,NP_GY=26,NP_CW=[.26,.48,.26];
+const NP_W=110,NP_H=54,NP_GX=46,NP_GY=26,NP_CW=[.22,.56,.22];
 function npLayout(res){const N=res.nodes,nc=Math.max(...N.map(v=>v.depth))+1,cols=Array.from({length:nc},()=>[]);
   for(const v of N)cols[v.depth].push(v.i);
   const pos=new Array(N.length),setPos=()=>cols.forEach(c=>c.forEach((i,r)=>pos[i]=r));setPos();
@@ -7092,7 +7093,7 @@ function npBuild(res,pg){
   const x0=(pg.w-bw)/2,y0=Math.min(Math.max(30,pg.top),Math.max(30,pg.h-bh-30)),fs=Math.max(5,9*sc),gid=newGid(),fmt=npFmt;
   const nodes=N.map(v=>{const c=L.cols[v.depth],r=c.indexOf(v.i),t=newTable(x0+v.depth*(W+gx),y0+(bh-(c.length*Hn+(c.length-1)*gy))/2+r*(Hn+gy),3,3);
     t.cells=[[v.n,v.name,fmt(v.d)],[fmt(v.faz),fmt(v.fez),fmt(v.gp)],[fmt(v.saz),fmt(v.sez),fmt(v.fp)]];
-    t.w=W;t.h=Hn;t.cw=NP_CW.slice();t.fs=fs;t.head=false;t.fill='white';t.color=v.crit?'#c62828':'#1b2a3a';t.lw=v.crit?2.2:1;t.gid=gid;t.oid=newOid();
+    t.w=W;t.h=Hn;t.cw=NP_CW.slice();t.rh=[.46,.27,.27];t.fs=fs;t.head=false;t.fill='white';t.color=v.crit?'#c62828':'#1b2a3a';t.lw=v.crit?2.2:1;t.gid=gid;t.oid=newOid();
     t.np={n:v.n,d:v.d,p:v.p.map(j=>N[j].n)};return t});
   const lines=res.edges.map(e=>{const A=nodes[e.a],B=nodes[e.b],col=e.crit?'#c62828':'#1b2a3a';
     return{type:'line',x1:A.x+A.w,y1:A.y+A.h/2,x2:B.x,y2:B.y+B.h/2,color:col,lw:e.crit?2.2:1,dash:false,elbow:'h',start:'none',end:'arrow',link:{a:A.oid,b:B.oid,ta:'r',tb:'l'},gid}});
@@ -7114,7 +7115,7 @@ const npDefUnit=()=>tr('Tage');
 const npUnit=()=>{const v=$('#npUnit').value.trim();return!v||v==='Tage'||v==='days'?npDefUnit():v};
 /* Fehlertexte aus npCalc: "Zeile N: " + Text, beides übersetzt */
 const npErrTr=e=>{const m=/^Zeile (\d+): (.*)$/.exec(e);return m?(LANG==='en'?'Row ':'Zeile ')+m[1]+': '+tr(m[2]):tr(e)};
-Object.assign(I18N_EN,{'Netzplan':'Network plan','Vorgänge mit Dauer und Vorgängern eintragen. Der Plan wird nach IHK-Schreibweise berechnet und als Knoten mit Pfeilen aufs Blatt gesetzt.':'Enter the activities with duration and predecessors. The plan is calculated in the IHK notation and placed on the sheet as nodes with arrows.',
+Object.assign(I18N_EN,{'Netzplan':'Network plan','Projektplan mit kritischem Pfad':'Project plan with critical path','Projekt-Netzplan nach IHK-Schreibweise: Vorgänge mit Dauer und Vorgängern eintragen, FAZ, FEZ, SAZ, SEZ, Puffer und kritischen Pfad berechnen und als Knoten aufs Blatt setzen. Danach über „Netzplan bearbeiten“ wieder änderbar.':'Project network plan in IHK notation: enter activities with duration and predecessors, calculate earliest/latest start and end, floats and the critical path, and place them as nodes on the sheet. Editable again via "Edit network plan".','Vorgänge mit Dauer und Vorgängern eintragen. Der Plan wird nach IHK-Schreibweise berechnet und als Knoten mit Pfeilen aufs Blatt gesetzt.':'Enter the activities with duration and predecessors. The plan is calculated in the IHK notation and placed on the sheet as nodes with arrows.',
   'Zeile +':'Add row','Zeile −':'Remove row','Beispiel laden':'Load example','Zeiteinheit':'Time unit','Bezeichnung':'Name','Vorgänger':'Predecessors','Tage':'days','Projektdauer':'Project duration','Kritischer Pfad':'Critical path',
   'Trage die Vorgänge mit Dauer und Vorgängern ein.':'Enter the activities with duration and predecessors.','Mehr als 25 Vorgänge: Der Plan wird auf dem Blatt sehr klein.':'More than 25 activities: the plan becomes very small on the sheet.','Netzplan eingefügt.':'Network plan inserted.',
   'Keine Vorgänge.':'No activities.','Nr fehlt.':'No. is missing.','Nr ist zu lang (höchstens 12 Zeichen).':'No. is too long (at most 12 characters).','Dauer ist keine Zahl.':'Duration is not a number.','Dauer ist negativ.':'Duration is negative.','Dauer ist zu groß.':'Duration is too large.','Zu viele Vorgänger.':'Too many predecessors.',
@@ -10021,6 +10022,7 @@ const FN_SYN={'Passwortschutz':'passwort kennwort verschlüsseln sperren schütz
   'Formularfeld':'formular feld ausfüllen textfeld checkbox kästchen dropdown form','Diagramm aus Text':'mindmap chart diagramm logik schaltung struktogramm nassi wahrheitstabelle',
   'Schwärzen':'redact zensieren unkenntlich entfernen anonymisieren','Rack-Planer':'rack schrank serverschrank patchpanel patchliste','Codeblock':'code quellcode syntax programm',
   'Unterschrift':'signatur unterschreiben signature','Notizen ein/aus':'notizen notes aufgaben todo','Hilfslinien (beim Verschieben und Größe ändern)':'raster ausrichten snap guides','Design anpassen':'farbe theme dunkel hell aussehen'};
+FN_SYN['Netzplan']='projekt vorgang vorgänge kritischer pfad pert cpm faz fez saz sez puffer projektplan network plan critical path';
 FN_SYN['IT-Rechner']=(FN_SYN['IT-Rechner']||'')+' rechner logik logikrechner gatter xor and or nand nor schaltung wahrheitstabelle binär hex zahlensystem subnetz';
 const fnNorm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/ß/g,'ss');
 // alle Befehle einsammeln: Menüs (über hmOpen abgefangen), Werkzeuge, Tastenkürzel-Aktionen
