@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-nVsLxDGs1uvaMcmwUhLlryfwhHn7KX11+dnFhispgtE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-a7CHYkwy8n+RzD5V0mCatnHKAFosIgbf8uQVT/YDDp4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -2477,7 +2477,7 @@ const I18N_EN={'12,5':'12.5','Passt nicht auf die Seite':'Does not fit on the pa
 'Umrechnung in':'Conversion to','(fortlaufend durch':'(keep dividing by','teilen):':'):','Rest':'remainder','Reste von unten nach oben lesen:':'Read the remainders from bottom to top:',
 'Binär → Hex: in Vierergruppen teilen:':'Binary → hex: split into groups of four:','Hex → Binär: jede Stelle wird zu 4 Bit:':'Hex → binary: each digit becomes 4 bits:',
 'Zweierkomplement:':'Two’s complement:','alle Bits umkehren:':'invert all bits:','plus 1:':'add 1:','Rechenweg':'Working','Tg.':'d',
-'Bitte eine Menge eingeben, z. B. 1,5':'Please enter an amount, e.g. 1.5',
+'Bitte eine Menge eingeben, z. B. 1,5':'Please enter an amount, e.g. 1.5','Eingabe':'Input',
 '1 KB = 1000 Byte (SI, Hersteller von Festplatten), 1 KiB = 1024 Byte (IEC). Windows zeigt KiB als „KB“ an – darum hat eine 1-TB-Platte dort nur rund 931 „GB“.':'1 KB = 1000 bytes (SI, used by drive makers), 1 KiB = 1024 bytes (IEC). Windows shows KiB as “KB” – that is why a 1 TB drive appears as only about 931 “GB” there.',
 'Bitte die Datenmenge eingeben.':'Please enter the data size.','Bitte die Geschwindigkeit eingeben.':'Please enter the speed.','Der Overhead muss zwischen 0 und 99 % liegen.':'The overhead must be between 0 and 99 %.',
 'Effektive Rate':'Effective rate','Dauer':'Duration','Dauer in Sekunden':'Duration in seconds','Nötig für':'Needed for',
@@ -6922,6 +6922,9 @@ function cparse(x){let t=String(x).trim().replace(/\s/g,'');const sp=t.match(/[.
   if(sp.includes('.')&&sp.includes(',')){const dec=t.lastIndexOf('.')>t.lastIndexOf(',')?'.':',';t=t.split(dec==='.'?',':'.').join('').replace(dec,'.')}
   else if(/^[-+]?[1-9]\d{0,2}([.,]\d{3})+$/.test(t)&&(sp.length>1||sp[0]===(cLoc()==='de'?'.':',')))t=t.replace(/[.,]/g,'');
   else t=t.replace(',','.');return t}
+// amount field with optional unit suffix ('9 TiB', '9tib'): the suffix wins over the unit select
+function cAmt(id,sel){const t=String(cval(id)).trim(),m=/^(.*?)\s*([a-z]+)$/i.exec(t),l=m&&m[2].toLowerCase(),u=m&&DATA_U.find(x=>x[0]===m[2])||m&&DATA_U.find(x=>x[0].toLowerCase()===l||x[1].toLowerCase()===l);
+  return u?{v:cnumv(id,m[1]),u}:{v:cnumv(id),u:DATA_U.find(x=>x[0]===cval(sel))}}
 const cnumv=(id,raw)=>{const t=cparse(raw==null?cval(id):raw);if(!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(t))return NaN;return parseFloat(t)};
 const cLoc=()=>LANG==='en'?'en':'de';
 function cFmt(n,max){if(!Number.isFinite(n))return'–';const a=Math.abs(n);if(max==null)max=a>=100?2:a>=1?3:a>=.001?6:10;
@@ -6964,10 +6967,10 @@ function calcNum(){const raw=String(cval('nIn')).trim().replace(/[\s_']/g,'');le
   if(v<0n){const pb=(-v).toString(2).padStart(bits,'0'),inv=[...pb].map(c=>c==='0'?'1':'0').join('');
     st.push(tr('Zweierkomplement:')+' |'+v+'| = '+cGrp(pb,4)+' → '+tr('alle Bits umkehren:')+' '+cGrp(inv,4)+' → '+tr('plus 1:')+' '+cGrp(bin,4))}
   return{head:['Darstellung','Wert'],rows,steps:st}}
-function calcData(){const v=cnumv('dVal'),u=DATA_U.find(x=>x[0]===cval('dUnit'));if(!Number.isFinite(v)||v<0||!u)return{err:'Bitte eine Menge eingeben, z. B. 1,5'};
-  const bits=v*u[2],rows=[];for(const k of['bit','B','KB','MB','GB','TB','KiB','MiB','GiB','TiB']){const w=DATA_U.find(x=>x[0]===k);rows.push([w[1],cFmt(bits/w[2])])}
+function calcData(){const{v,u}=cAmt('dVal','dUnit');if(!Number.isFinite(v)||v<0||!u)return{err:'Bitte eine Menge eingeben, z. B. 1,5'};
+  const bits=v*u[2],rows=[['Eingabe',cFmt(v)+' '+u[1]]];for(const k of['bit','B','KB','MB','GB','TB',...bits>=8e15?['PB']:[],'KiB','MiB','GiB','TiB',...bits>=8*1024**5?['PiB']:[]]){const w=DATA_U.find(x=>x[0]===k);rows.push([w[1],cFmt(bits/w[2])])}
   return{head:['Einheit','Wert'],rows,note:'1 KB = 1000 Byte (SI, Hersteller von Festplatten), 1 KiB = 1024 Byte (IEC). Windows zeigt KiB als „KB“ an – darum hat eine 1-TB-Platte dort nur rund 931 „GB“.'}}
-function calcRate(){const s=cnumv('rSize'),su=DATA_U.find(x=>x[0]===cval('rSizeU')),r=cnumv('rRate'),ru=RATE_U.find(x=>x[0]===cval('rRateU')),ov=String(cval('rOver')).trim()?cnumv('rOver'):0;
+function calcRate(){const{v:s,u:su}=cAmt('rSize','rSizeU'),r=cnumv('rRate'),ru=RATE_U.find(x=>x[0]===cval('rRateU')),ov=String(cval('rOver')).trim()?cnumv('rOver'):0;
   if(!Number.isFinite(s)||s<0||!su)return{err:'Bitte die Datenmenge eingeben.'};if(!Number.isFinite(r)||r<=0||!ru)return{err:'Bitte die Geschwindigkeit eingeben.'};
   if(!Number.isFinite(ov)||ov<0||ov>=100)return{err:'Der Overhead muss zwischen 0 und 99 % liegen.'};
   const bits=s*su[2],eff=r*ru[2]*(1-ov/100),t=bits/eff;
