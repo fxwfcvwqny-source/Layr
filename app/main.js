@@ -21,9 +21,9 @@ let allowClose = false, closing = false;
 
 // ---------- Sicherheit ----------
 // Alle Renderer laufen in der Sandbox (außer jemand startet Layr ausdrücklich mit --no-sandbox, z. B. als root in Tests).
-// Linux bleibt bei X11/XWayland (getestete Texteingabe, siehe IME-Hinweis unten).
+// Linux bleibt bei X11/XWayland (getestete Texteingabe, siehe IME-Hinweis unten). Chromium wählt die Plattform vor main.js,
+// darum erzwingt das Paket sie per Startparameter (package.json executableArgs) und main.js startet sonst einmal neu (needX11).
 if (!app.commandLine.hasSwitch('no-sandbox')) app.enableSandbox();
-if (process.platform === 'linux' && !process.env.LAYR_WAYLAND) app.commandLine.appendSwitch('ozone-platform', 'x11');
 // Nur die eigene Seite (Hauptfenster, oberster Rahmen) darf Programmfunktionen aufrufen.
 const APP_PAGE = () => pathToFileURL(path.join(__dirname, 'web', 'index.html')).href;
 const samePage = u => typeof u === 'string' && u.split(/[?#]/)[0] === APP_PAGE();
@@ -101,12 +101,15 @@ function addRecent(p) {
 // Linux: Das Eingabesystem (IBus o. ä.) für diese App umgehen und die einfache GTK-Eingabe nehmen.
 // Sonst kommen Buchstaben im Textfeld nicht oder nur einzeln an. Umlaute und Tottasten (^, ´) gehen weiterhin.
 // Abschalten: PDF-Werkbank mit WERKBANK_IME=1 starten.
-const needImFix = process.platform === 'linux' && !process.env.WERKBANK_IME &&
-  process.env.GTK_IM_MODULE !== 'gtk-im-context-simple';
+// Ebenso: Start ohne --ozone-platform unter Wayland (z. B. Terminal) -> einmal mit --ozone-platform=x11 neu starten. Abschalten: LAYR_WAYLAND=1.
+const needX11 = process.platform === 'linux' && !!process.env.WAYLAND_DISPLAY && !process.env.LAYR_WAYLAND &&
+  !process.argv.some(a => /^--(ozone-platform(-hint)?(=|$)|layr-x11-forced$)/.test(a));
+const needImFix = needX11 || (process.platform === 'linux' && !process.env.WERKBANK_IME &&
+  process.env.GTK_IM_MODULE !== 'gtk-im-context-simple');
 if (needImFix) {
   process.env.GTK_IM_MODULE = 'gtk-im-context-simple';
   process.env.XMODIFIERS = '@im=none';
-  app.relaunch();
+  app.relaunch(needX11 ? { args: [...process.argv.slice(1), '--ozone-platform=x11', '--layr-x11-forced'] } : undefined);
   app.exit(0);
 }
 // Absturz-Schutz: Stürzt die Grafik (GPU) einmal ab, startet Layr ab dann ohne Grafikbeschleunigung.

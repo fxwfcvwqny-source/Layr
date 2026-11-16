@@ -16,7 +16,7 @@ Alle Pfade und Namen, die noch nicht geprüft sind, sind im Manifest mit `# (pr�
 ## Begründung der Berechtigungen (für den Flathub-PR)
 
 - `--filesystem=home`: Layr speichert eine geänderte PDF neben dem Original (Umbenennen, Speichern) und öffnet zuletzt benutzte Dateien erneut. PDFs können überall im Home-Verzeichnis liegen.
-- `--socket=x11`: Die App erzwingt X11 (`app/main.js`, `ozone-platform=x11`), auch unter Wayland über XWayland.
+- `--socket=x11`: Die App läuft über X11, unter Wayland über XWayland: Das Paket startet mit `--ozone-platform=x11` (`executableArgs` in `package.json`), und `app/main.js` startet bei einem Start ohne diesen Parameter einmal neu damit. Natives Wayland: `LAYR_WAYLAND=1`.
 - `--share=network`: Nur zwei Vorgänge, die der Nutzer auslöst: Download des Spracherkennungsmodells (Diktat) und Update-Download in der GitHub-Version. Die Flatpak-Version prüft nicht selbst auf Updates.
 - `--socket=pulseaudio`: Mikrofon für das Diktat.
 - `--device=dri`: Hardware-Darstellung.
