@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6yRIS4jYXWCe9c6ed+ixGHEbjY3K7cBvlmBV5u2D1vw=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-HQDu9zLkKtYXJgY1QiKBBfQncpZ/w2u7FbSvQJmv4sg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -3126,7 +3126,7 @@ function syncControls(o){
 
 /* ---------- Zeichenhilfen ---------- */
 function rr(c,x,y,w,h,r){r=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
-function fillStroke(c,o){if(o.fill==='white'){c.save();c.fillStyle='#fff';c.fill();c.restore()}else if(o.fill==='tint'){c.save();c.globalAlpha*=.16;c.fill();c.restore()}c.stroke()}
+function fillStroke(c,o){if(o.fill==='white'){c.save();c.fillStyle='#fff';c.fill();c.restore()}else if(o.fill==='tint'){c.save();c.globalAlpha*=.16;c.fill();c.restore()}else if(o.fill==='solid')c.fill();c.stroke()}
 function poly(c,pts){c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.closePath()}
 function seg(c,x1,y1,x2,y2){c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()}
 function wrapLines(c,text,maxW){
@@ -7249,7 +7249,7 @@ function ganttCalc(rows,opt){
 /* ---------- Gantt-Diagramm: Zeitachse, Aufbau, Platzieren ---------- */
 const GT_RH=20,GT_FS=9,GT_CHAR=5.4,GT_TICKS=40,GT_BLUE='#3068d6',GT_RED='#c62828',GT_INK='#1b2a3a',GT_GRID='#6b7380';
 const GT_UNITS=['n','d','w','m'],GT_DEF={crit:false,prog:false,who:false,dur:false,legend:true,arrows:true,float:false,grid:true};
-Object.assign(I18N_EN,{'Tag':'Day','KW':'CW','Vorgang':'Task','Verantwortlich':'Responsible','Heute':'Today','Kritischer Vorgang':'Critical task','Fortschritt':'Progress','Puffer':'Float','Meilenstein':'Milestone',...I18N_EN});
+Object.assign(I18N_EN,{'Tag':'Day','KW':'CW','Vorgang':'Task','Verantwortlich':'Responsible','Heute':'Today','Kritischer Vorgang':'Critical task','Fortschritt':'Progress','Freier Puffer':'Free float','Meilenstein':'Milestone',...I18N_EN});
 /* ISO-Datum JJJJ-MM-TT -> UTC-Millisekunden, sonst null */
 function gtDate(sd){const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(typeof sd==='string'?sd:'');if(!m)return null;const t=Date.UTC(+m[1],+m[2]-1,+m[3]),d=new Date(t);return d.getUTCFullYear()===+m[1]&&d.getUTCMonth()===+m[2]-1&&d.getUTCDate()===+m[3]?t:null}
 /* ISO-Kalenderwoche: der Donnerstag der Woche entscheidet */
@@ -7275,8 +7275,8 @@ function ganttBuild(res,pg,opt){
   if(o.dur)C.push([tr('Dauer'),R.map(r=>npFmt(r.d)),30]);if(o.who)C.push([tr('Verantwortlich'),R.map(r=>r.who),40]);
   const wl=C.map(c=>Math.max(c[2],cw([c[0],...c[1]]))),Wl=wl.reduce((a,b)=>a+b,0),colW=Math.max(22,cw(ax.labels)),Wg=ax.n*colW;
   const leg=[];if(o.legend){leg.push([GT_BLUE,'Vorgang','b']);if(o.crit&&N.some(v=>v.crit&&!isM(v)))leg.push([GT_RED,'Kritischer Vorgang','b']);
-    if(o.prog&&R.some(r=>r.pr>0))leg.push(['#1d3f8f','Fortschritt','b']);if(o.float&&N.some(v=>!isM(v)&&v.gp>NP_EPS))leg.push([GT_BLUE,'Puffer','f']);if(N.some(isM))leg.push(['#111111','Meilenstein','m'])}
-  const legW=leg.reduce((a,l)=>a+32+tr(l[1]).length*GT_CHAR,0),Wt=Math.max(Wl+Wg,legW),tl=gt.tt?Math.max(1,Math.ceil(gt.tt.length*7.2/Wt)):0;
+    if(o.prog&&R.some(r=>r.pr>0))leg.push(['#1d3f8f','Fortschritt','b']);if(o.float&&N.some(v=>!isM(v)&&v.fp>NP_EPS))leg.push([GT_BLUE,'Freier Puffer','f']);if(N.some(isM))leg.push(['#111111','Meilenstein','m'])}
+  const legW=leg.reduce((a,l)=>a+32+tr(l[1]).length*GT_CHAR,0),Wt=Math.max(Wl+Wg+GT_RH*.35,legW),tl=gt.tt?Math.max(1,Math.ceil(gt.tt.length*7.2/Wt)):0;
   const Ht=gt.tt?tl*15+6:0,Hb=(n+1)*GT_RH,Hs=gt.st!=null?14:0,Hl=leg.length?26:0,Hu=Ht+Hb+Hs+Hl;
   const sc=Math.min(1.4,(pg.w-60)/Wt,(pg.h-60)/Hu),rh=GT_RH*sc,fs=Math.max(5,GT_FS*sc),bw=Wt*sc,bh=Hu*sc,x0=(pg.w-bw)/2,y0=Math.min(Math.max(30,pg.top),Math.max(30,pg.h-bh-30)),ty=y0+Ht*sc;
   const gid=newGid(),gx=x0+Wl*sc,pw=Wg*sc/(ax.n*ax.step),X=t=>gx+t*pw,out=[];
@@ -7284,22 +7284,24 @@ function ganttBuild(res,pg,opt){
   const gr=o.grid?n+1:1,grid=tbl(gx,gr,ax.n,Wg*sc,Array.from({length:gr},(_,r)=>r?Array(ax.n).fill(''):ax.labels.slice()),Array(ax.n).fill(1/ax.n),GT_GRID);
   const lab=tbl(x0,n+1,C.length,Wl*sc,[C.map(c=>c[0]),...R.map((_,i)=>C.map(c=>c[1][i]))],wl.map(w=>w/Wl),GT_INK);lab.gt=JSON.parse(JSON.stringify(gt));
   out.push(grid,lab);
-  const bars=[],mk=(k,v,x,y,w,h,col,extra)=>({type:'rect',x,y,w,h,color:col,lw:1.4,fill:'tint',dash:false,gid,gb:{n:v.n,k},...extra});
+  const bars=[],mk=(k,v,x,y,w,h,col,extra)=>({type:'rect',x,y,w,h,color:col,lw:1.4,fill:'solid',dash:false,gid,gb:{n:v.n,k},...extra});
   const fl=[],pr=[],main=N.map((v,i)=>{const ry=ty+(i+1)*rh,cr=o.crit&&v.crit,col=cr?GT_RED:GT_BLUE;
-    if(isM(v)){const s=rh*.7,m={type:'sym',sym:'f_diamond',x:X(v.es)-s/2,y:ry+(rh-s)/2,w:s,h:s,color:cr?GT_RED:'#111111',lw:1.6,fill:'tint',fs:11,label:'',dash:false,gid,gb:{n:v.n,k:'m'},oid:newOid()};bars.push(m);return m}
+    if(isM(v)){const s=rh*.7,m={type:'sym',sym:'f_diamond',x:X(v.es)-s/2,y:ry+(rh-s)/2,w:s,h:s,color:cr?GT_RED:'#111111',lw:1.6,fill:'solid',fs:11,label:'',dash:false,gid,gb:{n:v.n,k:'m'},oid:newOid()};bars.push(m);return m}
     const h=rh*.6,y=ry+(rh-h)/2,b=mk('b',v,X(v.es),y,v.d*pw,h,col,{oid:newOid()});bars.push(b);
-    if(o.float&&v.gp>NP_EPS)fl.push(mk('f',v,X(v.ef),y,v.gp*pw,h,'#8aa4d6',{fill:'none',dash:true,lw:.8}));
+    if(o.float&&v.fp>NP_EPS)fl.push(mk('f',v,X(v.ef),y,v.fp*pw,h,'#8aa4d6',{fill:'none',dash:true,lw:.8}));
     if(o.prog&&R[i].pr>0)pr.push(mk('p',v,X(v.es),y,v.d*pw*R[i].pr/100,h,cr?'#7f1d1d':'#1d3f8f'));return b});
   out.push(...fl,...bars,...pr);
-  if(o.arrows)for(const e of res.edges){const A=main[e.a],B=main[e.b],c=o.crit&&e.crit;
-    out.push({type:'line',x1:A.x+A.w,y1:A.y+A.h/2,x2:B.x,y2:B.y+B.h/2,color:c?GT_RED:GT_INK,lw:c?1.6:.8,dash:false,elbow:'h',start:'none',end:'arrow',link:{a:A.oid,b:B.oid,ta:'r',tb:'l'},gid})}
   const tx=(x,y,text,f,extra)=>({type:'text',x,y,text,fs:f,color:GT_INK,orient:'h',bold:false,underline:false,lw:0,gid,...extra});
+  if(o.prog)N.forEach((v,i)=>{const p=R[i].pr;if(!(p>0)||isM(v))return;const b=main[i],t=tx(0,b.y+(b.h-fs*1.25)/2,npFmt(p)+' %',fs),w=textBox(t).w;
+    if(w+4*sc<=b.w){t.x=b.x+2*sc;t.color='#ffffff'}else{const f=fl.find(q=>q.gb.n===v.n);t.x=b.x+b.w+(f?f.w:0)+3*sc}out.push(t)});
+  if(o.arrows)for(const e of res.edges){const A=main[e.a],B=main[e.b],c=o.crit&&e.crit;
+    out.push({type:'line',x1:A.x+A.w,y1:A.y+A.h/2,x2:B.x,y2:B.y+B.h/2,color:c?GT_RED:GT_INK,lw:c?1.8:1,dash:false,elbow:'h',start:'none',end:'arrow',link:{a:A.oid,b:B.oid,ta:'r',tb:'l'},gid})}
   if(gt.st!=null){const sx=X(gt.st),t=tx(0,ty+Hb*sc+2*sc,tr('Heute'),fs);t.x=sx-textBox(t).w/2;
     out.push({type:'line',x1:sx,y1:ty,x2:sx,y2:ty+Hb*sc,color:'#b45309',lw:1.2,dash:false,elbow:false,start:'none',end:'none',gid},t)}
   if(gt.tt)out.push(tx(x0,y0,gt.tt,Math.max(6,12*sc),{bold:true,wrapW:bw}));
   let lx=x0;const ly=ty+(Hb+Hs+8)*sc;
   for(const[c,t,k]of leg){const sw=14*sc,sh=10*sc,y=ly+(rh-sh)/2;
-    out.push(k==='m'?{type:'sym',sym:'f_diamond',x:lx+2*sc,y:ly+(rh-sh)/2,w:sh,h:sh,color:c,lw:1.2,fill:'tint',fs:11,label:'',dash:false,gid}:{type:'rect',x:lx,y,w:sw,h:sh,color:c,lw:1.2,fill:k==='f'?'none':'tint',dash:k==='f',gid},
+    out.push(k==='m'?{type:'sym',sym:'f_diamond',x:lx+2*sc,y:ly+(rh-sh)/2,w:sh,h:sh,color:c,lw:1.2,fill:'solid',fs:11,label:'',dash:false,gid}:{type:'rect',x:lx,y,w:sw,h:sh,color:c,lw:1.2,fill:k==='f'?'none':'solid',dash:k==='f',gid},
       tx(lx+sw+4*sc,ly+(rh-fs*1.25)/2,tr(t),fs));lx+=(32+tr(t).length*GT_CHAR)*sc}
   orgRelink({objs:out});
   return{objs:out,sc,hint:sc<.5||n>40,gt}}

@@ -3224,7 +3224,7 @@ else {
       N.forEach((v,i)=>{const m=v.ms||v.d===0,e=get(v.n,m?'m':'b');if(!e){prop=false;return}const top=lab.y+(i+1)*rh;
         if(m){ms=ms&&near(e.x+e.w/2,X(v.es))&&e.y>=top&&e.y+e.h<=top+rh;}else{prop=prop&&near(e.x,X(v.es))&&near(e.w,v.d*pw)}
         inrow=inrow&&e.y>=top-1e-6&&e.y+e.h<=top+rh+1e-6;crit=crit&&e.color===(v.crit?'#c62828':(m?'#111111':'#3068d6'));
-        const f=get(v.n,'f');if(v.gp>1e-9&&!m)fl=fl&&!!f&&near(f.x,X(v.ef))&&near(f.w,v.gp*pw)&&f.dash===true;else if(f)fl=false});
+        const f=get(v.n,'f');if(v.fp>1e-9&&!m)fl=fl&&!!f&&near(f.x,X(v.ef))&&near(f.w,v.fp*pw)&&f.dash===true;else if(f)fl=false});
       const L=O.filter(o=>o.type==='line'&&o.link),links=L.length===res.edges.length&&L.every(l=>{const A=by[l.link.a],B=by[l.link.b];return A&&B&&l.link.ta==='r'&&l.link.tb==='l'&&l.elbow==='h'&&l.end==='arrow'&&near(l.x1,A.x+A.w)&&near(l.x2,B.x)&&near(l.y1,A.y+A.h/2)&&near(l.y2,B.y+B.h/2)});
       const inb=(o,W,H)=>o.type==='line'?Math.min(o.x1,o.x2)>=0&&Math.max(o.x1,o.x2)<=W&&Math.min(o.y1,o.y2)>=0&&Math.max(o.y1,o.y2)<=H:o.x>=-1e-6&&o.y>=-1e-6&&o.x+o.w<=W+1e-6&&o.y+o.h<=H+1e-6;
       const dims=[[842,595],[595,842],[595,842],[842,595]].map(([W,H])=>ganttBuild(res,{w:W,h:H,top:40},opt).objs.every(o=>o.type==='text'||inb(o,W,H)));
@@ -3236,7 +3236,7 @@ else {
       return JSON.stringify({gids:new Set(O.map(o=>o.gid)).size,prop,inrow,crit,fl,ms,links,nL:L.length,dims,n,hist,u0,u1,sel,placeErr:pl.err||null,
         bigIn:bb.objs.every(o=>o.type==='text'||inb(o,595,842)),bigTicks:axb.n,axs,bigHint:bb.hint,bigSc:bb.sc,d:lbl('d'),w:lbl('w'),m:lbl('m'),nn:lbl('n'),wk,
         e:['n','d','w','m'].map(u=>ganttAxis(2.5,null,u,'').n).join(),nt:tb.map(t=>t.cells.length+'x'+t.cols).join(',')})})()`, 60000).then(JSON.parse);
-    ok('GT-05: eine gid; Balken x/Breite proportional zu ES/d; Balken in der Zeile; Meilenstein auf ES zentriert; kritisch #c62828; Puffer beginnt bei EF (gestrichelt)', r.gids === 1 && r.prop && r.inrow && r.ms && r.crit && r.fl, r);
+    ok('GT-05: eine gid; Balken x/Breite proportional zu ES/d; Balken in der Zeile; Meilenstein auf ES zentriert; kritisch #c62828; freier Puffer (FP) beginnt bei EF (gestrichelt)', r.gids === 1 && r.prop && r.inrow && r.ms && r.crit && r.fl, r);
     ok('GT-05: Pfeile mit gueltigem Link (oid, r->l, Ellbogen h), Enden an Balkenraendern (Rechteck und Raute)', r.links === true && r.nL === 5, r);
     ok('GT-05: alles auf dem Blatt (Quer, Hoch, 180, 270 als Seitenmasse), 60 Zeilen mit Dauer 1e6 -> <= 40 Spalten, kein Absturz, Hinweis', r.dims.every(Boolean) && r.bigIn === true && r.bigTicks <= 40 && r.axs.every(v => v <= 40) && r.bigHint === true, r);
     ok('GT-06: ganttPlace ein Verlaufsschritt, Undo entfernt alles, Redo bringt zurueck, Auswahl = Gruppe', r.placeErr === null && r.hist === 1 && r.u0 === 0 && r.u1 === r.n && r.sel === r.n, r);
@@ -3270,6 +3270,16 @@ else {
       await openPdf(await buildOutput(),'gt.pdf');const Q=S.pages[0].objs,after=JSON.stringify(Q.map(o=>[o.type,o.gid,o.oid||null,o.gb||null,o.gt||null,o.link?[o.link.a,o.link.b]:null]));
       return JSON.stringify({err:r.err||null,same:before===after,n:Q.length,gt:Q.filter(o=>o.gt).length,gb:Q.filter(o=>o.gb).length,rows:(Q.find(o=>o.gt)||{gt:{rows:[]}}).gt.rows.length})})()`, 60000).then(JSON.parse);
     ok('GT-10: Rundlauf buildOutput + Wiederoeffnen: gt (eine Tabelle), gb, gid, oid, link unveraendert', rt.err === null && rt.same === true && rt.gt === 1 && rt.gb === 4 && rt.rows === 3, rt);
+  }
+  // Gantt 3.11 polish: solid fill (pixel), progress text, milestone inside the block
+  {
+    const r = await ev(`(()=>{const px=f=>{const cv=document.createElement('canvas');cv.width=cv.height=40;const c=cv.getContext('2d');drawObj(c,{type:'rect',x:5,y:5,w:30,h:30,color:'#3068d6',lw:1,fill:f,dash:false});return[...c.getImageData(20,20,1,1).data].join()};
+      const so=sanObj({type:'rect',x:1,y:1,w:5,h:5,color:'#3068d6',lw:1,fill:'solid',dash:false});
+      const res=ganttCalc([{n:'A',name:'a',d:4,pr:40},{n:'B',name:'b',d:0,ms:true,p:['A']}]),b=ganttBuild(res,{w:842,h:595,top:40},{o:{prog:true}}),T=b.objs.filter(o=>o.type==='text'&&o.text==='40 %'),g=b.objs[0],ms=b.objs.find(o=>o.gb&&o.gb.k==='m'),bb=b.objs.filter(o=>o.type!=='line'&&o.type!=='text');
+      const mx=Math.max(...bb.map(o=>o.x+o.w)),Mn=Math.min(...bb.map(o=>o.x));
+      return JSON.stringify({solid:px('solid'),tint:px('tint'),keep:so&&so.fill,t:T.length,tc:T[0]&&T[0].color,msIn:ms.x+ms.w<=(b.objs.find(o=>o.type==='table').x+b.objs.find(o=>o.type==='table').w+ms.w/2+1e-6)&&ms.x+ms.w<=842})})()`).then(JSON.parse);
+    ok('GT-11: Fuellung solid deckend (Pixelprobe 48,104,214,255), tint blass, sanObj behaelt solid', r.solid === '48,104,214,255' && r.tint.split(',')[3] < 60 && r.keep === 'solid', r);
+    ok('GT-11: Fortschritt zeigt "40 %" als Text im Balken (weiss), Meilenstein bleibt auf dem Blatt', r.t === 1 && r.tc === '#ffffff' && r.msIn === true, r);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
