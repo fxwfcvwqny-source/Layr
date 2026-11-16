@@ -3313,6 +3313,42 @@ else {
     ok('GT-12: Strg+Enter legt aufs Blatt (ein Verlaufsschritt, gt mit allen Optionen), Undo entfernt alles; leerer Dialog schliesst per Hintergrund; feindlicher Speicher bereinigt', r.closed === true && r.n > 20 && r.hist === 1 && r.gt === true && r.undoN === 0 && r.blankClose === true && r.hostile === true, r);
     ok('GT-12: Menueeintrag Gantt-Diagramm nach Netzplan, ohne Kuerzel, Symbol, Suche per Name und Stichwoertern oeffnet den Dialog', r.after === 'netzplan' && r.noKey === true && r.icon === true && r.known === true && ['gantt', 'balkenplan', 'zeitplan', 'projektplan', 'meilenstein'].every(w => r['f_' + w] === true) && r.open === true, r);
   }
+  // Gantt 3.11 step 5: edit again (object bar button, context menu, replace group in one undo step, duplicate, locked)
+  {
+    const r = await ev(`(async()=>{const P=S.pages[0],q=s=>document.querySelector(s),wait=ms=>new Promise(r=>setTimeout(r,ms)),o={};
+      const canon=v=>JSON.stringify(v,(k,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.fromEntries(Object.entries(x).sort()):x);
+      const setv=(el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}))},f=(r,k)=>q('#gtBody input[data-r="'+r+'"][data-k="'+k+'"]');
+      P.objs=[];H.u=[];H.r=[];S.tool='select';try{localStorage.removeItem('pdfwerkbank:gantt')}catch(e){}
+      const rows=[{n:'A',name:'Analyse',d:3,pr:50,who:'Anna'},{n:'B',name:'Bau',d:4,p:['A'],s:1.5},{n:'C',name:'Test',d:2,p:['A'],lag:1},{n:'D',name:'Ende',d:0,ms:true,p:['B','C']}];
+      const rect={type:'rect',x:420,y:520,w:60,h:40,color:'#1b2a3a',lw:1};P.objs.push(rect);ganttPlace(rows,{u:'w',sd:'2026-11-16',st:2.5,tt:'Plan',o:{crit:true,prog:true,who:true}});const rect2={type:'rect',x:300,y:600,w:30,h:30,color:'#1b2a3a',lw:1};P.objs.push(rect2);
+      const grp=P.objs.filter(x=>x.gid),gid=grp[0].gid;o.n=grp.length;
+      selectItems(0,[rect]);obUpdate();o.btnRect=q('#obGt').hidden;
+      selectItems(0,grp);obUpdate();o.btn=q('#obGt').hidden===false&&q('#obBar').hidden===false&&q('#obNp').hidden===true;
+      objMenu(0,P.objs.find(x=>x.gb&&x.gb.k==='b'),200,200);o.ctx=[...document.querySelectorAll('#ctx button')].some(b=>b.textContent==='Gantt bearbeiten');closeMenu();
+      const before=canon(P.objs),minOf=L=>[Math.min(...L.map(x=>bbox(x).x)),Math.min(...L.map(x=>bbox(x).y))],tl0=minOf(P.objs.filter(x=>x.gid));
+      selectItems(0,grp);obUpdate();q('#obGt').click();await wait(200);
+      o.open=!q('#gtDlg').hidden;o.rows=q('#gtBody').rows.length;o.r1=[f(1,'n').value,f(1,'name').value,f(1,'s').value,f(1,'d').value,f(1,'p').value].join('|');o.r2=f(2,'lag').value;o.r3=f(3,'ms').checked+'|'+f(3,'d').value;o.r0=f(0,'pr').value+'|'+f(0,'who').value;
+      o.top=[q('#gtUnit').value,q('#gtStart').value,q('#gtSt').value,q('#gtTitle').value].join('|');o.opts=q('[data-o=prog]').checked&&q('[data-o=crit]').checked&&!q('[data-o=float]').checked;
+      o.ok=q('#gtOk').textContent;o.note=/von Hand/.test(q('#gtNote').textContent);o.res0=q('#gtRes').textContent;o.ls=localStorage.getItem('pdfwerkbank:gantt');
+      setv(f(0,'d'),'4');setv(f(0,'name'),'Analyse 2');o.res1=q('#gtRes').textContent;
+      H.u=[];q('#gtOk').click();await wait(500);
+      const M=P.objs.find(x=>x.gt);o.gtA=M.gt.rows[0].d===4&&M.gt.rows[0].name==='Analyse 2'&&M.gt.rows[1].s===1.5&&M.gt.rows[2].lag===1&&M.gt.rows[3].ms===true&&M.gt.u==='w'&&M.gt.st===2.5&&M.gt.tt==='Plan';
+      o.cell=M.cells[1][1];o.hist=H.u.length;o.sameOthers=P.objs[0]===rect&&P.objs.includes(rect2)&&rect.x===420&&rect2.y===600;
+      const tl1=minOf(P.objs.filter(x=>x.gid));o.anchor=Math.abs(tl0[0]-tl1[0])<.01&&Math.abs(tl0[1]-tl1[1])<.01;o.newGid=M.gid!==gid&&new Set(P.objs.filter(x=>x.gid).map(x=>x.gid)).size===1;
+      o.at=P.objs.indexOf(rect)===0&&P.objs.indexOf(rect2)===P.objs.length-1;o.sel=selItems().length===P.objs.filter(x=>x.gid).length;o.dis=q('#gtDlg').hidden;
+      undo();o.undo=canon(P.objs)===before;redo();o.redo=P.objs.find(x=>x.gt).cells[1][1];undo();
+      const g0=P.objs.filter(x=>x.gid===gid);selectItems(0,g0);dupSel();const copy=selItems(),cg=copy[0].gid;
+      o.dup=cg&&cg!==gid&&copy.length===g0.length&&copy.every(x=>x.gid===cg)&&copy.filter(x=>x.gt).length===1&&copy.filter(x=>x.gb).length===g0.filter(x=>x.gb).length&&copy.filter(x=>x.link).every(l=>copy.some(x=>x.oid===l.link.a)&&copy.some(x=>x.oid===l.link.b))&&!copy.some(x=>g0.some(y=>y.oid&&y.oid===x.oid));
+      const orig=canon(P.objs.filter(x=>x.gid===gid));selectItems(0,copy);obUpdate();o.btnCopy=q('#obGt').hidden===false;q('#obGt').click();await wait(200);setv(f(0,'d'),'6');q('#gtOk').click();await wait(400);
+      o.origSame=canon(P.objs.filter(x=>x.gid===gid))===orig;o.copyNew=P.objs.filter(x=>x.gt&&x.gid!==gid)[0].gt.rows[0].d===6&&P.objs.find(x=>x.gt&&x.gid===gid).gt.rows[0].d===3;
+      P.objs.filter(x=>x.gid===gid)[0].locked=true;selectItems(0,P.objs.filter(x=>x.gid===gid));gtdEdit(0,gid);await wait(200);o.locked=q('#gtDlg').hidden===true;
+      return JSON.stringify(o)})()`, 60000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
+    ok('GT-13: Knopf "Gantt bearbeiten" in der Objektleiste nur bei einem Gantt-Diagramm (nicht bei Netzplan-Knopf), auch im Kontextmenue', r.n > 10 && r.btnRect === true && r.btn === true && r.ctx === true, r);
+    ok('GT-13: Dialog aus gt gefuellt (Zeilen, Start, Versatz, Meilenstein, %, Verantwortlich, Einheit, Datum, Stichtag, Titel, Optionen), Hinweis, nichts im Speicher', r.open === true && r.rows === 4 && r.r1 === 'B|Bau|1,5|4|A' && r.r2 === '1' && r.r3 === 'true|' && r.r0 === '50|Anna' && r.top === 'w|2026-11-16|2,5|Plan' && r.opts === true && r.ok === 'Übernehmen' && r.note === true && r.ls === null, r);
+    ok('GT-13: Uebernehmen ersetzt die Gruppe an gleicher Stelle (ein Verlaufsschritt, links oben verankert, andere Objekte unberuehrt, neue gid, Auswahl), gt vollstaendig', r.gtA === true && r.hist === 1 && r.sameOthers === true && r.anchor === true && r.newGid === true && r.at === true && r.sel === true && r.dis === true, r);
+    ok('GT-13: Undo stellt alle Objekte exakt wieder her, Redo das neue Diagramm', r.undo === true && typeof r.redo === 'string' && r.redo.length > 0, r);
+    ok('GT-13: Strg+D: Kopie mit eigener gid/oid, gt, gb und Links; Bearbeiten der Kopie laesst das Original unveraendert; gesperrt wird abgelehnt', r.dup === true && r.btnCopy === true && r.origSame === true && r.copyNew === true && r.locked === true, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
