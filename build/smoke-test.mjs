@@ -18,10 +18,11 @@ const profile = process.platform === 'linux' ? fs.mkdtempSync(os.tmpdir() + '/la
 if (profile) env.XDG_CONFIG_HOME = profile;
 const proc = spawn(exe, args, { env, stdio: 'ignore' });
 let failed = 0;
-const ok = (name, cond, extra) => { console.log(`${cond ? 'OK  ' : 'FAIL'} ${name}${extra !== undefined ? ' ' + JSON.stringify(extra) : ''}`); if (!cond) { failed++; if (process.env.GITHUB_ACTIONS) console.log(`::error title=Rauchtest::${String(name).replace(/[\r\n]/g, ' ')}${extra !== undefined ? ' ' + JSON.stringify(extra).replace(/[\r\n]/g, ' ') : ''}`); } };
+let lastCheck = '';
+const ok = (name, cond, extra) => { lastCheck = name; console.log(`${cond ? 'OK  ' : 'FAIL'} ${name}${extra !== undefined ? ' ' + JSON.stringify(extra) : ''}`); if (!cond) { failed++; if (process.env.GITHUB_ACTIONS) console.log(`::error title=Rauchtest::${String(name).replace(/[\r\n]/g, ' ')}${extra !== undefined ? ' ' + JSON.stringify(extra).replace(/[\r\n]/g, ' ') : ''}`); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const done = code => { try { proc.kill(); } catch (e) {} if (profile) setTimeout(() => { try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) {} }, 300); setTimeout(() => process.exit(code), 500); };
-setTimeout(() => { console.error('Zeitüberschreitung'); done(1); }, 400000);
+setTimeout(() => { console.error('Zeitüberschreitung (last finished check: ' + lastCheck + ')'); done(1); }, 900000);
 
 let target = null;
 for (let i = 0; i < 90 && !target; i++) {
