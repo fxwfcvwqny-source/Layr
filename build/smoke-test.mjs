@@ -3029,28 +3029,28 @@ else {
   {
     const B = `(()=>{const mk=s=>s.split('|').map(x=>{const m=/^(\\S+)\\((\\S+)\\)\\s*(.*)$/.exec(x.trim());return{n:m[1],name:'V'+m[1],d:m[2],p:m[3]&&m[3]!=='-'?m[3].split(','):[]}});window.__npR=mk('A(3) -|B(4) A|C(2) A|D(5) B|E(3) B,C|F(4) C|G(2) D,E|H(3) F,G');window.__npW=mk(Array.from({length:30},(_,i)=>'w'+i+'(1) -').join('|'));return true})()`;
     await ev(B);
-    const chk = await ev(`(()=>{const res=npCalc(__npR),b=npBuild(res,{w:595,h:842,top:40}),T=b.objs.filter(o=>o.type==='table'),Ln=b.objs.filter(o=>o.type==='line'),by={};T.forEach(t=>by[t.oid]=t);
+    const chk = await ev(`(()=>{const res=npCalc(__npR),b=npBuild(res,{w:595,h:842,top:40}),T=b.objs.filter(o=>o.type==='table'),Ln=b.objs.filter(o=>o.type==='line'),An=b.objs.filter(o=>o.type==='rect'),by={};b.objs.forEach(t=>{if(t.oid)by[t.oid]=t});
       const ov=(a,c)=>a.x<c.x+c.w-1e-6&&c.x<a.x+a.w-1e-6&&a.y<c.y+c.h-1e-6&&c.y<a.y+a.h-1e-6;let over=0;for(let i=0;i<T.length;i++)for(let j=i+1;j<T.length;j++)if(ov(T[i],T[j]))over++;
-      const inside=b.objs.every(o=>o.type==='table'?o.x>=0&&o.y>=0&&o.x+o.w<=595&&o.y+o.h<=842:Math.min(o.x1,o.x2)>=0&&Math.max(o.x1,o.x2)<=595&&Math.min(o.y1,o.y2)>=0&&Math.max(o.y1,o.y2)<=842);
-      const links=Ln.every(l=>by[l.link.a]&&by[l.link.b]&&l.link.ta==='r'&&l.link.tb==='l'&&l.elbow==='h'&&l.end==='arrow'&&Math.abs(l.x1-(by[l.link.a].x+by[l.link.a].w))<1e-6&&Math.abs(l.x2-by[l.link.b].x)<1e-6&&by[l.link.a].x<by[l.link.b].x);
+      const inside=b.objs.every(o=>o.type==='table'||o.type==='rect'?o.x>=0&&o.y>=0&&o.x+o.w<=595&&o.y+o.h<=842:Math.min(o.x1,o.x2)>=0&&Math.max(o.x1,o.x2)<=595&&Math.min(o.y1,o.y2)>=0&&Math.max(o.y1,o.y2)<=842);
+      const links=Ln.every(l=>by[l.link.a]&&by[l.link.b]&&l.link.ta==='r'&&l.link.tb==='l'&&l.elbow==='h'&&l.start==='none'&&l.end===(by[l.link.b].type==='table'?'arrow':'none')&&Math.abs(l.x1-(by[l.link.a].x+by[l.link.a].w))<1e-6&&Math.abs(l.x2-by[l.link.b].x)<1e-6&&by[l.link.a].x<by[l.link.b].x);
       const row=n=>T.find(t=>t.np.n===n).cells.map(r=>r.join('|')).join('/');
       const crit=T.every(t=>{const c=res.nodes.find(v=>v.n===t.np.n).crit;return t.color===(c?'#c62828':'#1b2a3a')&&t.lw===(c?2.2:1)&&t.fill==='white'&&t.head===false&&t.rows===3&&t.cols===3})
-        &&Ln.every(l=>{const a=by[l.link.a].np.n,c=by[l.link.b].np.n,k=(a+c)==='AB'||(a+c)==='BD'||(a+c)==='DG'||(a+c)==='GH';return l.color===(k?'#c62828':'#1b2a3a')&&l.lw===(k?2.2:1)});
+        &&Ln.every(l=>{const nm=x=>x.np?x.np.n:'~',a=nm(by[l.link.a]),c=nm(by[l.link.b]),k=(a+c)==='AB'||(a+c)==='BD'||(a+c)==='DG'||(a+c)==='GH';return l.color===(k?'#c62828':'#1b2a3a')&&l.lw===(k?2.2:1)});
       const w=npBuild(npCalc(__npW),{w:595,h:842,top:40}),wi=w.objs.every(o=>o.x>=0&&o.y>=0&&o.x+o.w<=595&&o.y+o.h<=842);
       const ch=npBuild(npCalc(Array.from({length:60},(_,i)=>({n:'n'+i,d:1,p:i?['n'+(i-1)]:[]}))),{w:595,h:842,top:40});
-      return JSON.stringify({nT:T.length,nL:Ln.length,over,inside,links,crit,gids:new Set(b.objs.map(o=>o.gid)).size,oids:new Set(T.map(t=>t.oid)).size,A:row('A'),E:row('E'),sc:b.sc,hint:b.hint,wideHint:w.hint,wideInside:wi,wideSc:w.sc,chainInside:ch.objs.every(o=>o.type!=='table'||(o.x>=0&&o.x+o.w<=595&&o.y>=0&&o.y+o.h<=842)),chainSc:ch.sc})})()`).then(JSON.parse);
-    ok('NP-05: 8 Knoten, 10 Pfeile, keine Ueberlappung, alles auf dem Blatt, eine gid, eindeutige oids', chk.nT === 8 && chk.nL === 10 && chk.over === 0 && chk.inside === true && chk.gids === 1 && chk.oids === 8, chk);
+      return JSON.stringify({nT:T.length,nL:Ln.length,nA:An.length,over,inside,links,crit,gids:new Set(b.objs.map(o=>o.gid)).size,oids:new Set(T.map(t=>t.oid)).size,A:row('A'),E:row('E'),sc:b.sc,hint:b.hint,wideHint:w.hint,wideInside:wi,wideSc:w.sc,chainInside:ch.objs.every(o=>o.type!=='table'||(o.x>=0&&o.x+o.w<=595&&o.y>=0&&o.y+o.h<=842)),chainSc:ch.sc})})()`).then(JSON.parse);
+    ok('NP-05: 8 Knoten, 11 Linien (F-H laeuft ueber einen Platzhalter), 1 Platzhalter, keine Ueberlappung, alles auf dem Blatt, eine gid, eindeutige oids', chk.nT === 8 && chk.nL === 11 && chk.nA === 1 && chk.over === 0 && chk.inside === true && chk.gids === 1 && chk.oids === 8, chk);
     ok('NP-05: Links gueltig (oid, r->l, Ellbogen h, Pfeilspitze, Endpunkte am Knotenrand), Spalten wachsen mit der Tiefe', chk.links === true, chk);
     ok('NP-05: kritisch rot+dick (#c62828, 2.2), sonst #1b2a3a/1; weiss, 3x3, ohne Kopfzeile', chk.crit === true, chk);
     ok('NP-05: IHK-Zellen (Zeile 1 Nr|Bez|Dauer, 2 FAZ|FEZ|GP, 3 SAZ|SEZ|FP)', chk.A === 'A|VA|3/0|3|0/0|3|0' && chk.E === 'E|VE|3/7|10|2/9|12|2', chk);
     ok('NP-05: 30 Knoten in einer Spalte: Hinweis (>25, Faktor <.45), trotzdem auf dem Blatt; 60er Kette auf dem Blatt', chk.wideHint === true && chk.wideSc < .45 && chk.wideInside === true && chk.hint === false && chk.chainInside === true, chk);
     const pl = await ev(`(async()=>{const P=S.pages[0];P.objs=[];H.u=[];H.r=[];S.dirty=false;const r=npPlace(__npR);const n=P.objs.length,hist=H.u.length,sel=S.sel&&S.sel.o.type==='group'?S.sel.o.items.length:-1,dirty=S.dirty;
       undo();const afterUndo=P.objs.length;redo();const afterRedo=P.objs.length;
-      const js=JSON.stringify(P.objs),re=sanPages([JSON.parse(js)],1)[0],keep=re.length===18&&re.filter(o=>o.link).length===10&&re.every(o=>o.gid===P.objs[0].gid)&&re.filter(o=>o.oid).length===8;
+      const js=JSON.stringify(P.objs),re=sanPages([JSON.parse(js)],1)[0],keep=re.length===20&&re.filter(o=>o.link).length===11&&re.every(o=>o.gid===P.objs[0].gid)&&re.filter(o=>o.oid).length===9;
       await openPdf(await buildOutput(),'np.pdf');const Q=S.pages[0].objs,T=Q.filter(o=>o.type==='table'),Ln=Q.filter(o=>o.type==='line'),by={};T.forEach(t=>by[t.oid]=t);
-      const reopen=Q.length===18&&T.length===8&&Ln.length===10&&Ln.every(l=>l.link&&by[l.link.a]&&by[l.link.b]&&l.gid===T[0].gid)&&T.every(t=>t.cells.length===3&&t.color!==undefined);
+      const reopen=Q.length===20&&T.length===8&&Ln.length===11&&Ln.every(l=>l.link&&Q.some(x=>x.oid===l.link.a)&&Q.some(x=>x.oid===l.link.b)&&l.gid===T[0].gid)&&T.every(t=>t.cells.length===3&&t.color!==undefined);
       return JSON.stringify({err:r.err||null,n,hist,sel,dirty,afterUndo,afterRedo,keep,reopen,tbl:T.length})})()`, 60000).then(JSON.parse);
-    ok('NP-06: npPlace legt 18 Objekte als eine Gruppe an, ein Verlaufsschritt, Undo entfernt alle, Redo bringt sie zurueck', pl.err === null && pl.n === 18 && pl.hist === 1 && pl.sel === 18 && pl.dirty === true && pl.afterUndo === 0 && pl.afterRedo === 18, pl);
+    ok('NP-06: npPlace legt 20 Objekte als eine Gruppe an, ein Verlaufsschritt, Undo entfernt alle, Redo bringt sie zurueck', pl.err === null && pl.n === 20 && pl.hist === 1 && pl.sel === 20 && pl.dirty === true && pl.afterUndo === 0 && pl.afterRedo === 20, pl);
     ok('NP-06: Knoten und Linien (oid, gid, link) ueberstehen sanPages und buildOutput + Wiederoeffnen', pl.keep === true && pl.reopen === true, pl);
   }
   // Netzplan 3.11 step 3: sanObj keeps np on tables only when valid; hostile values; full save/reopen round trip
@@ -3067,7 +3067,7 @@ else {
       // full round trip: place, save like the user does (buildOutput), reopen, np survives and links still resolve
       const P=S.pages[0];P.objs=[];npPlace(__npR);const before=JSON.stringify(P.objs.filter(o=>o.type==='table').map(t=>[t.oid,t.np]));
       await openPdf(await buildOutput(),'np3.pdf');const Q=S.pages[0].objs,Tb=Q.filter(o=>o.type==='table');
-      const after=JSON.stringify(Tb.map(t=>[t.oid,t.np])),by={};Tb.forEach(t=>by[t.oid]=t);
+      const after=JSON.stringify(Tb.map(t=>[t.oid,t.np])),by={};Q.forEach(t=>{if(t.oid)by[t.oid]=t});
       const rt=before===after&&Tb.length===8&&Tb.every(t=>t.np&&t.np.n===t.cells[0][0])&&Q.filter(o=>o.type==='line').every(l=>l.link&&by[l.link.a]&&by[l.link.b]&&l.gid&&l.gid===Tb[0].gid);
       return JSON.stringify({good:JSON.stringify(good),bad,huge,protoOk:JSON.stringify(pr.np)==='{"n":"A","d":1,"p":["B"]}'&&pr.np.evil===undefined&&({}).evil===undefined,pk:pk2&&pk2.np===undefined&&({}).np===undefined,other:other&&other.np===undefined,noisy:JSON.stringify(noisy),rt,keepKeys:Object.keys(good).join()})})()`, 60000).then(JSON.parse);
     ok('NP-07: gueltiges np (n, d, p) bleibt auf Tabellen erhalten, Fremdfelder fallen weg', r.good === '{"n":"A","d":3.5,"p":["B","C"]}' && r.noisy === '{"n":"A","d":0,"p":[]}' && r.keepKeys === 'n,d,p', r);
@@ -3145,11 +3145,11 @@ else {
       H.u=[];q('#npOk').click();await wait(500);
       const Hc=P.objs.find(x=>x.np&&x.np.n==='H');o.hcell=Hc.cells[1][1];o.cnt=P.objs.length;o.hist=H.u.length;o.sameOthers=P.objs[0]===rect&&P.objs.includes(rect2)&&rect.x===420&&rect2.y===600;
       const tl1=minOf(P.objs.filter(x=>x.gid));o.anchor=Math.abs(tl0[0]-tl1[0])<.01&&Math.abs(tl0[1]-tl1[1])<.01;o.newGid=P.objs.find(x=>x.np).gid!==gid&&new Set(P.objs.filter(x=>x.np).map(x=>x.gid)).size===1;
-      o.at=P.objs.indexOf(rect)===0&&P.objs.indexOf(rect2)===P.objs.length-1;o.sel=selItems().length===18;o.dis=q('#npDlg').hidden;
+      o.at=P.objs.indexOf(rect)===0&&P.objs.indexOf(rect2)===P.objs.length-1;o.sel=selItems().length===20;o.dis=q('#npDlg').hidden;
       undo();o.undo=canon(P.objs)===before;redo();o.redoHc=P.objs.find(x=>x.np&&x.np.n==='H').cells[1][1];undo();
       // duplicate: the copy is its own plan; editing it leaves the original untouched
       const g0=P.objs.filter(x=>x.gid===gid);selectItems(0,g0);dupSel();const copy=selItems(),cg=copy[0].gid;
-      o.dup=cg&&cg!==gid&&copy.length===18&&copy.every(x=>x.gid===cg)&&copy.filter(x=>x.np).length===8&&copy.filter(x=>x.link).every(l=>copy.some(x=>x.oid===l.link.a)&&copy.some(x=>x.oid===l.link.b));
+      o.dup=cg&&cg!==gid&&copy.length===20&&copy.every(x=>x.gid===cg)&&copy.filter(x=>x.np).length===8&&copy.filter(x=>x.link).every(l=>copy.some(x=>x.oid===l.link.a)&&copy.some(x=>x.oid===l.link.b));
       const orig=canon(P.objs.filter(x=>x.gid===gid));selectItems(0,copy);obUpdate();o.btnCopy=q('#obNp').hidden===false;q('#obNp').click();await wait(200);setv(f(0,'d'),'10');q('#npOk').click();await wait(400);
       o.origSame=canon(P.objs.filter(x=>x.gid===gid))===orig;o.copyNew=P.objs.filter(x=>x.np&&x.gid!==gid).find(x=>x.np.n==='A').np.d===10&&P.objs.filter(x=>x.gid===gid).find(x=>x.np&&x.np.n==='A').np.d===3;
       // deleted node: dialog shows the remaining ones and says so
@@ -3157,9 +3157,9 @@ else {
       selectItems(0,P.objs.filter(x=>x.gid===gid));npdEdit(0,gid);await wait(200);o.lostRows=q('#npBody').rows.length;o.lostNote=/gelöscht/.test(q('#npNote').textContent);o.lostP=[...document.querySelectorAll('#npBody tr')].map(t=>t.cells[3].firstChild.value).join(';');
       o.lostOk=q('#npOk').disabled===false;npdClose();await wait(300);
       return JSON.stringify(o)})()`, 60000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
-    ok('NP-10: Knopf "Netzplan bearbeiten" in der Objektleiste nur bei einem Netzplan, auch im Kontextmenue', r.n === 18 && r.btnRect === true && r.btn === true && r.ctx === true, r);
+    ok('NP-10: Knopf "Netzplan bearbeiten" in der Objektleiste nur bei einem Netzplan, auch im Kontextmenue', r.n === 20 && r.btnRect === true && r.btn === true && r.ctx === true, r);
     ok('NP-10: Dialog gefuellt aus np + Zellentext (Nr, Name, Dauer, Vorgaenger), Hinweis zu verschobenen Knoten, nichts im Speicher abgelegt', r.open === true && r.rows === 8 && r.r3 === 'D|Server|5|B' && r.r4 === 'B, C' && r.ok === 'Übernehmen' && r.note === true && r.res0 === 'Projektdauer 17 Tage · Kritischer Pfad: A → B → D → G → H' && r.ls === null, r);
-    ok('NP-10: Uebernehmen: Zahlen aktualisiert, 18 Objekte an gleicher Stelle in P.objs, andere Objekte unberuehrt, links oben verankert, eine Gruppe, ein Verlaufsschritt', r.res1 === 'Projektdauer 19 Tage · Kritischer Pfad: A → B → D → G → H' && r.hcell === '19' && r.cnt === 20 && r.hist === 1 && r.sameOthers === true && r.anchor === true && r.newGid === true && r.at === true && r.sel === true && r.dis === true, r);
+    ok('NP-10: Uebernehmen: Zahlen aktualisiert, 20 Objekte an gleicher Stelle in P.objs, andere Objekte unberuehrt, links oben verankert, eine Gruppe, ein Verlaufsschritt', r.res1 === 'Projektdauer 19 Tage · Kritischer Pfad: A → B → D → G → H' && r.hcell === '19' && r.cnt === 22 && r.hist === 1 && r.sameOthers === true && r.anchor === true && r.newGid === true && r.at === true && r.sel === true && r.dis === true, r);
     ok('NP-10: Undo stellt alle Objekte exakt wieder her, Redo wieder die neuen Zahlen', r.undo === true && r.redoHc === '19', r);
     ok('NP-10: Strg+D: Kopie hat eigene gid/oid, np und Links; Bearbeiten der Kopie laesst das Original unveraendert', r.dup === true && r.btnCopy === true && r.origSame === true && r.copyNew === true, r);
     ok('NP-10: geloeschter Knoten: Dialog zeigt die uebrigen (Vorgaenger bereinigt) und sagt es', r.lostRows === 7 && r.lostNote === true && !/D/.test(r.lostP.split(';')[6] || '') && r.lostOk === true, r);
@@ -3191,6 +3191,23 @@ else {
     ok('NP-11: Parser: Semikolon, Tabulator, Komma (Dezimalkomma in Anfuehrungszeichen), Kopfzeile, Anfuehrungszeichen mit "", Leerzeilen/BOM', r.semi2 === true && r.tab === true && r.comma === true && r.head === true && r.quotes === true && r.blank === true && r.semiP === true, r);
     ok('NP-11: 61 Zeilen -> Fehler, 60 ok; leer / nur Kopf / zu wenig Spalten -> Fehler; CSV-Ausgabe Nr;Bezeichnung;Dauer;Vorgaenger und Rundlauf', r.rows61 === true && r.errs === true && r.fmt.split('\n')[0] === 'Nr;Bezeichnung;Dauer;Vorgänger' && r.rt === true, r);
     ok('NP-11: Strg+V mehrzeilig ersetzt die Tabelle und rechnet; einzeiliger Text bleibt normales Einfuegen; Fehler behaelt die Tabelle; Knoepfe da', r.pasted === true && r.single === true && r.bad === true && r.badKeep === true && r.btns === true, r);
+  }
+  // Netzplan 3.11: long edges (more than one column) run through reserved slots and never cross a node
+  {
+    const r = await ev(`(()=>{const mk=s=>s.split('|').map(x=>{const m=/^(\\S+)\\((\\S+)\\)\\s*(.*)$/.exec(x.trim());return{n:m[1],name:'V'+m[1],d:m[2],p:m[3]&&m[3]!=='-'?m[3].split(','):[]}});
+      const V={v1:mk('A(3) -|B(4) A|C(2) A|D(5) B|E(3) B,C|F(4) C|G(2) D,E|H(3) F,G'),v2:mk('1(2) -|2(5) 1|3(4) -|4(3) 2|5(2) 2,3|6(4) 4|7(2) 4,5|8(2) 4|9(3) 6,7,8|10(1) 9'),
+        v3:mk('A(1) -|B(1) A|C(1) B|D(1) C|E(1) A,D|F(1) A|G(1) B|H(1) A,E'),chain:Array.from({length:60},(_,i)=>({n:'n'+i,d:1,p:i?['n'+(i-1)]:[]}))};
+      const o={};
+      for(const k in V){const res=npCalc(V[k]),b=npBuild(res,{w:595,h:842,top:40}),T=b.objs.filter(x=>x.type==='table'),Ln=b.objs.filter(x=>x.type==='line'),An=b.objs.filter(x=>x.type==='rect'),by={};b.objs.forEach(x=>{if(x.oid)by[x.oid]=x});
+        let inside=0,n=0;
+        for(const l of Ln){const P=linePts(l);for(let i=1;i<P.length;i++)for(let s=0;s<=40;s++){const x=P[i-1][0]+(P[i][0]-P[i-1][0])*s/40,y=P[i-1][1]+(P[i][1]-P[i-1][1])*s/40;n++;
+          for(const t of T)if(x>t.x+.01&&x<t.x+t.w-.01&&y>t.y+.01&&y<t.y+t.h-.01)inside++}}
+        const arrows=Ln.filter(l=>l.end==='arrow').length,heads=Ln.filter(l=>l.start!=='none'||(l.end!=='none'&&l.end!=='arrow')).length;
+        const tgt=Ln.filter(l=>l.end==='arrow').every(l=>by[l.link.b].type==='table'),flat=Ln.filter(l=>l.end==='none').every(l=>by[l.link.b].type==='rect');
+        const again=JSON.stringify(npLayout(res).cols)===JSON.stringify(npLayout(npCalc(V[k])).cols);
+        o[k]={inside,n,nT:T.length,nA:An.length,arrows,edges:res.edges.length,heads,tgt,flat,again,sc:b.sc,inPage:b.objs.every(x=>x.type==='line'?Math.min(x.x1,x.x2)>=0&&Math.max(x.x1,x.x2)<=595:x.x>=0&&x.x+x.w<=595)}}
+      return JSON.stringify(o)})()`).then(JSON.parse);
+    ok('NP-12: lange Kanten kreuzen keinen Knoten (Vektor 1, Vektor 2, 3-Spalten-Kante, 60er Kette), Pfeil nur am Zielende, deterministisch', ['v1', 'v2', 'v3', 'chain'].every(k => r[k].inside === 0 && r[k].n > 0 && r[k].arrows === r[k].edges && r[k].heads === 0 && r[k].tgt && r[k].flat && r[k].again && r[k].inPage) && r.v1.nA === 1 && r.v3.nA >= 3 && r.chain.nA === 0, r);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
