@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xbpjRBBm5OnIIfitc1aMDO/QPWiQQhPJktsofZtBI0I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-5QAgQ2RjjNsOd/QwcLKKV3T1hZsaZMDin9vEulbxtZg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -1781,7 +1781,7 @@ header,.file{min-width:0}
     <label class="ip-l" id="ipSplitIn" hidden>Anzahl Subnetze<input id="ipCount" type="number" min="2" max="1024" value="4"></label>
     <label class="ip-l" id="ipVlsmIn" hidden>Benötigte Hosts je Subnetz (mit Komma getrennt)<input id="ipHosts" value="50, 20, 10, 2" spellcheck="false"></label>
     <div class="ip-out" id="ipOut"></div>
-    <div class="ip-btns"><button class="btn" id="ipCopy">Kopieren</button><span></span><button class="btn primary" id="ipPlace">Als Tabelle aufs Blatt</button></div>
+    <div class="ip-btns"><button class="btn" id="ipCopy">Kopieren</button><span class="hint">Strg+Enter fügt ein</span><button class="btn primary" id="ipPlace">Als Tabelle aufs Blatt</button></div>
   </div>
 </div>
 <div class="modal" id="pgDlg" hidden role="dialog" aria-modal="true" aria-labelledby="pgT">
@@ -1829,7 +1829,7 @@ header,.file{min-width:0}
     <div class="ip-out" id="calcOut"></div>
     <div class="calc-steps" id="calcSteps" hidden></div>
     <p class="calc-note" id="calcNote" hidden></p>
-    <div class="ip-btns"><button class="btn" id="calcCopy">Kopieren</button><span></span><button class="btn primary" id="calcPlace">Als Tabelle aufs Blatt</button></div>
+    <div class="ip-btns"><button class="btn" id="calcCopy">Kopieren</button><span class="hint">Strg+Enter fügt ein</span><button class="btn primary" id="calcPlace">Als Tabelle aufs Blatt</button></div>
   </div>
 </div>
 <div class="modal" id="abDlg" hidden role="dialog" aria-modal="true" aria-labelledby="abT">
@@ -5842,7 +5842,7 @@ function ipPlace(){if(!IPR||!S.pages.length)return;const i=curPage(),P=S.pages[i
   const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();t.x=(P.w-t.w)/2;t.y=Math.min(Math.max(40,(vr.top-pr.top)/S.zoom+40),Math.max(40,P.h-t.h-30));
   pushHist();P.objs.push(t);closeIpDlg();setTool('select');setSel({p:i,o:t});redraw(i);markDirty();toast(tr('Ergebnis als Tabelle eingefügt.'))}
 
-{const d=$('#ipDlg');$('#ipX').onclick=closeIpDlg;d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeIpDlg()}else if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();ipPlace()}});
+{const d=$('#ipDlg');$('#ipX').onclick=closeIpDlg;d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeIpDlg()}else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();ipPlace()}else if(e.key==='Enter'&&e.target.tagName==='INPUT')e.preventDefault()});
   d.addEventListener('pointerdown',e=>{if(e.target===d)closeIpDlg()});
   for(const id of ['ipAddr','ipCount','ipHosts'])$('#'+id).addEventListener('input',ipCompute);
   document.querySelectorAll('#ipMode button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#ipMode button').forEach(x=>x.setAttribute('aria-pressed',x===b));ipCompute()}));
@@ -7014,7 +7014,7 @@ function calcPlace(){if(!CALC.res||!S.pages.length)return;const i=curPage(),P=S.
   const vr=viewer.getBoundingClientRect(),pr=P.el.getBoundingClientRect();t.x=(P.w-t.w)/2;t.y=Math.min(Math.max(40,(vr.top-pr.top)/S.zoom+40),Math.max(40,P.h-t.h-30));
   pushHist();P.objs.push(t);closeCalcDlg();setTool('select');setSel({p:i,o:t});redraw(i);markDirty();toast(tr('Ergebnis als Tabelle eingefügt.'))}
 {const d=$('#calcDlg');$('#calcX').onclick=closeCalcDlg;
-  d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeCalcDlg()}else if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='checkbox'){e.preventDefault();calcPlace()}});
+  d.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeCalcDlg()}else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();calcPlace()}else if(e.key==='Enter'&&e.target.tagName==='INPUT')e.preventDefault()});
   d.addEventListener('pointerdown',e=>{if(e.target===d)closeCalcDlg()});
   document.querySelectorAll('#calcMode button').forEach(b=>b.addEventListener('click',()=>{CALC.mode=b.dataset.v;calcSave();calcInputs();calcRun()}));
   $('#calcPlace').onclick=calcPlace;
