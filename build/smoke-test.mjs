@@ -3192,6 +3192,27 @@ else {
     ok('NP-11: 61 Zeilen -> Fehler, 60 ok; leer / nur Kopf / zu wenig Spalten -> Fehler; CSV-Ausgabe Nr;Bezeichnung;Dauer;Vorgaenger und Rundlauf', r.rows61 === true && r.errs === true && r.fmt.split('\n')[0] === 'Nr;Bezeichnung;Dauer;Vorgänger' && r.rt === true, r);
     ok('NP-11: Strg+V mehrzeilig ersetzt die Tabelle und rechnet; einzeiliger Text bleibt normales Einfuegen; Fehler behaelt die Tabelle; Knoepfe da', r.pasted === true && r.single === true && r.bad === true && r.badKeep === true && r.btns === true, r);
   }
+  // Gantt 3.11 step 1: ganttCalc with vectors G1/G2 (verified with an independent relaxation script), bridge G3 to npCalc, errors
+  {
+    const mk = s => s.split('|').map(x => { const m = /^(\S+)\((\S+)\)\s*(.*)$/.exec(x.trim()); return { n: m[1], name: 'V' + m[1], d: m[2], p: m[3] && m[3] !== '-' ? m[3].split(',') : [] }; });
+    const g1 = [{ n: 'A', d: 3 }, { n: 'B', d: 4, p: ['A'] }, { n: 'C', d: 2, p: ['A'], lag: 1 }, { n: 'D', d: 3, p: ['B', 'C'] }, { n: 'E', d: 0, ms: true, p: ['D'] }];
+    const g2 = [{ n: '1', d: 5, s: 0 }, { n: '2', d: 4, s: 2 }, { n: '3', d: 3, p: ['1', '2'] }, { n: '4', d: 2, p: ['3'], lag: -1 }, { n: '5', d: 0, ms: true, p: ['4'] }, { n: '6', d: 2, s: 3 }];
+    const run = rows => ev(`(()=>{const r=ganttCalc(${JSON.stringify(rows)});if(r.err)return r.err;return JSON.stringify({t:r.nodes.map(v=>[v.n,v.es,v.ef,v.ls,v.lf,v.gp,v.fp].join(' ')).join('|'),T:r.T,c:r.crit.join('-'),e:r.edges.filter(e=>e.crit).map(e=>r.nodes[e.a].n+'>'+r.nodes[e.b].n).join(',')})})()`).then(s => { try { return JSON.parse(s); } catch (e) { return s; } });
+    const a = await run(g1), b = await run(g2);
+    ok('GT-01: Vektor G1 (alle Zahlen, T=10, kritisch A-B-D-E, Versatz)', a.t === 'A 0 3 0 3 0 0|B 3 7 3 7 0 0|C 4 6 5 7 1 1|D 7 10 7 10 0 0|E 10 10 10 10 0 0' && a.T === 10 && a.c === 'A-B-D-E' && a.e === 'A>B,B>D,D>E', a);
+    ok('GT-02: Vektor G2 (Start, negativer Versatz, Meilenstein, T=10, kritisch 2-3-4-5)', b.t === '1 0 5 1 6 1 1|2 2 6 2 6 0 0|3 6 9 6 9 0 0|4 8 10 8 10 0 0|5 10 10 10 10 0 0|6 3 5 8 10 5 5' && b.T === 10 && b.c === '2-3-4-5' && b.e === '2>3,3>4,4>5', b);
+    const br = await ev(`(()=>{const mk=s=>s.split('|').map(x=>{const m=/^(\\S+)\\((\\S+)\\)\\s*(.*)$/.exec(x.trim());return{n:m[1],name:'V'+m[1],d:m[2],p:m[3]&&m[3]!=='-'?m[3].split(','):[]}});
+      return ['A(3) -|B(4) A|C(2) A|D(5) B|E(3) B,C|F(4) C|G(2) D,E|H(3) F,G','1(2) -|2(5) 1|3(4) -|4(3) 2|5(2) 2,3|6(4) 4|7(2) 4,5|8(2) 4|9(3) 6,7,8|10(1) 9'].map(s=>{const rows=mk(s),n=npCalc(rows),g=ganttCalc(rows);
+        return n.T===g.T&&n.crit.join()===g.crit.join()&&n.nodes.every((v,i)=>{const w=g.nodes[i];return v.faz===w.es&&v.fez===w.ef&&v.saz===w.ls&&v.sez===w.lf&&v.gp===w.gp&&v.fp===w.fp&&v.crit===w.crit})&&JSON.stringify(n.edges)===JSON.stringify(g.edges)}).join()})()`);
+    ok('GT-03: Bruecke G3 ohne Start/Versatz identisch zu npCalc (Netzplan-Vektoren 1 und 2: ES=FAZ, EF=FEZ, GP, FP, krit, Kanten)', br === 'true,true', br);
+    const err = async (rows, rx) => { const r = await ev(`ganttCalc(${JSON.stringify(rows)}).err||''`); return rx.test(String(r)) || r; };
+    ok('GT-04: Fehler Zyklus / unbekannter Vorgaenger / doppelte Nr / Dauer -1 und "abc" / 61 Zeilen', await err([{ n: '1', d: 1, p: ['2'] }, { n: '2', d: 1, p: ['1'] }], /Zyklus/) === true && await err([{ n: '1', d: 1, p: ['9'] }], /gibt es nicht/) === true
+      && await err([{ n: 'a', d: 1 }, { n: 'A', d: 1 }], /doppelt/) === true && await err([{ n: '1', d: -1 }], /negativ/) === true && await err([{ n: '1', d: 'abc' }], /keine Zahl/) === true
+      && await err(Array.from({ length: 61 }, (_, i) => ({ n: 'n' + i, d: 1 })), /Höchstens 60/) === true && await err([], /Keine/) === true);
+    ok('GT-04: Fehler Start "x" / Versatz "y" / zu gross; Meilenstein erzwingt Dauer 0 (auch bei Text), Dezimalkomma, 60 Zeilen ok', await err([{ n: '1', d: 1, s: 'x' }], /Start ist keine Zahl/) === true && await err([{ n: '1', d: 1, lag: 'y' }], /Versatz ist keine Zahl/) === true
+      && await err([{ n: '1', d: 1, s: 1e7 }], /Start ist zu groß/) === true && await ev(`(()=>{const r=ganttCalc([{n:'A',d:'abc',ms:true,s:'2,5'},{n:'B',d:'1,5',p:['a'],lag:''}]);const q=ganttCalc(Array.from({length:60},(_,i)=>({n:'n'+i,d:1,p:i?['N'+(i-1)]:[]})));
+        return !r.err&&r.nodes[0].d===0&&r.nodes[0].es===2.5&&r.nodes[1].es===2.5&&r.T===4&&!q.err&&q.T===60})()`) === true);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-fOXJB2j2MJialW6ET4AatrDKOqmpoiKg3zo/ufl5eCU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-i/PhtDtrU/8fvSXu4v9lneb4SM7Fc9TBzs48QOpR5fU=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7209,6 +7209,36 @@ function npdTake(text){const r=npParseTable(text);if(r.err){toast(npErrTr(r.err)
     if(e.key==='ArrowUp'||e.key==='ArrowDown'){const n=r+(e.key==='ArrowUp'?-1:1);if(n>=0&&n<NPD.rows.length){e.preventDefault();npdFocus(n,t.dataset.k)}}
     else if(e.key==='Enter'){e.preventDefault();const c=cols.indexOf(t.dataset.k);
       if(c<3)npdFocus(r,cols[c+1]);else if(r<NPD.rows.length-1)npdFocus(r+1,'name');else if(add())npdFocus(NPD.rows.length-1,'name')}})}
+/* ---------- Gantt-Diagramm: Berechnung ---------- */
+/* rows: [{n,name,s:'Start nicht früher als'|null,d,p:[],lag:null,ms:false}] -> {err} oder {nodes,T,crit,edges}.
+   Wie npCalc, plus Start s, Versatz lag (gilt für alle Vorgänger der Zeile, Ende-Anfang) und Meilensteine (d=0). Zeit in Perioden. */
+function ganttCalc(rows,opt){
+  if(!Array.isArray(rows)||!rows.length)return{err:'Keine Vorgänge.'};
+  if(rows.length>NP_MAX)return{err:'Höchstens '+NP_MAX+' Vorgänge.'};
+  const idx=new Map(),N=[],num=(v,lim)=>{if(v==null||(typeof v==='string'&&!v.trim()))return null;const x=npParseD(v);return Number.isNaN(x)?NaN:Math.abs(x)>lim?Infinity:npR2(x)};
+  for(let i=0;i<rows.length;i++){const r=rows[i]||{},n=String(r.n==null?'':r.n).trim(),k=n.toLowerCase(),at='Zeile '+(i+1)+': ',ms=r.ms===true;
+    if(!n)return{err:at+'Nr fehlt.'};if(n.length>12)return{err:at+'Nr ist zu lang (höchstens 12 Zeichen).'};
+    if(idx.has(k))return{err:at+'Nr "'+n+'" kommt doppelt vor.'};
+    let d=0;if(!ms){d=npParseD(r.d);if(Number.isNaN(d))return{err:at+'Dauer ist keine Zahl.'};if(d<0)return{err:at+'Dauer ist negativ.'};if(d>1e6)return{err:at+'Dauer ist zu groß.'};d=npR2(d)}
+    const s=num(r.s,1e6),lag=num(r.lag,1e6);
+    if(Number.isNaN(s))return{err:at+'Start ist keine Zahl.'};if(s===Infinity)return{err:at+'Start ist zu groß.'};
+    if(Number.isNaN(lag))return{err:at+'Versatz ist keine Zahl.'};if(lag===Infinity)return{err:at+'Versatz ist zu groß.'};
+    idx.set(k,i);N.push({i,n,name:String(r.name==null?'':r.name),d,s,lag:lag||0,ms,pr:r.pr==null?null:r.pr,who:String(r.who==null?'':r.who),p:[],sc:[]})}
+  for(let i=0;i<rows.length;i++){const at='Zeile '+(i+1)+': ',raw=rows[i].p,list=Array.isArray(raw)?raw:[];
+    if(list.length>NP_MAX)return{err:at+'Zu viele Vorgänger.'};
+    for(const q of list){const t=String(q==null?'':q).trim();if(!t)continue;const j=idx.get(t.toLowerCase());
+      if(j===undefined)return{err:at+'Vorgänger "'+t+'" gibt es nicht.'};if(j===i)return{err:at+'Vorgang "'+N[i].n+'" kann nicht sein eigener Vorgänger sein.'};
+      if(!N[i].p.includes(j))N[i].p.push(j)}}
+  for(const v of N)for(const j of v.p)N[j].sc.push(v.i);
+  const deg=N.map(v=>v.p.length),ord=[],q=N.filter(v=>!deg[v.i]).map(v=>v.i);
+  for(let h=0;h<q.length;h++){const a=q[h];ord.push(a);for(const b of N[a].sc)if(--deg[b]===0)q.push(b)}
+  if(ord.length<N.length){const bad=N.filter(v=>!ord.includes(v.i)).map(v=>v.n);return{err:'Zyklus zwischen den Vorgängen '+bad.join(', ')+'.'}}
+  for(const a of ord){const v=N[a];v.es=npR2(Math.max(0,v.s||0,...v.p.map(j=>N[j].ef+v.lag)));v.ef=npR2(v.es+v.d)}
+  const T=npR2(Math.max(...N.map(v=>v.ef)));
+  for(let h=ord.length-1;h>=0;h--){const v=N[ord[h]];v.lf=v.sc.length?npR2(Math.min(...v.sc.map(j=>N[j].ls-N[j].lag))):T;v.ls=npR2(v.lf-v.d);
+    v.gp=npR2(v.ls-v.es);v.fp=npR2((v.sc.length?Math.min(...v.sc.map(j=>N[j].es-N[j].lag)):T)-v.ef);v.crit=Math.abs(v.gp)<NP_EPS}
+  const edges=[];for(const v of N)for(const j of v.p)edges.push({a:j,b:v.i,crit:N[j].crit&&v.crit&&Math.abs(N[j].ef+v.lag-v.es)<NP_EPS});
+  return{nodes:N,T,crit:ord.filter(a=>N[a].crit).map(a=>N[a].n),edges}}
 
 
 /* Layr & Updates: eigenes Fenster */
