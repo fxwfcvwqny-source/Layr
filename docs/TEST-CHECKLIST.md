@@ -159,6 +159,14 @@ Windows-Skalierung: vorab notieren (Einstellungen, Anzeige) und möglichst bei 1
 - [ ] Linux mit `LAYR_WAYLAND=1` starten → Layr läuft nativ unter Wayland und öffnet sich.
 - [ ] Fenster auf 1024×600 klein ziehen: Dialoge Neues Blatt, Diagramm, Signatur, Rechner und Bilder zu PDF bleiben im Fenster, Knöpfe bleiben erreichbar (Inhalt scrollt innen).
 
+## 15. IT-Rechner
+- [ ] IT-Rechner, Datenmengen: 9 mit Einheit TiB eingeben → erste Zeile "Eingabe 9 TiB", darunter Bit 79.164.837.199.872, Byte 9.895.604.649.984, TB 9,896, GiB 9.216, TiB 9.
+- [ ] Im Feld Menge "9 TiB", "9TiB" oder "9tib" tippen (Einheit im Auswahlfeld egal) → gleiches Ergebnis; "9 xyz" → Fehlermeldung.
+- [ ] "1.024" (deutsch) bzw. "1,024" (englisch) tippen → 1024; "1,5" → 1,5; Zahlen aus der Ergebnisliste lassen sich wieder eintippen.
+- [ ] Sehr große Menge (z. B. 9 PiB) → zusätzlich Zeilen PB und PiB; Bit in Exponentenform lesbar (8,1065e+16).
+- [ ] Enter in einem Feld des IT-Rechners (alle Reiter) und des Subnetzrechners → nichts wird aufs Blatt gelegt, Dialog bleibt offen; Strg+Enter oder "Als Tabelle aufs Blatt" legt die Tabelle (mit Eingabe-Zeile) aufs Blatt. Neben dem Knopf steht "Strg+Enter fügt ein".
+- [ ] Zahlensysteme: 11111111 binär, 8 Bit, mit Vorzeichen → -1; im Rechenweg steht "1111 1111 → F F".
+
 ## Bekannte Grenzen (bitte nicht melden)
 - Gedrehter Text hat achsenparallele Hervorhebung; Texthintergrund und Wortformatierung fehlen bei gestapeltem Text.
 - Zuschneiden blendet nur aus, das ganze Bild bleibt in der Datei (Schwärzen entfernt endgültig).

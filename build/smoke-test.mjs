@@ -3012,6 +3012,53 @@ else {
     const mj = fs.readFileSync('app/main.js', 'utf8'), sv = mj.slice(mj.indexOf("handle('save'"), mj.indexOf("handle('export'"));
     ok('D3-01: Speichern unter lehnt den Pfad eines anderen offenen Tabs ab (dupOf vor writeSafe, de+en Text)', /if \(dupOf\(target\)\) \{[^\n]*showMessageBox[^\n]*return null; \}/.test(sv) && sv.indexOf('dupOf(target)') < sv.indexOf('writeSafe(target') && /'Diese Datei ist in einem anderen Tab geöffnet[^']*': 'This file is open in another tab/.test(mj) && /showOverwriteConfirmation/.test(sv) && /existiert bereits/.test(sv));
   }
+  // 3.10.4: IT-Rechner (calculator): data units against exact BigInt values, one case per mode, de/en formatting, Enter does not place
+  {
+    const typeC = async (id, v) => { await ev(`(()=>{const e=document.getElementById('c_${id}');e.focus();e.select()})()`); await cdp('Input.insertText', { text: v }); await sleep(30); };
+    const pickC = async (id, v) => { await ev(`(()=>{const e=document.getElementById('c_${id}');e.value=${JSON.stringify(v)};e.dispatchEvent(new Event('change'))})()`); await sleep(30); };
+    const resC = async () => JSON.parse(await ev('JSON.stringify(CALC.res&&CALC.res.rows)')), errC = () => ev("(document.querySelector('#calcOut .ip-err')||{}).textContent||''");
+    const fmt = (n, l) => n.toLocaleString(l), TiB = 1024n ** 4n;
+    const dataRows = l => [['Input', '9 TiB'], ['Bit', fmt(9n * 8n * TiB, l)], ['Byte', fmt(9n * TiB, l)], ['KB', (Number(9n * TiB) / 1e3).toLocaleString(l, { maximumFractionDigits: 2 })], ['MB', (Number(9n * TiB) / 1e6).toLocaleString(l, { maximumFractionDigits: 2 })], ['GB', (Number(9n * TiB) / 1e9).toLocaleString(l, { maximumFractionDigits: 2 })],
+      ['TB', (Number(9n * TiB) / 1e12).toLocaleString(l, { maximumFractionDigits: 3 })], ['KiB', fmt(9n * TiB / 1024n, l)], ['MiB', fmt(9n * TiB / 1024n ** 2n, l)], ['GiB', fmt(9n * TiB / 1024n ** 3n, l)], ['TiB', '9']];
+    const same = (r, l, exp = dataRows(l)) => !!r && r.length === exp.length && exp.every((e, i) => r[i][1] === e[1]);
+    await ev("document.querySelectorAll('.modal').forEach(m=>{m.hidden=true;m._ah=null});setLang('de');localStorage.removeItem('pdfwerkbank:calc');CALC.v={};openCalcDlg('data')"); await sleep(300);
+    ok('IT-Rechner: Datenmengen listet bit, B, KB, MB, GB, TB, PB, KiB, MiB, GiB, TiB, PiB, kbit, Mbit, Gbit, Tbit', await ev("[...document.querySelectorAll('#c_dUnit option')].map(o=>o.value).join()") === 'bit,B,KB,MB,GB,TB,PB,KiB,MiB,GiB,TiB,PiB,kbit,Mbit,Gbit,Tbit');
+    await pickC('dUnit', 'TiB'); await typeC('dVal', '9');
+    const r9 = await resC(); ok('IT-Rechner: 9 TiB (de) = Eingabe-Zeile + exakte Umrechnung in 10 Einheiten', same(r9, 'de') && r9[0][0] === 'Eingabe', r9);
+    for (const t of ['9 TiB', '9TiB', '9tib']) { await pickC('dUnit', 'GB'); await typeC('dVal', t); const r = await resC(); ok(`IT-Rechner: "${t}" im Feld Menge gilt, auch bei anderer Einheit im Auswahlfeld`, same(r, 'de'), r); }
+    await pickC('dUnit', 'GB'); await typeC('dVal', '1.024'); let r = await resC(); ok('IT-Rechner: "1.024" GB (de) = 1024 GB (Tausenderpunkt)', r && r.find(x => x[0] === 'MB')[1] === '1.024.000', r);
+    await typeC('dVal', '1,5'); r = await resC(); ok('IT-Rechner: "1,5" GB (de) = 1,5 GB', r && r.find(x => x[0] === 'MB')[1] === '1.500', r);
+    await pickC('dUnit', 'PiB'); await typeC('dVal', '9'); r = await resC(); ok('IT-Rechner: 9 PiB zeigt PB- und PiB-Zeilen, Bit in Exponentenform', r && r.some(x => x[0] === 'PB' && x[1] === '10,133') && r.some(x => x[0] === 'PiB' && x[1] === '9') && r.find(x => x[0] === 'Bit')[1] === '8,1065e+16', r);
+    await pickC('dUnit', 'TiB'); await typeC('dVal', '9 xyz'); ok('IT-Rechner: unbekannte Einheit im Feld gibt die Fehlermeldung statt einer Zahl', (await errC()).startsWith('Bitte eine Menge') && await resC() === null);
+    await typeC('dVal', '9');
+    // Enter must not place; Ctrl+Enter and the button do
+    const nobj = () => ev('S.pages[curPage()].objs.length'), n0 = await nobj();
+    await ev("document.getElementById('c_dVal').focus()"); await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, text: '\r' }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 }); await sleep(300);
+    ok('IT-Rechner: Enter im Feld legt keine Tabelle aufs Blatt, Dialog bleibt offen', await nobj() === n0 && await ev("!document.getElementById('calcDlg').hidden"), { n0, n: await nobj() });
+    await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, modifiers: 2 }); await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, modifiers: 2 }); await sleep(400);
+    const cells = JSON.parse(await ev("(()=>{const o=S.pages[curPage()].objs;const t=o[o.length-1];return JSON.stringify(t&&t.cells)})()"));
+    ok('IT-Rechner: Strg+Enter legt die Tabelle mit Kopfzeile, Eingabe-Zeile und Umrechnung aufs Blatt', await nobj() === n0 + 1 && cells && cells[0].join() === 'Einheit,Wert' && same(cells.slice(1), 'de'), cells);
+    await ev(`(()=>{const P=S.pages[curPage()];P.objs.length=${n0};redraw(curPage())})()`);
+    // one case per other mode
+    await ev("openCalcDlg('rate')"); await sleep(200); for (const [id, v] of [['rSize', '9'], ['rRate', '1'], ['rOver', '0'], ['rGoal', '']]) await typeC(id, v); await pickC('rSizeU', 'TiB'); await pickC('rRateU', 'Gbps'); r = await resC();
+    ok('IT-Rechner: Übertragung 9 TiB bei 1 Gbit/s = 79.164,8 s = 21 h 59 min 25 s', r && r.find(x => x[0] === 'Dauer')[1] === '21 h 59 min 25 s' && r.find(x => x[0] === 'Dauer in Sekunden')[1] === '79.164,8 s' && r.find(x => x[0] === 'Datenmenge')[1] === '9.895.604,65 MB · 9.437.184 MiB', r);
+    await ev("CALC.v={};openCalcDlg('ups')"); await sleep(200); r = await resC(); ok('IT-Rechner: USV 450 W (Standard) = 650 VA / 585 W, Laufzeit 25 min 55 s', r && r.find(x => x[0] === 'Empfohlene USV-Größe')[1] === '650 VA / 585 W' && r.find(x => x[0] === 'Laufzeit bei dieser Last')[1] === '25 min 55 s', r);
+    await ev("openCalcDlg('power')"); await sleep(200); r = await resC(); ok('IT-Rechner: Strom 120 W, 24 h, 365 d, 0,35 €/kWh = 1.051,2 kWh und 367,92 €', r && r.find(x => x[0] === 'Verbrauch pro Jahr')[1] === '1.051,2 kWh' && r.find(x => x[0] === 'Kosten pro Jahr')[1] === '367,92 €', r);
+    await ev("openCalcDlg('num')"); await sleep(200); await pickC('nBase', '10'); await typeC('nIn', '18446744073709551615'); r = await resC();
+    ok('IT-Rechner: Zahlensysteme 2^64-1 = 0xFFFF FFFF FFFF FFFF, 64 Bit, 64 gesetzte Bits', r && r.find(x => x[0] === 'Hexadezimal')[1] === '0xFFFF FFFF FFFF FFFF' && r.find(x => x[0] === 'Gesetzte Bits')[1] === '64' && r.find(x => x[0] === 'Bitbreite')[1] === '64 Bit · 8 Byte', r);
+    await typeC('nIn', '9223372036854775807'); r = await resC(); ok('IT-Rechner: Zahlensysteme 2^63-1 = 0x7FFF FFFF FFFF FFFF (63 Bits gesetzt)', r && r.find(x => x[0] === 'Hexadezimal')[1] === '0x7FFF FFFF FFFF FFFF' && r.find(x => x[0] === 'Gesetzte Bits')[1] === '63', r);
+    await typeC('nIn', '18446744073709551616'); ok('IT-Rechner: Zahlensysteme 2^64 meldet "größer als 64 Bit"', (await errC()) === 'Die Zahl ist größer als 64 Bit.');
+    await pickC('nBase', '2'); await pickC('nBits', '8'); await ev("(()=>{const e=document.getElementById('c_nSigned');if(!e.checked)e.click()})()"); await typeC('nIn', '11111111');
+    r = await resC(); const stp = await ev("document.getElementById('calcSteps').textContent");
+    ok('IT-Rechner: 11111111 binär mit Vorzeichen, 8 Bit = -1; Rechenweg nennt 1111 1111 → F F', r && r[0][1] === '-1' && /1111 1111 → F F/.test(stp) && /plus 1: 1111 1111/.test(stp), { r: r && r[0], stp });
+    await ev("(()=>{const e=document.getElementById('c_nSigned');if(e.checked)e.click()})()");
+    await ev("openCalcDlg('logic')"); await sleep(200); await typeC('lExpr', 'Y = A XOR B'); r = await resC(); ok('IT-Rechner: Logik A XOR B = 0,1,1,0', r && r.map(x => x[2]).join('') === '0110', r);
+    // English formatting
+    await ev("setLang('en');openCalcDlg('data')"); await sleep(300); await pickC('dUnit', 'TiB'); await typeC('dVal', '9'); r = await resC();
+    ok('IT-Rechner (en): 9 TiB mit Komma als Tausender und Punkt als Dezimalzeichen', same(r, 'en') && r[0][0] === 'Input' && r.find(x => x[0] === 'TB')[1] === '9.896', r);
+    await typeC('dVal', '1,024'); r = await resC(); ok('IT-Rechner (en): "1,024" TiB = 1024 TiB (Tausenderkomma)', r && r.find(x => x[0] === 'GiB')[1] === '1,048,576', r);
+    await ev("setLang('de');document.querySelectorAll('.modal').forEach(m=>{m.hidden=true;m._ah=null});localStorage.removeItem('pdfwerkbank:calc');CALC.v={};CALC.mode='num'");
+  }
   // 3.10.3: dialogs fit small windows (1024x600 at 150 percent scaling = 683x400 CSS px): card inside the viewport, no sideways overflow, header close and button row reachable, backdrop does not scroll
   {
     await cdp('Emulation.setDeviceMetricsOverride', { width: 683, height: 400, deviceScaleFactor: 1.5, mobile: false });
