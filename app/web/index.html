@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-5QAgQ2RjjNsOd/QwcLKKV3T1hZsaZMDin9vEulbxtZg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-nVsLxDGs1uvaMcmwUhLlryfwhHn7KX11+dnFhispgtE=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6917,7 +6917,12 @@ const CALC_F={
     {id:'uV',l:'Batteriespannung (V)',def:'24'},{id:'uAh',l:'Batteriekapazität (Ah)',def:'9'},{id:'uEff',l:'Wirkungsgrad Wechselrichter (%)',def:'90'},{id:'uGoal',l:'Gewünschte Laufzeit (Minuten)',def:'15'}],
   power:[{id:'pW',l:'Leistung (Watt)',def:'120'},{id:'pH',l:'Stunden pro Tag',def:'24'},{id:'pD',l:'Tage pro Jahr',def:'365'},{id:'pPrice',l:'Preis pro kWh (€)',def:'0,35'},{id:'pU',l:'Spannung (V)',def:'230'}]};
 const cval=id=>{const v=CALC.v[id];if(v!=null)return v;for(const L of Object.values(CALC_F))for(const f of L)if(f.id===id)return f.def;return''};
-const cnumv=id=>{const t=String(cval(id)).trim().replace(/\s/g,'').replace(',','.');if(!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(t))return NaN;return parseFloat(t)};
+// thousands separators: '.' (de) / ',' (en) when 3 digits follow or the separator repeats; with both signs the last one is the decimal sign
+function cparse(x){let t=String(x).trim().replace(/\s/g,'');const sp=t.match(/[.,]/g)||[];
+  if(sp.includes('.')&&sp.includes(',')){const dec=t.lastIndexOf('.')>t.lastIndexOf(',')?'.':',';t=t.split(dec==='.'?',':'.').join('').replace(dec,'.')}
+  else if(/^[-+]?[1-9]\d{0,2}([.,]\d{3})+$/.test(t)&&(sp.length>1||sp[0]===(cLoc()==='de'?'.':',')))t=t.replace(/[.,]/g,'');
+  else t=t.replace(',','.');return t}
+const cnumv=(id,raw)=>{const t=cparse(raw==null?cval(id):raw);if(!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(t))return NaN;return parseFloat(t)};
 const cLoc=()=>LANG==='en'?'en':'de';
 function cFmt(n,max){if(!Number.isFinite(n))return'–';const a=Math.abs(n);if(max==null)max=a>=100?2:a>=1?3:a>=.001?6:10;
   if(a!==0&&(a>=1e15||a<1e-6))return n.toExponential(4).replace('.',cLoc()==='de'?',':'.');return n.toLocaleString(cLoc(),{maximumFractionDigits:max})}
