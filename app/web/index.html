@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-a7CHYkwy8n+RzD5V0mCatnHKAFosIgbf8uQVT/YDDp4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/89voSZgXB/5KWx8ZEcXl6FZhhNGmuKe05aQJmvQyIk=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -6928,7 +6928,7 @@ function cAmt(id,sel){const t=String(cval(id)).trim(),m=/^(.*?)\s*([a-z]+)$/i.ex
 const cnumv=(id,raw)=>{const t=cparse(raw==null?cval(id):raw);if(!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(t))return NaN;return parseFloat(t)};
 const cLoc=()=>LANG==='en'?'en':'de';
 function cFmt(n,max){if(!Number.isFinite(n))return'–';const a=Math.abs(n);if(max==null)max=a>=100?2:a>=1?3:a>=.001?6:10;
-  if(a!==0&&(a>=1e15||a<1e-6))return n.toExponential(4).replace('.',cLoc()==='de'?',':'.');return n.toLocaleString(cLoc(),{maximumFractionDigits:max})}
+  if(a!==0&&(a>=1e15||a<1e-6))return n.toExponential(4).replace(/\.?0+e/,'e').replace('.',cLoc()==='de'?',':'.');return n.toLocaleString(cLoc(),{maximumFractionDigits:max})}
 function cDur(s){if(!Number.isFinite(s)||s<0)return'–';if(s<1)return cFmt(s*1000,1)+' ms';s=Math.round(s);const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),x=s%60;
   return[d?d+' '+tr('Tg.'):'',h?h+' h':'',m?m+' min':'',(x||!(d||h||m))?x+' s':''].filter(Boolean).join(' ')}
 const cGrp=(s,n,sep=' ')=>{const out=[];for(let i=s.length;i>0;i-=n)out.unshift(s.slice(Math.max(0,i-n),i));return out.join(sep)};
