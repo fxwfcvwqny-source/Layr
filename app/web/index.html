@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xbpjRBBm5OnIIfitc1aMDO/QPWiQQhPJktsofZtBI0I=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-IjnGPqfgnfqhtKw+dSnDEgj/F5YWuc0mZgHcC6PscL8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7014,6 +7014,36 @@ function calcPlace(){if(!CALC.res||!S.pages.length)return;const i=curPage(),P=S.
   $('#calcPlace').onclick=calcPlace;
   $('#calcCopy').onclick=async()=>{if(!CALC.res)return;let t=[CALC.res.head,...CALC.res.rows].map(r=>r.join('\t')).join('\n');if(CALC.res.steps.length)t+='\n\n'+tr('Rechenweg')+'\n'+CALC.res.steps.join('\n');
     try{await navigator.clipboard.writeText(t)}catch(e){}toast(tr('Ergebnis kopiert.'))}}
+/* ---------- Netzplan (Vorgangsknoten, IHK-Schreibweise): Berechnung, Layout, Platzieren ---------- */
+const NP_MAX=60,NP_EPS=1e-9,npR2=v=>Math.round(v*100)/100;
+/* Dauer aus Zahl oder Text; Dezimalkomma erlaubt, sonst NaN */
+function npParseD(v){if(typeof v==='number')return Number.isFinite(v)?v:NaN;const s=String(v==null?'':v).trim().replace(',','.');return /^[+-]?(\d+\.?\d*|\.\d+)$/.test(s)?Number(s):NaN}
+/* rows: [{n:'A',name:'Text',d:'3,5'|3,p:['A','B']}] -> {err} oder {nodes,T,crit,edges} */
+function npCalc(rows){
+  if(!Array.isArray(rows)||!rows.length)return{err:'Keine Vorgänge.'};
+  if(rows.length>NP_MAX)return{err:'Höchstens '+NP_MAX+' Vorgänge.'};
+  const idx=new Map(),N=[];
+  for(let i=0;i<rows.length;i++){const r=rows[i]||{},n=String(r.n==null?'':r.n).trim(),k=n.toLowerCase(),at='Zeile '+(i+1)+': ';
+    if(!n)return{err:at+'Nr fehlt.'};if(n.length>12)return{err:at+'Nr ist zu lang (höchstens 12 Zeichen).'};
+    if(idx.has(k))return{err:at+'Nr "'+n+'" kommt doppelt vor.'};
+    const d=npParseD(r.d);if(Number.isNaN(d))return{err:at+'Dauer ist keine Zahl.'};if(d<0)return{err:at+'Dauer ist negativ.'};if(d>1e6)return{err:at+'Dauer ist zu groß.'};
+    idx.set(k,i);N.push({i,n,name:String(r.name==null?'':r.name),d:npR2(d),p:[],s:[]})}
+  for(let i=0;i<rows.length;i++){const at='Zeile '+(i+1)+': ',raw=rows[i].p,list=Array.isArray(raw)?raw:[];
+    if(list.length>NP_MAX)return{err:at+'Zu viele Vorgänger.'};
+    for(const q of list){const t=String(q==null?'':q).trim();if(!t)continue;const j=idx.get(t.toLowerCase());
+      if(j===undefined)return{err:at+'Vorgänger "'+t+'" gibt es nicht.'};if(j===i)return{err:at+'Vorgang "'+N[i].n+'" kann nicht sein eigener Vorgänger sein.'};
+      if(!N[i].p.includes(j))N[i].p.push(j)}}
+  for(const v of N)for(const j of v.p)N[j].s.push(v.i);
+  /* Kahn: topological order, leftover nodes mean a cycle */
+  const deg=N.map(v=>v.p.length),ord=[],q=N.filter(v=>!deg[v.i]).map(v=>v.i);
+  for(let h=0;h<q.length;h++){const a=q[h];ord.push(a);for(const b of N[a].s)if(--deg[b]===0)q.push(b)}
+  if(ord.length<N.length){const bad=N.filter(v=>!ord.includes(v.i)).map(v=>v.n);return{err:'Zyklus zwischen den Vorgängen '+bad.join(', ')+'.'}}
+  for(const a of ord){const v=N[a];v.faz=v.p.length?npR2(Math.max(...v.p.map(j=>N[j].fez))):0;v.fez=npR2(v.faz+v.d);v.depth=v.p.length?Math.max(...v.p.map(j=>N[j].depth))+1:0}
+  const T=npR2(Math.max(...N.map(v=>v.fez)));
+  for(let h=ord.length-1;h>=0;h--){const v=N[ord[h]];v.sez=v.s.length?npR2(Math.min(...v.s.map(j=>N[j].saz))):T;v.saz=npR2(v.sez-v.d);
+    v.gp=npR2(v.saz-v.faz);v.fp=npR2((v.s.length?Math.min(...v.s.map(j=>N[j].faz)):T)-v.fez);v.crit=Math.abs(v.gp)<NP_EPS}
+  const edges=[];for(const v of N)for(const j of v.p)edges.push({a:j,b:v.i,crit:N[j].crit&&v.crit&&Math.abs(N[j].fez-v.faz)<NP_EPS});
+  return{nodes:N,T,crit:ord.filter(a=>N[a].crit).map(a=>N[a].n),edges}}
 
 /* Layr & Updates: eigenes Fenster */
 function abOpen(v){const d=$('#abDlg');if(v){if(studioIsOpen&&studioIsOpen())studioOpen(false);showEl(d);setTimeout(()=>$('#abX').focus(),0)}else animHide(d)}

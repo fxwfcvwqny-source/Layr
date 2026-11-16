@@ -3005,6 +3005,26 @@ else {
     const mj = fs.readFileSync('app/main.js', 'utf8'), sv = mj.slice(mj.indexOf("handle('save'"), mj.indexOf("handle('export'"));
     ok('D3-01: Speichern unter lehnt den Pfad eines anderen offenen Tabs ab (dupOf vor writeSafe, de+en Text)', /if \(dupOf\(target\)\) \{[^\n]*showMessageBox[^\n]*return null; \}/.test(sv) && sv.indexOf('dupOf(target)') < sv.indexOf('writeSafe(target') && /'Diese Datei ist in einem anderen Tab geöffnet[^']*': 'This file is open in another tab/.test(mj) && /showOverwriteConfirmation/.test(sv) && /existiert bereits/.test(sv));
   }
+  // Netzplan 3.11 step 1: npCalc with both plan vectors (every number) and the error cases
+  {
+    const mk = s => s.split('|').map(x => { const m = /^(\S+)\((\S+)\)\s*(.*)$/.exec(x.trim()); return { n: m[1], name: 'V' + m[1], d: m[2], p: m[3] && m[3] !== '-' ? m[3].split(',') : [] }; });
+    const v1 = mk('A(3) -|B(4) A|C(2) A|D(5) B|E(3) B,C|F(4) C|G(2) D,E|H(3) F,G');
+    const e1 = 'A 0 3 0 3 0 0|B 3 7 3 7 0 0|C 3 5 7 9 4 0|D 7 12 7 12 0 0|E 7 10 9 12 2 2|F 5 9 10 14 5 5|G 12 14 12 14 0 0|H 14 17 14 17 0 0';
+    const v2 = mk('1(2) -|2(5) 1|3(4) -|4(3) 2|5(2) 2,3|6(4) 4|7(2) 4,5|8(2) 4|9(3) 6,7,8|10(1) 9');
+    const e2 = '1 0 2 0 2 0 0|2 2 7 2 7 0 0|3 0 4 6 10 6 3|4 7 10 7 10 0 0|5 7 9 10 12 3 1|6 10 14 10 14 0 0|7 10 12 12 14 2 2|8 10 12 12 14 2 2|9 14 17 14 17 0 0|10 17 18 17 18 0 0';
+    const run = async (rows, exp, T, crit) => ev(`(()=>{const r=npCalc(${JSON.stringify(rows)});if(r.err)return r.err;return JSON.stringify({t:r.nodes.map(v=>[v.n,v.faz,v.fez,v.saz,v.sez,v.gp,v.fp].join(' ')).join('|'),T:r.T,c:r.crit.join('-')})})()`).then(s => { try { const j = JSON.parse(s); return j.t === exp && j.T === T && j.c === crit; } catch (e) { return s; } });
+    ok('NP-01: Vektor 1 (alle Zahlen, T=17, kritisch A-B-D-G-H)', await run(v1, e1, 17, 'A-B-D-G-H') === true);
+    ok('NP-02: Vektor 2 (alle Zahlen, T=18, kritisch 1-2-4-6-9-10)', await run(v2, e2, 18, '1-2-4-6-9-10') === true);
+    const err = async (rows, rx) => { const r = await ev(`npCalc(${JSON.stringify(rows)}).err||''`); return rx.test(String(r)) || r; };
+    ok('NP-03: Zyklus', await err([{ n: '1', d: 1, p: ['2'] }, { n: '2', d: 1, p: ['1'] }], /Zyklus/) === true);
+    ok('NP-03: unbekannter Vorgaenger', await err([{ n: '1', d: 1, p: ['9'] }], /gibt es nicht/) === true);
+    ok('NP-03: Selbst-Vorgaenger', await err([{ n: '1', d: 1, p: ['1'] }], /eigener Vorgänger/) === true);
+    ok('NP-03: doppelte Nr, auch ohne Gross-/Kleinschreibung', await err([{ n: 'a', d: 1, p: [] }, { n: 'A', d: 1, p: [] }], /doppelt/) === true);
+    ok('NP-03: Dauer -1 / "abc" / leer', await err([{ n: '1', d: -1, p: [] }], /negativ/) === true && await err([{ n: '1', d: 'abc', p: [] }], /keine Zahl/) === true && await err([{ n: '1', d: '', p: [] }], /keine Zahl/) === true);
+    ok('NP-03: Nr fehlt / zu lang / 61 Zeilen / leer', await err([{ n: ' ', d: 1, p: [] }], /Nr fehlt/) === true && await err([{ n: 'x'.repeat(13), d: 1, p: [] }], /zu lang/) === true
+      && await err(Array.from({ length: 61 }, (_, i) => ({ n: 'n' + i, d: 1, p: [] })), /Höchstens 60/) === true && await err([], /Keine/) === true);
+    ok('NP-04: Dezimalkomma, Nr ohne Gross-/Kleinschreibung bei Vorgaengern, Dauer 0, 60 Zeilen ok', await ev(`(()=>{const r=npCalc([{n:'A',d:'1,5',p:[]},{n:'b',d:'0',p:['a']}]);const q=npCalc(Array.from({length:60},(_,i)=>({n:'n'+i,d:1,p:i?['N'+(i-1)]:[]})));return !r.err&&r.T===1.5&&r.nodes[1].faz===1.5&&r.nodes[1].d===0&&!q.err&&q.T===60&&npCalc([{n:'A',d:0.1+0.2,p:[]}]).T===0.3&&Number.isNaN(npParseD('1,2,3'))&&npParseD(' 2,5 ')===2.5})()`) === true);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
