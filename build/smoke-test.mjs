@@ -3305,7 +3305,7 @@ else {
       localStorage.removeItem('pdfwerkbank:gantt');gtdClose();await wait(400);
       const T=TOOLS.filter(t=>t!=='-'),i=T.findIndex(t=>t.id==='gantt');o.after=T[i-1]&&T[i-1].id;o.noKey=T[i].k==='';o.icon=!!document.querySelector('#ph-chart-gantt');o.known=tbIsHid('gantt')===true;
       FN.list=null;for(const w of ['gantt','balkenplan','zeitplan','projektplan','meilenstein'])o['f_'+w]=fnFind(w).some(x=>x.t==='Gantt-Diagramm');
-      fnFind('gantt').find(x=>x.t==='Gantt-Diagramm').run();await wait(200);o.open=!q('#gtDlg').hidden;gtdClose();
+      fnFind('gantt').find(x=>x.t==='Gantt-Diagramm').run();await wait(200);o.open=!q('#gtDlg').hidden;gtdClose();await wait(500);
       return JSON.stringify(o)})()`, 90000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
     ok('GT-12: Dialog offen, 3 Zeilen, aria-label je Feld, leer = Button gesperrt, Beispiel laden -> 6 Zeilen, Ergebnis (aria-live), Optionen, gespeichert', r.vis === true && r.rows === 3 && r.labels === 'Nr. 1|Vorgang 1|Start 1|Dauer 1|Vorgänger 1|Versatz 1|Meilenstein 1|% 1|Verantwortlich 1' && r.blank === true && r.live === 'polite' && r.n6 === 6 && r.res === 'Projektdauer 10 Tage · Kritischer Pfad: A → B → D → E' && r.opts === true && r.saved === 6, r);
     ok('GT-12: Tastatur; Fehler Start / Fortschritt / Stichtag mit aria-invalid; Dezimalkomma; Startdatum nur bei Tag/Woche/Monat; Heute braucht Startdatum', r.arrow === true && r.enter === true && r.sErr === 'Zeile 2: Start ist keine Zahl.' && r.sInv === true && r.prErr === 'Zeile 2: Fortschritt ist keine Zahl von 0 bis 100.' && r.prInv === true && r.stErr === 'Stichtag ist keine Zahl.' && r.stInv === true && r.stOk === true && r.startDis === true && r.todayNoDate === true && r.today === true, r);
@@ -3348,6 +3348,38 @@ else {
     ok('GT-13: Uebernehmen ersetzt die Gruppe an gleicher Stelle (ein Verlaufsschritt, links oben verankert, andere Objekte unberuehrt, neue gid, Auswahl), gt vollstaendig', r.gtA === true && r.hist === 1 && r.sameOthers === true && r.anchor === true && r.newGid === true && r.at === true && r.sel === true && r.dis === true, r);
     ok('GT-13: Undo stellt alle Objekte exakt wieder her, Redo das neue Diagramm', r.undo === true && typeof r.redo === 'string' && r.redo.length > 0, r);
     ok('GT-13: Strg+D: Kopie mit eigener gid/oid, gt, gb und Links; Bearbeiten der Kopie laesst das Original unveraendert; gesperrt wird abgelehnt', r.dup === true && r.btnCopy === true && r.origSame === true && r.copyNew === true && r.locked === true, r);
+  }
+  // Gantt 3.11 step 6: from network plan (rows from nodes, bars = FAZ..FEZ, critical red, object-bar button, load button with choice)
+  {
+    const r = await ev(`(async()=>{const P=S.pages[0],q=s=>document.querySelector(s),wait=ms=>new Promise(r=>setTimeout(r,ms)),o={};
+      const canon=v=>JSON.stringify(v,(k,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.fromEntries(Object.entries(x).sort()):x);
+      const R=[['A','Anforderungen',3,''],['B','Konzept',4,'A'],['C','Hardware',2,'A'],['D','Server',5,'B'],['E','Netz',3,'B,C'],['F','Lizenzen',4,'C'],['G','Test',2,'D,E'],['H','Uebergabe',3,'F,G']].map(([n,name,d,p])=>({n,name,d,p:p?p.split(','):[]}));
+      P.objs=[];H.u=[];H.r=[];S.tool='select';try{localStorage.removeItem('pdfwerkbank:gantt');localStorage.setItem('pdfwerkbank:netzplan',JSON.stringify({rows:[],unit:'Wochen'}))}catch(e){}
+      npPlace(R);const np1=P.objs.filter(x=>x.gid),g1=np1[0].gid,before=canon(P.objs);
+      const rows=ganttRowsFromNp(P.objs,g1);o.rows=rows.length+'|'+rows[3].n+rows[3].name+rows[3].d+rows[3].p.join('');
+      const nodeC=P.objs.find(x=>x.np&&x.np.n==='A');nodeC.cells[0][1]='Neuer Name';o.live=ganttRowsFromNp(P.objs,g1)[0].name;nodeC.cells[0][1]='Anforderungen';
+      ganttPlace(rows,{u:'d',o:{crit:true,float:true}});
+      const GO=P.objs.filter(x=>x.gid&&x.gid!==g1),grid=GO.find(x=>x.type==='table'&&!x.gt),ax=ganttAxis(17,null,'d',''),pw=grid.w/(ax.n*ax.step);
+      let ends=true,crit=true;for(const n of P.objs.filter(x=>x.np)){const fez=parseFloat(n.cells[1][1].replace(',','.')),b=GO.find(x=>x.gb&&x.gb.n===n.np.n&&x.gb.k==='b'),c=['A','B','D','G','H'].includes(n.np.n);
+        ends=ends&&Math.abs(b.x+b.w-(grid.x+fez*pw))<1e-6;crit=crit&&b.color===(c?'#c62828':'#3068d6')}
+      o.ends=ends;o.crit=crit;o.nplan=canon(P.objs.filter(x=>x.gid===g1))===canon(np1);
+      P.objs=P.objs.filter(x=>x.gid===g1);selectItems(0,P.objs.filter(x=>x.gid===g1));obUpdate();o.btn=q('#obNpGt').hidden===false&&q('#obGt').hidden===true&&q('#obNp').hidden===false;
+      H.u=[];q('#obNpGt').click();await wait(250);
+      o.open=!q('#gtDlg').hidden;o.rowsD=q('#gtBody').rows.length;o.unit=q('#gtUnit').value;o.r4=[4,0].map(i=>q('#gtBody input[data-r="'+i+'"][data-k="n"]').value+q('#gtBody input[data-r="'+i+'"][data-k="p"]').value).join('|');
+      o.opts=q('[data-o=float]').checked&&q('[data-o=crit]').checked&&!q('[data-o=prog]').checked;o.res=q('#gtRes').textContent;o.btnTxt=q('#gtOk').textContent;o.np=q('#gtNp').disabled===false;
+      q('#gtOk').click();await wait(500);o.placed=P.objs.filter(x=>x.gt).length===1&&H.u.length===1&&canon(P.objs.filter(x=>x.gid===g1))===canon(np1);
+      // load button: none / one / two network plans
+      P.objs=[];npdClose&&0;gtdOpen();await wait(100);q('#gtEx').click();const ex=canon(GTD.rows);q('#gtNp').click();await wait(100);o.none=canon(GTD.rows)===ex&&q('#gtDlg').hidden===false;
+      gtdClose();await wait(400);P.objs=[];npPlace(R);const np2=P.objs.filter(x=>x.gid),G=np2[0].gid;gtdOpen();await wait(100);q('#gtNp').click();await wait(100);
+      o.one=q('#gtBody').rows.length===8&&q('#gtUnit').value==='w'&&q('[data-o=crit]').checked&&q('#gtRes').textContent==='Projektdauer 17 Wochen · Kritischer Pfad: A → B → D → G → H';
+      gtdClose();await wait(400);npPlace(R.slice(0,3));gtdOpen();await wait(100);q('#gtNp').click();await wait(100);
+      const items=[...document.querySelectorAll('#ctx button')].map(b=>b.textContent);o.two=items.length===2&&/^3 /.test(items[1]+'')||/^3 /.test(items[0]+'');o.items=items.join('||');
+      const b3=[...document.querySelectorAll('#ctx button')].find(b=>/^3 /.test(b.textContent));b3&&b3.click();await wait(100);o.pick=q('#gtBody').rows.length===3;
+      gtdClose();await wait(400);return JSON.stringify(o)})()`, 60000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
+    ok('GT-14: ganttRowsFromNp: 8 Zeilen mit Vorgaengern, Name live aus der Knotenzelle', r.rows === '8|DServer5B' && r.live === 'Neuer Name', r);
+    ok('GT-14: Vektor 1 -> Balkenenden = FEZ aller Knoten, kritisch A-B-D-G-H rot, Netzplan unveraendert', r.ends === true && r.crit === true && r.nplan === true, r);
+    ok('GT-14: Objektleistenknopf "Als Gantt-Diagramm" bei Netzplan, Dialog mit 8 Zeilen, Einheit aus dem Netzplan-Dialog (Wochen), Puffer+kritisch an, ein Verlaufsschritt', r.btn === true && r.open === true && r.rowsD === 8 && r.unit === 'w' && r.r4 === 'EB, C|A' && r.opts === true && r.res === 'Projektdauer 17 Wochen · Kritischer Pfad: A → B → D → G → H' && r.btnTxt === 'Aufs Blatt' && r.np === true && r.placed === true, r);
+    ok('GT-14: "Aus Netzplan laden": keiner = Hinweis ohne Aenderung, einer = laden, mehrere = Auswahlliste', r.none === true && r.one === true && r.two === true && r.pick === true, r);
   }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
