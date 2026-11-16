@@ -3075,6 +3075,44 @@ else {
     ok('NP-07: feindliche Schluessel (__proto__, constructor) ohne Wirkung, np nur auf Tabellen', r.protoOk === true && r.pk === true && r.other === true, r);
     ok('NP-07: Netzplan speichern (buildOutput) und wieder oeffnen: np, oid, gid und Links bleiben', r.rt === true, r);
   }
+  // Netzplan 3.11 step 4: dialog (real table, live result, errors, place + one undo step, keyboard, backdrop, English UI)
+  {
+    const r = await ev(`(async()=>{const P=S.pages[0],q=s=>document.querySelector(s),key=(el,k,o)=>el.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true,...(o||{})}));
+      const setv=(el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}))};
+      P.objs=[];H.u=[];H.r=[];S.dirty=false;try{localStorage.removeItem('pdfwerkbank:netzplan')}catch(e){}
+      npdOpen();await new Promise(r=>setTimeout(r,150));
+      const o={};o.vis=!q('#npDlg').hidden;o.tbl=!!q('#npDlg table.np-t')&&q('#npBody').rows.length===3;o.nr=[...document.querySelectorAll('#npBody tr')].map(t=>t.cells[0].firstChild.value).join('');
+      o.labels=[...document.querySelectorAll('#npBody tr:first-child input')].map(i=>i.getAttribute('aria-label')).join('|');
+      o.blankDis=q('#npOk').disabled===true&&q('#npRes').textContent.length>5&&!/err/.test(q('#npRes').className);
+      q('#npEx').click();o.rows=q('#npBody').rows.length;o.res=q('#npRes').textContent;o.dis=q('#npOk').disabled;o.live=q('#npRes').getAttribute('aria-live');
+      o.saved=(JSON.parse(localStorage.getItem('pdfwerkbank:netzplan')||'null')||{rows:[]}).rows.length;
+      const f=(r,k)=>q('#npBody input[data-r="'+r+'"][data-k="'+k+'"]');f(0,'d').focus();key(f(0,'d'),'ArrowDown');o.arrow=document.activeElement===f(1,'d');
+      key(f(0,'n'),'Enter');o.enterNext=document.activeElement===f(0,'name');
+      f(7,'p').focus();key(f(7,'p'),'Enter');o.added=q('#npBody').rows.length===9&&document.activeElement===f(8,'name')&&f(8,'n').value==='I';
+      q('#npDel').click();o.removed=q('#npBody').rows.length===8;
+      q('#npDlg').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));o.keepOpen=!q('#npDlg').hidden;
+      setv(f(0,'p'),'H');o.cyc=q('#npRes').textContent;o.cycDis=q('#npOk').disabled;setv(f(0,'p'),'');
+      setv(f(2,'p'),'Q');o.unk=q('#npRes').textContent;o.inv=f(2,'p').getAttribute('aria-invalid')==='true'&&q('#npBody [aria-invalid]')===f(2,'p');setv(f(2,'p'),'A');
+      setv(f(3,'d'),'abc');o.dur=q('#npRes').textContent;o.durInv=f(3,'d').getAttribute('aria-invalid')==='true';setv(f(3,'d'),'5');o.okAgain=q('#npOk').disabled===false&&!q('#npBody [aria-invalid]');
+      setLang('en');await new Promise(r=>setTimeout(r,100));npdOpen();await new Promise(r=>setTimeout(r,100));o.en=q('#npRes').textContent;o.enHead=[...document.querySelectorAll('#npDlg th')].map(t=>t.textContent).join('|');o.enBtn=q('#npAdd').textContent+'|'+q('#npEx').textContent;o.enUnit=q('#npUnit').value;
+      setv(f(1,'d'),'x');o.enErr=q('#npRes').textContent;setv(f(1,'d'),'4.5');o.enDec=q('#npRes').textContent;
+      setLang('de');await new Promise(r=>setTimeout(r,100));npdOpen();await new Promise(r=>setTimeout(r,100));setv(f(1,'d'),'4');o.de=q('#npRes').textContent;
+      key(f(0,'name'),'Enter',{ctrlKey:true});await new Promise(r=>setTimeout(r,500));
+      o.closed=q('#npDlg').hidden;o.n=P.objs.length;o.hist=H.u.length;undo();o.undoN=P.objs.length;
+      localStorage.removeItem('pdfwerkbank:netzplan');npdOpen();await new Promise(r=>setTimeout(r,100));q('#npDlg').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));await new Promise(r=>setTimeout(r,400));o.blankClose=q('#npDlg').hidden;
+      localStorage.setItem('pdfwerkbank:netzplan',JSON.stringify({rows:Array.from({length:61},(_,i)=>({n:'n'+i,name:'x',d:'1',p:''})),unit:'Wochen'}));npdOpen();await new Promise(r=>setTimeout(r,100));o.r61=q('#npRes').textContent;o.unit=q('#npUnit').value;
+      localStorage.setItem('pdfwerkbank:netzplan','{"rows":[{"n":5,"name":{"x":1},"d":"1","p":"a"},null,"x"],"unit":7}');npdOpen();o.hostile=q('#npBody').rows.length===1&&q('#npDlg').hidden===false;
+      localStorage.removeItem('pdfwerkbank:netzplan');npdClose();
+      return JSON.stringify(o)})()`, 60000).then(x => { try { return JSON.parse(x); } catch (e) { return { err: x }; } });
+    ok('NP-08: Dialog offen, echte Tabelle mit 3 Zeilen A,B,C, aria-label je Feld, leer = Hinweis + Button gesperrt', r.vis === true && r.tbl === true && r.nr === 'ABC' && r.labels === 'Nr. 1|Bezeichnung 1|Dauer 1|Vorgänger 1' && r.blankDis === true, r);
+    ok('NP-08: Beispiel laden -> 8 Zeilen, Ergebnis mit Dauer und kritischem Pfad (aria-live), gespeichert', r.rows === 8 && r.res === 'Projektdauer 17 Tage · Kritischer Pfad: A → B → D → G → H' && r.dis === false && r.live === 'polite' && r.saved === 8, r);
+    ok('NP-08: Tastatur (Pfeil runter, Enter weiter, Enter im letzten Feld neue Zeile mit naechster Nr, Zeile -)', r.arrow === true && r.enterNext === true && r.added === true && r.removed === true, r);
+    ok('NP-08: Zyklus/unbekannter Vorgaenger/Dauer: Fehlertext, Button gesperrt, aria-invalid am Feld der Zeile, danach wieder frei', /Zyklus/.test(r.cyc) && r.cycDis === true && r.unk === 'Zeile 3: Vorgänger "Q" gibt es nicht.' && r.inv === true && r.dur === 'Zeile 4: Dauer ist keine Zahl.' && r.durInv === true && r.okAgain === true, r);
+    ok('NP-08: Englische Oberflaeche: Ergebnis, Kopf, Buttons, Einheit, Fehler, Dezimalpunkt; Deutsch danach wieder deutsch', r.en === 'Project duration 17 days · Critical path: A → B → D → G → H' && r.enHead === 'No.|Label|Duration|Predecessors' && r.enBtn === 'Add row|Load example' && r.enUnit === 'days' && r.enErr === 'Row 2: Duration is not a number.' && r.enDec === 'Project duration 17.5 days · Critical path: A → B → D → G → H' && r.de === 'Projektdauer 17 Tage · Kritischer Pfad: A → B → D → G → H', r);
+    ok('NP-08: Klick auf den Hintergrund verwirft eine ausgefuellte Tabelle nicht, auf leere schon; Ctrl+Enter setzt', r.keepOpen === true && r.blankClose === true && r.closed === true, r);
+    ok('NP-08: Aufs Blatt legt die Objekte an (ein Verlaufsschritt), Undo entfernt alle', r.n > 8 && r.hist === 1 && r.undoN === 0, r);
+    ok('NP-08: 61 Zeilen -> Fehler, Einheit aus dem Speicher, feindlicher Speicher wird bereinigt', /Höchstens 60 Vorgänge/.test(r.r61) && r.unit === 'Wochen' && r.hostile === true, r);
+  }
   await cdp('Emulation.clearDeviceMetricsOverride', {});
   ws.close();
   console.log(failed ?`${failed} Prüfung(en) fehlgeschlagen` : 'Alles in Ordnung');
