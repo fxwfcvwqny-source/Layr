@@ -3042,7 +3042,7 @@ else {
     ok('NP-05: 8 Knoten, 11 Linien (F-H laeuft ueber einen Platzhalter), 1 Platzhalter, keine Ueberlappung, alles auf dem Blatt, eine gid, eindeutige oids', chk.nT === 8 && chk.nL === 11 && chk.nA === 1 && chk.over === 0 && chk.inside === true && chk.gids === 1 && chk.oids === 8, chk);
     ok('NP-05: Links gueltig (oid, r->l, Ellbogen h, Pfeilspitze, Endpunkte am Knotenrand), Spalten wachsen mit der Tiefe', chk.links === true, chk);
     ok('NP-05: kritisch rot+dick (#c62828, 2.2), sonst #1b2a3a/1; weiss, 3x3, ohne Kopfzeile', chk.crit === true, chk);
-    ok('NP-05: IHK-Zellen (Zeile 1 Nr|Bez|Dauer, 2 FAZ|FEZ|GP, 3 SAZ|SEZ|FP)', chk.A === 'A|VA|3/0|3|0/0|3|0' && chk.E === 'E|VE|3/7|10|2/9|12|2', chk);
+    ok('NP-05: IHK-Zellen (Zeile 1 FAZ|Dauer|FEZ, 2 Nr|Bezeichnung|leer, 3 SAZ|GP|SEZ)', chk.A === '0|3|3/A|VA|/0|0|3' && chk.E === '7|3|10/E|VE|/9|2|12', chk);
     ok('NP-05: 30 Knoten in einer Spalte: Hinweis (>25, Faktor <.45), trotzdem auf dem Blatt; 60er Kette auf dem Blatt', chk.wideHint === true && chk.wideSc < .45 && chk.wideInside === true && chk.hint === false && chk.chainInside === true, chk);
     const pl = await ev(`(async()=>{const P=S.pages[0];P.objs=[];H.u=[];H.r=[];S.dirty=false;const r=npPlace(__npR);const n=P.objs.length,hist=H.u.length,sel=S.sel&&S.sel.o.type==='group'?S.sel.o.items.length:-1,dirty=S.dirty;
       undo();const afterUndo=P.objs.length;redo();const afterRedo=P.objs.length;
@@ -3068,7 +3068,7 @@ else {
       const P=S.pages[0];P.objs=[];npPlace(__npR);const before=JSON.stringify(P.objs.filter(o=>o.type==='table').map(t=>[t.oid,t.np]));
       await openPdf(await buildOutput(),'np3.pdf');const Q=S.pages[0].objs,Tb=Q.filter(o=>o.type==='table');
       const after=JSON.stringify(Tb.map(t=>[t.oid,t.np])),by={};Q.forEach(t=>{if(t.oid)by[t.oid]=t});
-      const rt=before===after&&Tb.length===8&&Tb.every(t=>t.np&&t.np.n===t.cells[0][0])&&Q.filter(o=>o.type==='line').every(l=>l.link&&by[l.link.a]&&by[l.link.b]&&l.gid&&l.gid===Tb[0].gid);
+      const rt=before===after&&Tb.length===8&&Tb.every(t=>t.np&&t.np.n===t.cells[1][0])&&Q.filter(o=>o.type==='line').every(l=>l.link&&by[l.link.a]&&by[l.link.b]&&l.gid&&l.gid===Tb[0].gid);
       return JSON.stringify({good:JSON.stringify(good),bad,huge,protoOk:JSON.stringify(pr.np)==='{"n":"A","d":1,"p":["B"]}'&&pr.np.evil===undefined&&({}).evil===undefined,pk:pk2&&pk2.np===undefined&&({}).np===undefined,other:other&&other.np===undefined,noisy:JSON.stringify(noisy),rt,keepKeys:Object.keys(good).join()})})()`, 60000).then(JSON.parse);
     ok('NP-07: gueltiges np (n, d, p) bleibt auf Tabellen erhalten, Fremdfelder fallen weg', r.good === '{"n":"A","d":3.5,"p":["B","C"]}' && r.noisy === '{"n":"A","d":0,"p":[]}' && r.keepKeys === 'n,d,p', r);
     ok('NP-07: ungueltiges np (Typ, Laenge, Bereich, Array 61 / 200000 Eintraege) wird verworfen', r.bad.every(Boolean) && r.huge === true, r);
@@ -3143,10 +3143,10 @@ else {
       o.res0=q('#npRes').textContent;o.ls=localStorage.getItem('pdfwerkbank:netzplan');
       setv(f(3,'d'),'7');o.res1=q('#npRes').textContent;
       H.u=[];q('#npOk').click();await wait(500);
-      const Hc=P.objs.find(x=>x.np&&x.np.n==='H');o.hcell=Hc.cells[1][1];o.cnt=P.objs.length;o.hist=H.u.length;o.sameOthers=P.objs[0]===rect&&P.objs.includes(rect2)&&rect.x===420&&rect2.y===600;
+      const Hc=P.objs.find(x=>x.np&&x.np.n==='H');o.hcell=Hc.cells[0][2];o.cnt=P.objs.length;o.hist=H.u.length;o.sameOthers=P.objs[0]===rect&&P.objs.includes(rect2)&&rect.x===420&&rect2.y===600;
       const tl1=minOf(P.objs.filter(x=>x.gid));o.anchor=Math.abs(tl0[0]-tl1[0])<.01&&Math.abs(tl0[1]-tl1[1])<.01;o.newGid=P.objs.find(x=>x.np).gid!==gid&&new Set(P.objs.filter(x=>x.np).map(x=>x.gid)).size===1;
       o.at=P.objs.indexOf(rect)===0&&P.objs.indexOf(rect2)===P.objs.length-1;o.sel=selItems().length===20;o.dis=q('#npDlg').hidden;
-      undo();o.undo=canon(P.objs)===before;redo();o.redoHc=P.objs.find(x=>x.np&&x.np.n==='H').cells[1][1];undo();
+      undo();o.undo=canon(P.objs)===before;redo();o.redoHc=P.objs.find(x=>x.np&&x.np.n==='H').cells[0][2];undo();
       // duplicate: the copy is its own plan; editing it leaves the original untouched
       const g0=P.objs.filter(x=>x.gid===gid);selectItems(0,g0);dupSel();const copy=selItems(),cg=copy[0].gid;
       o.dup=cg&&cg!==gid&&copy.length===20&&copy.every(x=>x.gid===cg)&&copy.filter(x=>x.np).length===8&&copy.filter(x=>x.link).every(l=>copy.some(x=>x.oid===l.link.a)&&copy.some(x=>x.oid===l.link.b));

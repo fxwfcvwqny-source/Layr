@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-9KPLDU7uGQ7GK7OvGkXV1Wegl5HZtaYxpVWJGV9yEso=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Vx52FJYLpk31at6aLrQ+Lqw4CV157EBzQNPBotXxe/A=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self'; child-src 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Layr</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
 <style>
@@ -7080,7 +7080,7 @@ function npCalc(rows){
   return{nodes:N,T,crit:ord.filter(a=>N[a].crit).map(a=>N[a].n),edges}}
 /* Layout: Spalte = längster Weg, Reihenfolge je Spalte per Schwerpunkt (2 Durchgänge), Gleichstand nach Eingabe.
    Kanten über mehr als eine Spalte bekommen je übersprungener Spalte einen Platzhalter (Id >= N.length) mit eigenem Reihenplatz, damit sie keinen Knoten kreuzen */
-const NP_W=110,NP_H=54,NP_GX=46,NP_GY=26,NP_CW=[.22,.56,.22];
+const NP_W=110,NP_H=54,NP_GX=46,NP_GY=26,NP_CW=[.25,.5,.25];
 function npLayout(res){const N=res.nodes,nc=Math.max(...N.map(v=>v.depth))+1,cols=Array.from({length:nc},()=>[]);
   const pr=N.map(v=>v.p.slice()),su=N.map(v=>v.s.slice()),chain=new Map(),dep=N.map(v=>v.depth);
   for(const v of N)cols[v.depth].push(v.i);
@@ -7099,8 +7099,8 @@ function npBuild(res,pg){
   const x0=(pg.w-bw)/2,y0=Math.min(Math.max(30,pg.top),Math.max(30,pg.h-bh-30)),fs=Math.max(5,9*sc),gid=newGid(),fmt=npFmt;
   const slot=i=>{const c=L.cols[L.dep[i]];return[x0+L.dep[i]*(W+gx),y0+(bh-(c.length*Hn+(c.length-1)*gy))/2+c.indexOf(i)*(Hn+gy)]};
   const nodes=N.map(v=>{const[x,y]=slot(v.i),t=newTable(x,y,3,3);
-    t.cells=[[v.n,v.name,fmt(v.d)],[fmt(v.faz),fmt(v.fez),fmt(v.gp)],[fmt(v.saz),fmt(v.sez),fmt(v.fp)]];
-    t.w=W;t.h=Hn;t.cw=NP_CW.slice();t.rh=[.46,.27,.27];t.fs=fs;t.head=false;t.fill='white';t.color=v.crit?'#c62828':'#1b2a3a';t.lw=v.crit?2.2:1;t.gid=gid;t.oid=newOid();
+    t.cells=[[fmt(v.faz),fmt(v.d),fmt(v.fez)],[v.n,v.name,''],[fmt(v.saz),fmt(v.gp),fmt(v.sez)]];
+    t.w=W;t.h=Hn;t.cw=NP_CW.slice();t.rh=[.28,.44,.28];t.fs=fs;t.head=false;t.fill='white';t.color=v.crit?'#c62828':'#1b2a3a';t.lw=v.crit?2.2:1;t.gid=gid;t.oid=newOid();
     t.np={n:v.n,d:v.d,p:v.p.map(j=>N[j].n)};return t});
   const anchors=[],lines=[];
   for(const e of res.edges){const col=e.crit?'#c62828':'#1b2a3a',lw=e.crit?2.2:1,seq=[nodes[e.a]];
@@ -7166,7 +7166,7 @@ function npEditGid(P,T){const g=T.length&&T[0].gid;return g&&T.every(o=>o.gid===
 function npdEdit(i,gid){const P=S.pages[i];if(!P)return;const E=P.objs.filter(o=>o.gid===gid),N=E.filter(o=>o.type==='table'&&o.np);if(!N.length)return;
   if(E.some(o=>o.locked)){toast(tr('Der Netzplan ist gesperrt. Zuerst entsperren.'));return}
   const have=new Set(N.map(o=>o.np.n.toLowerCase())),lost=N.some(o=>o.np.p.some(q=>!have.has(q.toLowerCase())));
-  const rows=N.map(o=>({n:o.np.n,name:npS(o.cells&&o.cells[0]&&o.cells[0][1],NP_NAME),d:npFmt(o.np.d),p:o.np.p.filter(q=>have.has(q.toLowerCase())).join(', ')}));
+  const rows=N.map(o=>({n:o.np.n,name:npS(o.cells&&o.cells[1]&&o.cells[1][1],NP_NAME),d:npFmt(o.np.d),p:o.np.p.filter(q=>have.has(q.toLowerCase())).join(', ')}));
   npdOpen({p:i,P,E,rows,lost})}
 function npdOpen(edit){npLoad();NPD.edit=edit||null;if(edit)NPD.rows=edit.rows;$('#npUnit').value=NPD.unit||npDefUnit();$('#npOk').textContent=tr(edit?'Übernehmen':'Aufs Blatt');
   $('#npNote').textContent=tr(edit?NP_NOTE_EDIT+(edit.lost?NP_NOTE_LOST:''):NP_NOTE);npdRender();showEl($('#npDlg'));
